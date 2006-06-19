@@ -1,0 +1,550 @@
+# Danish translation of event.module
+# Copyright 2004-2005 Morten Wulff <wulff@psyke.org>
+# $Id: da.po,v 1.1.4.2 2005/05/16 10:15:10 wulff Exp $
+msgid ""
+msgstr ""
+"Project-Id-Version: Danish Translation 4.6.x\n"
+"POT-Creation-Date: 2004-04-22 21:46+0200\n"
+"PO-Revision-Date: 2005-05-15 11:56+0100\n"
+"Last-Translator: Morten Wulff <wulff@psyke.org>\n"
+"Language-Team: Danish <danish@psyke.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+
+#: event.module:35
+#: ;38
+msgid "calendar"
+msgstr "kalender"
+
+#: event.module:43
+#: ;58;65
+msgid "week"
+msgstr "uge"
+
+#: event.module:43
+#: ;58;65
+msgid "Week view"
+msgstr "Vis uge"
+
+#: event.module:44
+#: ;51;66
+msgid "day"
+msgstr "dag"
+
+#: event.module:44
+#: ;51;66
+msgid "Day view"
+msgstr "Vis dag"
+
+#: event.module:45
+#: ;52;59
+msgid "table"
+msgstr "tabel"
+
+#: event.module:45
+#: ;52;59
+msgid "Table view"
+msgstr "vis tabel"
+
+#: event.module:50
+#: ;57;64
+msgid "month"
+msgstr "måned"
+
+#: event.module:50
+#: ;57;64
+msgid "Month view"
+msgstr "Vis måned"
+
+#: event.module:84
+msgid "events"
+msgstr "arrangementer"
+
+#: event.module:89
+msgid "add item to calendar"
+msgstr "tilføj element til kalender"
+
+#: event.module:94
+msgid "filter by content type"
+msgstr "filtrer efter indholdstype"
+
+#: event.module:99
+msgid "filter by taxonomy"
+msgstr "filtrer efter ordforråd"
+
+#: event.module:119
+#: ;129
+msgid "Event timezone input"
+msgstr "Tidszone"
+
+#: event.module:119
+#: ;129
+msgid "Use the sitewide timezone"
+msgstr "Benyt netstedets tidszone"
+
+#: event.module:119
+#: ;129
+msgid "Use the timezone of the user editing or creating the event"
+msgstr "Benyt brugerens tidszone når arrangementet oprettes eller redigeres"
+
+#: event.module:119
+#: ;129
+msgid "Allow users to set event timezones"
+msgstr "Tillad brugere at angive tidszone for arrangementer"
+
+#: event.module:119
+msgid "Events are saved with a timezone value. This setting allows you to determine how the timezone is determined when creating or editing an event."
+msgstr "Arrangementer knyttes til en tidszone. Her kan du angive hvordan tidszonen vælges når et arrangement oprettes eller redigeres."
+
+#: event.module:121
+#: ;131
+msgid "Event timezone display"
+msgstr "Vis tidszone"
+
+#: event.module:121
+msgid "Use the event's timezone."
+msgstr "Arrangementets tidszone"
+
+#: event.module:121
+msgid "Use the user's timezone."
+msgstr "Brugerens tidszone"
+
+#: event.module:121
+msgid "Events are saved with a timezone value. This setting allows you to determine if the event's timezone or the user's personal timezone setting is used to display the time for an event."
+msgstr "Arrangementer knyttes til en tidszone. Her kan du bestemme om det er arrangementets eller brugerens tidszone der bestemmer hvilket tidspunkt der vises."
+
+#: event.module:129
+msgid "Events are saved with a timezone value. This setting allows you to determine how the timezone is determined when creating or editing an event. You must have 'Configurable time zones' enabled in %url before you can enable user's timezones for this feature."
+msgstr "Arrangementer knyttes til en tidszone. Her kan du bestemme hvordan tidszonen vælges når du opretter eller redigerer et arrangement. 'Konfigurerbare tidszone' skal være aktiveret på %url hvis du ønsker at anvende brugerens tidszone."
+
+#: event.module:129
+#: ;131
+msgid "site configuration"
+msgstr "netstedets indstillinger"
+
+#: event.module:131
+msgid "Use the event's timezone"
+msgstr "Benyt arrangementets tidszone"
+
+#: event.module:131
+msgid "Use the user's timezone"
+msgstr "Benyt brugerens tidszone"
+
+#: event.module:131
+msgid "Events are saved with a timezone value. This setting allows you to determine if the event's timezone or the user's personal timezone setting is used to display the time for an event. You must have 'Configurable time zones' enabled in %url before you can enable user's timezones for this feature."
+msgstr "Arrangementer knyttes til en tidszone. Her kan du bestemme hvordan tidszonen vælges når du opretter eller redigerer et arrangement. 'Konfigurerbare tidszone' skal være aktiveret på %url hvis du ønsker at anvende brugerens tidszone."
+
+#: event.module:133
+msgid "Time notation preference"
+msgstr "Tidsangivelse"
+
+#: event.module:133
+msgid "24h"
+msgstr "24t"
+
+#: event.module:133
+msgid "12h"
+msgstr "12t"
+
+#: event.module:133
+msgid "The time notation system used for entering event times."
+msgstr "Tidsangivelsen der bruges til at angive tidspunktee for arrangementer."
+
+#: event.module:134
+msgid "General Event options"
+msgstr "Generelle indstillinger"
+
+#: event.module:136
+msgid "Default overview"
+msgstr "Oversigtstype"
+
+#: event.module:136
+msgid "Day"
+msgstr "Dag"
+
+#: event.module:136
+msgid "Week"
+msgstr "Uge"
+
+#: event.module:136
+msgid "Month"
+msgstr "MånedMan"
+
+#: event.module:136
+msgid "Table"
+msgstr "Tabel"
+
+#: event.module:136
+msgid "The default event view to display when no format is specifically requested. This is also the view that will be displayed from the block calendar links."
+msgstr "Standard visning når brugeren ikke beder om et specifikt format. Anvendes desuden som visning for henvisninger fra kalender blokken."
+
+#: event.module:137
+msgid "Table view default period"
+msgstr "Standardperiode for tabelvisning"
+
+#: event.module:137
+msgid "The default number of days to display in the table view. You can specify a different number of days in the url. More info on the event url format %link"
+msgstr "Antal dage der vises i tabellen. Du kan angive et andet antal i URLen. Yderligere information om URL formatet %link"
+
+#: event.module:137
+msgid "here"
+msgstr "her"
+
+#: event.module:142
+msgid "Show taxonomy filter control on calendar views"
+msgstr "Vis ordforrådsfilter i kalendervisning"
+
+#: event.module:143
+msgid "Only show taxonomy filter control when taxonomy filter view is requested"
+msgstr "Vis kun ordforrådsfilter når ordforrådsvisning er aktiv"
+
+#: event.module:144
+msgid "Never show taxonomy filter control"
+msgstr "Vis aldrig ordforrådsfilter"
+
+#: event.module:148
+msgid "Show content type filter control on calendar views"
+msgstr "Vis indholdstypefilter i kalendervisning"
+
+#: event.module:149
+msgid "Only show content type filter control when content type filter view is requested"
+msgstr "Vis kun indholdstypefilter når indholdstypevisning er aktiv"
+
+#: event.module:150
+msgid "Never show content type filter control"
+msgstr "Vis aldrig indholdstypefilter"
+
+#: event.module:152
+msgid "Event overview options"
+msgstr "Indstillinger for arrangementsoversigt"
+
+#: event.module:188
+msgid "Home"
+msgstr "Forside"
+
+#: event.module:189
+#: ;295;1304
+msgid "Events"
+msgstr "Arrangementer"
+
+#: event.module:217
+#: ;228
+msgid "view all"
+msgstr "vis alle"
+
+#: event.module:218
+msgid "Filter"
+msgstr "Filter"
+
+#: event.module:250
+msgid "%weekday %month %day, %year"
+msgstr "%weekday %month %day, %year"
+
+#: event.module:257
+msgid "Week of %month %day, %year"
+msgstr "uge i %month %day, %year"
+
+#: event.module:263
+msgid "%month %year"
+msgstr "%month %year"
+
+#: event.module:272
+msgid "%startmonth %startdate, %startyear - %endmonth %enddate, %endyear"
+msgstr "%startmonth %startdate, %startyear - %endmonth %enddate, %endyear"
+
+#: event.module:885
+#: ;888
+msgid "Mon"
+msgstr "Man"
+
+#: event.module:885
+#: ;888
+msgid "Tue"
+msgstr "Tir"
+
+#: event.module:885
+#: ;888
+msgid "Wed"
+msgstr "Ons"
+
+#: event.module:885
+#: ;888
+msgid "Thu"
+msgstr "Tor"
+
+#: event.module:885
+#: ;888
+msgid "Fri"
+msgstr "Fre"
+
+#: event.module:885
+#: ;888
+msgid "Sat"
+msgstr "Lør"
+
+#: event.module:885
+#: ;888
+msgid "Sun"
+msgstr "Søn"
+
+#: event.module:1018
+msgid "g"
+msgstr "g"
+
+#: event.module:1023
+msgid "H"
+msgstr "H"
+
+#: event.module:1035
+msgid "January"
+msgstr "Januar"
+
+#: event.module:1035
+msgid "February"
+msgstr "Februar"
+
+#: event.module:1035
+msgid "March"
+msgstr "Marts"
+
+#: event.module:1035
+msgid "April"
+msgstr "April"
+
+#: event.module:1035
+msgid "May"
+msgstr "Maj"
+
+#: event.module:1035
+msgid "June"
+msgstr "Juni"
+
+#: event.module:1035
+msgid "July"
+msgstr "Juli"
+
+#: event.module:1035
+msgid "August"
+msgstr "August"
+
+#: event.module:1035
+msgid "September"
+msgstr "September"
+
+#: event.module:1035
+msgid "October"
+msgstr "Oktober"
+
+#: event.module:1035
+msgid "November"
+msgstr "November"
+
+#: event.module:1035
+msgid "December"
+msgstr "December"
+
+#: event.module:1039
+msgid "am"
+msgstr "am"
+
+#: event.module:1039
+msgid "pm"
+msgstr "pm"
+
+#: event.module:1230
+msgid "Select event terms to filter by"
+msgstr "Filtrer efter disse ord"
+
+#: event.module:1260
+msgid "Select event type to filter by"
+msgstr "Filtrer efter disse typer"
+
+#: event.module:1285
+msgid "Calendar to browse events."
+msgstr "Kalender til at gennemse arrangementer."
+
+#: event.module:1286
+msgid "List of upcoming events."
+msgstr "Kommende arrangementer."
+
+#: event.module:1308
+msgid "Upcoming events"
+msgstr "Kommende arrangementer"
+
+#: event.module:1310
+msgid "more"
+msgstr "mere"
+
+#: event.module:1310
+msgid "More events."
+msgstr "Flere arrangementer."
+
+#: event.module:1340
+msgid "NOW"
+msgstr "NU"
+
+#: event.module:1381
+msgid "Show in event calendar"
+msgstr "Vis i kalender"
+
+#: event.module:1381
+msgid "Never"
+msgstr "Aldrig"
+
+#: event.module:1381
+msgid "All views"
+msgstr "Alle visninger"
+
+#: event.module:1381
+msgid "Only in views for this type"
+msgstr "Kun visninger af denne type"
+
+#: event.module:1381
+msgid "None: This content type will not be associated with the events calendar.<br />All views: This content type will be available for display on all calendar views, including with other events.<br />Only in views for this type: This content type will only appear in calendar views specific to this type and never with other events."
+msgstr "Ingen: Indholdstypen bliver ikke knyttet til kalenderen.<br />Alle visninger: Denne indholdstype kan vises i alle kalendervisninger, også sammen med andre arrangementer.<br />Kun visninger af denne type: Indholdstypen vises kun i kalendervisninger af denne type, og aldrig sammen med andre arrangementer."
+
+#: event.module:1387
+msgid "Start date."
+msgstr "Start dato."
+
+#: event.module:1389
+msgid "End date."
+msgstr "Slutdato"
+
+#: event.module:1392
+msgid "Time zone"
+msgstr "Tidszone"
+
+#: event.module:1392
+msgid "Select the time zone this event occurs in."
+msgstr "Angiv hvilken tidszone arrangementet afholdes i."
+
+#: event.module:1525
+msgid "Lets users make events and keep calendars."
+msgstr "Gør det muligt at oprette arrangementer og vedligeholde kalendre."
+
+#: event.module:1528
+msgid ""
+"\n"
+"      <h3>Background</h3>\n"
+"      <p>This version of event module implements the drupal nodeapi system. There is no native event node type as in versions previous to 4.6, but instead node types can be 'event-enabled' through the %configure-link, the same way in which file attachments are assigned to node types with upload.module. This, combined with the dynamic content type functionality of %flexinode-link, make it possible to define almost any kind of calendar.</p>\n"
+"      <p>Node types can be assigned to general calendar views, or only on their own calendar. For example, this makes it possible to have a general calendar which shows all 'meetups' and 'house parties' in the same place, but perhaps have a separate calendar for 'rallies' which only contains that type. The ability to filter calendar views by node type and taxonomy is also implemented, which allows many different possibilities for displaying content in the calendar system.</p>\n"
+"      \n"
+"      <h3><a id=\"url-format\"></a>Calendar display url formats</h3>\n"
+"      The ability to filter calendar views by content type and taxonomy enables almost unlimited possibilities for displaying content with the calendar system. You can combine taxonomy and content type filters, the url construction scheme is currently as follows:\n"
+"      <blockquote>\n"
+"      ?q=event/$year/$month/$day/$view_type/$content_type/$taxonomy_terms/$duration<br /><br />\n"
+"      <strong>$year:</strong> year value such as '2005'<br />\n"
+"      <strong>$month:</strong> month value with leading zeroes such as '02' for february<br />\n"
+"      <strong>$day:</strong> day value with leading zeroes such as '14'<br />\n"
+"      <strong>$view_type:</strong> type of calendar layout, values may include 'month', 'week', 'day', and 'table'<br />\n"
+"      <strong>$content_type:</strong> list of node types, separated by '+'. Flexinode types only require the integer value of the type. For example, to view story nodes and type flexinode-1, you would use 'story+1'. The value 'all' will show all types.<br />\n"
+"      <strong>$taxonomy_terms:</strong> list of term ids, seperated by '+'. For example to view entries assigned to the taxonomy terms with ids 4 and 9 you would use '4+9'. The value 'all' will show all terms.<br />\n"
+"      <strong>$duration:</strong> number of days to display, currently only the table view obeys this setting. Eventually it may be used to specify additional duration parameters such as multiple weeks in the week view, or months in the month view.\n"
+"      </blockquote>\n"
+"      <p>There are url wrapper functions as well, which make it possible to easily create menu items to calendars by event type or taxonomy terms. This is necessary if you wish to create a link to a calendar but do not have a way to dynamically create the url based on the date, like in the menu or in a post.</p>\n"
+"      <p>For links to a taxonomy filtered calendar the format is:\n"
+"      <blockquote>\n"
+"      ?q=event/term/$taxonomy_terms<br /><br />\n"
+"      <strong>$taxonomy_terms:</strong> list of term ids, seperated by '+'. For example to view entries assigned to the taxonomy terms with ids 4 and 9 you would use '4+9'<br />\n"
+"      </blockquote>\n"
+"      For links to a content type filtered calendar the format is:\n"
+"      <blockquote>\n"
+"      ?q=event/type/$content_type<br /><br />\n"
+"      <strong>$content_type:</strong> list of node types, separated by '+'. Flexinode types only require the integer value of the type. For example, to view story nodes and type flexinode-1, you would use 'story+1'\n"
+"      </blockquote></p>"
+msgstr ""
+"\n"
+"<h3>Baggrund</h3>\n"
+"<p>Denne version af event modulet anvender Drupal's nodeapi. Der findes ikke længere indholdselementer af typen arrangement som i versioner før 4.6. I stedet kan alle indholdselementer fremstå som arrangementer  gennem %configure-link, på samme måde som vedhæftede filer kan knyttes til forskellige indholdstyper med upload modulet. Sammen med de felksible indholdstyper fra %flexinode-link er det muligt at oprette næsten enhver tænkelig kalender.</p>\n"
+"<p>Indholdstyper kan knyttes til generelle kalenderoversigter eller til deres egen kalender. Det er derfor muligt at have en kalender der viser 'gruppemøder' og 'fester' samme sted og en kalender der kun viser 'bestyrelsesmøder'. Det er muligt at filtrere kalendervisningen efter indholdstype og ordforråd, hvilket giver mange forskellige muligheder for at vise indholdet af kalendrene.</p>\n"
+"\n"
+"<h3><a id=\"url-format\"></a>URL formater for kalendervsining</h3>\n"
+"<p>Muligheden for at filtrere kalendervisningen efter indholdstype og ordforråd giver nærmest ubegrænsede muligheder for at vis indhold fra kalendrene. URLer opbygges på nuværende tidspunt som følger:</p>\n"
+"<blockquote>\n"
+"?q=event/$år/$måned/$dag/$visningstype/$indholdstype/$ordforråd/$varighed<br /><br />\n"
+"<strong>$år:</strong> det ønskede år, f.eks. '2005'<br />\n"
+"<strong>$måned:</strong> den ønskede måned angivet med to cifre, f.eks. '02' for februar<br />\n"
+"<strong>$dag:</strong> den ønskede dag angivet med to cifre, f.eks. '14'<br />\n"
+"<strong>$visningstype:</strong> kalenderens layout, vælg en af 'month', 'week', 'day' eller 'table' (hhv. måned, uge, dag og tabel)<br />\n"
+"<strong>$indholdstype:</strong> liste af indholdstyper adskilt af '+'. Flexinode typer kræver kun typens værdi. For at vise indhold af typerne 'story' og 'flexinode-1' bruges 'story+1'. Værdien 'all' viser alle typer.<br />\n"
+"<strong>$ordforråd:</strong> liste af ord IDer adskilt af '+'. For at vise indhold knyttet til ordene med ID 4 og 9 bruges '4+9'. Værdien 'all' viser alle ord.<br />\n"
+"<strong>$varighed:</strong> antal dage der vises, påvirker kun tabelvisningen. På længere sig vil den kunne bruges til at vise flere uger i ugevisning eller flere måneder i månedsvisningen.\n"
+"</blockquote>\n"
+"<p>Der findes desuden URL funktioner der gør det nemt at oprette henvisninger fra menupunkter til kalendre sorteret efter type eller emne. Dette er nødvendigt hvis du ønsker at oprette en henvisning til en kalender men ikke har mulighed for at oprette henvisningen dynamisk baseret på datoen, som f.eks. i et menupunkt eller et indlæg.</p>\n"
+"<p>For henvisninger til kalendre filtreret efter emner er formatet:\n"
+"<blockquote>\n"
+"?q=event/term/$ordforråd<br /><br />\n"
+"<strong>$ordforråd:</strong> liste af ord IDer adskilt af '+'. For at vise indhold knyttet til ordene med ID 4 og 9 bruges '4+9'<br />\n"
+"</blockquote>\n"
+"For henvisninger til kalendre filtreret efter indholdstypen er formatet:\n"
+"<blockquote>\n"
+"?q=event/type/$indholdstype<br /><br />\n"
+"<strong>$indholdstype:</strong> liste af indholdstyper adskilt af '+'. Flexinode typer kræver kun typens værdi. For at vise indhold af typerne 'story' og 'flexinode-1' bruges 'story+1'\n"
+"</blockquote></p>"
+
+#: event.module:1556
+msgid "content type management admin area"
+msgstr "administration af indholdstyper"
+
+#: event.module:1556
+msgid "flexinode"
+msgstr "flexinode"
+
+#: event.module:1343
+msgid "1 minute"
+msgid_plural "%count minutes"
+msgstr[0] "1 minut"
+msgstr[1] "%count minutter"
+
+#: event.module:1346
+msgid "1 hour"
+msgid_plural "%count hours"
+msgstr[0] "1 time"
+msgstr[1] "%count timer"
+
+#: event.module:1358
+msgid "1 day"
+msgid_plural "%count days"
+msgstr[0] "1 dag"
+msgstr[1] "%count dage"
+
+#: event.module:0
+msgid "event"
+msgstr "arrangement"
+
+#: event.theme:63
+#: ;119;168;203
+msgid "limit view to events of this type"
+msgstr "begræns visning til arrangementer af denne type"
+
+#: event.theme:65
+#: ;120;169;205
+msgid "view this event"
+msgstr "vis dette arrangement"
+
+#: event.theme:115
+#: ;165;221
+msgid "all day"
+msgstr "hele dagen"
+
+#: event.theme:235
+msgid "more info"
+msgstr "mere information"
+
+#: event.theme:235
+msgid "Show detailed information for this event."
+msgstr "Vis detaljeret information om dette arrangement."
+
+#: event.theme:250
+msgid "%month / %day"
+msgstr "%month / %day"
+
+#: event.theme:283
+msgid "Timezone"
+msgstr "TidszoneHåndtering af tidszone"
+

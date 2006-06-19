@@ -1,0 +1,36 @@
+
+Mòdul de drupal i unsolclic de comesfa.org/guifi.net
+Creat al SVN l'Abril del 2.004
+
+Autors:
+Ramon Roca (ramon.roca(arroba)guifi.net
+
+Pots copiar i fer treballs derivatius d'aquest treball sempre que en mecionis l'origen i ho lliuris també en les mateixes concions. El codi és sota llicència GNU/GPL
+
+
+---------------------------
+---------------------------
+
+Install:
+
+-Setup a complete drupal as you wish (currently tested 4.5.1 up to 4.6.0)
+-Add a directory modules/wifi and place a checkout there
+
+This code is *highly* experimental. Use at your own risk.
+
+Patches *very much* appreciated: Don't ask others code for you, 
+ask you what you can do for the code instead.
+
+
+Unsolclic:
+
+V2.2: 
+Support for Talisman 1.0.1
+Load of ssh keys (testing)
+Static IP on client mode at client if present at the database
+
+
+V2.1: 
+Production for Alchemy 1.0. Supports WDS/P2P mode and Client (routed) mode
+
+

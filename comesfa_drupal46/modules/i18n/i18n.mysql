@@ -1,0 +1,37 @@
+# 
+# Table: 'i18n_node'
+#
+
+CREATE TABLE `i18n_node` (
+  `trid` int(10) unsigned NOT NULL default '0',
+  `nid` int(11) NOT NULL default '0',  
+  `status` smallint(6) NOT NULL default '0',
+  PRIMARY KEY  (`trid`,`nid`)
+) TYPE=MyISAM; 
+
+#
+# Table: 'i18n_taxonomy_term'
+#
+
+CREATE TABLE `i18n_taxonomy_term` (
+  `trid` int(10) unsigned NOT NULL default '0',
+  `tid` int(11) NOT NULL default '0',  
+  PRIMARY KEY  (`trid`,`tid`)
+) TYPE=MyISAM; 
+
+
+# Add language field to node table
+
+ALTER TABLE `node`
+ADD `language` varchar(12) NOT NULL default '';
+
+# Add language field to term_data
+
+ALTER TABLE `term_data`
+ADD `language` varchar(12) NOT NULL default '';
+
+
+# Add language to vocabulary
+
+ALTER TABLE `vocabulary`
+ADD `language` varchar(12) NOT NULL default '';

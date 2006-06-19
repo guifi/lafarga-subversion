@@ -1,0 +1,190 @@
+<?php
+// $Id: summary.module,v 1.26 2005/04/17 01:57:27 mrowe Exp $
+
+/**
+ * Implementation of hook_menu().
+ */
+function summary_menu() {
+  $items = array();
+
+  $items[] = array('path' => 'summary', 'title' => t('summary'),
+    'access' => TRUE,
+    'callback' => 'summary_page',
+    'type' => MENU_CALLBACK);
+
+  return $items;
+}
+
+/**
+ * Fetch image, if node_image module present.
+ */
+function summary_get_img($node, $type, $format){
+  if(module_exist("node_image")){
+    return node_image_get_image($node, $type, $format);
+  }
+  else{
+    return "";
+  }
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function summary_block($op = "list", $delta = 0, $edit = array()){
+  $blocks = array();
+  if ($op == "list") {
+    $blocks[0]["info"] = t("Latest Postings");
+    return $blocks;
+  }
+  elseif ($op == 'view' && user_access("access content")) {
+    $types = node_list();
+    foreach ($types as $type) {
+      if(variable_get("summary_show_" . $type, 0)){
+        $result = summary_get_nodes($type, variable_get("summary_" . $type, 0));
+        if (db_num_rows($result)) {
+          $content .= "<h3>" . variable_get("summary_" . $type . "_title", "Recent " . ucfirst($type) . "s") . "</h3>";
+          $content .= node_title_list($result, "");
+        }
+      }
+    }
+    if ($content) {
+      $blocks["subject"] = t(variable_get("summary_block_title", "Latest Postings"));
+      $blocks["content"] = $content;
+      return $blocks;
+    }
+  }
+}
+
+function summary_get_vocab_terms() {
+  $vid = variable_get("summary_vocab_id", 0);
+  if(!$vid || ($vid == 0) || !(module_exist("taxonomy_context"))){
+    return;
+  }
+  $terms = summary_vocab_first_child_terms($vid);
+  $output .= "<div class=\"clearit\"></div>\n";
+  foreach($terms as $term){
+    $links = array();
+    if (user_access("administer taxonomy")) {
+       $links[] = l(t("administer"), "admin/taxonomy/edit/term/$term->tid", array("title" => t("Administer this term.")));
+    }
+    if(module_exist("node_image") && user_access("create node and term images")){
+      if(!node_image_file_exists($term->tid,"term","full")){
+        $links[] = l(t("add images"), "node_image/add/term/$term->tid", array("title" => t("Add images for this term.")));
+      }
+      else{
+        $links[] = l(t("replace images"), "node_image/add/term/$term->tid", array("title" => t("Replace images for this term.")));
+      }
+    }
+    $term->links = $links;
+    $term->image = summary_get_img($term, "term", "summ");
+    $term->description = node_teaser($term->description);
+    $output .= theme("taxonomy_context_term", $term, "subterm");
+  }
+  return $output;
+}
+
+function summary_vocab_first_child_terms($vid) {
+  $terms = array();
+  $result = db_query("SELECT n.tid,n.name,n.description FROM {term_hierarchy} t, {term_data} n WHERE t.tid = n.tid AND n.vid = ".$vid." AND t.parent = 0 ORDER BY n.weight, n.name");
+  while ($term = db_fetch_object($result)) {
+    $terms[] = $term;
+  }
+  return $terms;
+}
+
+function summary_get_nodes($type, $limit = 6) {
+  return db_query(db_rewrite_sql("SELECT n.nid, n.type, n.title, n.teaser"
+      . " FROM {node} n "
+      . " WHERE n.type = '$type' AND n.status = '1'"
+      . " ORDER BY n.created DESC"
+      . " LIMIT $limit"));
+}
+
+function summary_page() {
+
+  $op = $_POST["op"];
+  $edit = $_POST["edit"];
+
+  if (user_access("access content")) {
+
+    /* main node */
+    $img = variable_get("summary_image", 0);
+    if(file_exists($img)){
+      $img = "<img class=\"node-image\" src=\"$img\" align=\"right\"/>";
+    }
+    else{
+      $img = "";
+    }
+    $output .= "<p>" . $img . variable_get("summary_text", "") . "</p>";;
+    if (variable_get("summary_vocab_id", 0)) {
+      $output .= "<div class=\"node\">";
+      $output .= summary_get_vocab_terms();
+      $output .= "</div>";
+    }
+
+    if (variable_get("summary_show_main_nodes", 0)) {
+      $output .= "<div class=\"clearit\"><h1 class=\"title\">" . t("Recent postings") . "</h1></div>";
+      $output .= node_page_default();
+    }
+    drupal_set_title(variable_get("site_name", "Home"));
+    print theme("page", $output);
+
+  } // if access content
+  else {
+    drupal_access_denied();
+  }
+
+}
+
+function summary_help($section = "admin/help#summary") {
+  $output = "";
+  switch ($section) {
+
+    case 'admin/modules#description':
+      return t("The summary module creates a home page with a number of options for text, image, and link display.");
+      break;
+    case 'admin/help#summary':
+      return t('
+<p>
+  The Summary module creates a home page that summaries recent node entries
+  by type. It also provides a block that lists node titles.
+</p>
+');
+  }
+}
+
+function summary_settings() {
+
+  $group = form_textarea(t("Page text"), "summary_text", variable_get("summary_text", ""), 60, 10, t("Text on main page"));
+  $group .= form_textfield(t("Image"), "summary_image", variable_get("summary_image", ""), 30, 150, t("Path to image file to be displayed with front page text"));
+  $vocabs = array(0 => "none");
+  if(module_exist("taxonomy_context")){
+    $vocabularies = taxonomy_get_vocabularies();
+    foreach ($vocabularies as $vocabulary) {
+      $vocabs[$vocabulary->vid] = t($vocabulary->name);
+    }
+    $group .= form_select("Vocabulary to show terms from", "summary_vocab_id", variable_get("summary_vocab_id", 1), $vocabs, t("ID of Vocabulary that you wish to list the top-level parent terms from.  Select \"none\" if you do not wish to show terms."));
+  }
+  else{
+    $group .= t("Install module \"taxonomy context\" to display main term links on home page.") . "<br />";
+  }
+  $group .= form_select("Show main nodes", "summary_show_main_nodes", variable_get("summary_show_main_nodes", ""), array(t("Disabled"), t("Enabled")), "Print summaries of the articles set to display on home page.");
+  $group .= form_textfield("Title for summary block", "summary_block_title", variable_get("summary_block_title", "Latest Postings"), 30, 150, "The title that will be displayed at the top of the block");
+  $output = form_group(t("Main settings"), $group);
+  $types = node_list();
+  foreach ($types as $type) {
+    $type_name = node_invoke($type, 'node_name');
+    $group = form_select("List $type_name postings", "summary_show_$type", variable_get("summary_show_$type", 0), array(t("Disabled"), t("Enabled")), "Show recent $type_name postings.");
+    $group .= form_select(t("Number of $type_name nodes on block"), 
+		   "summary_$type", variable_get("summary_$type", 6), 
+		   array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 =>  5, 6 => 6, 
+			 7 => 7, 8 => 8, 9 => 9, 10 => 10, 15 => 15, 
+			 20 => 20, 25 => 25, 30 => 30), 
+		   t("The number of $type_name headlines to display on block."));
+    $group .= form_textfield(t(ucfirst($type_name) . " title"), "summary_" . $type . "_title", variable_get("summary_" . $type . "_title", "Recent " . ucfirst($type_name) . "s"), 30, 150, t("Heading/title for listing of recent  $type_name postings."));
+  $output .= form_group(t(ucfirst($type_name) ." settings"), $group);
+  }
+  return $output;
+}
+
+?>

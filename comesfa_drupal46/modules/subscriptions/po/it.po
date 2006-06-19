@@ -1,0 +1,222 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal-4.5.2\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2005-05-19 21:26+0100\n"
+"Last-Translator: MicheleF <michele@drupalitalia.org>\n"
+"Language-Team: Drupalitalia <michele@drupalitalia.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Italian\n"
+"X-Poedit-Country: ITALY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid ""
+"\n"
+"        <p>This module enables users to subscribe to be notified of changes to threads or categories.\n"
+"        Once enabled, all nodes will have an additional link that allows the user to change their subscriptions.\n"
+"        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n"
+"        No configuration is required for this module, although roles must be given permission to\n"
+"        use it.</p>\n"
+"\n"
+"        <p>Note that because this module causes the comment insert to pause while all\n"
+"        subscribers are notified, it may not be practical for large sites.</p>"
+msgstr ""
+"\n"
+"        <p>Questo modulo abilita gli utenti di registrarsi per essere informato dei cambiamenti nelle discussioni o nelle categorie.\n"
+"        Una volta abilitato, tutti i nodi avranno un collegamento supplementare che permetterà agli utenti di cambiare le loro registrazioni.\n"
+"        Ulteriormente, a tutti gli utenti sarà fornito un'opzione per auto-registrarsi a qualsiasi contenuto inseriscano.\n"
+"        Non è richesta nessuna configurazione per questo modulo. Sebbene i ruoli di permesso dovrbbero essere configurati.\n"
+"       per usarlo.</p>\n"
+"\n"
+"        <p>Nota che dato che questo modulo causa all'inserimento del commento una pausa per permettere che tutti gli utenti registrati ad esso vengano informati. Non è quindi pratico per siti molto grandi..</p>"
+
+# Permette che gli utenti si registrino ai nodi ed ai termini d
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Consente agli utenti di registrarsi ai nodi ed ai termini di tassonomia."
+
+msgid "Subscription settings"
+msgstr "Impostazione registrazioni"
+
+# Registrati automaticamente alle discussioni che tu invii
+msgid "Automatically subscribe to threads in which you post."
+msgstr "Registrati automaticamente alle discussioni a cui partecipi."
+
+# Il controllo di questa casella permette che siate automaticament
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "Selezionando questa casella ti registrerai automaticamente a tutti i thread che crei o in cui inserisci i commenti."
+
+msgid "none"
+msgstr "nessuno"
+
+# Maiuscola errata
+msgid "Omitted vocabularies"
+msgstr "Vocaboli omessi"
+
+# Selezioni i vocabolari che dovrebbero essere <strong>omess
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Selezioni i vocabolari che dovrebbero venire <strong>omessi</strong> dall'elenco delle registrazioni."
+
+# notification ? conferma
+msgid "subscription notification for "
+msgstr "conferma di registrazione per"
+
+# errore nell'inviare la notifica per la registrazione
+msgid "error mailing subscription notification: "
+msgstr "errore di invio dell'avviso di registrazione:"
+
+msgid "new blog for "
+msgstr "nuovo blog per"
+
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] %type aggiornamento registrazione per %name : %subject"
+
+# era incompleto
+msgid ""
+"Greetings, %name.\n"
+"\n"
+"A %type to which you have subscribed has been updated.  To view the thread,\n"
+"navigate to %url\n"
+"\n"
+"--\n"
+"This is an automatic mail from %site.\n"
+"To manage your subscriptions, browse to %manage-url"
+msgstr ""
+"Greetings, %name.\n"
+"\n"
+"Un %type a cui sei iscritto è stato aggiornato. Per visualizzare il thread,\n"
+"vai su %url\n"
+"\n"
+"--\n"
+"Questa è un'email automatica da %site.\n"
+"Per gestire le tue registrazioni, vai a %manage-url"
+
+msgid "Subscribe"
+msgstr "Registrati"
+
+msgid "Receive notification of replies to this %name."
+msgstr "Ricevi avvisi per le risposte a questo %name."
+
+msgid "my subscriptions"
+msgstr "mie registrazioni"
+
+msgid "subscriptions"
+msgstr "registrazioni"
+
+msgid "unsubscribe blog"
+msgstr "elimina registrazione al blog"
+
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Non ricevere più e-mail a ogni nuovo aggiornamento del blog di questa persona."
+
+msgid "subscribe blog"
+msgstr "registrati al blog"
+
+# Ricevi una e-mail quando il blog è aggiornato
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Ricevi una e-mail per ogni aggiornamento al blog di questa persona."
+
+# elimina sottoscrizione contenuto
+msgid "unsubscribe post"
+msgstr "elimina registrazione a un contenuto"
+
+# Non ricevere una e-mail quando un commento è inserito a questo %n
+msgid "Stop receiving an e-mail whenever a new comment is posted to this %n."
+msgstr "Non ricevere più e-mail quando vengono aggiunti nuovi commenti a questo %n."
+
+# registra contenuto
+msgid "subscribe post"
+msgstr "registrati a un contenuto"
+
+msgid "Receive an e-mail whenever a comment is posted to this %n."
+msgstr "Ricevi una e-mail quando viene inserito un commento a questo %n"
+
+msgid "unsubscribe"
+msgstr "elimina registrazione"
+
+msgid "Unsubscribe from this category."
+msgstr "Elimina registraizione a questa categoria."
+
+msgid "subscribe"
+msgstr "registrati"
+
+# punto finale
+msgid "Subscribe to this category."
+msgstr "Registrati a questa categoria."
+
+# <p>La tua registrazione è stata disattivata.</p>
+msgid "<p>Your subscription was activated.</p>"
+msgstr "<p>La tua registrazione è stata attivata.</p>"
+
+msgid "Return to the blog"
+msgstr "Torna al blog"
+
+msgid "Return to the thread"
+msgstr "Torna alla discussione"
+
+msgid "Return to the subscriptions"
+msgstr "Torna alle registrazioni"
+
+# c:\subscriptions.module:430
+msgid "Subscription Activated"
+msgstr "Registrazione Attivata"
+
+msgid "<p>Your subscription was deactivated.</p>"
+msgstr "<p>La tua registrazione è stata disattivata.</p>"
+
+# maiuscole
+msgid "Subscription Deactivated"
+msgstr "Registrazione Disattivata"
+
+msgid "thread"
+msgstr "discussione"
+
+msgid "blog"
+msgstr "blog"
+
+msgid "category"
+msgstr "categoria"
+
+msgid "type"
+msgstr "tipo"
+
+msgid "title"
+msgstr "titolo"
+
+msgid "subscribers"
+msgstr "utenti registrati"
+
+# <p>Nessuna discussione o categorie sono attualmente registrate.</p>
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Nessuna discussione o categoria registrata.</p>"
+
+msgid "Subscriptions Summary"
+msgstr "Sommario delle Registrazioni "
+
+# elimina registrazione da questa discussione
+msgid "Unsubscribe from this thread."
+msgstr "Elimina registrazione a questa discussione."
+
+# elimina registrazione dal blog di quest'utente
+msgid "Unsubscribe from this user's blog."
+msgstr "Elimina registrazione al blog di questo utente."
+
+msgid "operations"
+msgstr "operazioni"
+
+# <p>Non sei attualmente registrato a nessun discussione o categori
+msgid "<p>You are not currently subscribed to any active threads or categories.</p>"
+msgstr "<p>Non sei attualmente registrato a nessuna discussione o categoria.</p>"
+
+msgid "regular"
+msgstr "regolare"
+
+msgid "error"
+msgstr "errore"
+
+# mantieni registrazione
+msgid "maintain subscriptions"
+msgstr "gestisce registrazioni"
+

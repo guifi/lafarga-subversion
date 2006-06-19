@@ -1,0 +1,7 @@
+Copy the fontsize directory into your modules directory.
+
+Enable the fontsize module in your adminstrator section.
+
+Enable the block in the blocks administration page.
+
+The stylesheets (larger.css and normal.css) should work for most sites. They can be edited as necessary.
