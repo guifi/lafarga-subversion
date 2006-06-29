@@ -727,7 +727,7 @@ function guifi_unsolclic_wds_vars($dev) {
   $wds_str = '';
   if (!empty($dev->radios))       foreach ($dev->radios as $radio_id => $radio) 
   if (!empty($radio[interfaces])) foreach ($radio[interfaces] as $interface_id => $interface) 
-  if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id => $ipv4) 
+  if ($interface['interface_type'] == 'wds/p2p') if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id => $ipv4) 
   if (!empty($ipv4[links]))       foreach ($ipv4[links] as $key => $link) {
     if ($link['link_type'] == 'wds')
      $wds_links[] = $link ;
