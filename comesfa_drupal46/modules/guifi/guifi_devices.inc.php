@@ -778,10 +778,10 @@ function guifi_links_print_data($id) {
 **/
 function guifi_interfaces_print_data($id) {
   $rows = array();
-  $query = db_query("SELECT i.*,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d ORDER BY i.interface_type",$id);
+  $query = db_query("SELECT i.*,a.ipv4,a.netmask, a.id ipv4_id FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d ORDER BY i.interface_type",$id);
   while ($if = db_fetch_object($query)) {
     $ip = _ipcalc($if->ipv4,$if->netmask);
-    $rows[] = array($if->interface_type,$if->ipv4.'/'.$ip['maskbits'],$if->netmask,$if->mac);
+    $rows[] = array($if->id.'/'.$if->ipv4_id,$if->interface_type,$if->ipv4.'/'.$ip['maskbits'],$if->netmask,$if->mac);
   }
   return array_merge($rows);
 }
@@ -822,9 +822,9 @@ function guifi_device_print($id) {
   case 'links':
     // links
     $output .= theme('box', NULL, guifi_device_links_print($device));
-    $header = array(t('type'),t('ip address'),t('netmask'),t('mac'));
     if (arg(4) == 'links') break;
   case 'interfaces':
+    $header = array(t('id'),t('type'),t('ip address'),t('netmask'),t('mac'));
     $table = theme('table', $header, guifi_interfaces_print_data($device[id]));
     $output .= theme('box', t('interfaces information'), $table);
     break;

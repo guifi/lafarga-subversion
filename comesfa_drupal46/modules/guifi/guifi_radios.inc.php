@@ -79,18 +79,18 @@ function guifi_radio_form(&$edit) {
       else
         $rowspan = 3;
       $row = array(
-                    array('data'=>'#'.$key.form_radio('', 'edit_details', $key),'rowspan'=>$rowspan,'valign'=>'top'),
-                    $radio['mode'],
+                    array('data'=>'#'.$key.form_radio('', 'edit_details', $key),'rowspan'=>$rowspan,'valign'=>'top','width'=>1),
+                    array('data'=>$radio['mode'],'width'=>1),
 //                    form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,20),
-                    form_select(null, 'radios]['.$key.'][channel', $edit['radios'][$key]["channel"], 
+                    array('data'=>form_select(null, 'radios]['.$key.'][channel', $edit['radios'][$key]["channel"], 
                            //  drupal_map_assoc(array( 0=>'Auto',1=>1,2,3,4,5,6,7,8,9,10,11,12,13,14))
-                           guifi_types('channel',null,null,$edit['radios'][$key]['protocol']), NULL),
+                           guifi_types('channel',null,null,$edit['radios'][$key]['protocol']), NULL),'width'=>1),
                     array('data'=>$radio['protocol'],'width'=>1),
                     array('data'=>$radio['antenna_angle'].'º','align'=>'right','width'=>1),
                     array('data'=>form_select(null, 'radios]['.$key.'][antenna_gain', $edit['radios'][$key]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), null),'width'=>1),
                     array('data'=>$radio['antenna_azimuth'].'º','align'=>'right','width'=>1),
-                    form_textfield(null, 'radios]['.$key.'][mac', $edit['radios'][$key]["mac"],17,17),
-                    $edit['radios'][$key]["ssid"],
+                    array('data'=>form_textfield(null, 'radios]['.$key.'][mac',  $edit['radios'][$key]["mac"],17,17),'width'=>1),
+                    array('data'=>form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,80),'width'=>1)
                    );
       $rows[] = $row;
 
@@ -179,17 +179,18 @@ function guifi_radio_form(&$edit) {
   }
 
   // Edit radio form or add new radio
-  $cr = 0;
+  $cr = 0; $tr = 0;
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
 //    print "Max radios: ".$maxradios->radiodev_max." \n<br>";
   if (isset($edit[radios])) 
   foreach ($edit[radios] as $k=>$radio) {
+    $tr++;
     if (!$radio[deleted])
       $cr++;
   }
-//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr \n<br>";
+//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr\n<br>";
   if ($cr < $maxradios->radiodev_max)
-  if (( $edit['id'] > 0 ) && (!isset($edit[edit_details]))) {
+  if ( (( $edit['id'] > 0 ) && (!isset($edit[edit_details]))) and ($tr < $maxradios->radiodev_max)) {
     $erow[] = array(
                array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', guifi_types('mode'), NULL),'valign'=>'bottom'),
                array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
