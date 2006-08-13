@@ -579,7 +579,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      $ap_macs = array();
      foreach ($dev->radios[0]['interfaces'] as $interface_id => $interface) 
      foreach ($interface[ipv4] as $ipv4_id => $ipv4) 
-     foreach ($ipv4[links] as $key => $link) {
+     if (isset($ipv4[links])) foreach ($ipv4[links] as $key => $link) {
        if ($link['link_type'] == 'ap/client') {
        $ap_macs[] = $link['interface']['mac'];
        
@@ -598,6 +598,10 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      }
      if ($dev->variable['firmware'] == 'Alchemy') {
        $filter = implode(" ",$ap_macs);
+       if ($filter == "" ) {
+         _outln_comment(t('WARNING: AP MAC not set'));
+         $filter = "FF:FF:FF:FF:FF:FF";
+       }
        _outln_nvram('wl_macmode','allow');
        _outln_nvram('wl0_macmode','allow');
        _outln_nvram('wl_macmode1','other');
