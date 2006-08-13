@@ -12,6 +12,7 @@ function guifi_links_form($edit_details,$edit) {
   $det =  explode(',',$edit_details);
   list($radio_id,$interface_id, $ipv4_id, $link_id) = explode(',',$edit_details);
   if ($radio_id == 'interface') {
+    $curr_link = $edit[interfaces][$interface_id][ipv4][$ipv4_id][links][$link_id][linked];
     $fprefix =  'interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][';
     if ($edit[type] == 'radio')
       $mode = 'cable';
@@ -20,6 +21,7 @@ function guifi_links_form($edit_details,$edit) {
     $ifvar = $edit[interfaces][$interface_id][ipv4][$ipv4_id];
     $interface_type = $edit['interfaces'][$interface_id]['interface_type'];
   } else {
+    $curr_link = $edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id][links][$link_id][linked];
     $fprefix =  'radios]['.$radio_id.'][interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][';
     $mode =  $edit['radios'][$radio_id]['mode'];
     $ifvar = $edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id];
@@ -46,7 +48,8 @@ function guifi_links_form($edit_details,$edit) {
     $link_choices = guifi_devices_select($edit[nid],$ifvar['links'][$link_id]['link_type'],
                         $mode,$edit[id],$radio_id); 
     $linked = form_select(null,$fprefix.'links]['.$link_id.'][linked',
-                               $ifvar['links'][$link_id]['device_id'],
+                               $curr_link,
+//                               $ifvar['links'][$link_id]['device_id'],
                                $link_choices,null);
   } else {
     $linked = guifi_get_nodename($ifvar['links'][$link_id]['nid']).'-'.
@@ -122,11 +125,30 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
     if ($link[links][$link_id]['new']==true) 
     if (!empty($link[links][$link_id][linked])) {
 //      print "New Linked: \n<br>"; print_r($link);
+//      print "\n<br>";
       list($nid,$device_id,$radiodev_counter) = explode(',',$link[links][$link_id][linked]);
       $link[links][$link_id][nid]=$nid;
       $link[links][$link_id][device_id]=$device_id;
-      $link[links][$link_id][ipv4_id]=$radiodev_counter;
-      $link[links][$link_id][ipv4][id]=$radiodev_counter;
+      if ($link[links][$link_id][link_type] == 'wds') {
+        // WDS reuse the existing interface, but always create a new IP over it, so we need to get a free IP id for it
+        $qryIDs = db_query('SELECT a.id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.interface_type="wds/p2p" AND i.device_id=%d AND i.radiodev_counter=%d',$device_id,$radiodev_counter);
+        while ($id = db_fetch_array($qryIDs))
+          $ipIDs[] = $id['id'];
+        $nextID = 0;
+//        print "\n<br>";
+//        print_r($ipIDs);
+//        print "\n<br>";
+        while (in_array($nextID,$ipIDs))
+          $nextID = $nextID + 1;
+        $ipv4_id=$nextID;
+      } else {
+        $ipv4_id=$radiodev_counter;
+      }
+//      print "IPV4_id: " .$ipv4_id;
+//      print "\n<br>";
+      $link[links][$link_id][ipv4_id]=$ipv4_id;
+      $link[links][$link_id][ipv4][id]=$ipv4_id;
+
       $link[links][$link_id]['interface'][device_id]=$device_id;
       $link[links][$link_id]['interface'][radiodev_counter]=$radiodev_counter;
       if ($link[links][$link_id][link_type] == 'ap/client') {
