@@ -1,0 +1,44 @@
+
+
+This software provides graph services in the context of the 
+Spontaneous Networkink Platform.
+
+Uses nodexchange as a input format, and provides traffic and
+latency/availability graphs in image format by using mrtg/rrdtool 
+collected history by simple HTTP URLs, therefore is easily
+plugable to any web application.
+
+
+INSTALL:
+
+1.-Checkout the latest SVN version into a directory accessible by an http server:
+
+example:
+cd /var/www/html
+mkdir snpservices
+cd snpservices
+svn checkout https://svn.projectes.lafarga.cat/svn/guifi/snpservices/graphs graphs 
+
+To publish the directory, you might create an alias into the apache configuration 
+for the directory:
+
+Alias /snpservices /var/www/html/snpservices
+
+2.-Get the xml filei, in nodeXchange detailed format, for the zone that this server i
+will graph i.e.:
+
+wget http://guifi.net/ca/guifi/nodexchange/2444/detail -O guifi.xml
+
+You might create a cron job to refresh the XML file and get the latest network
+description.
+
+3.-Edit the config.php and fill the appropriate values pointing to the rrdtool
+binary, the directory where the mrtg/rrdtool database files are, and the xml
+nodexchange file.
+
+4.-If you are using guifi.net as the Data Hub, edit what makes sense for you:
+
+At guifi.module configuration, set a default url when not specified by the zone/nodes
+At the zone/node that this server will graph, set the appropriate URL, i.e.:
+
+http://guifi.net/snpservices/graphs/graphs.php
