@@ -81,11 +81,11 @@ function guifi_nodexchange($zoneid,$action = 'help') {
     return $services;
   }
 
-  function links($iid,$ident,$nl) {
+  function links($iid,$iipv4_id,$ident,$nl) {
 
     $links->count = 0;
     $links->xml = "";
-    $qlinks = db_query("SELECT l2.* FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id<>l2.device_id AND l1.interface_id=%d",$iid);
+    $qlinks = db_query("SELECT l2.* FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id<>l2.device_id AND l1.interface_id=%d AND l1.ipv4_id=%d",$iid,$iipv4_id);
      while ($l = db_fetch_object($qlinks)) {
       $links->count++;
       $links->xml .= xmlopentag($ident,'link',array('id'=>$l->id,
@@ -101,15 +101,21 @@ function guifi_nodexchange($zoneid,$action = 'help') {
     return $links->xml;
   }
 
-  function interfaces($did,$ident,$nl) {
+  function interfaces($did,$ident,$nl,$rcounter=NULL) {
 
     $interfaces->count = 0;
     $interfaces->xml = "";
-    $qinterfaces = db_query("SELECT i.id,a.ipv4,a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id WHERE i.device_id=%d",$did);
+    if ($rcounter == null)
+      $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter is null",$did);
+    else
+      $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter = %d",$did,$rcounter);
     while ($i = db_fetch_object($qinterfaces)) {
+//      print "Interfaces ".$did."-".$rcounter."\n<br>";
+//      print_r($i);
+//      print "\n<br>";
       $interfaces->count++;
       $interfaces->xml .= xmlopentag($ident,'interface',array('id'=>$i->id,'ipv4'=>$i->ipv4,'mask'=>$i->netmask),$nl); 
-      $links=links($i->id,$ident+1,$nl);
+      $links=links($i->id,$i->ipv4_id,$ident+1,$nl);
       $interfaces->xml .= $links;
       $interfaces->xml .= xmlclosetag($ident,'interface',$nl); 
       
@@ -131,27 +137,47 @@ function guifi_nodexchange($zoneid,$action = 'help') {
          $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
                                                            'device_type'=>$d->type,
                                                            'device_url'=>'/guifi/device/'.$d->id,
+                                                           'rrd_ping'=>guifi_rrdfile($d->nick).'_ping',
                                                            'created'=>xmldate($d->timestamp_created),
                                                            'updated'=>xmldate($d->timestamp_changed)),
                                                            $nl); 
          $ident++;
          $devices->xml .= xmlsummary($ident,array('interfaces'=>$interfaces->count,'links'=>$links->count,'services'=>$services->count),$nl); 
          $devices->xml .= xmltag($ident,'device_description',$d->comment);
+         $devices->xml .= xmltag($ident,'device_status',$r->flag);
 
          // if device is a radio, then get the radio data and traffic graph
          if ($d->type == 'radio') {
-           $r = db_fetch_object(db_query("SELECT r.* FROM {guifi_radios} r WHERE r.id=%d",$d->id));
-           $devices->id = $d->id;; 
-           $devices->xml .= xmltag($ident,'device_ssid',$r->ssid);
-           $devices->xml .= xmltag($ident,'device_mode',$r->mode);
-           $devices->xml .= xmltag($ident,'device_status',$r->flag);
-           if ($r->mode == 'ap')  
-             $devices->aps++;
+           $qr = db_query("SELECT r.*,m.radiodev_max FROM {guifi_radios} r, {guifi_model} m WHERE r.model_id=m.mid AND r.id=%d",$d->id);
+           while ($r = db_fetch_object($qr)) {
+             $ident++;
+             if ($r->radiodev_max == 1)
+               $rrdtraf = guifi_rrdfile($d->nick).'_6';
+             else
+               $rrdtraf = guifi_rrdfile($r->ssid);
+             $interfaces_radio = interfaces($d->id,$ident+1,$nl,$r->radiodev_counter);
+             $devices->xml .= xmlopentag($ident,'radio',array('id'=>$r->radiodev_counter,
+                                                           'ssid'=>$r->ssid,
+                                                           'mode'=>$r->mode,
+                                                           'protocol'=>$r->protocol,
+                                                           'channel'=>$r->channel,
+                                                           'antenna_angle'=>$r->antenna_angle,
+                                                           'antenna_gain'=>$r->antenna_gain,
+                                                           'antenna_azimuth'=>$r->antenna_azimuth,
+                                                           'rrd_traffic'=>$rrdtraf),
+                                                           $nl); 
+             $devices->id = $d->id; 
+             if ($r->mode == 'ap')  
+               $devices->aps++;
 
-           // graphs
-           $devices->xml .= xmlgraph($ident,'/guifi/graph?type=radio&radio='.$d->id.'&start=-86400&end=-300',
+             // graphs
+             $devices->xml .= xmlgraph($ident,'/guifi/graph?type=radio&radio='.$d->id.'&start=-86400&end=-300',
                   '/guifi/graph_detail?type=radio&radio='.$d->id,
                   'wLan In&Out',$nl);
+             $devices->xml .= $interfaces_radio->xml;
+             $ident--;
+             $devices->xml .= xmlclosetag($ident,"radio",$nl); 
+           }
          }
          // availability graph
          $devices->xml .= xmlgraph($ident,'/guifi/graph?type=pings&radio='.$d->id.'&start=-86400&end=-300',

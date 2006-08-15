@@ -116,7 +116,7 @@ function guifi_node_get_url_mrtg($node) {
   $Zone = db_fetch_object($queryZone);
   $server_mrtg = guifi_get_parent_mrtg($Zone->zone_id);	
   if ($server_mrtg == '')
-    $server_mrtg = 'guifi/graph_detail';
+    $server_mrtg = variable_get('graph_url','http://guifi.net/snpservices/graphs/graphs.php');
 
   return $server_mrtg;
 }
