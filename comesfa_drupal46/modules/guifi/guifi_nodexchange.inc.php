@@ -134,7 +134,18 @@ function guifi_nodexchange($zoneid,$action = 'help') {
          $services = services($d->id,$ident+1,$nl);
 
          $devices->count++;
-         $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
+         if ($d->type == 'ADSL') {
+          $variable = unserialize($d->extra);
+          $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
+                                                           'device_type'=>$d->type,
+                                                           'device_url'=>'/guifi/device/'.$d->id,
+                                                           'rrd_ping'=>guifi_rrdfile($d->nick).'_ping',
+                                                           'rrd_traffic'=>guifi_rrdfile($d->nick).'_'.$variable['mrtg_index'],
+                                                           'created'=>xmldate($d->timestamp_created),
+                                                           'updated'=>xmldate($d->timestamp_changed)),
+                                                           $nl); 
+         } else
+          $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
                                                            'device_type'=>$d->type,
                                                            'device_url'=>'/guifi/device/'.$d->id,
                                                            'rrd_ping'=>guifi_rrdfile($d->nick).'_ping',
