@@ -304,6 +304,9 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       $row = simplexml_load_string($radio_xml[0]->asXML());
       $w = $row->xpath('//radio');
       $w_attr = $w[0];
+      if (empty($w_attr['rrd_traffic'])) {
+        $w_attr['rrd_traffic'] = $radio_attr['rrd_traffic'];
+      }
       $traffic = guifi_get_traffic($w_attr['rrd_traffic'],$start,$end);
       $title = sprintf('radio: %s - wLAN In & Out',$radio_attr['title']);
       $filename = $rrddb_path.guifi_rrdfile($w_attr['rrd_traffic']).'.rrd';
