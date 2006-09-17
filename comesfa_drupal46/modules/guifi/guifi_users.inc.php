@@ -410,5 +410,89 @@ if (is_array($node->var[fed]))
   exit;
 }
 
+function guifi_dump_ldif($node) {
+
+  function user_dump_ldif($user) {
+    /* Format:
+dn: uid=eloi.alsina,ou=People,dc=guifi,dc=net
+uid: eloi.alsina
+cn: Eloi Alsina
+objectClass: account
+objectClass: posixAccount
+objectClass: top
+userPassword: {crypt}]lGnmr4S7ObLo
+uidNumber: 0
+gidNumber: 0
+homeDirectory: eloi
+host: esperanca
+
+dn: cn=Eloi Alsina,uid=eloi.alsina,ou=People,dc=guifi,dc=net
+givenName: eloi
+sn: alsina
+cn: Eloi Alsina
+mail: eloi.alsina@guifi.net
+homePhone: 938892062
+mobile: 6639393906
+homePostalAddress: Mas Seri Xic
+objectClass: inetOrgPerson
+objectClass: top
+     */
+     $dump  = "dn: uid=".$user->username.",ou=People,dc=guifi,dc=net\n";
+     $dump .= "uid:".$user->username."\n";
+     $dump .= "cn:".$user->lastname.", ".$user->firstname."\n";
+     $dump .= "objectClass: account\n";
+     $dump .= "objectClass: posixAccount\n";
+     $dump .= "objectClass: top\n";
+     $dump .= "userPassword: {crypt}".$user->password."\n";
+     $dump .= "uidNumber: 99\n";
+     $dump .= "gidNumber: 99\n";
+     $dump .= "homeDirectory: /home/nobody\n";
+     $dump .= "description: proxy(".$user->services['proxy'].")\n";
+   
+     return $dump;
+  }
+
+
+  $query = db_query("SELECT id FROM {guifi_users} ORDER BY lastname, firstname");
+
+  $passwd = array();
+  $zones = array();
+  while ($item = db_fetch_object($query)) {
+    $user = guifi_get_user($item->id);
+    if ($user->services['proxy'] != $node->nid)
+      continue;
+    $usernode = db_fetch_object(db_query("SELECT zone_id FROM {guifi_location} WHERE id=%d",$user->nid));
+    $ldap[$usernode->zone_id][] = user_dump_ldif($user);
+    $zones[$usernode->zone_id] = true;
+  }
+
+  // Dumping passwd
+  // Starts with users in the same zone as the service
+  $dump .=  "#\n";
+  $dump .=  "# LDIF file for LDAP guifi.net directories: ".$node->nick." at zone "._get_zonename($node->zone_id)."\n";
+  $dump .= "#\n";
+  if (!empty($ldap[$node->zone_id]))
+    foreach ($ldap[$node->zone_id] as $p)
+      $dump .= $p."\n";
+  else
+      $dump .= '# '.t('there are no users at this proxy')."\n";
+
+  // Now dumping other zones
+  foreach ($zones as $z=>$dummy) {
+    if ($z == $node->zone_id)
+      continue;
+    $dump .= "#\n";
+    $dump .= "# At zone "._get_zonename($z)."\n";
+    $dump .= "#\n";
+    foreach ($ldap[$z] as $p) {
+       $dump .= $p."\n";
+    }
+  }
+
+
+  print $dump;
+  exit;
+}
+
 
 ?>
