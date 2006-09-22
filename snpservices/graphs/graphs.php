@@ -227,7 +227,7 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
          foreach ($linked_radios as $linked_radio) {
            $linked_radio_attr=$linked_radio->attributes();
            $result_client = $xml->xpath('//node[@id='.$linked_radio_attr['linked_node_id'].']/device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
-           $result = array_merge($result,$result_client);
+           if (!empty($result_client)) $result = array_merge($result,$result_client);
          }
 //         print_r($result);
       }
