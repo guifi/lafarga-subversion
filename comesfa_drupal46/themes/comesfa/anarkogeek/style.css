@@ -42,10 +42,11 @@ body, input, textarea, select, option, legend, fieldset {
 }
 #site-slogan {
   position: absolute;
-  left: 27px;
+  left: 47px;
   top: 63px;
   margin: 0px;
   padding: 0px;
+  color: #000;
 }
 
 #search {
@@ -89,7 +90,7 @@ body, input, textarea, select, option, legend, fieldset {
   float: left;
   position: relative;
   width: 201px;
-  margin-right: -201px;
+  margin-right: -205px1;
   z-index: 20;
 }
 #sidebar-right {
@@ -104,7 +105,7 @@ body, input, textarea, select, option, legend, fieldset {
   position: relative;
 }
 .content-wrap-right, .content-wrap-both {
-  padding-right: 201px;
+  padding-right: 195px;
 }
 /* Note: due to Mozilla stretching fieldsets inside nested floats,
    the left sidebar is placed before the main content. This allows
@@ -119,9 +120,9 @@ body, input, textarea, select, option, legend, fieldset {
   float: left;
   width: auto;
   margin-right: 0px;
-  margin-left: 201px;
+  margin-left: 221px;
   _margin-left: 0px; /* Avoid IE float margin doubling */
-  _padding-left: 201px;
+  _padding-left: 221px;
   z-index: 10;
 }
 
@@ -170,10 +171,11 @@ body .bw2 {
   text-decoration: none;
 }
 #site-slogan {
-  font-size: 1.0em;
-  color: #000000;
-  font-weight: bold;
+  font-size: 0.8em;
+  color: #ffffff;
+/*  font-weight: bold; */
   text-decoration: none;  
+  font-style: italic;
 }
 #top-nav ul {
   margin-left: -3px;
@@ -463,7 +465,13 @@ tr.watchdog-error td.active {
 }
 
 /* Content */
+.node .content {
+  clear: both;
+  padding-left: 1em;
+}
+
 #content {
+  clear: both;
   font-size: 0.75em;
   background: url(main-top.png) repeat-x 0px 0px;
   background-color: #FFFFFF;
@@ -557,7 +565,8 @@ tr.watchdog-error td.active {
 #main .node h2.title a {
   letter-spacing: inherit;
 }
-#main .node {
+#main .node .content {
+  clear: both;
   margin-bottom: 2em;
 }
 #main .info, #main .links, #main .terms {
@@ -838,3 +847,11 @@ ul.secondary li a.active {
   display: block;
   font-size: 0px;
 }
+
+#block-event-0 {
+  font-size: 100%;
+}
+.days {
+  font-size: 80%;
+}
+

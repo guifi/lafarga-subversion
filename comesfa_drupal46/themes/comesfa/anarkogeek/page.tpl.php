@@ -7,7 +7,6 @@
   <?php print $head ?>
   <?php print $styles ?>
   <script type="text/javascript"> </script>
-  <meta name="keywords" content="wireless,mesh networks,guifi,wifi,wi-fi,wimax,wimesh,wi-mesh,sensefils,catalunya,redlibre,freenetworks" />
 </head>
 <body>
 <br<?php print theme("onload_attribute"); ?>><div class="bw1"><div class="bw2"><div id="body-wrap">
@@ -41,6 +40,7 @@
 
     <?php if (is_array($secondary_links) && !empty($secondary_links)): ?>
       <ul id="secondary">
+      <li><?php print theme("i18n_flags"); ?></li>
       <li><a href="javascript:;" onclick="setActiveStyleSheet('larger'); return false;" style="font-size: 120%; vertical-align: text-top;" class="larger"><span class="lw1"><span class="lw2">A</span></span></a></li>
       <li><a href="javascript:;" onclick="setActiveStyleSheet('normal'); return false;" style="font-size: 100%; vertical-align: text-bottom;" class="normal"><span class="lw1"><span class="lw2">A</span></span></a></li>
       <li><a href="javascript:;" onclick="setActiveStyleSheet('smaller'); return false;" style="font-size: 80%; vertical-align: text-bottom;" class="smaller"><span class="lw1"><span class="lw2">A</span></span></a></li>
