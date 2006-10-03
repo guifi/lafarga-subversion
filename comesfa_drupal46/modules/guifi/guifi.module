@@ -489,11 +489,11 @@ function guifi_block($op = "list", $delta = 0) {
   
 
   if ($op == "list") {
-    $blocks[0]["info"] = variable_get("guifi_title",t("nodes guifi"));
+    $blocks[0]["info"] = t(variable_get("guifi_title",t("guifi nodes")));
     return $blocks;
   }
   else {
-    $block['subject'] = variable_get("guifi_title","<a href=\"guifi\">" .t("nodes guifi") ."</a>");
+    $block['subject'] = t(variable_get("guifi_title","<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
     $tnodes = db_query('SELECT status_flag, count(*) c from {guifi_location} GROUP BY status_flag');
     $str = '';
     $rows = array();
