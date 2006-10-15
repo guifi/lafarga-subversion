@@ -119,7 +119,7 @@ body, input, textarea, select, option, legend, fieldset {
 .main-wrap-left, .main-wrap-both {
   float: left;
   width: auto;
-  margin-right: 200px;
+#  margin-right: 200px;
   margin-left: 221px;
   _margin-left: 0px; /* Avoid IE float margin doubling */
   _padding-left: 221px;
