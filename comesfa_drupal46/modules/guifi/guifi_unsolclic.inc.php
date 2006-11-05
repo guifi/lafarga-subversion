@@ -52,6 +52,16 @@ function guifi_unsolclic($id, $format = 'html') {
   _outln_comment(t("the one which is at the right, looking the WRT54G from the front"));
   _outln_comment(t("(where it have the leds). If needed, change the antenna connector"));
   _outln_comment(t("at Wireless->Advanced Settings."));
+  _outln_comment(t('Security notes:'));
+  _outln_comment(t('Once this script is executes, the router password for root/admin users is "guifi"'));
+  _outln_comment(t('You must change this password if you want to keep it secret. If you like to still'));
+  _outln_comment(t('be managed externally, you must install a trusted ssh key. Upon request, your setup'));
+  _outln_comment(t('might be asked for being inspected to check the Wireless Commons compliance.'));
+  _outln_comment(t('No firewall rules are allowed in the public network area.'));
+  _outln_comment(t('By being in client mode, the router has the firewall enabled to distinguish between'));
+  _outln_comment(t('private and public areas, and only SNMP, ssh and https 8080 ports are enabled'));
+  _outln_comment(t('for external administration. Everything else is closed, therefore you might'));
+  _outln_comment(t('have to open ports to share resources.'));
   _outln_comment();
 
   // network parameters
@@ -518,7 +528,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('wl_net_mode','mixed');
    _outln_nvram('wl_afterburner','on');
    _outln_nvram('wl_frameburst','on');
-   _outln_nvram('txpwr','80');
+   # _outln_nvram('txpwr','80');
    _outln_nvram('txant','0');
    _outln_nvram('wl0_antdiv','0');
    _outln_nvram('wl_antdiv','0');
@@ -542,7 +552,8 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('snmpd_sysname','guifi.net');
    _outln_nvram('snmpd_syscontact','guifi_at_guifi.net');
    _outln_nvram('boot_wait','on');
-   _outln_nvram('sshd_authorized_keys','ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAwWNX4942fQExw4Hph2M/sxOAWVE9PB1I4JnNyhoWuF9vid0XcU34kwWqBBlI+LjDErCQyaR4ysFgDX61V4kUuCKwBOMp+UGxhL648VTv5Qji/YwvIzt7nguUOZ5AGPISqsC0717hc0Aja1mvHkQqg9aXKznmszmyKZGhcm2+SU8= root@linux1.elserrat.org');
+   _outln_comment(t('This is just a fake key. You must install a trusted key if you like to have you router managed externally'));
+   _outln_nvram('sshd_authorized_keys','ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAwWNX4942fQExw4Hph2M/sxOAWVE9PB1I4JnNyhoWuF9vid0XcU34kwWqBBlI+LjDErCQyaR4ysFgDX61V4kUuCKwBOMp+UGxhL648VTv5Qji/YwvIzt7nguUOZ5AGPISqsC0717hc0Aja1mvHkQqg9aXKznmszmyKZGhcm2+SU8= root@banadoler.guifi.net');
    // For DD-WRT
    _outln_nvram('http_enable','1');
    _outln_nvram('https_enable','1');
@@ -815,9 +826,16 @@ function unsolclic_routeros($dev) {
   _outln_comment('&nbsp;&nbsp;&nbsp;&nbsp;'.t('directly on the terminal input.'));
   _outln_comment();
   _outln_comment(t('Notes:'));
+  _outln_comment(t('-The script doesn\'t reset the router, you might have to do it manually'));
   _outln_comment(t('-You must have write access to the router'));
   _outln_comment(t('-MAC access (winbox, MAC telnet...) method is recommended'));
   _outln_comment(t('&nbsp;&nbsp;(the script reconfigures some IP addresses, so communication can be lost)'));
+  _outln_comment(t('-No changes are done in user passwords on the device'));
+  _outln_comment(t('-A Read Only guest account with no password will be created to allow guest access'));
+  _outln_comment(t('&nbsp;&nbsp;to the router with no danger of damage but able to see the config.'));
+  _outln_comment(t('-Be sure that all packages are activated.'));
+  _outln_comment(t('-Don\'t run the script from telnet and being connected through an IP connection at'));
+  _outln_comment(t('&nbsp;&nbsp;the wLan/Lan interface: This interface will be destroyed during the script.'));
   _outln_comment();
 
   _outln('/ system identity set name='.$dev->nick);
