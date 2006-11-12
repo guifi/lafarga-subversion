@@ -10,7 +10,8 @@
 $sql_updates = array(
  343 => 'guifiupdate_01',
  352 => 'guifiupdate_02',
- 353 => 'guifiupdate_03'
+ 353 => 'guifiupdate_03',
+ 354 => 'guifiupdate_04'
 );
 
 
@@ -202,4 +203,20 @@ function guifiupdate_03() {
 
   return $ret;
 }
+
+function guifiupdate_04() {
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'games',    'Generic games server');");
+  $ret[] = update_sql("ALTER TABLE `guifi_model` ADD `supported` ENUM( 'Yes', 'No', 'Deprecated' ) NOT NULL DEFAULT 'Yes';");
+  $ret[] = update_sql("INSERT INTO `guifi_manufacturer` VALUES (0,'Other', null);");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (0, 0, 'Other not listed', NULL, 1, NULL, '802.11a/b/g', 'Si', 'Si', 'Si', 'Si', NULL, NULL, 'Si', 'Si', NULL, NULL, NULL, 'wLan/Lan', NULL, 'To be used for unknown or not listed devices', 'Yes');");
+  $ret[] = update_sql("UPDATE guifi_model SET supported='Deprecated' WHERE model IN ('USR5450','USR8054','DWL-2000AP+','DWL-2100AP','Prestige 650W','C54APT','USR5410','C54c','C54i','WAP11','Prestige 650HW-31E','WAP54G');");
+  $ret[] = update_sql("ALTER TABLE `guifi_radios` ADD `clients_accepted` ENUM( 'Yes', 'No' ) NOT NULL DEFAULT 'Yes';");
+  $ret[] = update_sql("UPDATE guifi_radios SET clients_accepted='No' WHERE protocol IN (NULL,'802.11abg','legacy','802.11a')");
+  $ret[] = update_sql("UPDATE guifi_radios SET clients_accepted='No' WHERE mode IN ('client','bridge','NAT Client')");
+//  $ret[] = update_sql("");
+  $ret[] = update_sql("TRUNCATE TABLE {cache}");
+
+  return $ret;
+}
+
 ?>

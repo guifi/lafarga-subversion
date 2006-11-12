@@ -216,15 +216,20 @@ function guifi_devices_select($nid, $link_type, $radio_mode, $did, $rid, $kms = 
      else
       $ql = db_query('SELECT l1.id FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id=%d AND l2.device_id=%d',$device->id, $id);
 
-    if (db_num_rows($ql) > 0) {
+    
+    if ((db_num_rows($ql) > 0) or 
       // link already exists
+       (!user_access('administer guifi zones') and ($device->clients_accepted=='No'))) {
+      // backhaul and not zone administrator, can't link to backhaul nodes
       return;
     }
+    if ($device->clients_accepted == 'No') 
+      $backhaul = '**'.t('backhaul').'**';
 
     $zone = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id=%d',$device->zone_id));
-    if ($device->distance)
-      $value= $zone->title.', '.$device->ssid.'('.$device->distance.' '.t('kms').')';
-    else
+    if ($device->distance) {
+      $value= $zone->title.', '.$device->ssid.$backhaul.' '.$device->distance.' '.t('kms').')';
+    } else
       $value= $zone->title.', '.$device->ssid;
 
     if (isset($device->radiodev_counter))
@@ -240,11 +245,11 @@ function guifi_devices_select($nid, $link_type, $radio_mode, $did, $rid, $kms = 
     $kms = variable_get('guifi_max_distance',25);
   if ($link_type == 'cable') {
     if ($radio_mode != 'cable-router')
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
+      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.clients_accepted, r.nid, z.id zone_id  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
     else
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id, r.type  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE r.type IN ('radio','nat') AND l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
+      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.clients_accepted, r.nid, z.id zone_id, r.type  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE r.type IN ('radio','nat') AND l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
   } else
-    $query = db_query("SELECT l.lat, l.lon, r.id, r.nid, z.id zone_id, r.radiodev_counter, r.ssid, r.mode FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z WHERE l.id<>%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
+    $query = db_query("SELECT l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id, r.radiodev_counter, r.ssid, r.mode FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z WHERE l.id<>%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
 
  
   $devdist = array();

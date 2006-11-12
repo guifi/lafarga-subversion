@@ -553,7 +553,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('snmpd_syscontact','guifi_at_guifi.net');
    _outln_nvram('boot_wait','on');
    _outln_comment(t('This is just a fake key. You must install a trusted key if you like to have you router managed externally'));
-   _outln_nvram('sshd_authorized_keys','ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAwWNX4942fQExw4Hph2M/sxOAWVE9PB1I4JnNyhoWuF9vid0XcU34kwWqBBlI+LjDErCQyaR4ysFgDX61V4kUuCKwBOMp+UGxhL648VTv5Qji/YwvIzt7nguUOZ5AGPISqsC0717hc0Aja1mvHkQqg9aXKznmszmyKZGhcm2+SU8= root@banadoler.guifi.net');
+   _outln_nvram('sshd_authorized_keys','ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAwWNX4942fQExw4Hph2M/sxOAWVE9PB1I4JnNyhoWuF9vid0XcU34kwWqBBlI+LjDErCQyaR4ysFgDX61V4kUuCKwBOMp+UGxhL648VTv5Qji/YwvIzt7nguUOZ5AGPISqsC0717hc0Aja1mvHkQqg9aXKznmszmyKZGhcm2+SU8= root@bandoler.guifi.net');
    // For DD-WRT
    _outln_nvram('http_enable','1');
    _outln_nvram('https_enable','1');

@@ -5,7 +5,7 @@ function guifi_radio_form(&$edit) {
 //  print_r($edit);
 //  print ($edit[edit_details]);
 
-  $querymid = db_query("SELECT mid, model, f.nom manufacturer FROM guifi_model m, guifi_manufacturer f WHERE f.fid = m.fid");
+  $querymid = db_query("SELECT mid, model, f.nom manufacturer FROM guifi_model m, guifi_manufacturer f WHERE f.fid = m.fid AND supported='Yes'");
   while ($model = db_fetch_array($querymid)) {
      $models_array[$model["mid"]] = $model["manufacturer"] .", " .$model["model"];
   }
@@ -33,9 +33,12 @@ function guifi_radio_form(&$edit) {
     switch (count($key_detail)) {
     case 1:
       // Radio details
-      if ($edit[radios][$key_detail[0]][mode] == 'ap')
-        $ssid=form_textfield(t('SSID'), 'radios]['.$key_detail[0].'][ssid', $edit['radios'][$key_detail[0]]["ssid"],20,80);
-      else
+      if ($edit[radios][$key_detail[0]][mode] == 'ap') {
+        $ssid=form_textfield(t('SSID'), 'radios]['.$key_detail[0].'][ssid', $edit['radios'][$key_detail[0]]["ssid"],20,80,t('How will appear to the surveys'));
+        $clients_accepted = form_select(t('Clients'), 'radios]['.$key_detail[0].'][clients_accepted', $edit['radios'][$key_detail[0]]["clients_accepted"],
+                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
+                           t('Do this radio accept wiereless connections?'));
+      } else
         $ssid=form_item(t('SSID'), $edit['radios'][$key_detail[0]]["ssid"]);
       $form .= t('Editing Radio#').': '.$key_detail[0];
       // Edit radio details form
@@ -53,7 +56,11 @@ function guifi_radio_form(&$edit) {
                       array('data'=>form_select(t('Gain'), 'radios]['.$key_detail[0].'][antenna_gain', $edit['radios'][$key_detail[0]]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), t('dB')),'valign'=>'top'),
                       array('data'=>form_textfield(t('Orientation'), 'radios]['.$key_detail[0].'][antenna_azimuth', $edit['radios'][$key_detail[0]]["antenna_azimuth"], 3,3, t('Azimuth in degrees')),'valign'=>'top')
                      );
-      $radiorows[] = array(array('data'=>$ssid,'colspan'=>8));
+      $radiorows[] = array(array('data'=>$ssid,'colspan'=>1),array('data'=>$clients_accepted,'colspan'=>7));
+//      $radiorows[] = array(array('data'=>$ssid,'colspan'=>1),
+//                     array('data'=>form_select(null, 'radios]['.$key_detail[0].'][clients_accepted', $edit['radios'][$key_detail[0]]["clients_accepted"], 
+//                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
+//                           null),'colspan'=>7));
       $radiorows[] = array(
                            form_button(t('Back to list'), 'op')
                           );
@@ -85,12 +92,15 @@ function guifi_radio_form(&$edit) {
                     array('data'=>form_select(null, 'radios]['.$key.'][channel', $edit['radios'][$key]["channel"], 
                            //  drupal_map_assoc(array( 0=>'Auto',1=>1,2,3,4,5,6,7,8,9,10,11,12,13,14))
                            guifi_types('channel',null,null,$edit['radios'][$key]['protocol']), NULL),'width'=>1),
-                    array('data'=>$radio['protocol'],'width'=>1),
-                    array('data'=>$radio['antenna_angle'].'º','align'=>'right','width'=>1),
-                    array('data'=>form_select(null, 'radios]['.$key.'][antenna_gain', $edit['radios'][$key]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), null),'width'=>1),
-                    array('data'=>$radio['antenna_azimuth'].'º','align'=>'right','width'=>1),
+                    array('data'=>form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,80),'width'=>1),
                     array('data'=>form_textfield(null, 'radios]['.$key.'][mac',  $edit['radios'][$key]["mac"],17,17),'width'=>1),
-                    array('data'=>form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,80),'width'=>1)
+                    array('data'=>form_select(null, 'radios]['.$key.'][clients_accepted', $edit['radios'][$key]["clients_accepted"], 
+                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
+                           null),'width'=>1),
+                    array('data'=>$radio['protocol'],'width'=>1),
+                    array('data'=>form_select(null, 'radios]['.$key.'][antenna_gain', $edit['radios'][$key]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), null),'width'=>1),
+                    array('data'=>$radio['antenna_angle'].'º','align'=>'right','width'=>1),
+                    array('data'=>$radio['antenna_azimuth'].'º','align'=>'right','width'=>1)
                    );
       $rows[] = $row;
 
@@ -174,7 +184,7 @@ function guifi_radio_form(&$edit) {
 
     if (user_access('administer guifi networks'))
       $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
-    $headers = array(null,t('mode'),t('channel'),t('protocol'),'<p align="right">'.t('ant. angle').'</p>',t('gain'),'<p align="right">'.t('azimuth').'</p>',t('wireless mac'),'ssid');
+    $headers = array(null,t('mode'),t('channel'),'ssid',t('wireless mac'),t('clients'),t('protocol'),t('ant. gain'),'<p align="right">'.t('angle').'</p>','<p align="right">'.t('azimuth').'</p>');
     $form .= form_group(t('device radios'),theme('table', $headers, $rows),t('Use this form section to describe all wireless linked devices.'));
   }
 

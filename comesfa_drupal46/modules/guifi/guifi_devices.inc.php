@@ -680,9 +680,9 @@ function guifi_edit_device_save($edit) {
       if ($radio['new']) {
         // Insert a new radio
 //        print "Inserting new radio # $radiodev_counter\n<br>";
-        db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d)", $edit[id], $edit['nid'], $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth']);
+        db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['0clients_accepted']);
       } else {
-        db_query("UPDATE {guifi_radios} SET model_id = %d, radiodev_counter=%d, ssid ='%s', mode ='%s', protocol ='%s', channel ='%s', antenna_angle =%d, antenna_gain =%d, antenna_azimuth =%d WHERE id = %d AND radiodev_counter=%d", $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'], $radio['id'],$radiodev_counter );
+        db_query("UPDATE {guifi_radios} SET model_id = %d, radiodev_counter=%d, ssid ='%s', mode ='%s', protocol ='%s', channel ='%s', antenna_angle =%d, antenna_gain =%d, antenna_azimuth =%d, clients_accepted='%s' WHERE id = %d AND radiodev_counter=%d", $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'], $radio['id'],$radiodev_counter );
       }
       guifi_save_interfaces($edit,$radio,$radiodev_counter,$cascade);
      $cascade=false;
@@ -731,9 +731,9 @@ function guifi_device_print_data($device) {
   if (count($device['radios'])) {
     unset($rowsr);
     foreach ($device['radios'] as $radio_id=>$radio) {
-      $rowsr[] = array($radio['ssid'],$radio['mode'],$radio['protocol'],$radio['channel'],$radio['mac']);
+      $rowsr[] = array($radio['ssid'],$radio['mode'],$radio['protocol'],$radio['channel'],$radio['mac'],$radio['clients_accepted']);
     }
-    $rows[] =  array(array('data'=>theme('table',array(t('ssid'),t('mode'),t('protocol'),t('ch'),t('wireless mac')),$rowsr),'colspan'=>2));
+    $rows[] =  array(array('data'=>theme('table',array(t('ssid'),t('mode'),t('protocol'),t('ch'),t('wireless mac'),t('clients')),$rowsr),'colspan'=>2));
   }
 
   // If ADSL, print characteristics
