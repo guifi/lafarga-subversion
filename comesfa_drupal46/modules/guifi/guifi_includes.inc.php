@@ -245,9 +245,9 @@ function guifi_devices_select($nid, $link_type, $radio_mode, $did, $rid, $kms = 
     $kms = variable_get('guifi_max_distance',25);
   if ($link_type == 'cable') {
     if ($radio_mode != 'cable-router')
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.clients_accepted, r.nid, z.id zone_id  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
+      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
     else
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.clients_accepted, r.nid, z.id zone_id, r.type  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE r.type IN ('radio','nat') AND l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
+      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id r.nid, z.id zone_id, r.type  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE r.type IN ('radio','nat') AND l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
   } else
     $query = db_query("SELECT l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id, r.radiodev_counter, r.ssid, r.mode FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z WHERE l.id<>%d AND r.nid=l.id AND l.zone_id=z.id",$nid);
 

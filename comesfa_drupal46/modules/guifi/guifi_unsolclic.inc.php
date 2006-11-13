@@ -525,7 +525,8 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      foreach (explode(' ',guifi_get_dns($zone,3)) as $key => $dns)
        _outln_nvram('wan_dns'.$key,$dns);
    }
-   _outln_nvram('wl_net_mode','mixed');
+   _outln_nvram('wl_net_mode','b-only');
+   _outln_nvram('wl0_net_mode','b-only');
    _outln_nvram('wl_afterburner','on');
    _outln_nvram('wl_frameburst','on');
    # _outln_nvram('txpwr','80');
