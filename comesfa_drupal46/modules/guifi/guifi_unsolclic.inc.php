@@ -891,7 +891,7 @@ function unsolclic_routeros($dev) {
       $ospf_interfaces[] = 'wlan'.($radio_id+1);
     }
     if ($radio[channel] < 5000) 
-      $band = '2.4ghz-b/g';
+      $band = '2.4ghz-b';
     else
       $band = '5ghz';
 

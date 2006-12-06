@@ -664,6 +664,7 @@ function guifi_update($node) {
 }
 
 function guifi_delete(&$node) {
+
   switch ($node->type) {
     case 'guifi-zone':
       db_query("DELETE FROM {guifi_zone} WHERE id = '%s'", $node->nid);
@@ -676,28 +677,25 @@ function guifi_delete(&$node) {
                         $node->nid);
       while ($row = db_fetch_array($query))
       {
-        $query2 = db_query("SELECT * from {guifi_interfaces} where ".
-                           "device_id='%s'", $row['id']);
-        while ($row2 = db_fetch_array($query2))
+        $query_interfaces = db_query("SELECT * FROM {guifi_interfaces} WHERE ".
+                           "device_id=%d", $row['id']);
+        while ($row2 = db_fetch_array($query_interfaces))
         {
-                db_query("DELETE FROM {guifi_interfaces} where ".
-                         "id='%s'", $row2['id']);
-                db_query("DELETE FROM {guifi_links} where ".
-                        "interface_id='%s'", $row2['id']);
+                db_query("DELETE FROM {guifi_interfaces} WHERE ".
+                         "id=%d", $row2['id']);
                 db_query("DELETE FROM {guifi_ipv4} where ".
                         "interface_id='%s'", $row2['id']);
         }
-        db_query("DELETE FROM {guifi_links} where device_id='%s'", $row['id']);
-        db_query("DELETE FROM {guifi_services} where device_id='%s'", $row['id']);
-        db_query("DELETE FROM {guifi_devices} where id='%s'",$row['id']);
+        $query_links = db_query("SELECT id FROM {guifi_links} WHERE device_id = %d", $row['id']);
+        while ($link = db_fetch_object($queryi_links))
+          db_query('DELETE FROM {guifi_links} WHERE id = %d', $link->id);
+        db_query("DELETE FROM {guifi_services} WHERE device_id = %d", $row['id']);
+        db_query("DELETE FROM {guifi_devices} WHERE id = %d",$row['id']);
         db_query('DELETE FROM {guifi_radios} WHERE id = %d', $row['id']);
         db_query('DELETE FROM {guifi_interfaces} WHERE device_id = %d', $row['id']);
-        $query = db_query("SELECT id FROM {guifi_links} WHERE device_id = %d", $row['id']);
-        while ($link = db_fetch_object($query))
-          db_query('DELETE FROM {guifi_links} WHERE id = %d', $link->id);
       }
-      db_query("DELETE FROM {guifi_links} where nid='%s'",$node->nid);
-      db_query("DELETE FROM {guifi_location} WHERE id = '%s'", $node->nid);
+      db_query("DELETE FROM {guifi_links} WHERE nid = %d",$node->nid);
+      db_query("DELETE FROM {guifi_location} WHERE id = %d", $node->nid);
       break;
     case 'guifi-service':
       db_query("DELETE FROM {guifi_services} WHERE id = '%s'", $node->nid);
