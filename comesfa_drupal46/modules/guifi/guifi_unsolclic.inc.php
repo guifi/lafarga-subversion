@@ -801,6 +801,17 @@ function unsolclic_routeros($dev) {
   $ospf_interfaces = array();
   $defined_ips = array();
 
+  function bgp_peer($id, $ipv4) {
+    $peername=guifi_get_hostname($id);
+    _outln('/ routing bgp peer');
+    _outln(sprintf(':foreach i in [find name=%s] do={/routing bgp peer remove $i;}',$peername));
+    _outln(sprintf('add name="%s" instance=default remote-address=%s remote-as=%s \ ',
+           $peername,
+           $ipv4,
+           $id));
+    _outln('multihop=no route-reflect=no ttl=1 in-filter=ospf-in out-filter=ospf-out disabled=no');
+  }
+
   $node = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
@@ -808,7 +819,7 @@ function unsolclic_routeros($dev) {
   _outln_comment(t('Configuration for RouterOS 2.19'));
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
-  _outln_comment(t('WARNING: Experimental version, only AP-AP/Bridge modes supported'));
+  _outln_comment(t('WARNING: Beta version, only AP-AP/Bridge modes supported'));
   _outln_comment();
   _outln_comment(t('Methods to upload/execute this script:'));
   _outln_comment(t('1.-As a script. Upload this output as a script either with:'));
@@ -827,6 +838,13 @@ function unsolclic_routeros($dev) {
   _outln_comment('&nbsp;&nbsp;&nbsp;&nbsp;'.t('directly on the terminal input.'));
   _outln_comment();
   _outln_comment(t('Notes:'));
+  _outln_comment(t('-routing-test package is required, be sure you have it enabled at system packages'));
+  _outln_comment(t('-By default, OSPF is *DEACTIVATED*, and BGP activated, peers should be enabled'));
+  _outln_comment(t('&nbsp;&nbsp;manually. To enable ospf, enable the backbone network at'));
+  _outln_comment(t('&nbsp;&nbsp;/routing ospf network'));
+  _outln_comment(t('-wlans should be enabled manually, be sure to set the correct antenna (a or b)'));
+  _outln_comment(t('&nbsp;&nbsp;according in how did you connect the cable to the miniPCI. Keep the'));
+  _outln_comment(t('&nbsp;&nbsp;power at the minimum possible and check the channel.'));
   _outln_comment(t('-The script doesn\'t reset the router, you might have to do it manually'));
   _outln_comment(t('-You must have write access to the router'));
   _outln_comment(t('-MAC access (winbox, MAC telnet...) method is recommended'));
@@ -927,14 +945,14 @@ function unsolclic_routeros($dev) {
              $disabled='no';
            else
              $disabled='yes';
-           $wdsname = 'wds_'.guifi_get_hostname($link[device_id]);
-           if ($link['interface'][mac] == null)
+           $wdsname = 'wds_'.guifi_get_hostname($link['device_id']);
+           if ($link['interface']['mac'] == null)
              $link['interface'][mac]= 'FF:FF:FF:FF:FF:FF';
            _outln('/ interface wireless wds');
            _outln(sprintf('add name="%s" master-interface=wlan%d wds-address=%s disabled=%s',$wdsname,$radio_id+1,$link['interface'][mac],$disabled));
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=%s comment="%s"',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$wdsname,$disabled,$wdsname));
-
+           bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4']);
          } // each wds link (ipv4)
        } else { // wds
          // wLan, wLan/Lan or client
@@ -948,6 +966,7 @@ function unsolclic_routeros($dev) {
            $defined_ips[$ipv4[ipv4]] = $item;
            $ospf_routerid=$ipv4[ipv4];
          }
+
 
          _outln(':delay 1');
 
@@ -1018,6 +1037,7 @@ function unsolclic_routeros($dev) {
             if (($disabled='yes') and (preg_match("/(Working|Testing|Building)/",$link['flag']))) 
               $disabled='no';
             $comments[] = guifi_get_hostname($link[device_id]);
+            bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4']);
           }
         } else
           $disabled='no';
@@ -1030,7 +1050,28 @@ function unsolclic_routeros($dev) {
     }
   }
 
-  // OSPF & Graphing
+  // BGP
+  _outln_comment();
+  _outln_comment(t('BGP Routing'));
+  _outln_comment(t('BGP & OSPF Filters'));
+  _outln(':foreach i in [/routing filter find chain=ospf-in] do={/routing filter remove $i;}');
+  _outln(':foreach i in [/routing filter find chain=ospf-out] do={/routing filter remove $i;}');
+  _outln("/ routing filter");
+  _outln('add chain=ospf-out prefix=10.0.0.0/8 prefix-length=8-27 invert-match=no action=accept comment="" disabled=no');
+  _outln('add chain=ospf-out invert-match=no action=discard comment="" disabled=no');
+  _outln('add chain=ospf-in prefix=10.0.0.0/8 prefix-length=8-27 invert-match=no action=accept comment="" disabled=no');
+  _outln('add chain=ospf-in invert-match=no action=reject comment="" disabled=no');
+  _outln_comment();
+  _outln_comment(t('BGP instance'));
+  _outln("/ routing bgp instance");
+  _outln(sprintf('set default name="default" as=%d router-id=%s redistribute-static=yes \ ',$dev->id,$ospf_routerid));
+  _outln('redistribute-connected=yes redistribute-rip=yes redistribute-ospf=yes \ ');
+  _outln('redistribute-other-bgp=yes out-filter=ospf-out \ ');
+  _outln('client-to-client-reflection=yes comment="" disabled=no');
+
+
+
+  // OSPF
   if (count($ospf_interfaces)) {
        _outln_comment();
        _outln_comment(t('OSPF Routing'));
@@ -1040,7 +1081,7 @@ function unsolclic_routeros($dev) {
          _outln(sprintf('/routing ospf interface add interface=%s',$interface));
        }
        _outln(':foreach i in [/routing ospf network find area=backbone] do={/routing ospf network remove $i;}');
-       _outln('/routing ospf network add network=0.0.0.0/0 area=backbone disabled=no');
+       _outln('/routing ospf network add network=0.0.0.0/0 area=backbone disabled=yes');
   }
 
   // Graphing
