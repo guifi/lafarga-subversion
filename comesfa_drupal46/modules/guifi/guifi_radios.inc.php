@@ -189,7 +189,7 @@ function guifi_radio_form(&$edit) {
   }
 
   // Edit radio form or add new radio
-  $cr = 0; $tr = 0;
+  $cr = 0; $tr = 0; $firewall=false;
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
 //    print "Max radios: ".$maxradios->radiodev_max." \n<br>";
   if (isset($edit[radios])) 
@@ -197,12 +197,21 @@ function guifi_radio_form(&$edit) {
     $tr++;
     if (!$radio[deleted])
       $cr++;
+    if ($radio['mode'] == 'client') 
+      $firewall = true;
   }
-//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr\n<br>";
+//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall\n<br>";
+  $modes_arr = guifi_types('mode');
+//  print_r($modes_arr);
+  if ($cr>0)
+    if (!$firewall)
+      $modes_arr = array_diff_key($modes_arr,array('client'=>0));
+    else
+      $modes_arr = array_intersect_key($modes_arr,array('client'=>0));
   if ($cr < $maxradios->radiodev_max)
   if ( (( $edit['id'] > 0 ) && (!isset($edit[edit_details]))) and ($tr < $maxradios->radiodev_max)) {
     $erow[] = array(
-               array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', guifi_types('mode'), NULL),'valign'=>'bottom'),
+               array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', $modes_arr, NULL),'valign'=>'bottom'),
                array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
                    );
     $form .= form_group(t('Add new radio'),theme('table',null,$erow),t('Usage:<br>Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br>Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br>Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
@@ -305,6 +314,8 @@ function guifi_add_radio($edit) {
 
    break;
  case 'client':
+ case 'routedclient':
+   $edit['radios'][$rc]['clients_accepted']='No';
    $edit['radios'][$rc]['interfaces'][$interface_id]=array();
    $edit['radios'][$rc]['interfaces'][$interface_id]['new']=true;
    $edit['radios'][$rc]['interfaces'][$interface_id][device_id]=$edit[id];

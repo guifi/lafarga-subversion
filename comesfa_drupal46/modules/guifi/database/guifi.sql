@@ -210,9 +210,10 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('interfac
 -- radio mode types
 --
 
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'ap',       'AP or AP with WDS', 'ap|client');
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'client',   'Wireless client',   'ap');
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'bridge',   'Wireless Bridge',   'bridge');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'ap',          'AP or AP with WDS', 'ap|client');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'client',      'Wireless client',   'ap');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'bridge',      'Wireless Bridge',   'bridge');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'routedclient','Routed client');
 
 --
 -- link types

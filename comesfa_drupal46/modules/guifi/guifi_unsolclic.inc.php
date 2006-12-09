@@ -859,22 +859,6 @@ function unsolclic_routeros($dev) {
 
   _outln('/ system identity set name='.$dev->nick);
 
-  // Define wLan/Lan bridge (main interface)
-  _outln_comment(t('Remove current wLan/Lan bridge if exists'));
-  _outln(':foreach i in [/interface bridge find name=wLan/Lan] \ ');
-  _outln('do={:foreach i in [/interface bridge port find bridge=wLan/Lan] \ ');
-  _outln('do={/interface bridge port remove $i; \ ');
-  _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
-  _outln('do={/ip address remove $i;};};');
-  _outln('/interface bridge remove $i;}');
-  _outln_comment(t('Construct main bridge on wlan1 & ether1'));
-  _outln('/ interface bridge');
-  _outln('add name="wLan/Lan"');
-  _outln('/ interface bridge port');
-  _outln('add interface=ether1 bridge=wLan/Lan');
-  _outln('add interface=wlan1 bridge=wLan/Lan');
-
-  _outln(':delay 1');
 
   // DNS
   _outln_comment();
@@ -898,6 +882,24 @@ function unsolclic_routeros($dev) {
   _outln('/system ntp server set manycast=no enabled=yes');
 
   _outln(':delay 1');
+
+  // Define wLan/Lan bridge (main interface)
+  _outln_comment(t('Remove current wLan/Lan bridge if exists'));
+  _outln(':foreach i in [/interface bridge find name=wLan/Lan] \ ');
+  _outln('do={:foreach i in [/interface bridge port find bridge=wLan/Lan] \ ');
+  _outln('do={/interface bridge port remove $i; \ ');
+  _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
+  _outln('do={/ip address remove $i;};};');
+  _outln('/interface bridge remove $i;}');
+  _outln_comment(t('Construct main bridge on wlan1 & ether1'));
+  _outln('/ interface bridge');
+  _outln('add name="wLan/Lan"');
+  _outln('/ interface bridge port');
+  _outln('add interface=ether1 bridge=wLan/Lan');
+  _outln('add interface=wlan1 bridge=wLan/Lan');
+
+  _outln(':delay 1');
+
 
   // Going to setup wireless interfaces
   if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {

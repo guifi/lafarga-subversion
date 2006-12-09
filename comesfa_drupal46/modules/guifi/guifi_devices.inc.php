@@ -260,7 +260,14 @@ function guifi_get_device($id,$ret = 'array') {
 //      drupal_set_message(t('Fatal Error: This device (%id %name) has no radio. Report this error to your network administrator.',array('%id' => theme('placeholder', $id), '%name' => theme('placeholder', $device['nick']))));
       return $device;
     }
+    $device['firewall'] = false; // Default: No firewall
+
     while ($radio = db_fetch_array($qr)) {
+      
+      if (!$device['firewall'])
+        if ($radio['mode'] == 'client')
+           $device['firewall'] = true;
+
       $device['radios'][$radio['radiodev_counter']] = $radio;
 
       // get interface

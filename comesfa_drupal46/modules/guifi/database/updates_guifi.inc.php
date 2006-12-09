@@ -11,7 +11,8 @@ $sql_updates = array(
  343 => 'guifiupdate_01',
  352 => 'guifiupdate_02',
  353 => 'guifiupdate_03',
- 354 => 'guifiupdate_04'
+ 354 => 'guifiupdate_04',
+ 356 => 'guifiupdate_05'
 );
 
 
@@ -216,6 +217,14 @@ function guifiupdate_04() {
 //  $ret[] = update_sql("");
   $ret[] = update_sql("TRUNCATE TABLE {cache}");
 
+  return $ret;
+}
+
+function guifiupdate_05() {
+  $ret = array();
+
+  $ret[] = update_sql("UPDATE guifi_types SET description='Routed client', text='routedclient' WHERE text='NAT Client'");
+  $ret[] = update_sql("TRUNCATE TABLE {cache}");
   return $ret;
 }
 
