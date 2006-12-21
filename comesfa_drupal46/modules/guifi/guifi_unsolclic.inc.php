@@ -812,6 +812,19 @@ function unsolclic_routeros($dev) {
     _outln('multihop=no route-reflect=no ttl=1 in-filter=ospf-in out-filter=ospf-out disabled=no');
   }
 
+//  Check if there's any wLan/Lan interface defined on the device
+
+  $wlanlan=false;  
+  foreach ($dev->radios as $ri)
+    {
+      $ii=$ri[interfaces];	
+      foreach ($ii as $iii)
+	{
+	    if ($iii[interface_type]=='wLan/Lan') $wlanlan=true;
+	}
+
+    }
+    
   $node = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
@@ -891,6 +904,9 @@ function unsolclic_routeros($dev) {
   _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
   _outln('do={/ip address remove $i;};};');
   _outln('/interface bridge remove $i;}');
+    
+   // Construct bridge only if exists wlan/lan interface 
+   if ($wlanlan){
   _outln_comment(t('Construct main bridge on wlan1 & ether1'));
   _outln('/ interface bridge');
   _outln('add name="wLan/Lan"');
@@ -899,7 +915,7 @@ function unsolclic_routeros($dev) {
   _outln('add interface=wlan1 bridge=wLan/Lan');
 
   _outln(':delay 1');
-
+   }
 
   // Going to setup wireless interfaces
   if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {
