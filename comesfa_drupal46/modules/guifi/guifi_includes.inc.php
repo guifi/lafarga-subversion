@@ -119,6 +119,11 @@ function guifi_main_ip($device_id) {
         $ip_array[1]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
       case 'Wan':
         $ip_array[2]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+      case 'wLan':
+        if (!isset($ip_array[3])) $ip_array[3]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+      case 'wds/p2p':
+        if (!isset($ip_array[4])) $ip_array[4]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+
       }
     }
   }
