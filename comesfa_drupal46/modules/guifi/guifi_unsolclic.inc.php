@@ -971,6 +971,7 @@ function unsolclic_routeros($dev) {
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=%s comment="%s"',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$wdsname,$disabled,$wdsname));
            bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4']);
+	   if (!isset($ospf_routerid)) $ospf_routerid=$ipv4[ipv4];  
          } // each wds link (ipv4)
        } else { // wds
          // wLan, wLan/Lan or client
