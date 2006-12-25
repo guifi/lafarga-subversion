@@ -376,6 +376,15 @@ function guifi_validate_nick($nick) {
   }
 }
 
+function guifi_get_deviceuser($id) {
+  $device = db_fetch_object(db_query("SELECT d.user_created FROM {guifi_devices} d WHERE d.id=%d",$id));
+  return ($device->user_created);
+}
+
+function guifi_get_nodeuser($id) {
+  $node = db_fetch_object(db_query("SELECT d.user_created FROM {guifi_location} d WHERE d.id=%d",$id));
+  return ($node->user_created);
+}
 
 function guifi_get_hostname($id) {
   $device = db_fetch_object(db_query("SELECT d.nick FROM {guifi_devices} d WHERE d.id=%d",$id));

@@ -5,6 +5,8 @@ function guifi_radio_form(&$edit) {
 //  print_r($edit);
 //  print ($edit[edit_details]);
 
+  global $user;
+
   $querymid = db_query("SELECT mid, model, f.nom manufacturer FROM guifi_model m, guifi_manufacturer f WHERE f.fid = m.fid AND supported='Yes'");
   while ($model = db_fetch_array($querymid)) {
      $models_array[$model["mid"]] = $model["manufacturer"] .", " .$model["model"];
@@ -182,8 +184,13 @@ function guifi_radio_form(&$edit) {
   if (isset($rows)) {
     
 
-    if (user_access('administer guifi networks'))
+    // if net admin or device/node owner, edit allowed
+    if ((user_access('administer guifi networks')) || 
+        (guifi_get_deviceuser($edit['user_created'] == $user->uid)) || 
+        (guifi_get_nodeuser($edit['nid'] == $user->uid)))
       $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
+
+
     $headers = array(null,t('mode'),t('channel'),'ssid',t('wireless mac'),t('clients'),t('protocol'),t('ant. gain'),'<p align="right">'.t('angle').'</p>','<p align="right">'.t('azimuth').'</p>');
     $form .= form_group(t('device radios'),theme('table', $headers, $rows),t('Use this form section to describe all wireless linked devices.'));
   }

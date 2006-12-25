@@ -562,6 +562,7 @@ function guifi_access($op, $node) {
     case 'create':
       return user_access("create guifi nodes");
     case 'update':
+    case 'delete':
       if ($node->type == 'guifi-node') {
         if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
           return TRUE;
