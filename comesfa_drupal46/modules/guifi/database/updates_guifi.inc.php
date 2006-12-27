@@ -12,7 +12,8 @@ $sql_updates = array(
  352 => 'guifiupdate_02',
  353 => 'guifiupdate_03',
  354 => 'guifiupdate_04',
- 356 => 'guifiupdate_05'
+ 356 => 'guifiupdate_05',
+ 357 => 'guifiupdate_06'
 );
 
 
@@ -224,6 +225,17 @@ function guifiupdate_05() {
   $ret = array();
 
   $ret[] = update_sql("UPDATE guifi_types SET description='Routed client', text='routedclient' WHERE text='NAT Client'");
+  $ret[] = update_sql("TRUNCATE TABLE {cache}");
+  return $ret;
+}
+
+function guifiupdate_06() {
+  $ret = array();
+
+  $ret[] = update_sql("ALTER TABLE guifi_location ADD `graph_server` varchar(40) default NULL after `stable`");
+  $ret[] = update_sql("ALTER TABLE guifi_zone ADD `graph_server` varchar(40) default NULL after `mrtg_servers`");
+  $ret[] = update_sql("ALTER TABLE guifi_devices ADD `graph_server` varchar(40) default NULL after `url_mrtg_server`");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'SNPgraphs','SNP graph server')");
   $ret[] = update_sql("TRUNCATE TABLE {cache}");
   return $ret;
 }

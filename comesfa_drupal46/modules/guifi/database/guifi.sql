@@ -13,6 +13,7 @@ CREATE TABLE `guifi_location` (
   `contact` varchar(40) default NULL,
   `status_flag` varchar(40) NOT NULL default 'Planned',
   `stable` enum('Yes','No') NOT NULL default 'Yes',
+  `graph_server` varchar(40) default NULL,
   `user_created` int(10) NOT NULL default '0',
   `user_changed` int(10) default NULL,
   `timestamp_created` int(11) NOT NULL default '0',
@@ -54,6 +55,7 @@ CREATE TABLE `guifi_zone` (
   `dns_servers` varchar(255) default NULL,
   `ntp_servers` varchar(255) default NULL,
   `mrtg_servers` varchar(255) default NULL,
+  `graph_server` varchar(40) default NULL,
   `image` varchar(255) NOT NULL default '',
   `map_coord` mediumtext NOT NULL,
   `map_poly` mediumtext NOT NULL,
@@ -82,6 +84,7 @@ CREATE TABLE guifi_devices (
   flag varchar(40) NOT NULL default 'Planned',
   extra longtext DEFAULT NULL,
   url_mrtg_server varchar(255) default NULL,
+  graph_server varchar(40) default NULL,
   user_created int(10) NOT NULL default '0',
   user_changed int(10) NOT NULL default '0',
   timestamp_created int(11) NOT NULL default '0',
@@ -263,6 +266,7 @@ INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'wol',   
 INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'iperf',    'iperf bandwidth test');
 INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'teamspeak','TeamSpeak Server - Voice conference');
 INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'games',    'Generic games server');
+INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'SNPgraphs','SNP graph server');
 
 --
 -- radio mode types

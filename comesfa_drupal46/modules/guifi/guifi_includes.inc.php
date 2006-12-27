@@ -334,21 +334,26 @@ function guifi_get_free_interfaces($id,$edit = array()) {
   return array_diff($possible, $used);
 }
 
+
+function _guifi_set_namelocation($location) {
+  $prefix = '';
+  foreach (array_reverse(guifi_get_zone_parents($location->zone_id)) as $parent) {
+    if ($parent > 0) {
+      $result = db_fetch_array(db_query('SELECT z.id, z.title, z.master FROM {guifi_zone} z WHERE z.id = %d',$parent));
+      if ($result['master']) {
+        $prefix .= $result['title'].', ';
+      }
+    }
+
+  }
+  return $prefix.$location->nick;
+} // eof function _set_value
+
+
+
 function guifi_nodes_select() {
 
-  function _set_value($location) {
-    $prefix = '';
-    foreach (array_reverse(guifi_get_zone_parents($location->zone_id)) as $parent) {
-      if ($parent > 0) {
-        $result = db_fetch_array(db_query('SELECT z.id, z.title, z.master FROM {guifi_zone} z WHERE z.id = %d',$parent));
-        if ($result['master']) {
-          $prefix .= $result['title'].', ';
-        }
-      }
-
-    }
-    return $prefix.$location->nick;
-  } // eof function _set_value
+  $var = array();
 
   $found = false;
 
@@ -356,8 +361,26 @@ function guifi_nodes_select() {
 
   
   while ($location = db_fetch_object($query)) {
-    $var[$location->id] = _set_value($location,$new_pointer,$found);
+    $var[$location->id] = _guifi_set_namelocation($location,$new_pointer,$found);
   } // eof while query node,zone
+
+  asort($var);
+
+  return $var;
+}
+
+function guifi_services_select($stype) {
+
+  $var = array();
+
+  $found = false;
+
+  $query = db_query(sprintf('SELECT s.id, n.title nick, z.id zone_id FROM {node} n,{guifi_services} s, {guifi_zone} z WHERE s.id=n.nid AND s.service_type="%s" AND s.zone_id=z.id ORDER BY z.id, s.id, s.nick',$stype));
+
+  
+  while ($service = db_fetch_object($query)) {
+    $var[$service->id] = _guifi_set_namelocation($service,$new_pointer,$found);
+  } // eof while query service,zone
 
   asort($var);
 
@@ -964,6 +987,34 @@ function guifi_nodexchange_tree($zid) {
 
   return $childs;
 }
+
+function guifi_cnml_tree($zid) {
+  $result = db_query('SELECT z.id, z.master parent_id, z.title, n.body, z.time_zone, z.ntp_servers, z.dns_servers, z.graph_server, z.homepage, z.minx, z.miny, z.maxx, z.maxy,z.timestamp_created, z.timestamp_changed FROM {guifi_zone} z, {node} n WHERE z.id=n.nid ORDER BY z.title');
+  while ($zone = db_fetch_object($result)) {
+    $zones[$zone->id] = $zone;
+  }
+  $result = db_query('SELECT l.*,n.body FROM {guifi_location} l, {node} n WHERE l.id=n.nid ORDER BY l.nick');
+  while ($node = db_fetch_object($result)) {
+    $zones[$node->zone_id]->nodes[] = $node;
+  }
+
+
+  $childs = array();
+
+  foreach ($zones as $zoneid=>$zone) {
+    if (!$children[$zone->parent_id]) {
+      $children[$zone->parent_id][$zoneid] = $zone;
+    }
+    $children[$zone->parent_id][$zoneid] = $zone;
+    if ($zoneid == $zid)
+      $childs[$zid] = $zone;
+  }
+
+  $childs[$zid]->childs = guifi_zone_tree_recurse($zid,$children);
+
+  return $childs;
+}
+
 
 function guifi_form_hidden($var_txt,$var) {
   if (is_array($var)) 

@@ -13,6 +13,7 @@ include_once("guifi_users.inc.php");     // user management
 include_once("guifi_graphs.inc.php");    // graphs management
 include_once("guifi_unsolclic.inc.php"); // unsolclic generator 
 include_once("guifi_nodexchange.inc.php");// nodeXchange (XML) generator 
+include_once("guifi_cnml.inc.php");      // CNML (XML) generator 
 include_once("guifi_gml.inc.php");       // gml (geographic XML export) generator 
 include_once("guifi_maps.inc.php");      // maps management
 include_once("guifi_includes.inc.php");  // misc. routines
@@ -81,6 +82,10 @@ function guifi_menu($may_cache) {
        'type' => MENU_SUGGESTED_ITEM);
      $items[] = array('path' => 'guifi/nodexchange', 'title' => t('export zone in nodeXchange format'),
        'callback' => 'guifi_nodexchange',
+       'access' => user_access('access content'),
+       'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/cnml', 'title' => t('export zone in CNML format'),
+       'callback' => 'guifi_cnml',
        'access' => user_access('access content'),
        'type' => MENU_SUGGESTED_ITEM);
      $items[] = array('path' => 'guifi/gml', 'title' => t('export zone in gml format'),
@@ -711,10 +716,14 @@ function guifi_link($type, $node = 0){
 
   if ($type == "node" && $node->type == "guifi-zone") {
     $links[] = l(t('create mrtg config'), "guifi/mrtg/$node->nid", array('title'=>t('get an mrtg configuration file for this zone')) );
-    $links[] = l('nodeXange', "guifi/nodexchange/$node->nid", array('title'=>t('export zone in nodeXchange format')) );
+    $links[] = l('nodeXchange', "guifi/nodexchange/$node->nid", array('title'=>t('export zone in nodeXchange format')) );
+    $links[] = l('CNML', "guifi/cnml/$node->nid", array('title'=>t('export zone in CNML format')) );
     $links[] = l('GML', "guifi/gml/$node->nid", array('title'=>t('export zone in gml format')) );
     if (module_exist('budgets'))
       $links[] = l(t('budgets'), "budgets/$node->nid", array('title'=>t('view budgets for this zone')));
+  }
+  if ($type == "node" && $node->type == "guifi-node") {
+    $links[] = l('CNML', "guifi/cnml/$node->nid/node", array('title'=>t('export node in CNML format')) );
   }
  
   return $links;

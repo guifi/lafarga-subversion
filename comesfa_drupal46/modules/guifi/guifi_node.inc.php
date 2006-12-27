@@ -87,6 +87,7 @@ function guifi_node_form(&$node, &$param) {
   $output .= form_group('Position',$degminsec,null);
   $output .= form_textfield(t("Antenna elevation"), "elevation", $node->elevation, 20, 20, t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''));
 
+  $output .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits zone properties."));
 
   $stable_types = array('Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'),
                         'No' => t("I'm sorry. Will be connected just when I'm online"));
@@ -162,7 +163,7 @@ function guifi_edit_node_validate(&$node) {
 function guifi_node_insert($node) {
   global $user;
 
-  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %.10f, %.10f, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
+  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %.10f, %.10f, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
 
 
   // Refresh maps
@@ -180,7 +181,7 @@ function guifi_node_update($node) {
     cache_clear_all();
   }
 
-  db_query("UPDATE {guifi_location} SET zone_id = %d, zone_description = '%s', nick = '%s', lat = %.10f, lon = %.10f, elevation = %d, contact = '%s', status_flag = '%s', stable = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->contact, $node->status_flag, $node->stable, time(), $user->uid, $node->nid);
+  db_query("UPDATE {guifi_location} SET zone_id = %d, zone_description = '%s', nick = '%s', lat = %.10f, lon = %.10f, elevation = %d, graph_server = '%s', contact = '%s', status_flag = '%s', stable = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid, $node->nid);
 
 }
 

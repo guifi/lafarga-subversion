@@ -158,12 +158,7 @@ function guifi_get_user($id) {
  */
 function guifi_edit_user_form($edit) {
 
-  $proxy_list = array('0'=>t('None'));
-  $query = db_query("SELECT id, nick FROM {guifi_services} WHERE service_type = 'Proxy'");
-  while ($proxy = db_fetch_object($query)) {
-    $node = node_load(array('nid'=>$proxy->id));
-    $proxy_list[$proxy->id] = $node->title;
-  }
+  $proxy_list = array('0'=>t('None')) + guifi_services_select('Proxy');
 
   $form .= form_textfield(t('Firstname'), 'firstname', $edit['firstname'], 60, 128, t('The real user name (Firstname), will be used while building the username. If username results duplicated, add more words (i.e. middle initial).'), NULL, TRUE);
   $form .= form_textfield(t('Lastname'), 'lastname', $edit['lastname'], 60, 128, t('The real user name (Lastname).'), NULL, TRUE);
