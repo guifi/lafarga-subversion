@@ -1,6 +1,6 @@
 <?php
 
-function guifi_gml($zid,$action = "help") {
+function guifi_gml($zid,$action = "help",$type = 'gml') {
 
   if ($action == "help") { 
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zid));
@@ -19,15 +19,15 @@ function guifi_gml($zid,$action = "help") {
 
   switch ($action) {
   case 'links':
-    guifi_gml_links($zid);
+    guifi_gml_links($zid,$type);
     break;
   case 'nodes':
-    guifi_gml_nodes($zid);
+    guifi_gml_nodes($zid,$type);
     break;
   }  
 } //EOF function guifi_gml
 
-function guifi_gml_nodes($zid) {
+function guifi_gml_nodes($zid,$type) {
   $minx = 180; $miny = 90; $maxx= -180; $maxy = -90;
        
   $zchilds = guifi_zone_childs($zid);
@@ -51,6 +51,7 @@ function guifi_gml_nodes($zid) {
       break;
     }
 
+    if ($type == 'gml') {
     $output .= '  
   <gml:featureMember>
     <dnodes fid="'.$row->id.'">
@@ -61,14 +62,17 @@ function guifi_gml_nodes($zid) {
       <STATUS>'.$row->status_flag.'</STATUS>
     </dnodes>
   </gml:featureMember>';
+    } else {
+      $output .= $row->id.','.$row->lon.','.$row->lat.','.$row->nick.','.$node_type.','.$row->status_flag."\n";
+    }
     if ($row->lon > $maxx) $maxx = $row->lon;
     if ($row->lat > $maxy) $maxy = $row->lat;
     if ($row->lon < $minx) $minx = $row->lon;
     if ($row->lat < $miny) $miny = $row->lat;
-}
+  } // while nodes
 
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
-  print '<?xml version="1.0" encoding="utf-8" ?>
+  if ($type == 'gml') print '<?xml version="1.0" encoding="utf-8" ?>
 <ogr:FeatureCollection
      xmlns:xsi="http://www.w3c.org/2001/XMLSchema-instance"
      xsi:schemaLocation=". dnodes.xsd"
@@ -81,11 +85,11 @@ function guifi_gml_nodes($zid) {
     </gml:Box>
   </gml:boundedBy>';
   print $output;
-  print '
+  if ($type == 'gml') print '
 </ogr:FeatureCollection>';
 } // EOF function guifi_gml_nodes()
 
-function guifi_gml_links($zid) {
+function guifi_gml_links($zid,$type) {
   $oGC = new GeoCalc();
   $minx = 180; $miny = 90; $maxx= -180; $maxy = -90;
 
@@ -110,7 +114,7 @@ function guifi_gml_links($zid) {
     else
       $status = $row->flag;
 
-    $output .= '  
+    if ($type == 'gml') $output .= '  
   <gml:featureMember>
     <dlinks fid="'.$row->id.'">
       <NODE1_ID>'.$nl[0]->id.'</NODE1_ID>
@@ -123,6 +127,8 @@ function guifi_gml_links($zid) {
       <ogr:geometryProperty><gml:LineString><gml:coordinates>'.$nl[0]->lon.','.$nl[0]->lat.' '.$nl[1]->lon.','.$nl[1]->lat.'</gml:coordinates></gml:LineString></ogr:geometryProperty>
     </dlinks>
   </gml:featureMember>';
+    else
+      $output .= $row->id.','.$nl[0]->id.','.$nl[0]->nick.','.$nl[1]->id.','.$nl[1]->nick.','.$distance.','.$row->link_type.','.$status.','.$nl[0]->lon.','.$nl[0]->lat.','.$nl[1]->lon.','.$nl[1]->lat."\n";
   
     if ($nl[0]->lon > $maxx) $maxx = $nl[0]->lon;
     if ($nl[0]->lat > $maxy) $maxy = $nl[0]->lat;
@@ -137,7 +143,7 @@ function guifi_gml_links($zid) {
   
 }
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
-  print '<?xml version="1.0" encoding="utf-8" ?>
+  if ($type == 'gml') print '<?xml version="1.0" encoding="utf-8" ?>
 <ogr:FeatureCollection
      xmlns:xsi="http://www.w3c.org/2001/XMLSchema-instance"
      xsi:schemaLocation=". dlinks.xsd"
@@ -150,7 +156,7 @@ function guifi_gml_links($zid) {
     </gml:Box>
   </gml:boundedBy>';
   print $output;
-  print '</ogr:FeatureCollection>';
+  if ($type == 'gml') print '</ogr:FeatureCollection>';
      
 } // eof function guifi_gml_links()
 
