@@ -1104,4 +1104,9 @@ function guifi_array_combine($arr1, $arr2) {
   return $result;
 }
 
+function guifi_refresh($parameter) {
+  echo variable_get('guifi_refresh_'.$parameter,time());
+  exit;
+}
+
 ?>

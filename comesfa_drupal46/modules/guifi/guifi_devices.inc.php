@@ -720,6 +720,8 @@ function guifi_edit_device_save($edit) {
 
   guifi_set_node_flag($edit['nid']);
   touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+  variable_set('guifi_refresh_cnml',time());
+  variable_set('guifi_refresh_maps',time());
   cache_clear_all();
 
   return $edit[id];
