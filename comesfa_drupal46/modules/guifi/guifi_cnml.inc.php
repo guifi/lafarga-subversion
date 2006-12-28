@@ -152,7 +152,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
     if (is_array($devices[$node->id])) if (count($devices[$node->id])) {
       foreach ($devices[$node->id] as $id=>$device) {
         if ($action == 'detail') {
-          $deviceXML = $nodeXML->addChild('device',$device->comment);
+          $deviceXML = $nodeXML->addChild('device',htmlspecialchars($device->comment,ENT_QUOTES));
          foreach ($device as $key=>$value) {
           if ($value) switch ($key) {
             case 'body': comment;
@@ -165,6 +165,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
             case 'timestamp_changed': $deviceXML->addAttribute('updated',date('Ymd hi',$value)); break;
           }
          }
+         if ((!empty($device->extra)) and ($device->type='radio')) {
+           $device->variable = unserialize($device->extra);
+           if ($device->variable['firmware'])
+             $deviceXML->addAttribute('firmware',($device->variable['firmware']));
+         }
         }
         $nodesummary->devices++;
 
@@ -172,7 +177,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
         if (is_array($radios[$node->id][$device->id])) if (count($radios[$node->id][$device->id])) {
           foreach ($radios[$node->id][$device->id] as $id=>$radio) {
             if ($action == 'detail') {
-              $radioXML = $deviceXML->addChild('radio',$radio->comment);
+              $radioXML = $deviceXML->addChild('radio',htmlspecialchars($radio->comment,ENT_QUOTES));
               $radioXML->addAttribute('id',$radio->radiodev_counter); 
               foreach ($radio as $key=>$value) {
                if ($value) switch ($key) {
@@ -390,6 +395,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
   $CNML->addAttribute('version','0.1');
   $CNML->addAttribute('server_id','1');
   $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
   $classXML = $CNML->addChild('class');
 
   if ($action != 'node') {
@@ -421,12 +427,6 @@ function guifi_cnml($cnmlid,$action = 'help') {
     foreach ($tree as $nodeid=>$node) {
       $summary = _add_cnml_node($CNML,$node,$summary,'detail');
     }
-  
-//    $nodeXML->addAttribute('devices',$summary->devices);
-//    $nodeXML->addAttribute('ap',$summary->ap);
-//    $nodeXML->addAttribute('client',$summary->client);
-//    $nodeXML->addAttribute('services',$summary->services);
-//    $nodeXML->addAttribute('links',$summary->links);
   } 
 
   drupal_set_header('Content-Type: application/xml; charset=utf-8');

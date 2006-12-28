@@ -163,7 +163,7 @@ function guifi_edit_node_validate(&$node) {
 function guifi_node_insert($node) {
   global $user;
 
-  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %.10f, %.10f, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
+  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %.10f, %.10f, %d, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
 
 
   // Refresh maps
