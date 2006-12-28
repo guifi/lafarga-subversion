@@ -71,6 +71,7 @@ function guifi_zone_form(&$node, &$param) {
   $form .= form_textfield(t('NTP Servers'), 'ntp_servers', $node->ntp_servers, 60, 128, t('The network time protocol (clock) servers of this zone, will inherit parent NTP servers if blank. Separated by ",".'), NULL, NULL);
   $form .= form_textfield(t('OSPF zone id'), 'ospf_zone', $node->ospf_zone, 60, 128, t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'), NULL, NULL);
   $form .= form_textfield(t('MRTG zone url'), 'mrtg_servers', $node->mrtg_servers, 60, 128, t('This URL will be used for the obtaining of graphs from external servers to guifi.'), NULL, NULL);
+  $form .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits parent zone properties."));
 
   $form .= '<hr><h2>'.t('zone mapping parameters').'</h2>';
   $form .= form_item(t('Bottom left corner'),
@@ -189,7 +190,7 @@ function guifi_edit_zone_validate(&$node) {
 function guifi_zone_insert($node) {
   global $user;
 
-  db_query("INSERT INTO {guifi_zone} ( id, master, nick, title, body, weight, time_zone, dns_servers, ntp_servers, mrtg_servers, timestamp_created, user_created, image, map_coord, map_poly, homepage, notification, ospf_zone, minx, miny, maxx, maxy) VALUES (%d, %d, '%s', '%s', '%s', %d, '%s', '%s', '%s','%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s','%f','%f','%f','%f')", $node->nid, $node->master, $node->nick, $node->title, $node->body, $node->weight, $node->time_zone, $node->dns_servers, $node->ntp_servers, $node->mrtg_servers, time(), $user->uid, $node->image, '', '', $node->homepage, $node->notification, $node->ospf_zone, $node->minx, $node->miny, $node->maxx, $node->maxy);
+  db_query("INSERT INTO {guifi_zone} ( id, master, nick, title, body, weight, time_zone, dns_servers, ntp_servers, mrtg_servers, graph_server, timestamp_created, user_created, image, map_coord, map_poly, homepage, notification, ospf_zone, minx, miny, maxx, maxy) VALUES (%d, %d, '%s', '%s', '%s', %d, '%s', '%s', '%s','%s', %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s','%f','%f','%f','%f')", $node->nid, $node->master, $node->nick, $node->title, $node->body, $node->weight, $node->time_zone, $node->dns_servers, $node->ntp_servers, $node->mrtg_servers, $node->graph_server, time(), $user->uid, $node->image, '', '', $node->homepage, $node->notification, $node->ospf_zone, $node->minx, $node->miny, $node->maxx, $node->maxy);
 
  // if box set, maps should be rebuilt to add the new zone box in the lists
  if (($node->minx) || ($node->miny) || ($node->maxx) || ($node->maxy)) {
@@ -209,7 +210,7 @@ function guifi_zone_update($node) {
   }
   
 
-  db_query("UPDATE {guifi_zone} SET master = %d, nick = '%s', time_zone = '%s', dns_servers = '%s', ntp_servers = '%s', mrtg_servers = '%s', title = '%s', body = '%s', timestamp_changed = %d, weight = %d, image = '%s', user_changed = %d, homepage = '%s', notification = '%s', ospf_zone = '%s', minx = '%f', miny = '%f', maxx = '%f', maxy = '%f' WHERE id = %d", $node->master, $node->nick, $node->time_zone, $node->dns_servers, $node->ntp_servers, $node->mrtg_servers, $node->title, $node->body, time(), $node->weight, $node->image, $user->uid, $node->homepage, $node->notification, $node->ospf_zone, $node->minx, $node->miny, $node->maxx, $node->maxy, $node->nid);
+  db_query("UPDATE {guifi_zone} SET master = %d, nick = '%s', time_zone = '%s', dns_servers = '%s', ntp_servers = '%s', mrtg_servers = '%s', graph_server=%d, title = '%s', body = '%s', timestamp_changed = %d, weight = %d, image = '%s', user_changed = %d, homepage = '%s', notification = '%s', ospf_zone = '%s', minx = '%f', miny = '%f', maxx = '%f', maxy = '%f' WHERE id = %d", $node->master, $node->nick, $node->time_zone, $node->dns_servers, $node->ntp_servers, $node->mrtg_servers, $node->graph_server, $node->title, $node->body, time(), $node->weight, $node->image, $user->uid, $node->homepage, $node->notification, $node->ospf_zone, $node->minx, $node->miny, $node->maxx, $node->maxy, $node->nid);
 }
 
 function guifi_tree_recurse($id, $depth, $children, $unfold = array(),$linkto = 'guifi/') {

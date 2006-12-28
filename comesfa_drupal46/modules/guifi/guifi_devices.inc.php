@@ -417,6 +417,11 @@ function guifi_edit_device_form($edit, $node = null) {
                   array('data'=>form_select(t('Status'), 'flag', $edit['flag'], guifi_types('status'), t('Current status of this device.')),'valign'=>'top'),
                  );
   $form .=  form_group(t('Main device information'),theme('table',null,$rows));
+  unset($rows);
+  $rows[] = array(
+                  array('data'=>form_select(t("Server which collects traffic and availability data"), "graph_server", ($edit['graph_server'] ? $edit['graph_server'] : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits node properties."))),
+                 );
+  $form .=  form_group(t('Monitoring parameters'),theme('table',null,$rows));
 
 
   $form .= "</div>\n";
@@ -673,7 +678,7 @@ function guifi_edit_device_save($edit) {
       guifi_rename_graphs($pdevice['nick'],$edit['nick']);
     }
 
-    db_query("UPDATE {guifi_devices} SET nick = '%s', type = '%s', contact = '%s', mac = '%s', comment = '%s', flag = '%s', extra = '%s', user_changed = %d, timestamp_changed = %d WHERE id = %d", $edit['nick'], $edit['type'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']), $user->uid, time(), $edit['id']);
+    db_query("UPDATE {guifi_devices} SET nick = '%s', type = '%s', graph_server=%d, contact = '%s', mac = '%s', comment = '%s', flag = '%s', extra = '%s', user_changed = %d, timestamp_changed = %d WHERE id = %d", $edit['nick'], $edit['type'], $edit['graph_server'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']), $user->uid, time(), $edit['id']);
     
 
     $cascade = false;
@@ -703,7 +708,7 @@ function guifi_edit_device_save($edit) {
   } else {
     $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_devices}'));
     $edit[id] = $next_id[id];
-    db_query("INSERT INTO {guifi_devices} ( id, nid, nick, type, contact, mac, comment, flag, extra, user_created, timestamp_created) VALUES (%d, %d, '%s','%s','%s','%s','%s','%s', '%s', '%d','%d')", $edit[id], $edit['nid'], $edit['nick'], $edit['type'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']),  $user->uid, time());
+    db_query("INSERT INTO {guifi_devices} ( id, nid, nick, type, graph_server, contact, mac, comment, flag, extra, user_created, timestamp_created) VALUES (%d, %d, '%s','%s',%d, '%s','%s','%s','%s', '%s', '%d','%d')", $edit[id], $edit['nid'], $edit['nick'], $edit['type'], $edit['graph_server'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']),  $user->uid, time());
 
 
     guifi_log(GUIFILOG_BASIC,sprintf('device (%s) %d-%s created.',$edit['type'],$edit[id],$edit['nick']));
