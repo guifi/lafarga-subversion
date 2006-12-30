@@ -71,7 +71,7 @@ function guifi_zone_form(&$node, &$param) {
   $form .= form_textfield(t('NTP Servers'), 'ntp_servers', $node->ntp_servers, 60, 128, t('The network time protocol (clock) servers of this zone, will inherit parent NTP servers if blank. Separated by ",".'), NULL, NULL);
   $form .= form_textfield(t('OSPF zone id'), 'ospf_zone', $node->ospf_zone, 60, 128, t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'), NULL, NULL);
   $form .= form_textfield(t('MRTG zone url'), 'mrtg_servers', $node->mrtg_servers, 60, 128, t('This URL will be used for the obtaining of graphs from external servers to guifi.'), NULL, NULL);
-  $form .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits parent zone properties."));
+  if (user_access('administer guifi zones')) $form .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default','-1'=>'None') + guifi_services_select('SNPgraphs'), t("If not specified, inherits parent zone properties."));
 
   $form .= '<hr><h2>'.t('zone mapping parameters').'</h2>';
   $form .= form_item(t('Bottom left corner'),

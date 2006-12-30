@@ -1076,9 +1076,9 @@ function unsolclic_routeros($dev) {
   _outln(':foreach i in [/routing filter find chain=ospf-in] do={/routing filter remove $i;}');
   _outln(':foreach i in [/routing filter find chain=ospf-out] do={/routing filter remove $i;}');
   _outln("/ routing filter");
-  _outln('add chain=ospf-out prefix=10.0.0.0/8 prefix-length=8-27 invert-match=no action=accept comment="" disabled=no');
+  _outln('add chain=ospf-out prefix=10.0.0.0/8 prefix-length=8-32 invert-match=no action=accept comment="" disabled=no');
   _outln('add chain=ospf-out invert-match=no action=discard comment="" disabled=no');
-  _outln('add chain=ospf-in prefix=10.0.0.0/8 prefix-length=8-27 invert-match=no action=accept comment="" disabled=no');
+  _outln('add chain=ospf-in prefix=10.0.0.0/8 prefix-length=8-32 invert-match=no action=accept comment="" disabled=no');
   _outln('add chain=ospf-in invert-match=no action=reject comment="" disabled=no');
   _outln_comment();
   _outln_comment(t('BGP instance'));

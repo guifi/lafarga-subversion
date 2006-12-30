@@ -418,10 +418,12 @@ function guifi_edit_device_form($edit, $node = null) {
                  );
   $form .=  form_group(t('Main device information'),theme('table',null,$rows));
   unset($rows);
-  $rows[] = array(
-                  array('data'=>form_select(t("Server which collects traffic and availability data"), "graph_server", ($edit['graph_server'] ? $edit['graph_server'] : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits node properties."))),
-                 );
-  $form .=  form_group(t('Monitoring parameters'),theme('table',null,$rows));
+  if (user_access('administer guifi zones') and $edit['type'] == 'radio') {
+    $rows[] = array(
+                  array('data'=>form_select(t("Server which collects traffic and availability data"), "graph_server", ($edit['graph_server'] ? $edit['graph_server'] : 0), array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'), t("If not specified, inherits node properties."))),
+                   );
+    $form .=  form_group(t('Monitoring parameters'),theme('table',null,$rows));
+  }
 
 
   $form .= "</div>\n";

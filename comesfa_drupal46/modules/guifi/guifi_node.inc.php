@@ -87,7 +87,7 @@ function guifi_node_form(&$node, &$param) {
   $output .= form_group('Position',$degminsec,null);
   $output .= form_textfield(t("Antenna elevation"), "elevation", $node->elevation, 20, 20, t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''));
 
-  $output .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default') + guifi_services_select('SNPgraphs'), t("If not specified, inherits zone properties."));
+  if (user_access('administer guifi zones')) $output .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'), t("If not specified, inherits zone properties."));
 
   $stable_types = array('Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'),
                         'No' => t("I'm sorry. Will be connected just when I'm online"));

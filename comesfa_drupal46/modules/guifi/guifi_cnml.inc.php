@@ -329,7 +329,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
       if ($nodesummary->services) $nodeXML->addAttribute('services',$nodesummary->services);
     }
    
-    return $summary;
+    return;
   } // _add_cnml_node
 
   function _add_cnml_zone(&$CNML,$zone,$action) {
@@ -358,11 +358,15 @@ function guifi_cnml($cnmlid,$action = 'help') {
             $summary->servers += $summary2->servers;
             $summary->links   += $summary2->links;
             $summary->services+= $summary2->services;
+            if ($summary2->minx < $summary->minx) $summary->minx = $summary2->minx;
+            if ($summary2->miny < $summary->miny) $summary->miny = $summary2->miny;
+            if ($summary2->maxx > $summary->maxx) $summary->maxx = $summary2->maxy;
+            if ($summary2->maxy > $summary->maxy) $summary->maxy = $summary2->maxy;
           }
           break;
        case 'nodes':
           foreach ($value as $child) 
-            $summary = _add_cnml_node($zoneXML,$child,$summary,$action);
+            _add_cnml_node($zoneXML,$child,$summary,$action);
           break;
        case 'id': $zoneXML->addAttribute('id',$value); break;
        case 'parent_id': $zoneXML->addAttribute('parent_id',$value); break;
@@ -390,6 +394,16 @@ function guifi_cnml($cnmlid,$action = 'help') {
     return $summary;
   }
   
+  $summary->nodes = 0;
+  $summary->minx = 179.9;
+  $summary->miny = 89.9;
+  $summary->maxx = -179.9;
+  $summary->maxy = -89.9;
+  $summary->devices = 0;
+  $summary->ap = 0;
+  $summary->client = 0;
+  $summary->services = 0;
+  $summary->links = 0;
 
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   $CNML->addAttribute('version','0.1');
@@ -404,7 +418,14 @@ function guifi_cnml($cnmlid,$action = 'help') {
     $networkXML = $CNML->addChild('network');
   
     foreach ($tree as $zone_id=>$zone) {
-      $summary = _add_cnml_zone($networkXML,$zone,$action);
+      $summary2 = _add_cnml_zone($networkXML,$zone,$action);
+      $summary->nodes   += $summary2->nodes;
+      $summary->ap      += $summary2->ap;
+      $summary->client  += $summary2->client;
+      $summary->servers += $summary2->servers;
+      $summary->links   += $summary2->links;
+      $summary->services+= $summary2->services;
+       
     }
   
     $networkXML->addAttribute('nodes',$summary->nodes);
