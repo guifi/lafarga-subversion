@@ -374,6 +374,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
        case 'time_zone': $zoneXML->addAttribute('time_zone',$value); break;
        case 'ntp_servers': $zoneXML->addAttribute('ntp_servers',$value); break;
        case 'dns_servers': $zoneXML->addAttribute('dns_servers',$value); break;
+       case 'graph_server': $zoneXML->addAttribute('graph_server',$value); break;
        case 'timestamp_created': $zoneXML->addAttribute('created',date('Ymd hi',$value)); break;
        case 'timestamp_changed': $zoneXML->addAttribute('updated',date('Ymd hi',$value)); break;
      }
