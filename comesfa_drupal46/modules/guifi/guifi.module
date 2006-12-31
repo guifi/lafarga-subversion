@@ -446,6 +446,7 @@ function guifi_settings() {
   $vocabularies = taxonomy_get_vocabularies();
   $output .= form_textfield("Path to rrdtool", "rrdtool", variable_get("rrdtool_path", t("/usr/bin/rrdtool")), 35, 255, t("Full path to rrtool executable"));
   $output .= form_textfield("Path to mrtg rrd files", "rrddb_path", variable_get("rrddb_path", t("/home/comesfa/mrtg/logs/")), 35, 255, t("Full path to rrtd database files"));
+  $output .= form_textfield("Path to mrtg img files", "rrdimg_path", variable_get("rrdimg_path", t("/home/comesfa/mrtg/images/")), 35, 255, t("Full path to rrtd img files"));
   $output .= form_textfield("URL for local graphs", "graphs_url", variable_get("graphs_url", t("http://gufi.net/snpservices/graphs/graphs.php")), 35, 255, t("Base URL for local rrd graphs"));
   $output .= form_textfield("Log file", "guifi_log", variable_get("guifi_log", t("/home/comesfa/logs/guifi.log")), 35, 255, t("Full path to filename"));
   $output .= form_select("Log level", "guifi_loglevel", variable_get("guifi_loglevel", 0), array(0=>'None',1=>'Basic',2=>'Trace',3=>'Full'), null);
