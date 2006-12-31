@@ -170,7 +170,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
            if ($device->type == 'radio')
            if (isset($device->variable['firmware']))
              $deviceXML->addAttribute('firmware',($device->variable['firmware']));
-           if (isset($device->variable['mrtg_index']))
+           if (!empty($device->variable['mrtg_index']))
              $deviceXML->addAttribute('snmp_index',($device->variable['mrtg_index']));
          }
         }
