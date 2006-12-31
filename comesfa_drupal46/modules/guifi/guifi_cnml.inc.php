@@ -165,10 +165,13 @@ function guifi_cnml($cnmlid,$action = 'help') {
             case 'timestamp_changed': $deviceXML->addAttribute('updated',date('Ymd hi',$value)); break;
           }
          }
-         if ((!empty($device->extra)) and ($device->type='radio')) {
+         if (!empty($device->extra)) {
            $device->variable = unserialize($device->extra);
-           if ($device->variable['firmware'])
+           if ($device->type == 'radio')
+           if (isset($device->variable['firmware']))
              $deviceXML->addAttribute('firmware',($device->variable['firmware']));
+           if (isset($device->variable['mrtg_index']))
+             $deviceXML->addAttribute('snmp_index',($device->variable['mrtg_index']));
          }
         }
         $nodesummary->devices++;
