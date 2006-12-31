@@ -313,7 +313,7 @@ function guifi_mrtg() {
   print $nl."LogDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
   print $nl."LogFormat: rrdtool";
   print $nl."ThreshDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
-  print $nl."Forks: 16";
+  print $nl."Forks: 24";
   print $nl."SnmpOptions: retries => 2, only_ip_address_matching => 0";
   print $nl."SnmpOptions: timeout => 1";
   
