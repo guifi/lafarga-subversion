@@ -73,10 +73,10 @@ if (!extension_loaded("dbase"))
 /* -------------------------------------------------------------------- */
 /*      Check if maps should be refreshed and do it if yes              */
 /* -------------------------------------------------------------------- */
-if (file_exists('/tmp/ms_tmp/REBUILD')) {
+/*if (file_exists('/tmp/ms_tmp/REBUILD')) {
   unlink('/tmp/ms_tmp/REBUILD');
   exec('/home1/fgs/www/htdocs/data/refresh.sh');
-} 
+}*/ 
 
 $gszCommand = $HTTP_FORM_VARS["CMD"];
 if ( sizeof($gszCommand) == 0)
