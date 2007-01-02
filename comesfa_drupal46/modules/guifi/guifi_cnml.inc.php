@@ -107,6 +107,16 @@ function guifi_cnml($cnmlid,$action = 'help') {
       $services[$service->device_id][$service->id] = $service;
   }
 
+  // load radio models in memory for faster execution
+  global $models;
+  $qmodel = db_query("SELECT mid, model FROM guifi_model ORDER BY mid");
+  while ($model = db_fetch_object($qmodel)) {
+     $models[$model->mid] = $model->model;
+  }
+
+// print_r($models);
+
+
 //  print_r($tree);
 
 
@@ -117,6 +127,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
     global $interfaces;
     global $links;
     global $services;
+    global $models;
 
     $nodesummary->ap = 0;
     $nodesummary->client = 0;
@@ -170,6 +181,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
            if ($device->type == 'radio')
            if (isset($device->variable['firmware']))
              $deviceXML->addAttribute('firmware',($device->variable['firmware']));
+           if (isset($device->variable['model_id']))
+             $deviceXML->addAttribute('name',$models[(int)$device->variable['model_id']]);
            if (!empty($device->variable['mrtg_index']))
              $deviceXML->addAttribute('snmp_index',($device->variable['mrtg_index']));
          }
