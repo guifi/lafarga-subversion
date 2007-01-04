@@ -1,6 +1,6 @@
 <?php
 
-function guifi_gml($zid,$action = "help",$type = 'gml') {
+function guifi_gml($zid,$action = "help",$type == 'csv') {
 
   if ($action == "help") { 
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zid));
