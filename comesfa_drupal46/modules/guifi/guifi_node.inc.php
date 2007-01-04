@@ -167,7 +167,7 @@ function guifi_node_insert($node) {
 
 
   // Refresh maps
-  touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+//  touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
   variable_set('guifi_refresh_cnml',time());
   variable_set('guifi_refresh_maps',time());
 
@@ -180,7 +180,7 @@ function guifi_node_update($node) {
   // Refresh maps?
   $pn = db_fetch_object(db_query('SELECT * FROM {guifi_location} l WHERE l.id=%d',$node->nid));  
   if (($pn->lat != $node->lat) || ($pn->lon != $node->lon) || ($pn->status_flag != $node->status_flag)) {
-    touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+//    touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
     variable_set('guifi_refresh_cnml',time());
     variable_set('guifi_refresh_maps',time());
 

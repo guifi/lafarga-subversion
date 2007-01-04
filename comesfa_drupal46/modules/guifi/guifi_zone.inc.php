@@ -194,7 +194,7 @@ function guifi_zone_insert($node) {
 
  // if box set, maps should be rebuilt to add the new zone box in the lists
  if (($node->minx) || ($node->miny) || ($node->maxx) || ($node->maxy)) {
-   touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+//   touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
    variable_set('guifi_refresh_cnml',time());
    variable_set('guifi_refresh_maps',time());
 
@@ -208,7 +208,7 @@ function guifi_zone_update($node) {
   // if box changed, maps should be rebuilt
   $pz = db_fetch_object(db_query('SELECT * FROM {guifi_zone} z WHERE z.id = %d',$node->nid));
   if (($pz->maxx != $node->maxx) || ($pz->maxy != $node->maxy) || ($pz->minx != $node->minx) || ($pz->miny != $node->miny)) {
-    touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+//    touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
     variable_set('guifi_refresh_cnml',time());
     variable_set('guifi_refresh_maps',time());
 

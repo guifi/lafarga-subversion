@@ -713,7 +713,7 @@ function guifi_delete(&$node) {
       break;
    }
    cache_clear_all();
-   touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
+//   touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
    variable_set('guifi_refresh_cnml',time());
    variable_set('guifi_refresh_maps',time());
 }
