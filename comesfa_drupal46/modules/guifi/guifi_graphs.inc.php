@@ -379,28 +379,34 @@ function guifi_get_pings($hostname, $start = NULL, $end = NULL) {
   if ($end == NULL)
     $end = time() - 300;
 //  print 'Start/end: '.$start.' '.$end."\n<br>";
-  $fp = popen(variable_get('rrdtool_path','/usr/bin/rrdtool')." fetch ".variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($hostname).sprintf("_ping.rrd AVERAGE --start=%d --end=%d",$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $failed = 'nan';
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$failed,$latency);
-      if (is_numeric($failed) && ($n == 3)) {
-        $var['succeed'] += $failed;
-        $last_suceed = $failed;
-        if ($latency > 0) {
-//          print $interval.' '.$failed.' '.$latency."\n<br>";
-          $var['avg_latency'] += $latency;
-          if ($var['max_latency'] < $latency)
-            $var['max_latency']    = $latency;
-          if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
-            $var['min_latency']    = $latency;
+  $fn = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($hostname)."_ping.rrd";
+//  print $fn."\n<br>";
+  if (file_exists($fn)) {
+    $cmd = sprintf("%s fetch %s AVERAGE --start=%d --end=%d",variable_get('rrdtool_path','/usr/bin/rrdtool'),$fn,$start,$end);
+//    print $cmd."\n<br>";
+    $fp = popen($cmd, "r");
+    if (isset($fp)) {
+      while (!feof($fp)) {
+        $failed = 'nan';
+        $n = sscanf(fgets($fp),"%d: %f %f",$interval,$failed,$latency);
+        if (is_numeric($failed) && ($n == 3)) {
+          $var['succeed'] += $failed;
+          $last_suceed = $failed;
+          if ($latency > 0) {
+//            print $interval.' '.$failed.' '.$latency."\n<br>";
+            $var['avg_latency'] += $latency;
+            if ($var['max_latency'] < $latency)
+              $var['max_latency']    = $latency;
+            if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
+              $var['min_latency']    = $latency;
+          }
+          $var['last'] = $interval;
+          $var['samples']++;
         }
-        $var['last'] = $interval;
-        $var['samples']++;
       }
     }
+    pclose($fp);
   }
-  pclose($fp);
   if ($var['samples'] > 0) {
     $var['succeed'] = 100 - ($var['succeed'] / $var['samples']);
     $var['avg_latency'] = $var['avg_latency'] / $var['samples'];
