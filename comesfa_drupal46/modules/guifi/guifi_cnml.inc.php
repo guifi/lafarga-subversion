@@ -181,8 +181,10 @@ function guifi_cnml($cnmlid,$action = 'help') {
            if ($device->type == 'radio')
            if (isset($device->variable['firmware']))
              $deviceXML->addAttribute('firmware',($device->variable['firmware']));
-           if (isset($device->variable['model_id']))
-             $deviceXML->addAttribute('name',$models[(int)$device->variable['model_id']]);
+           if (isset($device->variable['model_id'])) {
+             $model_name = $models[(int)$device->variable['model_id']];
+             $deviceXML->addAttribute('name',$model_name);
+           }
            if (!empty($device->variable['mrtg_index']))
              $deviceXML->addAttribute('snmp_index',($device->variable['mrtg_index']));
          }
@@ -195,6 +197,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
             if ($action == 'detail') {
               $radioXML = $deviceXML->addChild('radio',htmlspecialchars($radio->comment,ENT_QUOTES));
               $radioXML->addAttribute('id',$radio->radiodev_counter); 
+              $radioXML->addAttribute('device_id',$device->id); 
               foreach ($radio as $key=>$value) {
                if ($value) switch ($key) {
                  case 'radiodev_counter':
@@ -207,6 +210,14 @@ function guifi_cnml($cnmlid,$action = 'help') {
                  case 'antenna_gain': $radioXML->addAttribute('antenna_gain',$value); break;
                  case 'antenna_azimuth': $radioXML->addAttribute('antenna_azimuth',$value); break;
                }
+              }
+              if (isset($device->variable['model_id']))
+              if (in_array($model_name,
+                     array('WRT54Gv1-4','WHR-HP-G54, WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
+               $radioXML->addAttribute('snmp_index',6);
+              } else if  (in_array($model_name,
+                     array('Supertrasto RB532 guifi.net'))) {
+                $radioXML->addAttribute('snmp_name','wlan'.(string)$id);
               }
             }
             switch ($radio->mode) {
