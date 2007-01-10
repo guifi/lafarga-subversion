@@ -1,118 +1,67 @@
 <?php
 
-include_once("config.php");
+if (file_exists('../common/config.php'))
+  include_once("../common/config.php");
+else
+  include_once("../common/config.php.template");
 
-/**
- * guifi_get_availability
-**/
-
-
-function guifi_rrdfile($nick) {
-       return str_replace(array (' ','.','-','?','&','%','$'),"",strtolower($nick));
-}
-
-/**
- *  * _guifi_tostrunits convert a number to string format in B,KB,MB...
- * **/
-function _guifi_tostrunits($num) {
-      $base = array('B','KB','MB','GB','TB','PB');
-      $str = sprintf("%3d B",$num);
-      foreach ($base as $key => $unit) {
-	      if ($num > pow(1024,$key))
-	          $str = sprintf("%7.2f %s",$num/pow(1024,$key),$unit);
-	      else
-	          return $str;
-      }
-}
-
-  
-  
-function guifi_get_pings($hostname, $start = NULL, $end = NULL) {
-   
-  global $rrddb_path;
-  global $rrdtool_path;
-
-  $var = array();
-  $var['max_latency'] = 0;
-  $var['min_latency'] = NULL;
-  $var['last'] = NULL;
-  $var['avg_latency'] = 0;
-  $var['succeed'] = 0;
-  $var['samples'] = 0;
-
-  if ($start == NULL)
-    $start = time() - 60*60*24*7;
-  if ($end == NULL)
-    $end = time() - 300;
-  $fp = popen($rrdtool_path." fetch ".$rrddb_path.guifi_rrdfile($hostname).sprintf(".rrd AVERAGE --start=%d --end=%d",$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $failed = 'nan';
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$failed,$latency);
-      if (is_numeric($failed) && ($n == 3)) {
-        $var['succeed'] += $failed;
-        $last_suceed = $failed;
-        if ($latency > 0) {
-          $var['avg_latency'] += $latency;
-          if ($var['max_latency'] < $latency)
-            $var['max_latency']    = $latency;
-          if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
-            $var['min_latency']    = $latency;
-        }
-        $var['last'] = $interval;
-        $var['samples']++;
-      }
-    }
-  }
-  pclose($fp);
-  if ($var['samples'] > 0) {
-    $var['succeed'] = 100 - ($var['succeed'] / $var['samples']);
-    $var['avg_latency'] = $var['avg_latency'] / $var['samples'];
-    $var['last_sample'] = date('H:i',$var['last']);
-    $var['last_succeed'] = 100 - $last_suceed;
-  }
-  return $var;
-}
-
-function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
-  global $rrddb_path;
-  global $rrdtool_path;
-  $var['in'] = 0;
-  $var['out'] = 0;
-  $var['max'] = 0;
-  $data = array();
-  $secs = NULL;
-  
-  if ($start == NULL)
-    $start = -86400;
-  if ($end == NULL)
-    $end = -300;
-    $fp = popen($rrdtool_path." fetch ".$rrddb_path.$hostname.sprintf(".rrd AVERAGE --start=%d --end=%d",$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$in,$out);
-      if (is_numeric($in) && ($n == 3)) {
-        if ($var['max'] < $in)
-          $var['max'] = $in;
-        if ($var['max'] < $out)
-          $var['max'] = $out;
-        $data[] = array('interval' => $interval, 'in' => $in, 'out' => $out);
-      }
-    }
-    foreach ($data as $key => $sample) {
-      if ($key == 0)
-        $secs = $data[1]['interval'] - $sample['interval'];
-      else
-        $secs = $sample['interval'] - $data[$key - 1]['interval'];
-      $var['in'] += $sample['in'] * $secs;
-      $var['out'] += $sample['out'] * $secs;
-    }
-  }
-  pclose($fp);
-  return $var;
-}
+include_once("../common/misc.php");
 
   $type    = $_GET['type'];
+
+  $format='long';
+  if (isset($_GET['format']))
+    $format=$_GET['format'];
+  
+  if ($type == 'availability') {  
+    // Just creating the availability PNG, not a graph
+    $pings = guifi_get_pings($_GET['device']);
+  //  print_r($pings);
+    if ($pings['samples'] > 0) {
+      $available = sprintf("%.2f%%",$pings['succeed']);
+      if ($pings['last_succeed'] == 0)
+        $last = 'Down';
+      else
+        $last = 'Up';
+    } else {
+       $last = 'number';
+    }
+    $var['available'] = $available;
+    $var['last'] = $last;
+  
+    // create a image
+    if ($format=='short')
+      $pixlen=77;
+    else
+      $pixlen=117;
+    $im = imagecreate($pixlen, 15);
+
+    // white background and blue text
+    //$bg = imagecolorallocate($im,0x33, 0xff, 0);
+
+    if ($last == "Up")
+      $bg = imagecolorallocate($im,0x33, 0xff, 0);
+    else if ($last == "Down")
+      $bg = imagecolorallocate($im,0xff, 0x33, 0);
+    else
+      return;
+
+    $textcolor = imagecolorallocate($im, 0, 0, 100);
+
+    // write the string at the top left
+    if ($format=="short")
+      imagestring($im, 2, 3, 1, sprintf("%s (%s)",$last,$var['available']), $textcolor);
+    else 
+      imagestring($im, 2, 3, 1, sprintf("%s %s (%s)",$last,$pings['last_sample'],$var['available']), $textcolor);
+
+    // output the image
+    header("Content-type: image/png");
+    imagepng($im);
+    exit;
+  }
+
+  // going to create a graph
+
  
   if (isset($_GET['start']))
     $start   = $_GET['start'];
@@ -156,11 +105,18 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
          '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0'
                 );
   $cmd = '';
+
+//  print_r($_GET);
+
+  if (isset($_GET['node'])) {
+    $gxml = simplexml_node_file($_GET['node']);
+//    print $gxml->asXML();
+  }
  
   if (isset($_GET['radio'])) 
      {
       //----------  XML Start Xpath Query-----------------------------------
-      $radio_xml=$xml->xpath('//device[@id='.$_GET['radio'].']');
+      $radio_xml=$gxml->xpath('//device[@id='.$_GET['radio'].']');
       $radio_attr=$radio_xml[0]->attributes();
       //----------  XML End Xpath Query -----------------------------------      
      }
@@ -187,8 +143,8 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       else return;      
       //----------  XML Start Xpath Query-----------------------------------
       $nodestr=array('nick' => '', 'title' => '');
-      $nodestr['title']=$xml->xpath('//node[@id='.$node.']/@title');
-      $nodestr['nick']=$xml->xpath('//node[@id='.$node.']/@title');
+      $nodestr['title']=$gxml->xpath('//node[@id='.$node.']/@title');
+      $nodestr['nick']=$gxml->xpath('//node[@id='.$node.']/@title');
       //----------  XML End Xpath Query -----------------------------------      
       $title = sprintf('Supernode: %s - wLANs %s',$nodestr['nick'][0],$direction);
       $vscale = 'Bytes/s';
@@ -197,18 +153,20 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       if ($type == 'clients')
       {
         $radios_dev = $radio_xml[0]->xpath('radio');
-        $rrdfiles = $radio_xml[0]->xpath('radio/@rrd_traffic');
         $traffic = array('in'=> 0,'out' => 0, 'max' => 0);
         foreach ($radios_dev as $radio_dev) {
           $radio_dev_attr = $radio_dev->attributes();
-//          print $rrdfile ."\n<br>";
+//          print_r($radio_dev_attr);
+//          print "\n<br>";
 
-          $traffic_radio = guifi_get_traffic($radio_dev_attr['rrd_traffic'],$start,$end);
+          $filename = guifi_get_traf_filename($radio_dev_attr['device_id'],$radio_dev_attr['snmp_index'],$radio_dev_attr['snmp_name'],$radio_dev_attr['id']);
+
+          $traffic_radio = guifi_get_traffic($filename,$start,$end);
           $traffic['in'] =$traffic['in']  + $traffic_radio['in'];
           $traffic['out']=$traffic['out'] + $traffic_radio['out'];
           if ($traffic_radio['max'] > $traffic['max'])
             $traffic['max']=$traffic_radio['max'];
-          $radios[] = array('nick' => $radio_dev_attr['ssid'], 'change_direction' => true, 'filename' => $rrddb_path.$radio_dev_attr['rrd_traffic'].'.rrd', 'max' => $traffic['max'] * 8);
+          $radios[] = array('title' => $radio_dev_attr['ssid'], 'change_direction' => true, 'filename' => $filename, 'max' => $traffic['max'] * 8);
         }
         $totals[] = $traffic[$otherdir] * 8;
 //        $radios[] = array('nick' => $radio_attr['title'], 'change_direction' => true, 'filename' => $rrddb_path.'.rrd', 'max' => $traffic['max'] * 8);
@@ -219,15 +177,22 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       $result = array();
       //----------  XML Start Xpath Query-----------------------------------
       if ($type == 'supernode') {
-         $result=$xml->xpath('//node[@id='.$_GET['node'].']/device/radio');      
+         $result=$gxml->xpath('//node/device/radio');      
       } else {
 //         print "Type: ".$type.' '.$_GET['radio']."\n<br>";
          $row = simplexml_load_string($radio_xml[0]->asXML());
          $linked_radios=$row->xpath('//radio/interface/link');
+         $remote_clients = array();
          foreach ($linked_radios as $linked_radio) {
            $linked_radio_attr=$linked_radio->attributes();
-           $result_client = $xml->xpath('//node[@id='.$linked_radio_attr['linked_node_id'].']/device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
-           if (!empty($result_client)) $result = array_merge($result,$result_client);
+           $remote_clients[] = (int)$linked_radio_attr['linked_node_id']; 
+         }
+         $rxml = simplexml_node_file(implode(',',$remote_clients));
+         reset($linked_radios);
+         foreach ($linked_radios as $linked_radio) {
+           $linked_radio_attr=$linked_radio->attributes();
+           $result_client = $rxml->xpath('//device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
+           $result = array_merge($result,$result_client);
          }
 //         print_r($result);
       }
@@ -237,12 +202,14 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       foreach ($result as $radiodev)
       {
           $radio_attr = $radiodev->attributes();
-	  $radiofetch['nick'] = $radio_attr['ssid'];
-	  $radiofetch['rrdtraf'] = $radio_attr['rrd_traffic'];
-	  $filename = $rrddb_path.guifi_rrdfile($radiofetch['rrdtraf']).'.rrd';
+//          print_r($radio_attr);
+	  $radiofetch['title'] = $radio_attr['ssid'];
+
+          $filename = guifi_get_traf_filename($radio_attr['device_id'],$radio_attr['snmp_index'],$radio_attr['snmp_name'],$radio_attr['id']);
+
           if (file_exists($filename))
 	  {
-	      $traffic = guifi_get_traffic($radiofetch['rrdtraf'],$start,$end);
+	      $traffic = guifi_get_traffic($filename,$start,$end);
 	      $totals[] = $traffic[$direction] * 8;
 	      $radiofetch['change_direction'] = false;
 	      $radiofetch['filename'] = $filename;
@@ -290,7 +257,7 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
            }
         $cmd = $cmd.sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
         $cmd = $cmd.sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
-        $cmd = $cmd.sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['nick'],$dir_str);
+        $cmd = $cmd.sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['title'],$dir_str);
         $cmd = $cmd.sprintf(' GPRINT:val%da:LAST:"Ara\:%%8.2lf %%s"',$key);
         $cmd = $cmd.sprintf(' GPRINT:val%da:AVERAGE:"Mig\:%%8.2lf %%s"',$key);
         $cmd = $cmd.sprintf(' GPRINT:val%da:MAX:"Max\:%%8.2lf %%s"',$key);
@@ -304,12 +271,12 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       $row = simplexml_load_string($radio_xml[0]->asXML());
       $w = $row->xpath('//radio');
       $w_attr = $w[0];
-      if (empty($w_attr['rrd_traffic'])) {
-        $w_attr['rrd_traffic'] = $radio_attr['rrd_traffic'];
-      }
-      $traffic = guifi_get_traffic($w_attr['rrd_traffic'],$start,$end);
       $title = sprintf('radio: %s - wLAN In & Out',$radio_attr['title']);
-      $filename = $rrddb_path.guifi_rrdfile($w_attr['rrd_traffic']).'.rrd';
+      $filename = guifi_get_traf_filename($w_attr['device_id'],$w_attr['snmp_index'],$w_attr['snmp_name'],$w_attr['id']);
+
+      $traffic = guifi_get_traffic($filename,$start,$end);
+
+
       $cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
       $cmd = $cmd.        ' CDEF:val0a=val0,1,* ';
       $cmd = $cmd.sprintf(' AREA:val0a#0000FF:"%30s In "',$radio_attr['title']);
@@ -326,10 +293,10 @@ function guifi_get_traffic($hostname, $start = NULL, $end = NULL) {
       $cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',_guifi_tostrunits($traffic['out']));
       break;
     case 'pings': 
-      $pings = guifi_get_pings($radio_attr['rrd_ping'],$start,$end);
+      $pings = guifi_get_pings($radio_attr['id'],$start,$end);
       $vscale = 'Milisegons';
       $title = sprintf('device: %s -  pings & disponibilitat (%.2f %%)',$radio_attr['title'],$pings['succeed']);
-      $filename = $rrddb_path.guifi_rrdfile($radio_attr['rrd_ping']).'.rrd';
+      $filename = $rrddb_path.$radio_attr['id'].'_ping.rrd';
       $cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
       $cmd = $cmd.sprintf(' AREA:val0#FFFF00:"%20s pings fallats "',$radio_attr['title']);
       $cmd = $cmd.        ' GPRINT:val0:LAST:"Ara\:%8.2lf %s"';
