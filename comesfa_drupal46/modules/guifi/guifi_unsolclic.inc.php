@@ -1094,7 +1094,7 @@ function unsolclic_routeros($dev) {
   if (count($ospf_interfaces)) {
        _outln_comment();
        _outln_comment(t('OSPF Routing'));
-       _outln(sprintf('/routing ospf set router-id=%s',$ospf_routerid));
+       _outln(sprintf('/routing ospf set router-id=%s redistribute-connected=as-type-1 redistribute-static=as-type-1 redistribute-bgp=as-type-1',$ospf_routerid));
        foreach ($ospf_interfaces as $key=>$interface) {
          _outln(sprintf(':foreach i in [/routing ospf interface find interface=%s] do={/routing ospf interface remove $i;}',$interface));
          _outln(sprintf('/routing ospf interface add interface=%s',$interface));

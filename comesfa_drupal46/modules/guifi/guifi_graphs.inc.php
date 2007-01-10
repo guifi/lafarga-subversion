@@ -7,21 +7,40 @@
 function guifi_graph_detail() {
   $type = $_GET['type'];
   if (isset($_GET['radio'])) {
-      $query = db_query("SELECT r.nick, n.title, r.nid, l.zone_id FROM {guifi_devices} r, {node} n, {guifi_location} l WHERE r.id=%d AND n.nid=r.nid AND n.nid = l.id",$_GET['radio']);
+      $query = db_query("SELECT r.id, r.nick, n.title, r.nid, l.zone_id FROM {guifi_devices} r, {node} n, {guifi_location} l WHERE r.id=%d AND n.nid=r.nid AND n.nid = l.id",$_GET['radio']);
       $radio = db_fetch_object($query);
       $zid = $radio->zone_id;
   }
+  
+  if ($type=='supernode') {
+    $node = node_load(array('nid' => $_GET['node']));
+    if ($node->graph_server == -1) {
+      $rows[] = array(t('This node has the graphs disabled.'));
+      return array_merge($rows);
+    }
+    if (empty($node->graph_server))
+      $server_mrtg = guifi_node_get_url_mrtg($node->id);
+    else
+      $server_mrtg = guifi_get_graph_url($node->graph_server);
+  } else {   
+    if ($radio->graph_server == -1) {
+      $rows[] = array(t('This device has the graphs disabled.'));
+      return array_merge($rows);
+    }
+    if (empty($radio->graph_server))
+      $server_mrtg = guifi_radio_get_url_mrtg($radio->id);
+    else
+      $server_mrtg = guifi_get_graph_url($radio->graph_server);
+  }
+
   $help = t('Here you have a detailed view of the available information for several periods of time (daily, weekly, monthly and yearly). You can obtain a detailed graph for a given period of time by entering the period in the boxes below.');
   switch ($type) {
     case 'clients':
-      $server_mrtg = guifi_radio_get_url_mrtg($_GET['radio']);
-      $title = $radio->nick.' '.t('at').' '.'<a href=node/'.$radio->nid.'>'.$radio->title.'</a>';
-      $args = sprintf('<img src="%s?type=clients&radio=%d&direction=%s',$server_mrtg,$_GET['radio'],$_GET['direction']);
+      $title = '<a href="/guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href=node/'.$radio->nid.'>'.$radio->title.'</a>';
+      $args = sprintf('<img src="%s?type=clients&node=%d&radio=%d&direction=%s',$server_mrtg,$radio->nid,$_GET['radio'],$_GET['direction']);
       $help .= '<br>'.t('The clients graph show the top clients by transit.');
       break;
     case 'supernode':
-      $server_mrtg = guifi_node_get_url_mrtg($_GET['node']);
-      $node = node_load(array('nid' => $_GET['node']));
       $zid = $node->zone_id;
       $title = '<a href=node/'.$_GET['node'].'>'.$node->title.'</a>';
       $args = sprintf('<img src="%s?type=supernode&node=%d&direction=%s',$server_mrtg,$_GET['node'],$_GET['direction']);
@@ -32,10 +51,7 @@ function guifi_graph_detail() {
     case 'pings':      
       if ($type != 'radio')
         $help= '<br>'.t('The ping graph show the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
-      $server_mrtg = guifi_radio_get_url_mrtg($_GET['radio']);
-      $args = sprintf('<img src="%s?type=%s&radio=%d',$server_mrtg,$_GET['type'],$_GET['radio']);
-      $query = db_query("SELECT r.nick, n.title, r.nid FROM {guifi_devices} r, {node} n WHERE r.id=%d AND n.nid=r.nid",$_GET['radio']);
-      $radio = db_fetch_object($query);
+      $args = sprintf('<img src="%s?type=%s&node=%d&radio=%d',$server_mrtg,$_GET['type'],$radio->nid,$_GET['radio']);
       $title = $radio->nick.' '.t('at').' '.'<a href=node/'.$radio->nid.'>'.$radio->title.'</a>';
       break;
   }
@@ -91,34 +107,52 @@ function guifi_graph_detail() {
  * recursively iterates trough parent zones until a non-empty mrtg-server field is found
  **/
 
-function guifi_get_parent_mrtg($zone) {
-
-    $query_zone= db_query("SELECT r.mrtg_servers,r.master FROM {guifi_zone} r WHERE r.id=%d",$zone);
+function guifi_get_parent_mrtg($zone,$old_mrtg = TRUE) {
+    $query_zone= db_query("SELECT r.mrtg_servers,r.master,r.graph_server FROM {guifi_zone} r WHERE r.id=%d",$zone);
     $z=db_fetch_object($query_zone);
 
-    if ($z->mrtg_servers=="")
-    {
-        if ($z->master != 0)
-	  $mrtg_url=guifi_get_parent_mrtg($z->master);
-        else
-          return false;
-    }
-    else
-    {
-	$mrtg_url=$z->mrtg_servers;
-    }
-    return $mrtg_url;    
+    if (!empty($z->graph_server))
+      return guifi_get_graph_url($z->graph_server);
+    if (!empty($z->mrtg_servers) and $old_mrtg)
+      return $z->mrtg_servers;
+
+    if ($z->master != 0)
+       return guifi_get_parent_mrtg($z->master,$old_mrtg);
+
+    return NULL;
+}
+
+function guifi_get_graph_url($sid) {
+  $queryService = db_query("SELECT extra FROM {guifi_services} WHERE id=%d AND service_type='SNPgraphs'",$sid);
+  $Service = db_fetch_object($queryService); 
+  if (!empty($Service)) {
+    $server_attr = unserialize($Service->extra);
+    if (!empty($server_attr['url']))
+      return $server_attr['url'];
+  }
+  return NULL;
 }
 
 
-function guifi_node_get_url_mrtg($node) {
-  $queryZone = db_query("SELECT r.zone_id FROM {guifi_location} r WHERE r.id=%d",$node);
-  $Zone = db_fetch_object($queryZone);
-  $server_mrtg = guifi_get_parent_mrtg($Zone->zone_id);	
-  if ($server_mrtg == '')
-    $server_mrtg = variable_get('graph_url','http://guifi.net/snpservices/graphs/graphs.php');
+function guifi_node_get_url_mrtg($node,$old_mrtg = TRUE) {
 
-  return $server_mrtg;
+  $queryZone = db_query("SELECT r.graph_server, r.zone_id FROM {guifi_location} r WHERE r.id=%d",$node);
+  $Zone = db_fetch_object($queryZone);
+  if ($Zone->graph_server > 0)
+    return guifi_get_graph_url($Zone->graph_server);
+
+  // if node has ap, inherits from zone, if not, inherits from his ap
+  $queryRadios = db_query("SELECT 'x' FROM {guifi_radios} WHERE nid=%d AND mode='ap'",$node);
+  if (db_num_rows($queryRadios)>0)
+    return guifi_get_parent_mrtg($Zone->zone_id,$old_mrtg);
+
+  $queryRadios = db_query("SELECT id FROM {guifi_radios} WHERE nid=%d AND mode='client'",$node);
+  if (db_num_rows($queryRadios)>0) {
+    $Radio = db_fetch_object($queryRadios);
+    return guifi_radio_get_url_mrtg($Radio->id, $old_mrtg);
+  }
+
+  return guifi_get_parent_mrtg($Zone->zone_id,$old_mrtg);	
 }
 
 function get_SSID_radio($radio) {
@@ -128,16 +162,36 @@ function get_SSID_radio($radio) {
 }
 
 
+function guifi_radio_get_url_mrtg($radio, $old_mrtg = TRUE ) {
 
-function guifi_radio_get_url_mrtg($radio) {
-  
-  $queryNode = db_query("SELECT r.nid FROM {guifi_devices} r WHERE r.id=%d",$radio);
+  $queryNode = db_query("SELECT d.nid FROM {guifi_devices} d WHERE d.id=%d",$radio);
   $Node = db_fetch_object($queryNode);
-  $queryZone = db_query("SELECT r.zone_id FROM {guifi_location} r WHERE r.id=%d",$Node->nid);
-  $Zone = db_fetch_object($queryZone);
-  return guifi_get_parent_mrtg($Zone->zone_id);	
+  $queryRadios = db_query("SELECT 'x' FROM {guifi_radios} WHERE nid=%d AND mode='ap'",$Node->nid);
+  if (db_num_rows($queryRadios)>0) {
+    // node has APs, inherits node graph server
+    return guifi_node_get_url_mrtg($Node->nid,$old_mrtg);
+  }
 
+  // finding an ap/client link for this node, inherits from remote node
+  $queryLinks = db_query("SELECT d.graph_server dg, n.graph_server ng, n.zone_id FROM {guifi_links} l1, {guifi_links} l2, {guifi_devices} d, {guifi_location} n WHERE l1.id=l2.id AND l1.nid != l2.nid AND l1.link_type='ap/client' AND l1.nid=%d AND d.id=l2.device_id AND n.id=l2.nid",$Node->nid);
+  if (db_num_rows($queryLinks)>0) {
+    $Link = db_fetch_object($queryLinks);
+    if ($Link->dg == -1)
+      return NULL;
+    if ($Link->dg > 0)
+      return guifi_get_graph_url($Link->dg);	
+    if ($Link->ng == -1)
+      return NULL;
+    if ($Link->ng > 0)
+      return guifi_get_graph_url($Link->ng);	
+    return guifi_get_parent_mrtg($Link->zone_id,$old_mrtg);
+  }
+  return NULL;
 }	
+
+
+function guifi_get_graph_server($nid) {
+}
 
 
 /**
@@ -150,9 +204,12 @@ function guifi_node_graph_overview($node) {
 *	Get the zone 
 **/
 
- $server_mrtg = guifi_node_get_url_mrtg($node);
-
- $query = db_query("SELECT r.id FROM {guifi_radios} r WHERE r.nid=%d",$node);
+ if (empty($node->graph_server))
+   $server_mrtg = guifi_node_get_url_mrtg($node->id);
+ else 
+   $server_mrtg = guifi_get_graph_url($node->graph_server);
+ 
+ $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
   if (db_num_rows($query) > 1) { // Supernode, Totals In & Out
     if (substr($server_mrtg,0,3)=="fot"){	
 	//  graph all devices.about a node. Ferran Ot
@@ -165,14 +222,14 @@ function guifi_node_graph_overview($node) {
       }
 	 return array_merge($rows);
     }else{
-      $args = sprintf('type=supernode&node=%d&direction=',$node);
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node));
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node));
+      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
       return array_merge($rows);
     }
   } else {
-    $radio = db_fetch_object($query);
-    return guifi_device_graph_overview($radio->id);
+    $radio = db_fetch_array($query);
+    return guifi_device_graph_overview($radio);
   }
 }
 
@@ -182,12 +239,18 @@ function guifi_node_graph_overview($node) {
 **/
 function guifi_device_graph_overview($radio) {
 
+ if ($radio['graph_server'] == -1) {
+   $rows[] = array(t('This device has the graphs disabled.'));
+   return array_merge($rows);
+ }
+ if (empty($radio['graph_server']))
+   $server_mrtg = guifi_radio_get_url_mrtg($radio['id']);
+ else 
+   $server_mrtg = guifi_get_graph_url($radio['graph_server']);
 
-  $server_mrtg = guifi_radio_get_url_mrtg($radio);
-    
  if (substr($server_mrtg,0,3) == "fot")
     { 
-    $ssid=get_SSID_radio($radio);
+    $ssid=get_SSID_radio($radio['id']);
     $ssid=strtolower($ssid);	
     $mrtg_url=substr($server_mrtg,3);
     $rows[] = array('<a href='.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg target=_blank > <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
@@ -197,27 +260,27 @@ function guifi_device_graph_overview($radio) {
     }
  else    
     {
-  	$filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile(guifi_get_hostname($radio)).'_ping.rrd'; 
-        if (!((file_exists($filename)) | (substr($server_mrtg,0,7) == "http://")))    // Checks whether to display graph on not, checking if is an internal or external graphing
-        {
-    		$rows[] = array(t('This radio is not being graphed yet.'));
-    		return array_merge($rows);
-	}
-    $query = db_query("SELECT c.id FROM {guifi_links} c WHERE c.device_id=%d AND c.link_type in ('wds','ap/client','bridge')",$radio);
-    if (db_num_rows($query) > 1)  // several clients, Totals In & Out	
-     { 
-      $args = sprintf('type=clients&radio=%d&direction=',$radio);
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio));
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$radio));
-     } 
-    else 
-     {
-      $args = sprintf('type=radio&radio=%d',$radio);
+      $filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile(guifi_get_hostname($radio['id'])).'_ping.rrd'; 
+      if (!((file_exists($filename)) | (substr($server_mrtg,0,7) == "http://")))    // Checks whether to display graph on not, checking if is an internal or external graphing
+      {
+        $rows[] = array(t('This radio is not being graphed yet.'));
+        return array_merge($rows);
+      }
+      $query = db_query("SELECT c.id FROM {guifi_links} c WHERE c.device_id=%d AND c.link_type in ('wds','ap/client','bridge')",$radio['id']);
+      if (db_num_rows($query) > 1)  // several clients, Totals In & Out	
+      { 
+        $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
+        $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
+        $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$radio['id']));
+      } 
+      else 
+      {
+        $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
+        $rows[] = array('<a href=guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
+      }
+      $args = sprintf('type=pings&node=%d&radio=%d',$radio['nid'],$radio['id']);
       $rows[] = array('<a href=guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
-     }
-    $args = sprintf('type=pings&radio=%d',$radio);
-    $rows[] = array('<a href=guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
-    return array_merge($rows);
+      return array_merge($rows);
     }
 
 }

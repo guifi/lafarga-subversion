@@ -97,7 +97,7 @@ function guifi_service_form(&$node, &$param) {
       $specs .= form_select(t("Type"), "var][type", $node->var['type'], array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP'), null);
        break;
     default:
-      $specs .= form_textfield(t("url"), "var][url", $node->var['url'], 60, 60, null);
+      $specs .= form_textfield(t("url"), "var][url", $node->var['url'], 60, 250, null);
       break;
   }
   if (isset($specs))

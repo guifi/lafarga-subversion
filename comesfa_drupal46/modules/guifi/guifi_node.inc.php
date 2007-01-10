@@ -212,6 +212,25 @@ function guifi_node_print_data($node) {
   $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target=_blank>Lat:%f<br>Lon:%f</a>',
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground')); 
   $rows[] = array(t('available for mesh & status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag)); 
+
+  switch ($node->graph_server) {
+  case -1: 
+    $graphtxt = t('Graphs disabled.'); 
+    break;
+  case 0: 
+  case NULL:
+    $graphtxt = t('Default: Obtained from parents'); 
+    break;
+  default:
+    $qgs = db_query(sprintf('SELECT nick FROM {guifi_services} WHERE id=%d',$node->graph_server));
+    $gs = db_fetch_object($qgs);
+    if (!empty($gs->nick)) 
+      $graphtxt = '<a href=/node/'.$node->graph_server.'>'.$gs->nick.'</a>';
+    else
+      $graphtxt = t('invalid');
+  }
+  $rows[] = array(t('graphs provided from'),array('data'=>$graphtxt,'colspan'=>2)); 
+
   
   $rows[] = array(null,null,null);
   $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
@@ -254,7 +273,7 @@ function guifi_node_view(&$node) {
       if ($op == 'data') break;
     case 'graphs':
       // node graphs
-      $output .= theme('table', array(t('traffic overview')), guifi_node_graph_overview($node->nid));
+      $output .= theme('table', array(t('traffic overview')), guifi_node_graph_overview($node));
       if ($op == 'graphs') break;
     case 'devices':
       // listing node devices
@@ -311,11 +330,16 @@ function guifi_node_radio_list($id = 0) {
      }
      $ip = guifi_main_ip($device[id]);
 //     print_r($ip);
+     $graph_url = guifi_node_get_url_mrtg($id,FALSE);
+     if ($graph_url != NULL)
+       $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
+     else
+       $img_url = NULL;
      $rows[] = array('<a href=guifi/device/'.$device[id].'>'.$device[nick].'</a>',$device[type],
                  array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
-                 array('data' => t($device[flag]), 'class' => $device[flag]),
-                 array('data' => $status_str['available'], 'class' => 'number'),
-                 array('data' => $status_str['last_str'], 'class' => $status_str['last']),
+                 array('data' => t($device[flag]),'class' => $device['flag']),
+                 array('data' => $img_url, 
+                                 'class' => $device['flag']),
                  $edit_radio,
                  $unsolclic
                     );
@@ -434,9 +458,17 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
           $linkname = '<a href=node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>)';
         else
           $linkname = '<a href=guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
+
+        $graph_url = guifi_node_get_url_mrtg($id,FALSE);
+        if ($graph_url != NULL)
+          $img_url = ' <img src='.$graph_url.'?device='.$loc2->device_id.'&type=availability&format=short>';
+        else
+          $img_url = NULL;
+
         $rows[] = array($linkname,
                      $loc1->ip.'/'.$loc2->ip, 
-                   array('data' => t($loc1->flag), 'class' => $loc1->flag),
+                   array('data' => t($loc1->flag).$img_url,
+                                   'class' => $loc1->flag),
                    array('data' => $gDist,'class' => 'number'));
       }
     }
