@@ -21,7 +21,7 @@
 
   echo "Getting CNML file\n";
   $hcnml = @fopen("http://guifi.net/guifi/cnml/".$rootZone."/detail", "r");
-  $wcnml = @fopen("guifi.cnml", "w");
+  $wcnml = @fopen("guifi.cnml", "w+");
   while (!feof($hcnml)) {
        $buffer = fgets($hcnml, 4096);
        fwrite($wcnml,$buffer);
@@ -29,7 +29,7 @@
   fclose($hcnml);
   fclose($wcnml);
 
-  $hlast= @fopen("/tmp/last_update.cnml", "w") or die('Error!');
+  $hlast= @fopen("/tmp/last_update.cnml", "w+") or die('Error!');
   fwrite($hlast,$last_now);
   fclose($hlast);
 ?>

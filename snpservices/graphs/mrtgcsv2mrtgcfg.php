@@ -7,7 +7,7 @@ if (file_exists("../common/config.php")) {
 }
 
 
-$hlastnow = @fopen($SNPDataServer_url."/guifi/refresh/cnml", "r") or die('Error reading changes\n');
+$hlastnow = @+fopen($SNPDataServer_url."/guifi/refresh/cnml", "r") or die('Error reading changes\n');
 $last_now = fgets($hlastnow);
 fclose($hlastnow);
 $hlast= @fopen("/tmp/last_update.mrtg", "r");
@@ -19,7 +19,7 @@ if (($hlast) and ($last_now == fgets($hlast))) {
 print $last_now;
 
 $hf = @fopen($MRTGConfigSource,"r") or die('Error reading MRTG csv input\n"');
-$cf = @fopen('../data/mrtg.cfg','w');
+$cf = @fopen('../data/mrtg.cfg','w+');
 
 fputs($cf,sprintf($rrdtool_header,$rrdimg_path,$rrdimg_path,$rrddb_path,$rrddb_path));
 
@@ -90,7 +90,7 @@ while ( $buffer = fgets($hf, 4096) ) {
 fclose($hf);
 fclose($cf);
 
-$hlast= @fopen("/tmp/last_update.mrtg", "w") or die('Error!');
+$hlast= @fopen("/tmp/last_update.mrtg", "w+") or die('Error!');
 fwrite($hlast,$last_now);
 fclose($hlast);
 
