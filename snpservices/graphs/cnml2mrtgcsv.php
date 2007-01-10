@@ -63,17 +63,26 @@ function snmplist($did,$dev) {
   }
 
   if ($ipv4) {
-    if (isset($_GET['cp'])) {
+    if ((isset($_GET['cp'])) or (isset($_GET['list']))) {
       $devfn = str_replace(array (' ','.','-','?','&','%','$'),"",strtolower($att->title));
-      print "cp ".$devfn."_ping.rrd ".$did."_ping.rrd\n";
+      if (isset($_GET['cp']))
+        print "cp ".$devfn."_ping.rrd ".$did."_ping.rrd\n";
+      if (isset($_GET['list']))
+        print $did."_ping.rrd\n";
       foreach ($snmp as $k=>$idx) {
         if (is_numeric($idx)) {
-          print "cp ".$devfn."_".$idx.".rrd ".$did."-".$idx."_traf.rrd\n";
+          if (isset($_GET['cp']))
+            print "cp ".$devfn."_".$idx.".rrd ".$did."-".$idx."_traf.rrd\n";
+          if (isset($_GET['list']))
+            print $did."-".$idx."_traf.rrd\n";
         }
         else {
           $wlan = explode(';',$idx);
           $sidfn = str_replace(array (' ','.','-','?','&','%','$'),"",strtolower($wlan[1]));
-          print "cp ".$sidfn.".rrd ".$did."-".$k."_traf.rrd\n";
+          if (isset($_GET['cp']))
+            print "cp ".$sidfn.".rrd ".$did."-".$k."_traf.rrd\n";
+          if (isset($_GET['list']))
+            print $did."-".$k."_traf.rrd\n";
         }
       }
     } else

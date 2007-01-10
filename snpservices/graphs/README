@@ -8,6 +8,9 @@ latency/availability graphs in image format by using mrtg/rrdtool
 collected history by simple HTTP URLs, therefore is easily
 plugable to any web application.
 
+PREREQUISITES:
+You must have rrdtool
+Optionally subversion, in order to checkout the files
 
 INSTALL:
 
@@ -15,30 +18,38 @@ INSTALL:
 
 example:
 cd /var/www/html
-mkdir snpservices
-cd snpservices
-svn checkout https://svn.projectes.lafarga.cat/svn/guifi/snpservices/graphs graphs 
+svn checkout https://svn.projectes.lafarga.cat/svn/guifi/snpservices snpservices 
 
 To publish the directory, you might create an alias into the apache configuration 
 for the directory:
 
 Alias /snpservices /var/www/html/snpservices
 
-2.-Get the xml filei, in nodeXchange detailed format, for the zone that this server i
-will graph i.e.:
+2.-Make the directoru snpservices/tmp writable to everybody
+chmod a+rw snpservices/tmp
 
-wget http://guifi.net/ca/guifi/nodexchange/2444/detail -O guifi.xml
+3.-Create a guifi service at the database. Use this url
+http://yourserver/snpservices/graphs/graphs.php
 
-You might create a cron job to refresh the XML file and get the latest network
-description.
+4.-Copy the common/config.php.template to config.php and edit it to set your values.
+In particular take attention to:
+-Set the Service ID (SNPGraphServerId) to match your service created in the database
+-Point MRTGConfigSource. If you don't have a cached CNML, use your Data server, be sure
+ you specify the zone you are using as at the server parameter
+-Point CNMLSource. Use your Data server
 
-3.-Edit the config.php and fill the appropriate values pointing to the rrdtool
-binary, the directory where the mrtg/rrdtool database files are, and the xml
-nodexchange file.
+5.-If you have the rrd files in an old format (devicename*.rrd)
+If you have old graph files which you like to retain, rename them into the new
+format, by creating a script with the following format:
+wget -O x.sh "http://guifi.net/snpservices/graphs/cnml2mrtgcsv.php?cp&server=ServerID#"
+Where the server number is the number of your server
 
-4.-If you are using guifi.net as the Data Hub, edit what makes sense for you:
+6.-If you simply want a list of the files at another server, get a list from them with:
+wget -O x.sh "http://guifi.net/snpservices/graphs/cnml2mrtgcsv.php?list&server=ServerID#"
+Where the server number is the number of your server
 
-At guifi.module configuration, set a default url when not specified by the zone/nodes
-At the zone/node that this server will graph, set the appropriate URL, i.e.:
+7.-Install a cron job to run the mrtg and refresh your configi every 5 mins:
+Can be something like this:
+cd /var/www/snpservices/graphs; php mrtgcsv2mrtgcfg.php; 
+/usr/bin/mrtg ../data/mrtg.cfg --lock-file /var/lock/mrtg/guifi_l --confcache-file
 
-http://guifi.net/snpservices/graphs/graphs.php
