@@ -105,13 +105,15 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
 }
 
 function simplexml_node_file($n) {
+  global $CNMLSource;
+
    $fn = '../tmp/'.$n.'.cnml';
    if (file_exists($fn))
    if (time () > (filectime($fn) + (60 * 60)))
      return simplexml_load_file($fn);
 
   // new file, loading into a variable
-  $hn = @fopen(sprintf($CNMLSource,$n),'r');
+  $hn = @fopen(sprintf($CNMLSource,$n),'r') or die ("Error, can't open CNML file\n");
   $wcnml = @fopen($fn, "w") or die("Error caching XML, can't write $fn\n");;
   while (!feof($hn)) {
        $buffer = fread($hn, 8192);
