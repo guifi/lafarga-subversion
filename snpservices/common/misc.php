@@ -114,7 +114,7 @@ function simplexml_node_file($n) {
 
   // new file, loading into a variable
   $hn = @fopen(sprintf($CNMLSource,$n),'r') or die ("Error, can't open CNML file\n");
-  $wcnml = @fopen($fn, "w") or die("Error caching XML, can't write $fn\n");;
+  $wcnml = @fopen($fn, "w+") or die("Error caching XML, can't write $fn\n");;
   while (!feof($hn)) {
        $buffer = fread($hn, 8192);
        fwrite($wcnml,$buffer);
