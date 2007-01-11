@@ -16,25 +16,26 @@
   if ($last_now == fgets($hlast)) {
     fclose($hlast);
     echo "No changes.\n";
-    exit();
+//    exit();
   }
 
-  echo "Getting zones in CNML format\n";
-  $hzones = @fopen("http://guifi.net/guifi/cnml/".$rootZone."/zones", "r");
-  $wzones = @fopen("zones.xml", "w");
-  while (!feof($hzones)) {
-       $buffer = fgets($hzones, 4096);
-       fwrite($wzones,$buffer);
-  }
-  fclose($hzones);
-  fclose($wzones);
+//  echo "Getting zones in CNML format\n";
+//  $hzones = @fopen("http://guifi.net/guifi/cnml/".$rootZone."/zones", "r");
+//  $wzones = @fopen("zones.xml", "w");
+//  while (!feof($hzones)) {
+//       $buffer = fgets($hzones, 4096);
+//       fwrite($wzones,$buffer);
+//  }
+//  fclose($hzones);
+//  fclose($wzones);
         
      
   
   echo "Dumping links in gml format\n";
-  $hlinks = @fopen("http://guifi.net/guifi/gml/".$rootZone."/links/csv", "r");
+  $hlinks = @fopen("http://guifi.net/guifi/gml/".$rootZone."/links/csv", "r") or die("Error getting links cv\n");;
   if ($hlinks) {
    while (!feof($hlinks)) {
+       print_r($member);
        $member = explode(',',stream_get_line($hlinks, 4096,"\n"));
        $members[] = $member; 
        if (count($member) == 12) {

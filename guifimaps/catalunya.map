@@ -22,6 +22,16 @@ END
 WEB
   IMAGEPATH "/tmp/ms_tmp/"
   IMAGEURL "/tmp/"
+ #*************-Afegit IDEC--Descripició de les capacitats 
+  METADATA
+    WMS_TITLE "Nodes GUIFI.NET"
+    WMS_ABSTRACT "Localització de nodes d accés gratuit a Internet"
+    WMS_FEATURE_INFO_MIME_TYPE  "text/html"
+    WMS_ONLINERESOURCE "http://maps.guifi.net/cgi-bin/mapserv?map=guifimaps/catalunya.map&"
+    WMS_SRS "EPSG:4326 EPSG:23031"
+  END
+ #*************-Final afegit 
+  
 END
 
 SYMBOL
@@ -660,6 +670,16 @@ END
       "datum=WGS84"
       "no_defs"
     END
+	#*************-Afegit IDEC--Descripició de les capacitats 
+	METADATA
+      WMS_TITLE "Links"
+      WMS_ABSTRACT "Links"
+      WMS_SRS "EPSG:4326 EPSG:23031"
+	  #Exposició Web Feature Service
+	  "wfs_title"    "Links" 
+      "gml_include_items" "ALL"  
+	END
+	 #*************-Final afegit 
   END
 
 # Nodes 
@@ -813,7 +833,15 @@ END
     METADATA
       WMS_TITLE "Supernodes"
       WMS_ABSTRACT "Supernodes."
-    END
+	  
+	  #*************-Afegit IDEC--Descripició de les capacitats 
+      WMS_SRS "EPSG:4326 EPSG:23031"
+	  #Exposició Web Feature Service
+	  "wfs_title"    "Supernodes" 
+      "gml_include_items" "ALL"  
+      #*************-Final afegit 
+    
+	END
   END
 
 # Layer POINTER
