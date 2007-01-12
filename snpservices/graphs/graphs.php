@@ -272,7 +272,10 @@ include_once("../common/misc.php");
       $w = $row->xpath('//radio');
       $w_attr = $w[0];
       $title = sprintf('radio: %s - wLAN In & Out',$radio_attr['title']);
-      $filename = guifi_get_traf_filename($w_attr['device_id'],$w_attr['snmp_index'],$w_attr['snmp_name'],$w_attr['id']);
+      if (isset($radio_attr->snmp_index))
+        $filename = guifi_get_traf_filename($radio_attr['id'],$radio_attr['snmp_index'],null,$radio_attr['snmp_index']);
+      else 
+        $filename = guifi_get_traf_filename($w_attr['device_id'],$w_attr['snmp_index'],$w_attr['snmp_name'],$w_attr['id']);
 
       $traffic = guifi_get_traffic($filename,$start,$end);
 
