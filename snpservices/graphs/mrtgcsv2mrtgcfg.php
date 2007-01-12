@@ -7,7 +7,7 @@ if (file_exists("../common/config.php")) {
 }
 
 
-$hlastnow = @+fopen($SNPDataServer_url."/guifi/refresh/cnml", "r") or die('Error reading changes\n');
+$hlastnow = @fopen($SNPDataServer_url."/guifi/refresh/cnml", "r") or die('Error reading changes\n');
 $last_now = fgets($hlastnow);
 fclose($hlastnow);
 $hlast= @fopen("/tmp/last_update.mrtg", "r");
