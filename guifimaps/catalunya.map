@@ -27,7 +27,7 @@ WEB
     WMS_TITLE "Nodes GUIFI.NET"
     WMS_ABSTRACT "Localització de nodes d accés gratuit a Internet"
     WMS_FEATURE_INFO_MIME_TYPE  "text/html"
-    WMS_ONLINERESOURCE "http://maps.guifi.net/cgi-bin/mapserv?map=guifimaps/catalunya.map&"
+    WMS_ONLINERESOURCE "http://wms.guifi.net/cgi-bin/mapserv?map=guifimaps/catalunya.map&"
     WMS_SRS "EPSG:4326 EPSG:23031"
   END
  #*************-Final afegit 
@@ -569,7 +569,7 @@ LAYER
          SIZE 9
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
        END
       TEMPLATE "ttt_query.html"
     END
@@ -603,7 +603,7 @@ LAYER
          SIZE 7
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
        END
       TEMPLATE "ttt_query.html"
     END
@@ -717,7 +717,7 @@ END
          SIZE 6
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
       END
       STYLE
         SYMBOL 'circle'
@@ -750,7 +750,7 @@ END
          SIZE 7
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
       END
       STYLE
         SYMBOL 'star'
@@ -783,7 +783,7 @@ END
          SIZE 5
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
       END
       STYLE
         SYMBOL 'circle'
@@ -815,7 +815,7 @@ END
          SIZE 5
          POSITION AUTO
          PARTIALS FALSE
-         OUTLINECOLOR 255 255 255
+         OUTLINECOLOR 255 255 253
       END
       STYLE
         SYMBOL 'circle'
@@ -876,7 +876,7 @@ LAYER
       SIZE 8
       BUFFER 1
       COLOR 0 0 0
-      OUTLINECOLOR 255 255 255
+      OUTLINECOLOR 255 255 253
       FORCE TRUE
     END
   END 
