@@ -109,9 +109,11 @@ function simplexml_node_file($n) {
 
    $fn = '../tmp/'.$n.'.cnml';
    if (file_exists($fn))
-   if (time () > (filectime($fn) + (60 * 60)))
-     return simplexml_load_file($fn);
-
+   if (time () > (filectime($fn) + (60 * 60))) {
+     $xml = simplexml_load_file($fn);
+     if ($xml)
+       return $xml;
+   }
   // new file, loading into a variable
   $hn = @fopen(sprintf($CNMLSource,$n),'r') or die ("Error, can't open CNML file\n");
   $wcnml = @fopen($fn, "w+") or die("Error caching XML, can't write $fn\n");;
@@ -122,7 +124,11 @@ function simplexml_node_file($n) {
   fclose($hn);
   fclose($wcnml);
   
-  return simplexml_load_file($fn);
+  $xml = simplexml_load_file($fn);
+  if ($sml)
+   return $xml;
+  else
+   unlink($fn);
 }
 
 function guifi_get_traf_filename($did, $snmp_index, $snmp_name, $rid) {
