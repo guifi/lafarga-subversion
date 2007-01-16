@@ -192,9 +192,8 @@ include_once("../common/misc.php");
          foreach ($linked_radios as $linked_radio) {
            $linked_radio_attr=$linked_radio->attributes();
            $result_client = $rxml->xpath('//device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
-           $result = array_merge($result,$result_client);
+           if (is_array($result_client)) $result = array_merge($result,$result_client);
          }
-//         print_r($result);
       }
       //----------  XML End Xpath Query -----------------------------------      
 
