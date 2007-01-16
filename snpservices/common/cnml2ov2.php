@@ -7,6 +7,7 @@ if (file_exists("../common/config.php")) {
 }
 
 header('Content-type: application/binary');
+$xml = simplexml_load_file($CNMLData);
 $nodes = $xml->xpath('//node');
 foreach ($nodes as $node) {
   $node_attr = $node->attributes();
