@@ -16,7 +16,7 @@ else
 
 $an = explode(',',$nodes);
 
-$cnml = simplexml_load_file('$CNMLData');
+$cnml = simplexml_load_file($CNMLData);
 $nxml = $cnml->xpath('//node[@id='.implode(' or @id=',$an).']');
 $rxml = '<cnml>';
 foreach ($nxml as $n)
