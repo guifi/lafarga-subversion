@@ -19,7 +19,12 @@ $MRTGConfigSource='http://proves.elserrat.guifi.net/snpservices/graphs/cnml2mrtg
 //$MRTGConfigSource='../data/guifi_mrtg.csv';
 
 // CNMLSource: url for CNML node query, use sprintf syntax
-$CNMLSource='http://proves.elserrat.guifi.net/guifi/cnml/%d/node';
+// MySQL-drupal source
+//$CNMLSource='http://proves.elserrat.guifi.net/guifi/cnml/%s/node';
+// Cached CNML source (prefered)
+$CNMLSource='http://proves.elserrat.guifi.net/snpservices/common/qnodes.php?nodes=%s';
+
+$CNMLData='../data/guifi.cnml';
 
 // rrdtool parameters
 $rrdtool_path='/usr/bin/rrdtool';
