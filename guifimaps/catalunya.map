@@ -634,7 +634,7 @@ END
         SIZE 2
         MINSIZE 2
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "links.html"
     END
     CLASS
       NAME 'LinksClient'
@@ -646,7 +646,7 @@ END
         SIZE 1
         MINSIZE 1
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "links.html"
     END
     CLASS
       NAME 'LinksOffline'
@@ -658,7 +658,7 @@ END
         SIZE 1
         MINSIZE 1
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "links.html"
     END
     METADATA
       "DESCRIPTION"   "Links"
@@ -704,7 +704,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 6
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'NodesAPName'
@@ -725,7 +725,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 7
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'Supernodes'
@@ -737,7 +737,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 8
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'SupernodesName'
@@ -758,7 +758,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 12
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'NodesProjected'
@@ -770,7 +770,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 4
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'NodesProjectedName'
@@ -802,7 +802,7 @@ END
         OUTLINECOLOR 0 0 0
         SIZE 4
       END
-      TEMPLATE "ttt_query.html"
+      TEMPLATE "nodes.html"
     END
     CLASS
       NAME 'NodesClientName'
