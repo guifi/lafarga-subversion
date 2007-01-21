@@ -525,13 +525,20 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
             else
               $nnick = null; 
             $i++;
-            $status_str = guifi_availabilitystr($radio);
+
             $url_device = url('guifi/device/'.$radio->id, NULL, NULL, FALSE);
+
+
+            $graph_url = guifi_radio_get_url_mrtg($radio->id,FALSE);
+            if ($graph_url != NULL)
+              $img_url = ' <img src='.$graph_url.'?device='.$radio->id.'&type=availability&format=long>';
+            else
+              $img_url = NULL;
+
             $rows[] = array(
                             array('data' => $nnick,'class'=>'quarterwidth'),
                             array('data' => '<a href='.$url_device.'>'.$radio->nick.'</a>', 'class' => 'quarterwidth'),
-                            array('data' => t($radio->flag),'class' => $radio->flag),
-                            array('data' => '('.$status_str['available'].') '.$status_str['last_str'], 'class' => $status_str['last'])
+                            array('data' => t($radio->flag).$img_url,'class' => $radio->flag)
               );
 
           } // while radios 
@@ -540,7 +547,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
 
   if (count($rows)) {
     if ($depth > 1)
-      $header = array(t('node'),t('device'),t('status'),t('availability'));
+      $header = array(t('node'),t('device'),t('status'));
     return theme('table',$header,$rows,array('width'=>'100%'));
   } else 
   return;
