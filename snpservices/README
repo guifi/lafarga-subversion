@@ -9,7 +9,7 @@ collected history by simple HTTP URLs, therefore is easily
 plugable to any web application.
 
 PREREQUISITES:
-You must have rrdtool
+You must have rrdtool, rrdtool-perl, rrdtool-php, mrtg and php-gd
 Optionally subversion, in order to checkout the files
 
 INSTALL:
