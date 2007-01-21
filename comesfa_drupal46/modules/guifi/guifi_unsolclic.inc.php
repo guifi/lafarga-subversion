@@ -194,7 +194,7 @@ function guifi_unsolclic_startup($dev, $version, $rc_startup) {
     _out("iptables -t nat -A POSTROUTING -j MASQUERADE");
   _outln_comment();
   print $rc_startup;
-  if ($dev->variable['firmware'] == 'DD-WRT' AND $dev->radios[0]->mode == 'ap') {
+  if ($dev->variable['firmware'] == 'DD-WRT') {
   _out('/bin/sleep 3');
   _out('bird -c /tmp/bird/bird.conf');
   _out('/usr/sbin/wl shortslot_override 0');
@@ -202,7 +202,7 @@ function guifi_unsolclic_startup($dev, $version, $rc_startup) {
   _out('ifconfig br0 -promisc -allmulti');
   _out('ifconfig eth0 promisc','"');
    } else {
-  if ($dev->variable[firmware] == 'DD-guifi' AND $dev->radios[0][mode] == 'ap') {
+  if ($dev->variable[firmware] == 'DD-guifi') {
   _out('/bin/sleep 10');
   _out('/usr/sbin/wl shortslot_override 0');
   _out('ifconfig eth1 -promisc -allmulti');
