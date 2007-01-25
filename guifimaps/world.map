@@ -192,6 +192,7 @@ END
     TYPE LINE
     CONNECTIONTYPE OGR
     CONNECTION "dlinks.gml"
+    TOLERANCE 8
     STATUS ON
     CLASS
       NAME 'LinksWDS'
@@ -252,6 +253,7 @@ END
     TYPE POINT
     CONNECTIONTYPE OGR
     CONNECTION "dnodes.gml"
+    TOLERANCE 8
     STATUS ON
     CLASS
       NAME 'NodesAP'
