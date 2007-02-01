@@ -76,6 +76,10 @@ function guifi_menu($may_cache) {
        'callback' => 'guifi_graph_detail',
        'access' => user_access('access content'),
        'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/purge', 'title' => t('purge orphan devices/interfaces/ip addresses'),
+       'callback' => 'guifi_purge',
+       'access' => user_access('administer guifi networks'),
+       'type' => MENU_SUGGESTED_ITEM);
      $items[] = array('path' => 'guifi/mrtg', 'title' => t('generate mrtg config file'),
        'callback' => 'guifi_mrtg',
        'access' => user_access('access content'),
@@ -394,6 +398,70 @@ function guifi_help($section) {
     case 'node/add#guifi-service':
       return t("<p>Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... .</p>");
   }
+}
+
+function guifi_purge() {
+  // deleting orphan devices
+  unset($del);
+  $q =db_query('SELECT d.id FROM {guifi_devices} d LEFT JOIN {guifi_location} n ON d.nid=n.id WHERE n.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDelDev = sprintf("DELETE FROM {guifi_devices} WHERE id IN (%s)",implode(',',$del));
+    db_query($SqlDelDev);
+    $SqlDelRad = sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",implode(',',$del));
+    db_query($SqlDelRad);
+  }
+
+  // deleting orphan radios
+  unset($del);
+  $q =db_query('SELECT r.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDelRad = sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",implode(',',$del));
+    print $SqlDelRad;
+    db_query($SqlDelRad);
+  }
+
+  // deleting orphan interfaces
+  unset($del);
+  $q =db_query('SELECT i.id FROM {guifi_interfaces} i LEFT JOIN {guifi_devices} d ON i.device_id=d.id WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDel= sprintf("DELETE FROM {guifi_interfaces} WHERE id IN (%s)",implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
+  // deleting orphan ip addresses
+  unset($del);
+  $q =db_query('SELECT a.interface_id FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id WHERE i.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->interface_id;
+
+  if (count($del)) {
+    $SqlDel= sprintf("DELETE FROM {guifi_ipv4} WHERE interface_id IN (%s)",implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
+  // deleting orphan links
+  unset($del);
+  $q =db_query('SELECT l.id FROM {guifi_links} l LEFT JOIN {guifi_devices} d ON l.device_id=d.id WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDel= sprintf("DELETE FROM {guifi_links} WHERE id IN (%s)",implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
 }
 
 /**
@@ -790,11 +858,8 @@ function guifi_edit(&$node, $teaser = 0, $page = 0) {
 }
 
 function guifi_cron() {
-  $query = db_query("SELECT * FROM {node} l WHERE type='wifi' AND changed > '%d'",variable_get('guifi_phpwmload_cron_last', 1));
-  if (db_num_rows($query)) {
-        variable_set('guifi_phpwmload_cron_last', time());
-        load_pwpwm_nodes(0);
-  }
+  // delete orphan devices, radios, ip addresses & links
+  guifi_purge();
 }
 
 ?>
