@@ -109,7 +109,7 @@ function simplexml_node_file($n) {
 
    $fn = '../tmp/'.$n.'.cnml';
    if (file_exists($fn))
-   if (time () > (filectime($fn) + (60 * 60))) {
+   if (time () < (filectime($fn) + (60 * 60))) {
      $xml = simplexml_load_file($fn);
      if ($xml)
        return $xml;
