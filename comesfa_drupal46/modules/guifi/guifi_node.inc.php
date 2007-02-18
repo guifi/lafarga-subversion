@@ -352,6 +352,9 @@ function guifi_node_distances($id) {
 
   $node = node_load(array('nid' => $id));
 
+  drupal_set_title(t('distances from').' '.$node->nick);
+
+
   // deso la lat/lon d'origen
   $lat1 = $node->lat;
   $long1 = $node->lon;
