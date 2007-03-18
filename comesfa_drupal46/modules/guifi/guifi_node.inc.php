@@ -442,25 +442,48 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
     $output = '<h4>'.t('links').'</h4>'; 
   else
     $output = '<h4>'.t('links').' ('.$ltype.')</h4>'; 
-  $header = array(t('linked nodes (device)'), t('ip'), t('status'), t('kms.'));
+  $header = array(t('linked nodes (device)'), t('ip'), t('status'), t('kms.'),t('az.'));
   
   $listed = array('0');
-  $queryloc1 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, c.flag, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id WHERE d.nid = %d AND link_type like '%s' ORDER BY c.device_id",$id,$ltype);
+  $queryloc1 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, c.flag, l.lat, l.lon, r.ssid FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE d.nid = %d AND link_type like '%s' ORDER BY c.device_id, i.id",$id,$ltype);
   if (db_num_rows($queryloc1)) {
+    $devant = ' ';
     while ($loc1 = db_fetch_object($queryloc1)) {
-      $queryloc2 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id = c.ipv4_id WHERE c.id = %d AND c.device_id <> %d AND c.id NOT IN (%s)",$loc1->id,$loc1->device_id,implode(",",$listed));
+      $queryloc2 = db_query("SELECT c.id, l.id nid, l.nick, r.ssid, c.device_id, d.nick device_nick, a.ipv4 ip, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id = c.ipv4_id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE c.id = %d AND c.device_id <> %d AND c.id NOT IN (%s)",$loc1->id,$loc1->device_id,implode(",",$listed));
 //      $queryloc2 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, c.id ip, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id WHERE c.id = %d AND c.device_id <> %d AND c.id NOT IN (%s)",$loc1->id,$loc1->device_id,implode(",",$listed));
-      $listed[] = $loc1->id;
+      $listed[] = $loc1->device_id;
+      $devact = $loc1->device_nick;
+      if ($loc1->ssid)
+        $devact.= ' - '.$loc1->ssid;
       while ($loc2 = db_fetch_object($queryloc2)) {
         $gDist = round($oGC->EllipsoidDistance($loc1->lat, $loc1->lon, $loc2->lat, $loc2->lon),3);
-        if ($gDist)
+        if ($gDist) {
           $total = $total + $gDist;
+          $dAz = round($oGC->GCAzimuth($loc1->lat, $loc1->lon, $loc2->lat,$loc2->lon));
+          // Calculo orientacio
+          if ($dAz < 23) $dOr =t("N"); else
+          if ($dAz < 68) $dOr =t("NE"); else
+          if ($dAz < 113) $dOr =t("E"); else
+          if ($dAz < 158) $dOr =t("SE"); else
+          if ($dAz < 203) $dOr =t("S"); else
+          if ($dAz < 248) $dOr =t("SW"); else
+          if ($dAz < 293) $dOr =t("W"); else
+          if ($dAz < 338) $dOr =t("NW"); else
+            $dOr =t("N");
+        }
         else
           $gDist = 'n/a';
-        if ($loc1->nid <> $loc2->nid)
-          $linkname = '<a href=node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>)';
+        if ($loc1->nid <> $loc2->nid) {
+          $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$loc2->device_id));
+          if ($cr->count > 1) 
+            $dname = $loc2->device_nick.'/'.$loc2->ssid;
+          else
+            $dname = $loc2->device_nick;
+           
+          $linkname = $loc1->id.'-'.'<a href=node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href=guifi/device/'.$loc2->device_id.'>'.$dname.'</a>)';
+        }
         else
-          $linkname = '<a href=guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
+          $linkname = $loc1->id.'-'.'<a href=guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
 
         $graph_url = guifi_node_get_url_mrtg($id,FALSE);
         if ($graph_url != NULL)
@@ -468,11 +491,16 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
         else
           $img_url = NULL;
 
+        if ($devant != $devact) {
+          $devant = $devact;
+          $rows[] = array(array('data'=> '<b><a href=/guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
+        }
         $rows[] = array($linkname,
                      $loc1->ip.'/'.$loc2->ip, 
                    array('data' => t($loc1->flag).$img_url,
                                    'class' => $loc1->flag),
-                   array('data' => $gDist,'class' => 'number'));
+                   array('data' => $gDist,'class' => 'number'),
+                   $dAz.'-'.$dOr);
       }
     }
     $output .= theme('table', $header, $rows);
