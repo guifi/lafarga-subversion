@@ -130,6 +130,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
       $link[links][$link_id][nid]=$nid;
       $link[links][$link_id][device_id]=$device_id;
       if ($link[links][$link_id][link_type] == 'wds') {
+        $ipIDs = array();
         // WDS reuse the existing interface, but always create a new IP over it, so we need to get a free IP id for it
         $qryIDs = db_query('SELECT a.id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.interface_type="wds/p2p" AND i.device_id=%d AND i.radiodev_counter=%d',$device_id,$radiodev_counter);
         while ($id = db_fetch_array($qryIDs))
