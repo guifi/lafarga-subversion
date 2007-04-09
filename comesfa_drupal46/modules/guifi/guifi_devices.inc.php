@@ -559,8 +559,10 @@ function guifi_save_interfaces($edit,$var,$radiodev_counter = null,$cascade = fa
           } else 
           if ($ipv4['new']) 
             db_query('INSERT INTO {guifi_ipv4} (id, interface_id, ipv4, netmask) VALUES (%d, %d, "%s", "%s")',$ipv4_id,$interface[id],$ipv4[ipv4],$ipv4[netmask]);
-          else
-            db_query('UPDATE {guifi_ipv4} SET ipv4="%s", netmask="%s" WHERE id=%d AND interface_id=%d',$ipv4[ipv4],$ipv4[netmask],$ipv4[id],$interfacer[id]);
+          else {
+            db_query('UPDATE {guifi_ipv4} SET ipv4="%s", netmask="%s" WHERE id=%d AND interface_id=%d',$ipv4[ipv4],$ipv4[netmask],$ipv4[id],$interface[id]);
+            guifi_log(GUIFILOG_FULL,sprintf('ipv4 uptaded: %s/%s',$ipv4['ipv4'],$ipv4['netmask']));
+          }
           // Update links (rocal & remote)
           if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
             if (($link['deleted']) or ($cascade)) {
