@@ -13,7 +13,7 @@
 function guifi_overview($id=0) {
 
   if ($id)
-    print theme('page', guifi_overview_tree($id) ."<hr>" .guifi_zone_print($id) );
+    print theme('page', guifi_overview_tree($id) ."<hr />" .guifi_zone_print($id) );
   else
     print theme('page', guifi_overview_tree($id));
 }
@@ -66,14 +66,14 @@ function guifi_zone_form(&$node, &$param) {
   $form .= form_select(t('Time zone'), 'time_zone', $node->time_zone, guifi_types('tz'), NULL, NULL, NULL);
   $form .= form_textfield(t('Zone homepage'), 'homepage', $node->homepage, 60, 128, t('URL of the local community homepage, if exists. Usefull for those who want to use this site just for network administration, but have their own portal.'), NULL, NULL);
   $form .= form_textfield(t('email notification'), 'notification', $node->notification, 60, 128, t('Mailid where changes on the zone will be notified. Usefull for decentralized administration.'), NULL, NULL);
-  $form .= '<hr><h2>'.t('zone global network parameters').'</h2>';
+  $form .= '<hr /><h2>'.t('zone global network parameters').'</h2>';
   $form .= form_textfield(t('DNS Servers'), 'dns_servers', $node->dns_servers, 60, 128, t('The Name Servers of this zone, will inherit parent DNS servers if blank. Separated by ",".'), NULL, NULL);
   $form .= form_textfield(t('NTP Servers'), 'ntp_servers', $node->ntp_servers, 60, 128, t('The network time protocol (clock) servers of this zone, will inherit parent NTP servers if blank. Separated by ",".'), NULL, NULL);
   $form .= form_textfield(t('OSPF zone id'), 'ospf_zone', $node->ospf_zone, 60, 128, t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'), NULL, NULL);
   $form .= form_textfield(t('MRTG zone url'), 'mrtg_servers', $node->mrtg_servers, 60, 128, t('This URL will be used for the obtaining of graphs from external servers to guifi.'), NULL, NULL);
   if (user_access('administer guifi zones')) $form .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>'Default','-1'=>'None') + guifi_services_select('SNPgraphs'), t("If not specified, inherits parent zone properties."));
 
-  $form .= '<hr><h2>'.t('zone mapping parameters').'</h2>';
+  $form .= '<hr /><h2>'.t('zone mapping parameters').'</h2>';
   $form .= form_item(t('Bottom left corner'),
                 '<input type="text" name="edit[minx]" size="12" maxlength="24" value="'. $node->minx .'"/> '
                 .'<input type="text" name="edit[miny]" size="12" maxlength="24" value="'. $node->miny .'"/> '
@@ -290,23 +290,23 @@ function guifi_get_zones($parent = 0, $depth = 30, $unfold = array()) {
  * print zone ariadna thread
 **/
 function guifi_zone_ariadna($id = 0, $link = 'node/') {
-  $output = '<div class="breadcumb"><font size=3>';
+  $output = '<div class="breadcumb"><font size="3">';
   foreach (array_reverse(guifi_get_zone_parents($id)) as $parent) 
   if ($parent > 0) {
     $result = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
     $output .= guifi_zone_l($result['id'], $result['title'], $link);
     $output .= '&nbsp;&raquo;&nbsp;';
   }
-  $output .= '</div></font><hr>';
+  $output .= '</div></font><hr />';
   $query = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$id);
   if (db_num_rows($query) > 0) 
   {
-    $output .= '<div class="breadcumb"><font size=2>';
+    $output .= '<div class="breadcumb"><font size="2">';
     while ($zone = db_fetch_array($query)) {
       $output .= guifi_zone_l($zone['id'], $zone['title'], $link);
       $output .= '&nbsp;&middot;&nbsp;';
     }  
-    $output .= '</div></font><hr>';
+    $output .= '</div></font><hr />';
   }
   return $output;
 }
@@ -335,7 +335,7 @@ function guifi_zone_print_data($zone) {
  
   $rows[] = array(t('zone name'),'<b>' .$zone->title .'</b>'); 
   if ($zone->homepage)
-    $rows[] = array(t('homepage'),'<a href='.$zone->homepage.'>'.$zone->homepage.'</a>'); 
+    $rows[] = array(t('homepage'),'<a href="'.$zone->homepage.'>'.$zone->homepage.'"</a>'); 
   if ($zone->notification)
     $rows[] = array(t('changes notified to'),t('protected, edit zone to view')); 
   $rows[] = array(t('network global information').':',null);
@@ -382,7 +382,7 @@ function guifi_zone_ipv4($id) {
 
   $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'),t('operations'));
   $table = theme('table', $header, guifi_ipv4_print_data($zone));
-  $output .= theme('box', t('zone & parent(s) network allocation(s)'), $table);
+  $output .= theme('box', t('zone &#038; parent(s) network allocation(s)'), $table);
 
   return $output;
 }
@@ -507,7 +507,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
   if (db_num_rows($result) > 0) 
     while ($zone = db_fetch_object($result)) {
       $rows[] = array(
-                      array('data' => '<a href=node/'.$zone->id.'/view/availability>'.$zone->title,'class' => 'fullwidth'));
+                      array('data' => '<a href="node/'.$zone->id.'/view/availability">'.$zone->title,'class' => 'fullwidth'));
       $child = node_load(array('nid' => $zone->id));
       $rows[] = array(guifi_zone_availability_recurse($child,$depth,$maxdepth));
     } // end while zones
@@ -521,7 +521,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
         if (db_num_rows($qdevices) > 0) 
           while ($radio = db_fetch_object($qdevices)) {
             if ($i == 0) 
-              $nnick = '<a href=node/'.$loc->id.'>'.$loc->nick.'</a>';
+              $nnick = '<a href="node/'.$loc->id.'">'.$loc->nick.'</a>';
             else
               $nnick = null; 
             $i++;
@@ -537,7 +537,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
 
             $rows[] = array(
                             array('data' => $nnick,'class'=>'quarterwidth'),
-                            array('data' => '<a href='.$url_device.'>'.$radio->nick.'</a>', 'class' => 'quarterwidth'),
+                            array('data' => '<a href="'.$url_device.'">'.$radio->nick.'</a>', 'class' => 'quarterwidth'),
                             array('data' => t($radio->flag).$img_url,'class' => $radio->flag)
               );
 
@@ -558,7 +558,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
  */
 function guifi_zone_availability($node) {
   
-  //  print "Enter zone availability ".$node-nid."\n<br>";
+  //  print "Enter zone availability ".$node-nid."\n<br />";
   
   $output = '<h2>' .t('Availability of ') .' ' .$node->title .'</h2>';
   $rows[] = array(guifi_zone_availability_recurse($node));
@@ -594,7 +594,7 @@ function guifi_zone_view(&$node) {
     case 'all': case 'view': case 'default':
       // if no data, print a default text
       if ($node->body == "") {
-        $node->body = "<small>Aquesta zona encara no disposa de pàgina amb descripció, una pàgina editable on s'hi pot posar un text informatiu de la zona que pot servir de pàgina d'inici de la comunitat, o posar-hi un enllaç si ja la tenen. Per <a href=node/" .$node->nid ."/edit>editar-la</a> i/o <a href=node/add/guifi-zone>crear noves zones</a> has de tenir un <a href=/user/register>usuari enregistrat</a>. Crear aquesta pàgina serveix per gaudir de totes les funcionalitats que ofereix aquesta web (mapes dinàmics, llistats, generació de configuracions, monitorització de l'estat de la xarxa...).</small>";
+        $node->body = "<small>Aquesta zona encara no disposa de pàgina amb descripció, una pàgina editable on s'hi pot posar un text informatiu de la zona que pot servir de pàgina d'inici de la comunitat, o posar-hi un enllaç si ja la tenen. Per <a href=\"node/" .$node->nid ."/edit\">editar-la</a> i/o <a href=\"node/add/guifi-zone\">crear noves zones</a> has de tenir un <a href=\"/user/register\">usuari enregistrat</a>. Crear aquesta pàgina serveix per gaudir de totes les funcionalitats que ofereix aquesta web (mapes dinàmics, llistats, generació de configuracions, monitorització de l'estat de la xarxa...).</small>";
       } 
       $node = node_prepare($node);
       $node->body =  guifi_zone_ariadna($node->nid).guifi_zone_simple_map($node).$node->body;
