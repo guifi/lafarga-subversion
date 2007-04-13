@@ -61,7 +61,7 @@ function guifi_upgrade() {
     $query = db_query("SELECT device_id FROM {guifi_interfaces} WHERE ipv4='%s'",$ipv4);
     if  (db_num_rows($query)) {
       $conflict =  db_fetch_object($query);
-      print "IP conflict: ".$ipv4." is present at ".guifi_get_hostname($did)."(".$did.")and ".guifi_get_hostname($conflict->device_id)."(".$conflict->device_id.")\n<br>";  
+      print "IP conflict: ".$ipv4." is present at ".guifi_get_hostname($did)."(".$did.")and ".guifi_get_hostname($conflict->device_id)."(".$conflict->device_id.")\n<br />";  
       return false;
     }
 
@@ -76,8 +76,8 @@ function guifi_upgrade() {
       db_query("INSERT INTO {guifi_interfaces} (id, device_id, interface_type, ipv4, netmask, mac) VALUES (%d, %d, '%s', '%s', '%s', '%s')",$id,$did,$it,$ipv4,$mask,$mac);
   }
   
-  print "Migrating the database...\n<br>";
-  print "Truncating existing data...\n<br>";
+  print "Migrating the database...\n<br />";
+  print "Truncating existing data...\n<br />";
    
   db_query("DELETE FROM {guifi_location}");
   db_query("DELETE FROM {guifi_zone}");
@@ -85,14 +85,14 @@ function guifi_upgrade() {
   db_query("DELETE FROM {node} WHERE type in ('guifi-zone','guifi-node','guifi-service')");
 
 
-  print "Migrating zones...\n<br>";
+  print "Migrating zones...\n<br />";
   $master = _zone_insert('Catalunya',0);
 
   $zones_tree = taxonomy_get_tree(variable_get('wifi_vocabulary',0));
   $device_id = 0;
   $if = 0;
   foreach ($zones_tree as $term) {
-    print $term->name ."\n<br>";
+    print $term->name ."\n<br />";
     if ($term->depth == 0) {
       $comarca = _zone_insert($term->name,$master);
     } else {
@@ -244,7 +244,7 @@ function guifi_upgrade() {
   }        
 
   // Migrating links
-  print "\n<br>Migrating links...\n<br>";
+  print "\n<br />Migrating links...\n<br />";
 
   $query= db_query("SELECT r1.mac mac1, r1.mode mode1, r1.ip ipr1, r1.hosts hosts1, r2.mac mac2, r2.mode mode2, r2.ip ipr2, r2.hosts hosts2, r1.nid nid1, r2.nid nid2, l.* FROM {wifi_link} l, {wifi_radio} r1, {wifi_radio} r2 WHERE l.state != 'Dropped' AND l.rid1=r1.rid AND l.rid2=r2.rid ORDER BY l.cid");
   while ($link = db_fetch_array($query)) {
