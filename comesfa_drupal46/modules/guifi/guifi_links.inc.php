@@ -106,26 +106,26 @@ function guifi_links_validate(&$edit) {
   if (!empty($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface)
   if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
   if (!empty($ipv4[links]))       foreach ($ipv4[links] as $link_id=>$link) {
-//    print "Link: ".$key."\n<br>"; print_r($link); print "\n<br>";
+//    print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
     guifi_links_validate_recurse($edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id],$link_id,$interface[interface_type],'radios]['.$radio_id.'][interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][links]['.$link_id.'][flag');
   }
   // Validating cable/other links
   if (!empty($edit[interfaces])) foreach ($edit[interfaces] as $interface_id=>$interface)
   if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
   if (!empty($ipv4[links]))       foreach ($ipv4[links] as $link_id=>$link) {
-//    print "Link: ".$key."\n<br>"; print_r($link); print "\n<br>";
+//    print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
     guifi_links_validate_recurse($edit[interfaces][$interface_id][ipv4][$ipv4_id],$link_id,$interface[interface_type],'interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][links]['.$link_id.'][flag');
   }
 }
 
 function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field) {
 
-//    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br>";
+//    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
 
     if ($link[links][$link_id]['new']==true) 
     if (!empty($link[links][$link_id][linked])) {
-//      print "New Linked: \n<br>"; print_r($link);
-//      print "\n<br>";
+//      print "New Linked: \n<br />"; print_r($link);
+//      print "\n<br />";
       list($nid,$device_id,$radiodev_counter) = explode(',',$link[links][$link_id][linked]);
       $link[links][$link_id][nid]=$nid;
       $link[links][$link_id][device_id]=$device_id;
@@ -136,9 +136,9 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
         while ($id = db_fetch_array($qryIDs))
           $ipIDs[] = $id['id'];
         $nextID = 0;
-//        print "\n<br>";
+//        print "\n<br />";
 //        print_r($ipIDs);
-//        print "\n<br>";
+//        print "\n<br />";
         while (in_array($nextID,$ipIDs))
           $nextID = $nextID + 1;
         $ipv4_id=$nextID;
@@ -146,7 +146,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
         $ipv4_id=$radiodev_counter;
       }
 //      print "IPV4_id: " .$ipv4_id;
-//      print "\n<br>";
+//      print "\n<br />";
       $link[links][$link_id][ipv4_id]=$ipv4_id;
       $link[links][$link_id][ipv4][id]=$ipv4_id;
 
@@ -166,7 +166,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
            $itype = 'Wan';
            $query_ri = db_query('SELECT id,mac FROM {guifi_interfaces} WHERE interface_type="Wan" AND device_id=%d',$device_id);
         }
-//        print "Itype: $itype Device: $device_id Radiodev: $radiodev_counter\n<br>";
+//        print "Itype: $itype Device: $device_id Radiodev: $radiodev_counter\n<br />";
 //        $ri = db_fetch_array(db_query('SELECT id,mac FROM {guifi_interfaces} WHERE interface_type="%s" AND device_id=%d AND radiodev_counter=%d',$itype,$device_id,$radiodev_counter));
         $ri = db_fetch_array($query_ri);
         $link[links][$link_id]['interface_id']=$ri['id'];
@@ -219,7 +219,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
       break;
     }
 
-//    print "\n<br>Checking link: "; print_r($link);
+//    print "\n<br />Checking link: "; print_r($link);
 
     if ((!empty($link['if_local']['ipv4'])) and
         (empty($link['if_remote']['netmask'])) and
@@ -384,7 +384,7 @@ function guifi_delete_link($edit,$op) {
   switch ($op) {
   case t('Delete selected'):
       $output .= '<h2>'.t('Are you sure you want to delete this link?').'</h2>'.$link_text;
-      $output .= '<br>'.form_button(t('Confirm delete'),'op').
+      $output .= '<br />'.form_button(t('Confirm delete'),'op').
                         form_button(t('Back to list'),'op');
       $output .= $message;
     break;
@@ -397,8 +397,8 @@ function guifi_delete_link($edit,$op) {
       } else
         $output .= form_hidden('interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][links]['.$link_id.'][deleted',true);
       $output .= '<h2>'.t('Link deleted').'</h2>'.$link_text;
-      $output .= "\n<br>".t('<strong>Warning:</strong> If you confirm at this point, this operation will delete information from the database and save any other change.');
-      $output .= '<br>'.form_button(t('Undo changes'),'op').form_button(t('Save & continue edit'),'op');
+      $output .= "\n<br />".t('<strong>Warning:</strong> If you confirm at this point, this operation will delete information from the database and save any other change.');
+      $output .= '<br />'.form_button(t('Undo changes'),'op').form_button(t('Save &#038; continue edit'),'op');
     break;
   }
   print theme('page',form($output));
@@ -412,7 +412,7 @@ function guifi_delete_link($edit,$op) {
 
 function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
 
-//  print "New Link ".$type." Interface: ".$interface_ipv4_id."\n<br>";
+//  print "New Link ".$type." Interface: ".$interface_ipv4_id."\n<br />";
 //  print_r($edit);
 
   $parse = explode(',',$interface_ipv4_id);
@@ -431,7 +431,7 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
 
   // get list of the current used ips
   $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
-//  print "Ips allocated: ".count($ips_allocated)."\n<br>";
+//  print "Ips allocated: ".count($ips_allocated)."\n<br />";
 
   // fill new variables 
   $newlk = array();
