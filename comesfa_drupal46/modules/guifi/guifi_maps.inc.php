@@ -372,26 +372,26 @@ function guifi_units2units ( $coords, $lon, $lat, $type=0 ) {
     $yReal = ( sin($anglePX) * $distPX ) + $p[0][1];
     
     /*    
-      $longitud  = "angleC(2): ".$angleC[2]*180/M_PI."<br>";
-    $longitud .= "angleC(1): ".$angleC[1]*180/M_PI."<br>";
-    $longitud .= "angleC(0): ".$angleC[0]*180/M_PI."<br>";
-    $longitud .= "angleCX: ".$angleCX*180/M_PI."<br>";
-    $longitud .= "sinCX: ".$sinCX[0].",".$sinCX[1].",".$sinCX[2]."<br>";
-    $longitud .= "sinPR: ".$sinPR[0].",".$sinPR[1]."<br>";
-    $longitud .= "puntRef: ".$puntRef."<br>";
-    $longitud .= "origen: ".$origen."<br>";
-    $longitud .= "R(x): (".$x0.",".$y0."|".$v0.",".$w0.")<br>";
-    $longitud .= "R(0): (".$x1.",".$y1."|".$v1.",".$w1.")<br>";
-    $longitud .= "P(x): (".$xP.",".$yP."|".$xC.",".$yC.")<br>";
-    $longitud .= "lambda: ".$lambda."<br>";
-    $longitud .= "anglePX: ".$anglePX*180/M_PI."<br>";
-    $longitud .= "proporció: ".($distPO / $distCO)."<br>";
+    $longitud  = "angleC(2): ".$angleC[2]*180/M_PI."<br />";
+    $longitud .= "angleC(1): ".$angleC[1]*180/M_PI."<br />";
+    $longitud .= "angleC(0): ".$angleC[0]*180/M_PI."<br />";
+    $longitud .= "angleCX: ".$angleCX*180/M_PI."<br />";
+    $longitud .= "sinCX: ".$sinCX[0].",".$sinCX[1].",".$sinCX[2]."<br />";
+    $longitud .= "sinPR: ".$sinPR[0].",".$sinPR[1]."<br />";
+    $longitud .= "puntRef: ".$puntRef."<br />";
+    $longitud .= "origen: ".$origen."<br />";
+    $longitud .= "R(x): (".$x0.",".$y0."|".$v0.",".$w0.")<br />";
+    $longitud .= "R(0): (".$x1.",".$y1."|".$v1.",".$w1.")<br />";
+    $longitud .= "P(x): (".$xP.",".$yP."|".$xC.",".$yC.")<br />";
+    $longitud .= "lambda: ".$lambda."<br />";
+    $longitud .= "anglePX: ".$anglePX*180/M_PI."<br />";
+    $longitud .= "proporció: ".($distPO / $distCO)."<br />";
     
     $latitud = "";
-    $result  = "(".$xReal.", ".$yReal.")<br>";
+    $result  = "(".$xReal.", ".$yReal.")<br />";
     
     global $wgOut;
-    $wgOut->addHTML($longitud . "<br>" . $latitud . "<br>" . $result);
+    $wgOut->addHTML($longitud . "<br />" . $latitud . "<br />" . $result);
     */
     
     return array( $xReal, $yReal );
@@ -643,29 +643,29 @@ function guifi_get_map_info($node) {
   }
   
 /*
-  echo "<br>quadrantsX: ".$quadrantsX;
-  echo "<br>quadrantsY: ".$quadrantsY;
-  echo "<br>map_width: ".$image_info['width'];
-  echo "<br>map_height: ".$image_info['height'];
+  echo "<br />quadrantsX: ".$quadrantsX;
+  echo "<br />quadrantsY: ".$quadrantsY;
+  echo "<br />map_width: ".$image_info['width'];
+  echo "<br />map_height: ".$image_info['height'];
 */  
 /*
-  echo "<br>datum: ".$map_info['datum'];
-  echo "<br>zone: ".$map_info['zone'];
-  echo "<br>nord: ".$map_info['nord'];
-  echo "<br>zoom: ".$map_info['zoom'];
-  echo "<br>dist: ".$map_info['dist'];
-  echo "<br>scale: ".$map_info['scale'];
-  echo "<br>xPixel: ".$map_info['xPixel'];
-  echo "<br>yPixel: ".$map_info['yPixel'];
-  echo "<br>xUTM: ".$map_info['xUTM'];
-  echo "<br>yUTM: ".$map_info['yUTM'];
-  echo "<br>lon: ".$map_info['londec'];
-  echo "<br>lan: ".$map_info['latdec'];
+  echo "<br />datum: ".$map_info['datum'];
+  echo "<br />zone: ".$map_info['zone'];
+  echo "<br />nord: ".$map_info['nord'];
+  echo "<br />zoom: ".$map_info['zoom'];
+  echo "<br />dist: ".$map_info['dist'];
+  echo "<br />scale: ".$map_info['scale'];
+  echo "<br />xPixel: ".$map_info['xPixel'];
+  echo "<br />yPixel: ".$map_info['yPixel'];
+  echo "<br />xUTM: ".$map_info['xUTM'];
+  echo "<br />yUTM: ".$map_info['yUTM'];
+  echo "<br />lon: ".$map_info['londec'];
+  echo "<br />lan: ".$map_info['latdec'];
 
-  echo "<br>quadX: ".$map_info['quadX'];
-  echo "<br>quadY: ".$map_info['quadY'];
-  echo "<br>width: ".$map_info['width'];
-  echo "<br>height: ".$map_info['height'];
+  echo "<br />quadX: ".$map_info['quadX'];
+  echo "<br />quadY: ".$map_info['quadY'];
+  echo "<br />width: ".$map_info['width'];
+  echo "<br />height: ".$map_info['height'];
 */  
 
   return $map_info;
