@@ -50,7 +50,7 @@ function guifi_service_form(&$node, &$param) {
   $type = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type='service' AND text='%s'",$node->service_type));
   if ($node->nid > 0)
     $output = form_item(t('Service type'),$node->service_type,t($type->description));
-  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br>Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
+  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
   $output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
 //  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
 
@@ -209,7 +209,7 @@ function guifi_service_print_data($node) {
   if ($node->device_id > 0) {
     $device       = db_fetch_object(db_query('SELECT nick FROM {guifi_devices} WHERE id = %d', $node->device_id));
     $url = url('guifi/device/'.$node->device_id,null, null, false);
-    $rows[] = array(t('device & status'),'<a href='.$url.'>'.$device->nick.'</a>',array('data' => t($node->status_flag),'class' => $node->status_flag)); 
+    $rows[] = array(t('device &#038; status'),'<a href='.$url.'>'.$device->nick.'</a>',array('data' => t($node->status_flag),'class' => $node->status_flag)); 
   }
 
   switch ($node->service_type) {
@@ -219,7 +219,7 @@ function guifi_service_print_data($node) {
       break;
     case 'Proxy': case 'ADSL':
       $rows[] = array(t('bandwidth (Up/Down)'),$node->var['down'],$node->var['up']);
-      $rows[] = array(t('proxy name & port'),$node->var['proxy'],$node->var['port']);
+      $rows[] = array(t('proxy name &#038; port'),$node->var['proxy'],$node->var['port']);
       $rows[] = array(t('type'),$node->var['type'],null);
       if (is_array($node->var['fed'])) $rows[] = array(t('federation'),implode(", ",$node->var['fed']),null);
       else $rows[] = array(t('federation'),t('This proxy is not federated yet'),null);
@@ -325,7 +325,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
  */
 function guifi_list_services($node,$service = '%') {
 
-//  print "Enter list services by zone ".$node->nid."\n<br>";
+//  print "Enter list services by zone ".$node->nid."\n<br />";
 
   if (is_numeric($node)) {
     $typestr = t('by device');
@@ -345,7 +345,7 @@ function guifi_list_services($node,$service = '%') {
 **/
 function guifi_service_view(&$node) {
   
-  $output = "<div id=guifi>";
+  $output = '<div id="guifi">';
   if ($node->zone_id > 0)
     $output .= guifi_zone_ariadna($node->zone_id);
 

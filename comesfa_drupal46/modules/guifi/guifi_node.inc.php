@@ -56,7 +56,7 @@ function guifi_node_form(&$node, &$param) {
 
 
 
-  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br>Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''), null, true);
+  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''), null, true);
   $output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
   $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
 
@@ -82,8 +82,8 @@ function guifi_node_form(&$node, &$param) {
                 '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="'. $node->latdeg .'"/> '
                 .'<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/> '
                 .'<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"'
-                , t('Latitude & Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br>If you provide data in decimal, leave the following fields empty and a conversion will be made.'), NULL, FALSE);
-  $degminsec .= form_textfield(t("Zone description"), "zone_description", $node->zone_description, 60, 128, t("Zone, address, neighborhood. Something that describes your area within your location.<br>If you don't know your lat/lon, please provide street and number or crossing street.") . ($error['zone'] ? $error["zone"] : ''));
+                , t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'), NULL, FALSE);
+  $degminsec .= form_textfield(t("Zone description"), "zone_description", $node->zone_description, 60, 128, t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street.") . ($error['zone'] ? $error["zone"] : ''));
   $output .= form_group('Position',$degminsec,null);
   $output .= form_textfield(t("Antenna elevation"), "elevation", $node->elevation, 20, 20, t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''));
 
@@ -110,7 +110,7 @@ function guifi_edit_node_validate(&$node) {
   guifi_validate_nick($node->nick);
 
   if ($node->agreement != 'Yes')
-      form_set_error('agreement', t('You must read and accept the license & terms and conditions to be allowed to create nodes.'));
+      form_set_error('agreement', t('You must read and accept the license &#038; terms and conditions to be allowed to create nodes.'));
 
   if (!empty($node->nick)) { 
     $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",strtolower($node->nick),$node->nid);
@@ -200,7 +200,7 @@ function guifi_node_print_data($node) {
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
-  $url_map = sprintf(' <a href="http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude=%f&longitude=%f" target=_blank>%s</a>',$node->lat,$node->lon,t('external map'));
+  $url_map = sprintf(' <a href="http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude=%f&longitude=%f" target="_blank">%s</a>',$node->lat,$node->lon,t('external map'));
 
   $map = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
   $map .= t('Sorry, your browser can\'t display the embedded map');
@@ -209,9 +209,9 @@ function guifi_node_print_data($node) {
   $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>',
                   array('data'=>$map,'rowspan'=>8)); 
   $rows[] = array(t('zone'),$zone->title,$node->zone_description); 
-  $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target=_blank>Lat:%f<br>Lon:%f</a>',
+  $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground')); 
-  $rows[] = array(t('available for mesh & status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag)); 
+  $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag)); 
 
   switch ($node->graph_server) {
   case -1: 
@@ -248,7 +248,7 @@ function guifi_node_print_data($node) {
 **/
 function guifi_node_view(&$node) {
   
-  $output = "<div id=guifi>";
+  $output = '<div id="guifi">';
   $output .= guifi_zone_ariadna($node->zone_id);
 
   switch (arg(3)) {
@@ -308,7 +308,7 @@ function guifi_node_view(&$node) {
 
 function guifi_node_radio_list($id = 0) {
   
-  $header = array('</h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
+  $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
 
   // Form for adding a new device
   $form = guifi_device_create_form($id);
@@ -380,7 +380,7 @@ function guifi_node_distances($id) {
   asort($nodes);
 
   $header = array(t('Site'), t('Kms.'), t('degrees'), t('Direction'),t('Status'),t('Heights'));
-//    $output .= "<br>\n<h2>" .t("Report of distances to other locations, from closest to farest, limited at ") .variable_get('wifi_max_distance',25) ." " .t("Kms.") ."</h2><table>";
+//    $output .= "<br />\n<h2>" .t("Report of distances to other locations, from closest to farest, limited at ") .variable_get('wifi_max_distance',25) ." " .t("Kms.") ."</h2><table>";
   foreach ($nodes as $key => $node) {
     $dAz = round($oGC->GCAzimuth($lat1, $long1, $node["lat"], $node["lon"]));
     // Calculo orientacio

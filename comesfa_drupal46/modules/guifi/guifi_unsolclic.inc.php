@@ -79,14 +79,14 @@ function _outln($string = '') {
   global $otype;
 
   print $string;
-  if ($otype == 'html') print "\n<br>"; else print "\n";
+  if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
 function _outln_comment($string = '') {
   global $otype;
 
   print "# ".$string;
-  if ($otype == 'html') print "\n<br>"; else print "\n";
+  if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
 function _outln_nvram($parameter, $value) {
@@ -98,15 +98,15 @@ function _outln_nvram($parameter, $value) {
     print $value;
   } else { 
     $pos = 0;
-    if ($otype == 'html') print "\n<br>"; else print "\n";
+    if ($otype == 'html') print "\n<br />"; else print "\n";
     do {
       print substr($value, $pos * 80, 80).'\\';
       $pos ++;
-      if ($otype == 'html') print "\n<br>"; else print "\n";
+      if ($otype == 'html') print "\n<br />"; else print "\n";
     } while (strlen(substr($value,($pos-1) * 80)) > 80);
   }
   print('"');
-  if ($otype == 'html') print "\n<br>"; else print "\n";
+  if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
 function _out_nvram($parameter,$value = null) {
@@ -114,25 +114,25 @@ function _out_nvram($parameter,$value = null) {
   print "nvram set ".$parameter.'="';
   if (!empty($value))
     print $value;
-  if ($otype == 'html') print "\n<br>"; else print "\n";
+  if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
 function _out($value = '', $end = '') {
   global $otype;
   print "    ".$value.$end;
-  if ($otype == 'html') print "\n<br>"; else print "\n";
+  if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
 function guifi_unsolclic_qos() {
-  $cmd = "\n<br>nvram set ";
+  $cmd = "\n<br />nvram set ";
 
-  $output = "\n<br>#"
-           ."\n<br># QoS" 
+  $output = "\n<br />#"
+           ."\n<br /># QoS" 
            .$cmd ."wshaper_enable=1"
            .$cmd ."wshaper_dev=LAN"
            .$cmd ."action_service=filters"
            .$cmd ."svqos_svcs=\"h323 l7 0:0 10 |"
-                 ."\n<br> "
+                 ."\n<br /> "
                  ." aim l7 0:0 20 |"
                  ." jabber l7 0:0 20 |"
                  ." http l7 0:0 20 |"
@@ -142,7 +142,7 @@ function guifi_unsolclic_qos() {
                  ." Ping icmp 0:0 20 |"
                  ." SSH tcp 22:22 20 |"
                  ." msn l7 0:0 20 |"
-                 ."\n<br>"
+                 ."\n<br />"
                  ." audiogalaxy l7 0:0 40 |"
                  ." bearshare l7 0:0 40 |"
                  ." bittorrent l7 0:0 40 |"
@@ -155,7 +155,7 @@ function guifi_unsolclic_qos() {
                  ." postscript l7 0:0 40 |"
                  ." pdf l7 0:0 40 |"
                  ." quicktime l7 0:0 40 |"
-                 ."\n<br>\"";
+                 ."\n<br />\"";
 // Mentre duri el bug al QoS, res;
   return "";
   return $output;
@@ -648,12 +648,12 @@ function guifi_unsolclic_vlan_vars($dev,&$rc_startup) {
     global $otype; 
 
     $output = '# '.$if.': '.guifi_get_hostname($link['interface'][device_id]);
-    if ($otype == 'html') $output .= "\n<br>"; else $output .= "\n";
+    if ($otype == 'html') $output .= "\n<br />"; else $output .= "\n";
     $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
     if (!preg_match("/(Working|Testing|Building)/",$link[flag])) 
       $output .= '# '; 
     $output .= 'ifconfig '.$if.' '.$ipv4[ipv4].' netmask '.$ipv4[netmask].' broadcast '.$item['broadcast']; 
-    if ($otype == 'html') $output .= "\n<br>"; else $output .= "\n";
+    if ($otype == 'html') $output .= "\n<br />"; else $output .= "\n";
 
     return $output;
   } 
@@ -693,7 +693,7 @@ function guifi_unsolclic_vlan_vars($dev,&$rc_startup) {
   }
   if ($rc != '') {
     $rc_startup = '# VLANs -- radio: '.$dev->id.'-'.$dev->nick;
-    if ($otype == 'html') $rc_startup .= "\n<br>"; else $rc_startup .= "\n";
+    if ($otype == 'html') $rc_startup .= "\n<br />"; else $rc_startup .= "\n";
     $rc_startup .= $rc;
   }
   if ($vlans) {
@@ -771,7 +771,7 @@ function guifi_unsolclic_wds_vars($dev) {
       $wds_str .= ' '.$wds['interface']['mac'];
       // Bug del Talisman 1.0.5
       if ($dev->variable['firmware'] == 'Talisman') 
-        $rc_startup .= "ifconfig wds0.".$ifcount." up\n<br>";
+        $rc_startup .= "ifconfig wds0.".$ifcount." up\n<br />";
     } else {
       _outln_nvram('wl_wds'.($key+1).'_enable','0');
     }
@@ -875,7 +875,7 @@ function unsolclic_routeros($dev) {
 
   // DNS
   _outln_comment();
-  _outln_comment('DNS (client & server cache) zone: '.$node->zone_id);
+  _outln_comment('DNS (client &#038; server cache) zone: '.$node->zone_id);
   list($primary_dns,$secondary_dns) = explode(' ',guifi_get_dns($zone,2));
   if ($secondary_dns != null)
     _outln(sprintf('/ip dns set primary-dns=%s secondary-dns=%s allow-remote-requests=yes',$primary_dns,$secondary_dns));
@@ -886,7 +886,7 @@ function unsolclic_routeros($dev) {
 
   // NTP
   _outln_comment();
-  _outln_comment('NTP (client & server cache) zone: '.$node->zone_id);
+  _outln_comment('NTP (client &#038; server cache) zone: '.$node->zone_id);
   list($primary_ntp,$secondary_ntp) = explode(' ',guifi_get_ntp($zone));
   if ($secondary_ntp != null)
     _outln(sprintf('/system ntp client set enabled=yes primary-ntp=%s secondary-ntp=%s',$primary_ntp,$secondary_ntp));
@@ -907,7 +907,7 @@ function unsolclic_routeros($dev) {
     
    // Construct bridge only if exists wlan/lan interface 
    if ($wlanlan){
-  _outln_comment(t('Construct main bridge on wlan1 & ether1'));
+  _outln_comment(t('Construct main bridge on wlan1 &#038; ether1'));
   _outln('/ interface bridge');
   _outln('add name="wLan/Lan"');
   _outln('/ interface bridge port');
@@ -1072,7 +1072,7 @@ function unsolclic_routeros($dev) {
   // BGP
   _outln_comment();
   _outln_comment(t('BGP Routing'));
-  _outln_comment(t('BGP & OSPF Filters'));
+  _outln_comment(t('BGP &#038; OSPF Filters'));
   _outln(':foreach i in [/routing filter find chain=ospf-in] do={/routing filter remove $i;}');
   _outln(':foreach i in [/routing filter find chain=ospf-out] do={/routing filter remove $i;}');
   _outln("/ routing filter");

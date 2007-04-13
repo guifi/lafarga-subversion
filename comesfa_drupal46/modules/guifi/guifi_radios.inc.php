@@ -15,7 +15,7 @@ function guifi_radio_form(&$edit) {
   $rows[] = array(
                 array('data'=>form_select(t('Radio Model'), 'variable][model_id', $edit["variable"]["model_id"], $models_array, t('Radio model')),'valign'=>'top'),
                 array('data'=>form_select(t('Firmware'), 'variable][firmware', $edit["variable"]["firmware"], guifi_types('firmware') , t('Used for automatic configuration.')),'valign'=>'top'),
-                array('data'=>form_textfield(t("Device MAC Address"), "mac", $edit["mac"], 17, 17,  t('Base/Main MAC Address.<br>Some configurations won\'t work if s blank')),'valign'=>'top')
+                array('data'=>form_textfield(t("Device MAC Address"), "mac", $edit["mac"], 17, 17,  t('Base/Main MAC Address.<br />Some configurations won\'t work if s blank')),'valign'=>'top')
                  );
 
   $form = form_group(t('Radio main information'),theme('table',null,$rows));
@@ -113,7 +113,7 @@ function guifi_radio_form(&$edit) {
 
         unset($wlan_addr);
 
-//     print "type: $interface[interface_type]\n<br>";
+//     print "type: $interface[interface_type]\n<br />";
         switch ($interface[interface_type]) {
         case 'wds/p2p':
           $add_link = t('Add WDS/bridge p2p link');
@@ -198,7 +198,7 @@ function guifi_radio_form(&$edit) {
   // Edit radio form or add new radio
   $cr = 0; $tr = 0; $firewall=false;
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
-//    print "Max radios: ".$maxradios->radiodev_max." \n<br>";
+//    print "Max radios: ".$maxradios->radiodev_max." \n<br />";
   if (isset($edit[radios])) 
   foreach ($edit[radios] as $k=>$radio) {
     $tr++;
@@ -207,7 +207,7 @@ function guifi_radio_form(&$edit) {
     if ($radio['mode'] == 'client') 
       $firewall = true;
   }
-//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall\n<br>";
+//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall\n<br />";
   $modes_arr = guifi_types('mode');
 //  print_r($modes_arr);
   if ($cr>0)
@@ -221,7 +221,7 @@ function guifi_radio_form(&$edit) {
                array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', $modes_arr, NULL),'valign'=>'bottom'),
                array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
                    );
-    $form .= form_group(t('Add new radio'),theme('table',null,$erow),t('Usage:<br>Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br>Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br>Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
+    $form .= form_group(t('Add new radio'),theme('table',null,$erow),t('Usage:<br />Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
   } else {  
     $edit_form .= form_item(null,t('You can add radios to this device once has been saved into de database'));
     $form .= form_group(t('Add new radio'),$edit_form,null);
@@ -348,7 +348,7 @@ function guifi_delete_radio($edit,$op) {
   switch ($op) {
   case t('Delete selected'):
       $output .= '<h2>'.t('Are you sure you want to delete this radio?').'</h2>'.$edit[radios][$radio_id][ssid];
-      $output .= '<br>'.form_button(t('Confirm delete'),'op').
+      $output .= '<br />'.form_button(t('Confirm delete'),'op').
                         form_button(t('Back to list'),'op');
       $output .= $message;
     break;
@@ -358,7 +358,7 @@ function guifi_delete_radio($edit,$op) {
       else
         $output .= form_hidden('radios]['.$radio_id.'][deleted',true);
       $output .= '<h2>'.t('Radio deleted').'</h2>'.$link_text;
-      $output .= '<br>'.form_button(t('Back to list'),'op');
+      $output .= '<br />'.form_button(t('Back to list'),'op');
       drupal_set_message(t('The radio %name has been deleted. To prevent accidental deletions, the delete will be confirmed only when you submit the changes.',array('%name' => theme('placeholder',$edit['radios'][$radio_id]['ssid']))));
     break;
   }

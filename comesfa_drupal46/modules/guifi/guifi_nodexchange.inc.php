@@ -110,9 +110,9 @@ function guifi_nodexchange($zoneid,$action = 'help') {
     else
       $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter = %d",$did,$rcounter);
     while ($i = db_fetch_object($qinterfaces)) {
-//      print "Interfaces ".$did."-".$rcounter."\n<br>";
+//      print "Interfaces ".$did."-".$rcounter."\n<br />";
 //      print_r($i);
-//      print "\n<br>";
+//      print "\n<br />";
       $interfaces->count++;
       $interfaces->xml .= xmlopentag($ident,'interface',array('id'=>$i->id,'ipv4'=>$i->ipv4,'mask'=>$i->netmask),$nl); 
       $links=links($i->id,$i->ipv4_id,$ident+1,$nl);
@@ -193,7 +193,7 @@ function guifi_nodexchange($zoneid,$action = 'help') {
          // availability graph
          $devices->xml .= xmlgraph($ident,'/guifi/graph?type=pings&radio='.$d->id.'&start=-86400&end=-300',
                   '/guifi/graph_detail?type=pings&radio='.$d->id,
-                  'Latency & Availability',$nl);
+                  'Latency &#038; Availability',$nl);
 
          $devices->xml .= $interfaces->xml;
          $devices->xml .= $links->xml;
@@ -266,7 +266,7 @@ function guifi_nodexchange($zoneid,$action = 'help') {
                                    'wLan In&Out',$nl);
            $nodes->xml .= xmlgraph($ident,'/guifi/graph?type=pings&radio='.$device->id.'&start=-86400&end=-300',
                                    '/guifi/graph_detail?type=pings&radio='.$device->id,
-                                   'Latency & Availability',$nl);
+                                   'Latency &#038; Availability',$nl);
          }
        }
 

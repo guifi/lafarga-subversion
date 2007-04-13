@@ -377,7 +377,7 @@ if (is_array($node->var[fed]))
     {
      unset($head);	
      $head .= "#\n";	
-     $head .= '# Federated User & password list for Proxy : "'.$node->title.'"'."\n";
+     $head .= '# Federated User &#038; password list for Proxy : "'.$node->title.'"'."\n";
      $head .= "#\n";
      $head .= "#  Includes users from the following proxys :\n";
      $head .= "#\n";	
