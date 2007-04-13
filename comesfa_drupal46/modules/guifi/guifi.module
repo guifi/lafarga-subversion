@@ -388,15 +388,15 @@ function guifi_help($section) {
     case 'admin/modules#description':
       return t('Manage the guifi.net, a mesh network community.');
     case 'admin/guifi':
-      return t('<p>Select an operation from the menus to manage zones.</p>');
+      return t('Select an operation from the menus to manage zones.');
     case 'admin/guifi/zone/add':
-      return t('<p>Enter de zone information.</p>');
+      return t('Enter de zone information.');
     case 'node/add#guifi-node':
-      return t("<p>Create a node. A node is a physical location (will be dynamically drawed on the maps using lat/lon coordinates) where there are network devices, servers, etc.<br>Every node have to assigned to a guifi zone.</p>");
+      return t("Create a node. A node is a physical location (will be dynamically drawed on the maps using lat/lon coordinates) where there are network devices, servers, etc.<br />Every node have to assigned to a guifi zone.");
     case 'node/add#guifi-zone':
-      return t("<p>Create a community, area or zone. A typical zone hierarchy can be related to the territory (Country/Region/City...) but not have to, i.e. a single city can have many groups or communities with distinct IP addressing policies.<br>Every zone will have it's own page so it can be used as the homepage of that community.<br>The zones must belong at least to the root zone, but can also belong to other zones, so in that way a hierarchy is created.<br>Every zone have its own properties like maps or ip ranges and every node will have to be assigned to an existing zone, and will inherit the zone properties like his IP address and drawn in the corresponding map.<br>If zone properties are leaved blank, will inherit the parent zone properties./p>");
+      return t("Create a community, area or zone. A typical zone hierarchy can be related to the territory (Country/Region/City...) but not have to, i.e. a single city can have many groups or communities with distinct IP addressing policies.<br />Every zone will have it's own page so it can be used as the homepage of that community.<br />The zones must belong at least to the root zone, but can also belong to other zones, so in that way a hierarchy is created.<br />Every zone have its own properties like maps or ip ranges and every node will have to be assigned to an existing zone, and will inherit the zone properties like his IP address and drawn in the corresponding map.<br />If zone properties are leaved blank, will inherit the parent zone properties.");
     case 'node/add#guifi-service':
-      return t("<p>Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... .</p>");
+      return t("Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... .");
   }
 }
 
@@ -506,7 +506,7 @@ function guifi_settings() {
 //  if ($installed_version < 2) {
 //    $output = l("upgrade to guifi module version 2.0","admin/settings/guifi/upgrade");
 //  }
-  $output .= form_textarea("License agreement", "guifi_license", variable_get("guifi_license", t("By creating this node, you accept the <a href=http://guifi.net/WirelessWCL_EN>Wireless commons license.</a><br>Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=http://proves.guifi.net>test sites</a>.<br>Your access to this site might be banned if inappropiate use.s detected")), 80, 10, t("Agreement & help message when creating new nodes, users will not be able to create nodes unless they accept this message."));
+  $output .= form_textarea("License agreement", "guifi_license", variable_get("guifi_license", t("By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned if inappropiate use.s detected")), 80, 10, t("Agreement &#038; help message when creating new nodes, users will not be able to create nodes unless they accept this message."));
   $output .= form_textfield("Block title", "guifi_title", variable_get("guifi_title", t("guifi.net")), 35, 255, t("Title of guifi block..."));
   $output .= form_textfield("Root zone", "guifi_root", variable_get("guifi_root", 'guifi_zones'), 35, 255, t("URL of the root zone..."));
   $output .= form_textfield("Default contact", "guifi_contact", variable_get("guifi_contact", 'netadmin@guifi.net'), 55, 255, t("An email will be submitted to this address when no contact address is present."));
@@ -624,7 +624,7 @@ function guifi_block($op = "list", $delta = 0) {
                        array('data'=>number_format($ldTotal,2,variable_get('guifi_decimal',','),variable_get('guifi_thousand','.')),
                              'align'=>'right')
                       );
-    $content.= theme('table',array(t('Wireless<br>links'),'<p align="right">#</p>',t('kms.')),$rows);
+    $content.= theme('table',array(t('Wireless<br />links'),'<p align="right">#</p>',t('kms.')),$rows);
 
     $block['content'] = $content;
     return $block;
@@ -808,7 +808,7 @@ function guifi_page($zone = NULL) {
   $output = guifi_overview_tree($zone);
 
   if ($zone) {
-    $output .= '<hr>Node view ' .$zone;
+    $output .= '<hr />Node view ' .$zone;
     $output .= guifi_zone_print($zone);
   } else {
     $output .= t('This is the root zone for of the network. Navigate in the zone hierarchy above to drill down into the database.');
