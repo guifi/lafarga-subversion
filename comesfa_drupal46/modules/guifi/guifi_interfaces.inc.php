@@ -117,7 +117,7 @@ function guifi_interface_form($edit) {
     if (user_access('administer guifi networks'))
       $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
     $headers = array(null,t('type'),t('mac'));
-    $form .= form_group(t('device interfaces'),theme('table', null, $rows),t("Use this form section to describe the cable connections between devices or servers in your node. You must define <strong>ONLY</strong> the public servers available to the network, or those which require a public address assigned, <strong>NOT</strong> your private network behind your firewall/NAT.<br>Do not use this section if you don't understand this."));
+    $form .= form_group(t('device interfaces'),theme('table', null, $rows),t("Use this form section to describe the cable connections between devices or servers in your node. You must define <strong>ONLY</strong> the public servers available to the network, or those which require a public address assigned, <strong>NOT</strong> your private network behind your firewall/NAT.<br />Do not use this section if you don't understand this."));
   }
 
   // Edit interface form or add new radio
@@ -215,7 +215,7 @@ function guifi_delete_interface(&$edit,$op) {
 
   switch ($op) {
   case t('Delete selected'):
-      $output .= $msg.'<br>'.form_button(t('Confirm delete'),'op').
+      $output .= $msg.'<br />'.form_button(t('Confirm delete'),'op').
                         form_button(t('Back to list'),'op');
       $output .= $message;
     break;
@@ -254,7 +254,7 @@ function guifi_delete_interface(&$edit,$op) {
         break;
     }
     $output .= '<h2>'.t('%name deleted',array('%name' => theme('placeholder',$type))).'</h2>';
-    $output .= '<br>'.form_button(t('Back to list'),'op');
+    $output .= '<br />'.form_button(t('Back to list'),'op');
     drupal_set_message(t('%type% %name% has been deleted. To prevent accidental deletions, the delete will be confirmed only when you submit the changes.',
             array('%type%' => theme('placeholder',$type),'%name%' => theme('placeholder',$name))
             ));
