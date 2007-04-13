@@ -29,7 +29,7 @@ function guifi_add_device() {
       guifi_edit_device_validate($edit);
       if (!form_get_errors()) {
         guifi_edit_device_save($edit);
-//        print "\n<br>node save done\n<br>";
+//        print "\n<br />node save done\n<br />";
         drupal_goto('node/'.$edit[nid].'/view/devices');
       }
     case t('Save & continue edit'):
@@ -37,7 +37,7 @@ function guifi_add_device() {
       guifi_edit_device_validate($edit);
       if (!form_get_errors()) {
         $edit[id] = guifi_edit_device_save($edit);
-//        print "\n<br>node save done\n<br>";
+//        print "\n<br />node save done\n<br />";
         drupal_goto('guifi/device/'.$edit[id].'/edit');
       }
     case t('Preview'):
@@ -273,7 +273,7 @@ function guifi_get_device($id,$ret = 'array') {
       // get interface
       $qi = db_query('SELECT * FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d ORDER BY interface_type, id',$device['id'],$radio['radiodev_counter']);
       while ($i = db_fetch_array($qi)) {
-//        print  "\n<br>Interface: ";
+//        print  "\n<br />Interface: ";
 //        print_r($i);
         if ($device['radios'][$radio['radiodev_counter']]['mac'] == '')
           $device['radios'][$radio['radiodev_counter']]['mac'] = $i['mac'];
@@ -412,8 +412,8 @@ function guifi_edit_device_form($edit, $node = null) {
   $form .= guifi_form_hidden(null,$edit);
 
   $rows[] = array(
-                  array('data'=>form_textfield(t('nick'), 'nick', $edit['nick'], 20, 128, t('The name of the device.<br>Used ad hostname, SSID, etc...'), NULL, TRUE),'valign'=>'top'),
-                  array('data'=>form_textfield(t('contact'), 'contact', $edit['contact'], 20, 128, t('Mailid where changes on the device will be notified,<br>used for network administration.'), NULL, TRUE),'valign'=>'top'),
+                  array('data'=>form_textfield(t('nick'), 'nick', $edit['nick'], 20, 128, t('The name of the device.<br />Used ad hostname, SSID, etc...'), NULL, TRUE),'valign'=>'top'),
+                  array('data'=>form_textfield(t('contact'), 'contact', $edit['contact'], 20, 128, t('Mailid where changes on the device will be notified,<br />used for network administration.'), NULL, TRUE),'valign'=>'top'),
                   array('data'=>form_select(t('Status'), 'flag', $edit['flag'], guifi_types('status'), t('Current status of this device.')),'valign'=>'top'),
                  );
   $form .=  form_group(t('Main device information'),theme('table',null,$rows));
@@ -550,7 +550,7 @@ function guifi_save_interfaces($edit,$var,$radiodev_counter = null,$cascade = fa
         // Updating interface ipv4
         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
           if (($ipv4['deleted']) or ($cascade)) {
-//            print "Delete ipv4: ".$ipv4[delete].' cascade: '.$cascade.' ipv4_id: '.$ipv4[id].' interface_id: '.$ipv4[interface_id]."\n<br>";
+//            print "Delete ipv4: ".$ipv4[delete].' cascade: '.$cascade.' ipv4_id: '.$ipv4[id].' interface_id: '.$ipv4[interface_id]."\n<br />";
             $cascade=true;
             if ($ipv4['deleted'])
               $cascade_ipv4=true;
@@ -695,7 +695,7 @@ function guifi_edit_device_save($edit) {
       } else
       if ($radio['new']) {
         // Insert a new radio
-//        print "Inserting new radio # $radiodev_counter\n<br>";
+//        print "Inserting new radio # $radiodev_counter\n<br />";
         db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['0clients_accepted']);
       } else {
         db_query("UPDATE {guifi_radios} SET model_id = %d, radiodev_counter=%d, ssid ='%s', mode ='%s', protocol ='%s', channel ='%s', antenna_angle =%d, antenna_gain =%d, antenna_azimuth =%d, clients_accepted='%s' WHERE id = %d AND radiodev_counter=%d", $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'], $radio['id'],$radiodev_counter );
@@ -772,7 +772,7 @@ function guifi_device_print_data($device) {
     $qgs = db_query(sprintf('SELECT nick FROM {guifi_services} WHERE id=%d',$device['graph_server']));
     $gs = db_fetch_object($qgs);
     if (!empty($gs->nick)) {
-      $graphtxt = '<a href=/node/'.$device['graph_server'].'>'.$gs->nick.'</a>';
+      $graphtxt = '<a href="/node/'.$device['graph_server'].'">'.$gs->nick.'</a>';
     } else
       $graphtxt = t('invalid');
   }
@@ -791,7 +791,7 @@ function guifi_device_print_data($device) {
   else
     $img_url = NULL;
 
-  $rows[] = array(t('status & availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
+  $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
   if ($device[contact])
     $rows[] = array(t('changes notified to'),t('protected, edit to view')); 
   $rows[] = array(null,null);
@@ -834,14 +834,14 @@ function guifi_interfaces_print_data($id) {
 **/
 function guifi_device_print($id) {
 //  print_r($_GET);
-//  print arg(0)."\n<br>";
-//  print arg(1)."\n<br>";
-//  print arg(2)."\n<br>";
-//  print arg(3)."\n<br>";
-//  print arg(4)."\n<br>";
+//  print arg(0)."\n<br />";
+//  print arg(1)."\n<br />";
+//  print arg(2)."\n<br />";
+//  print arg(3)."\n<br />";
+//  print arg(4)."\n<br />";
 
 
-  $output = "<div id=guifi>";
+  $output = '<div id="guifi">';
 
   $device = guifi_get_device($id);
   if (empty($device))
@@ -849,7 +849,7 @@ function guifi_device_print($id) {
     
   $node = node_load(array('nid' => $device[nid])); 
   
-  $title = t('Node:').' <a href=node/'.$node->nid.'>'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
+  $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
   $output .= guifi_zone_ariadna($node->zone_id);
 
   switch (arg(4)) {
@@ -878,7 +878,7 @@ function guifi_device_print($id) {
   
   $output .= '</div>';
 
-  $title = t('Node:').' <a href=node/'.$node->nid.'>'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
+  $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
 
   return print theme('page',$output,t('device').': '.$device[nick]);
 }
@@ -1032,7 +1032,7 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
         else
           $dname = $loc2->device_nick;
 
-        $rows[] = array($loc1->id.'-'.$loc1->link_type.' ('.$loc1->itype.'-'.$loc2->itype.')','<a href=guifi/device/'.$loc2->device_id.'>'.$dname.'</a>',
+        $rows[] = array($loc1->id.'-'.$loc1->link_type.' ('.$loc1->itype.'-'.$loc2->itype.')','<a href="guifi/device/'.$loc2->device_id.'">'.$dname.'</a>',
                      $loc1->ip.'/'.$loc2->ip,
                    array('data' => t($loc1->flag), 'class' => $loc1->flag),
                    array('data' => $gDist,'class' => 'number'),
@@ -1105,7 +1105,7 @@ function guifi_ADSL_form($edit) {
   $output .= form_select(t('Upload'),'variable][upload',$edit['variable']['upload'],guifi_bandwidth_types(),
                               t('Upload bandwidth'));
         
-  $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
+  $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
   return $output;
 }
 
