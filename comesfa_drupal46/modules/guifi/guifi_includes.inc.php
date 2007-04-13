@@ -157,7 +157,7 @@ function guifi_get_mac($id,$itype) {
   $dev = db_fetch_object(db_query("SELECT mac from {guifi_devices} WHERE id = %d",$id));
   $mac = db_fetch_object(db_query("SELECT relations FROM {guifi_types} WHERE type='interface' AND text='%s'",$itype));
 
-//  print "Assign MAC: ".$id."-".$itype." Device: ".$dev->id." op ".$mac->relations."\n<br>";
+//  print "Assign MAC: ".$id."-".$itype." Device: ".$dev->id." op ".$mac->relations."\n<br />";
 
   if (!empty($dev->mac))
     return _guifi_mac_sum($dev->mac,$mac->relations);
@@ -179,16 +179,16 @@ function guifi_type_relation($type,$subject,$related) {
   $relations = db_fetch_object(db_query("SELECT text, relations FROM {guifi_types} WHERE type='%s' AND text='%s'",$type,$subject));
   $pattern = str_replace("/","\/",$relations->relations);
 
-//  print "preg_match: ".$pattern." ".$subject." related ".$related." relations ".$re"\n<br>";
+//  print "preg_match: ".$pattern." ".$subject." related ".$related." relations ".$re"\n<br />";
   return preg_match("/(".$pattern.")/",$related);
 }
 
 function guifi_form_column($form) {
-  return "<td>".$form."</td>";
+  return "  <td>\r  ".$form."\r  </td>\r";
 }
 
 function guifi_form_column_group($title,$form,$help) {
-  return form_group($title,"<table>".$form."</table>",$help);
+  return form_group($title,"\n<table>\r  <tr>\r  ".$form."  </tr>\r</table>\n",$help);
 }
 
 function guifi_url($url,$text = null) {
@@ -329,7 +329,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 
 //  print "Possible: ";
 //  print_r($possible);
-//  print "\n<br>Used: ";
+//  print "\n<br />Used: ";
 //  print_r($used);
   return array_diff($possible, $used);
 }
@@ -467,17 +467,17 @@ function _ips_recurse($var,&$ips) {
 //  print_r($ipK);
 
   foreach ($var as $k=>$value) {
-//    print "K: $k\n<br>";
+//    print "K: $k\n<br />";
     if ($k == 'ipv4')  
     if (is_string($value)) {
-//      print "Net: $value ".print_r($ips[_dec_addr($value)])."\n<br>";
+//      print "Net: $value ".print_r($ips[_dec_addr($value)])."\n<br />";
       if (($ipK[$value] == null)  and ($value != null)) {
         unset($ip);
-//        print "New Net: $value\n<br>";
+//        print "New Net: $value\n<br />";
 //        $ip[ipv4] = $var[ipv4];
         $ip[ipv4] = $value;
         $ip[netmask] = $var[netmask];
-//        print "Dec addr: "._dec_addr($ip['ipv4'])."\n<br>";
+//        print "Dec addr: "._dec_addr($ip['ipv4'])."\n<br />";
 //        print_r($ip);
         guifi_merge_ip($ip, $ips, false);
       } 
@@ -554,7 +554,7 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
   $elem = count($ips_allocated);
   reset($ips_allocated);
  
-//  print "Going 2 find the subnet bucle for ".$base_ip."/".$mask_range." - ".$mask_allocated."\n<br>";
+//  print "Going 2 find the subnet bucle for ".$base_ip."/".$mask_range." - ".$mask_allocated."\n<br />";
  
   // Shifts until reaches the searched zone
   while (($ips_allocated[$key]['dec'] < $net_dec) and ($key < $elem))
@@ -571,7 +571,7 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
     do {
       $ip = $ips_allocated[$key];
       $key++;
-//      print "net_dec: $net_dec last: $last Ip_dec: $ip[dec]"._dec_to_ip($ip[dec])." \n<br>";
+//      print "net_dec: $net_dec last: $last Ip_dec: $ip[dec]"._dec_to_ip($ip[dec])." \n<br />";
 //      print_r($ip);
 
       if (($ip['dec'] > $net_dec) and ($ip['dec'] < $last)) {
@@ -589,7 +589,7 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
     // There was space for the subnet here, search ends
     if (!$found) {
 //      print_r($ips_allocated);
-//      print "\n<br>Found: $net_dec "._dec_to_ip($net_dec)."\n<br>";
+//      print "\n<br />Found: $net_dec "._dec_to_ip($net_dec)."\n<br />";
       return _dec_to_ip($net_dec);
     }
 
@@ -627,7 +627,7 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
   $item = _ipcalc($base_ip,$mask_allocated);
   $increment = $item['hosts'] + 2;
 
-//  print "\n<br>Going to check: ".$net_dec. ' up to '.$end_dec;
+//  print "\n<br />Going to check: ".$net_dec. ' up to '.$end_dec;
   $key = 0;
   $elem = count($nets_allocated);
   while ($net_dec < $end_dec) {
@@ -635,7 +635,7 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
     $found = false; 
     $last  = $net_dec + $increment;
     $net = $nets_allocated[$key];
-//    print "\n<br>Checking: ".$net_dec. ' ('._dec_to_ip($net_dec).') with '.$net['dec'].' ('._dec_to_ip($net['dec']).")\n";
+//    print "\n<br />Checking: ".$net_dec. ' ('._dec_to_ip($net_dec).') with '.$net['dec'].' ('._dec_to_ip($net['dec']).")\n";
     if (($net['dec'] >= $net_dec) and ($net['dec'] < $last) ) {
       $found = true;
       // if net's broadcast > checked range, jumps to it's broadcast
@@ -721,7 +721,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
       $tnets = db_num_rows($result);
 
     while ($net = db_fetch_object($result)) {
-      //  print "Going to find a slot ".$mask_allocate." at: ".$net->base."/".$net->mask."\n<br>";
+      //  print "Going to find a slot ".$mask_allocate." at: ".$net->base."/".$net->mask."\n<br />";
       $item = _ipcalc($net->base,$net->mask);
       if ($ip = guifi_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {
         if ($depth) {
@@ -851,10 +851,10 @@ function guifi_rename_graphs($old, $new) {
   $fnew = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($new);
 
   foreach ($ext as $fext) {
-//    print "Going to rename ".$fold.$fext." to ".$fnew.$fext."\n<br>";
+//    print "Going to rename ".$fold.$fext." to ".$fnew.$fext."\n<br />";
     if (file_exists($fold.$fext)) {
       rename($fold.$fext,$fnew.$fext);
-//      print $fold.$fext." renamed to ".$fnew.$fext."\n<br>";
+//      print $fold.$fext." renamed to ".$fnew.$fext."\n<br />";
     }
   }
 }
