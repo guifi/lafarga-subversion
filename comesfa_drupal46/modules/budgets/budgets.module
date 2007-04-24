@@ -99,7 +99,7 @@ Your contribution will be in 'Submitted' status. Once is verified, the promoter 
 <li>Promoters are not liable for the results of the project, just for spending the funds in a similar way as described in the budget.</li>
 <li>If a project does not execute, promoters will be responsible of returning funds to contributors or allocate them to a another project.</li>
 <li>The promoters/contributors are liable by their budgets and fundings. This site just provides a way to communicate between them, with no other responibilities.</li>
-<ol>");
+</ul>");
   
   switch ($var) {
     case 'budget_payment': 
@@ -194,11 +194,11 @@ function budgets_block($op = "list", $delta = 0) {
   }
   else {
     $block['subject'] = variable_get("budget_block_title","<a href=\"budgets\">" .t("budgets") ."</a>");
-    $content .= t("Help raising the green bars with your donations!")."<br>";
+    $content .= t("Help raising the green bars with your donations!")."<br />";
     $qbudgets = db_query("SELECT n.nid, title, currency_symbol FROM {budgets} b, {node} n WHERE n.nid=b.nid AND budget_status = 'Open' ORDER BY changed DESC");
     while ($budget = db_fetch_object($qbudgets)) {
       $content .= '<div>&middot;&nbsp;<a href="node/'.$budget->nid.'">'.$budget->title.'</a></div>'; 
-//      $content .= '&nbsp;<a href="node/'.$budget->nid.'/view/contribute"></div><div style="text-align: right;">'.t('donate').'</div></a></div><br>';
+//      $content .= '&nbsp;<a href="node/'.$budget->nid.'/view/contribute"></div><div style="text-align: right;">'.t('donate').'</div></a></div><br />';
       $t = db_fetch_object(db_query("SELECT sum(quantity * cost) amount FROM {budget_items} WHERE nid = %d",$budget->nid));
       $s = db_fetch_object(db_query("SELECT sum(amount) amount FROM {budget_funds} WHERE fund_status != 'Declined' AND nid = %d",$budget->nid));
       $content .= budgets_bar($t->amount,$s->amount,$budget->currency_symbol);
@@ -395,7 +395,7 @@ function budgets_edit_item($node,$op = null) {
   $output .= form_hidden('items]['.$edit_item_id.'][nid',$edit["nid"]);
 
   $output .= form_button(t('Back to budget form'),'back_to_form');
-  $output .= t("<br>Warning: This button will accept your changes as sub-part of the edit.  You will still have to select <b>'submit'</b> on the next screen to make your changes permanent.");
+  $output .= t("<br />Warning: This button will accept your changes as sub-part of the edit.  You will still have to select <b>'submit'</b> on the next screen to make your changes permanent.");
 
   print theme('page', form($output));
 }
@@ -686,7 +686,7 @@ function budgets_print_funds($node) {
       case t('Submit'):
 //        $output = var_export($node->funds);
         foreach ($edit['fund_status'] as $fund_id=>$new_status) {
-//          $output .= sprintf("\n<br>FundID: %d NewStatus: %s Status:%s\n<br>",$fund_id,$new_status,$node->funds[$fund_id - 1]['fund_status']);
+//          $output .= sprintf("\n<br />FundID: %d NewStatus: %s Status:%s\n<br />",$fund_id,$new_status,$node->funds[$fund_id - 1]['fund_status']);
           if ($node->funds[$fund_id - 1]['fund_status'] != $new_status) {
 //            $output .= sprintf("UPDATE {budget_funds} SET fund_status = '%s' WHERE nid = %d AND fund_id =%d",$new_status,$node->nid,$fund_id);
             db_query("UPDATE {budget_funds} SET fund_status = '%s' WHERE nid = %d AND fund_id =%d",$new_status,$node->nid,$fund_id);
@@ -770,7 +770,7 @@ function budgets_contribute(&$node) {
   $form .= form_textfield(t('Email'),'contributor_email',$fund['contributor_email'], 60,60,t('Your email-id. Will be available just to promoters and not published in the reports.'));
   $form .= form_textfield(t('Telf'),'contributor_telf',$fund['contributor_telf'], 60,60,t('How promoters can contact you by phone. Will be available just to them and not published at the reports'));
   $form .= form_textfield(t('Amount'),'amount',$fund['amount'], 15,15,t('Amount of the contribution').'&nbsp;('.$node->currency_txt.').'.
-                          '<br>'.$node->payment_instructions);
+                          '<br />'.$node->payment_instructions);
   $form .= form_textarea(t('Comments'),'comments',$fund['comments'], 60,3,t('Write here any additional comments about your contribution. Note that in some cases you may donate other things, like reused material, availability to work...'));
   $form .= form_checkbox(t('I do agree with the <i>Terms & Conditions</i> expressed below').':','agree',true,false,$node->terms);
 
