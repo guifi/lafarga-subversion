@@ -398,7 +398,7 @@ function guifi_delete_link($edit,$op) {
         $output .= form_hidden('interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][links]['.$link_id.'][deleted',true);
       $output .= '<h2>'.t('Link deleted').'</h2>'.$link_text;
       $output .= "\n<br />".t('<strong>Warning:</strong> If you confirm at this point, this operation will delete information from the database and save any other change.');
-      $output .= '<br />'.form_button(t('Undo changes'),'op').form_button(t('Save &#038; continue edit'),'op');
+      $output .= '<br />'.form_button(t('Undo changes'),'op').form_button(t('Save & continue edit'),'op');
     break;
   }
   print theme('page',form($output));
