@@ -938,6 +938,10 @@ function unsolclic_routeros($dev) {
     _outln(sprintf('    band="%s" \ ',$band));
     _outln(sprintf('    frequency-mode=manual-txpower country=spain antenna-gain=0 \ ',$band));
     if (($radio[channel] != 0) and ($radio[channel] != 5000))
+      if ($radio[channel] < 20) {
+        $incr = $radio[channel] * 5;
+        $radio[channel] = 2407 + $incr;
+      }
       _outln(sprintf('    frequency=%d \ ',$radio[channel]));
     if ($band == '5GHz')
       _outln('    dfs-mode=radar-detect \ ');
