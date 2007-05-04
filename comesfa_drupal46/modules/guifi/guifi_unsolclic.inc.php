@@ -829,10 +829,10 @@ function unsolclic_routeros($dev) {
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
-  _outln_comment(t('Configuration for RouterOS 2.19'));
+  _outln_comment(t('Configuration for RouterOS 2.9'));
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
-  _outln_comment(t('WARNING: Beta version, only AP-AP/Bridge modes supported'));
+  _outln_comment(t('WARNING: Beta version'));
   _outln_comment();
   _outln_comment(t('Methods to upload/execute this script:'));
   _outln_comment(t('1.-As a script. Upload this output as a script either with:'));
@@ -1121,6 +1121,7 @@ function unsolclic_routeros($dev) {
     _outln('add chain=input src-address=192.168.1.0/24 action=accept comment="Allow access to router from known network" disabled=no');
     _outln('add chain=input protocol=tcp dst-port=22 action=accept comment="Allow remote ssh" disabled=no');
     _outln('add chain=input protocol=udp dst-port=161 action=accept comment="Allow snmp" disabled=no');
+    _outln('add chain=input protocol=tcp dst-port=8291 action=accept comment="Allow remote winbox" disabled=no');
     _outln('add chain=input protocol=icmp action=accept comment="Allow ping" disabled=no');
     _outln('add chain=forward connection-state=established action=accept comment="Allow already established connections" disabled=no');
     _outln('add chain=forward connection-state=related action=accept comment="Allow related connections" disabled=no');
