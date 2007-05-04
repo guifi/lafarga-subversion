@@ -1122,12 +1122,13 @@ function unsolclic_routeros($dev) {
     _outln('add chain=input protocol=tcp dst-port=22 action=accept comment="Allow remote ssh" disabled=no');
     _outln('add chain=input protocol=udp dst-port=161 action=accept comment="Allow snmp" disabled=no');
     _outln('add chain=input protocol=icmp action=accept comment="Allow ping" disabled=no');
-    _outln('add chain=input action=drop comment="Drop anything else" disabled=no');
-    _outln('add chain=input protocol=tcp connection-state=invalid action=drop comment="" disabled=no');
     _outln('add chain=forward connection-state=established action=accept comment="Allow already established connections" disabled=no');
     _outln('add chain=forward connection-state=related action=accept comment="Allow related connections" disabled=no');
+    _outln('add chain=forward src-address=192.168.1.0/24 action=accept comment="Allow access to router from known network" disabled=no');
+    _outln('add chain=input protocol=tcp connection-state=invalid action=drop comment="" disabled=no');
     _outln('add chain=forward protocol=tcp connection-state=invalid action=drop comment="Drop invalid connections" disabled=no');
     _outln('add chain=forward action=drop comment="Drop anything else" disabled=no');
+    _outln('add chain=input action=drop comment="Drop anything else" disabled=no');
     _outln(':delay 1');
  
     // End of Unsolclic
