@@ -126,7 +126,7 @@ function guifi_radio_form(&$edit) {
             $wlan_addr[] = array('data'=>form_textfield(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][ipv4]',
                                                            $interface[ipv4][$key][ipv4],16,16,null),'width=1');
             $wlan_addr[] = array('data'=>form_select(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][netmask]',
-                                                           $interface[ipv4][$key][netmask],guifi_types('netmask',30,15),null),'colspan'=>3,'width=1');
+                                                           $interface[ipv4][$key][netmask],guifi_types('netmask',30,15),null),'colspan'=>1,'width=1');
 
           } else
             $wlan_addr = array('data'=>$interface[ipv4][$key][ipv4].'/'.$interface[ipv4][$key][netmask],'width'=>1);;
@@ -138,14 +138,17 @@ function guifi_radio_form(&$edit) {
             $add_link = t('Link to AP');
          break;
         }
+
+//        print_r($interface);
+//        print "\n<br>";
        
         if ($add_link != '') {
-          if (isset($wlan_addr))
-            $rows[] = array_merge(array(array('data'=>$interface['interface_type'],'width'=>1)), $wlan_addr,
-                                  array(
-                                    array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>8)
-                                        ));
-          else
+          if (isset($wlan_addr)) {
+            $rows[] = array_merge(array(array('data'=>$interface['interface_type'],'width'=>1)),
+                                  $wlan_addr,
+                                  array(array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>'1'))
+                                 );
+          } else
             $rows[] = array(array('data'=>$interface['interface_type'],'width'=>1),
                             array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>8));
         } else

@@ -877,6 +877,8 @@ function unsolclic_routeros($dev) {
   _outln_comment();
   _outln_comment('DNS (client &#038; server cache) zone: '.$node->zone_id);
   list($primary_dns,$secondary_dns) = explode(' ',guifi_get_dns($zone,2));
+  $dns[] .=$primary_dns;
+  $dns[] .=$secondary_dns;
   if ($secondary_dns != null)
     _outln(sprintf('/ip dns set primary-dns=%s secondary-dns=%s allow-remote-requests=yes',$primary_dns,$secondary_dns));
   else if ($primary_dns != null)
@@ -896,36 +898,76 @@ function unsolclic_routeros($dev) {
 
   _outln(':delay 1');
 
-  // Define wLan/Lan bridge (main interface)
-  _outln_comment(t('Remove current wLan/Lan bridge if exists'));
-  _outln(':foreach i in [/interface bridge find name=wLan/Lan] \ ');
-  _outln('do={:foreach i in [/interface bridge port find bridge=wLan/Lan] \ ');
-  _outln('do={/interface bridge port remove $i; \ ');
-  _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
-  _outln('do={/ip address remove $i;};};');
-  _outln('/interface bridge remove $i;}');
-    
-   // Construct bridge only if exists wlan/lan interface 
-   if ($wlanlan){
-  _outln_comment(t('Construct main bridge on wlan1 &#038; ether1'));
-  _outln('/ interface bridge');
-  _outln('add name="wLan/Lan"');
-  _outln('/ interface bridge port');
-  _outln('add interface=ether1 bridge=wLan/Lan');
-  _outln('add interface=wlan1 bridge=wLan/Lan');
+  // Bandwidth-server
+  _outln_comment();
+  _outln_comment(t('Bandwidth-server'));
+  _outln('/ tool bandwidth-server set enabled=yes authenticate=no allocate-udp-ports-from=2000');
+
+  // SNMP 
+  _outln_comment();
+  _outln_comment('SNMP');
+  _outln(sprintf('/snmp set contact="guifi@guifi.net" enabled=yes location="%s"',$node->nick));
+
+  // User guest
+  _outln_comment();
+  _outln_comment('Guest user');
+  _outln('/user');
+  _outln(':foreach i in [find group=read] do={/user remove $i;}');
+  _outln('add name="guest" group=read address=0.0.0.0/0 comment="" disabled=no');
+
+  // Graphing
+  _outln_comment();
+  _outln_comment(t('Graphing'));
+  _outln(sprintf('/tool graphing interface add'));
+
+  if ($radio[mode] != 'client') {
+    // Define wLan/Lan bridge (main interface)
+    _outln_comment(t('Remove current wLan/Lan bridge if exists'));
+    _outln(':foreach i in [/interface bridge find name=wLan/Lan] \ ');
+    _outln('do={:foreach i in [/interface bridge port find bridge=wLan/Lan] \ ');
+    _outln('do={/interface bridge port remove $i; \ ');
+    _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
+    _outln('do={/ip address remove $i;};};');
+    _outln('/interface bridge remove $i;}');
+      
+     // Construct bridge only if exists wlan/lan interface 
+     if ($wlanlan){
+    _outln_comment(t('Construct main bridge on wlan1 &#038; ether1'));
+    _outln('/ interface bridge');
+    _outln('add name="wLan/Lan"');
+    _outln('/ interface bridge port');
+    _outln('add interface=ether1 bridge=wLan/Lan');
+    _outln('add interface=wlan1 bridge=wLan/Lan');
+  }
 
   _outln(':delay 1');
    }
 
+  $firewall = false;
   // Going to setup wireless interfaces
   if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {
 
-    if ($radio[mode]=='client') 
-      $mode = 'station';
-    else {
+    switch ($radio[mode]) {
+    case 'ap':
       $mode = 'ap-bridge';
+      $ssid = $radio[ssid];
       $ospf_interfaces[] = 'wlan'.($radio_id+1);
+      break;
+    case 'client';
+    case 'clientrouted':
+      $mode = 'station';
+      foreach ($radio[interfaces] as $interface) 
+      foreach ($interface[ipv4] as $ipv4) 
+      foreach ($ipv4[links] as $link) 
+        $ssid = guifi_get_ap_rssi($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+      $mode = 'station';
+      if ($radio[mode]=='client')
+        $firewall=true;
+      else
+        $ospf_interfaces[] = 'wlan'.($radio_id+1);
+      break;
     }
+
     if ($radio[channel] < 5000) 
       $band = '2.4ghz-b';
     else
@@ -934,7 +976,7 @@ function unsolclic_routeros($dev) {
     _outln_comment();
     _outln_comment('Radio#: '.$radio_id.' '.$radio[ssid]);
     _outln(sprintf('/interface wireless set wlan%d name="wlan%d" \ ',$radio_id+1,$radio_id+1));
-    _outln(sprintf('    radio-name="%s" mode=%s ssid="guifi.net-%s" \ ',$radio[ssid],$mode,$radio[ssid]));
+    _outln(sprintf('    radio-name="%s" mode=%s ssid="guifi.net-%s" \ ',$radio[ssid],$mode,$ssid));
     _outln(sprintf('    band="%s" \ ',$band));
     _outln(sprintf('    frequency-mode=manual-txpower country=spain antenna-gain=0 \ ',$band));
     if (($radio[channel] != 0) and ($radio[channel] != 5000))
@@ -985,6 +1027,8 @@ function unsolclic_routeros($dev) {
            else
              $iname = 'wlan'.($radio_id+1);
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
+           _outln('/ip address');
+           _outln(sprintf(':foreach i in [find address=%s/%d] do={remove $i}',$ipv4[ipv4],$item[maskbits]));
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=no',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$iname));
            $defined_ips[$ipv4[ipv4]] = $item;
            $ospf_routerid=$ipv4[ipv4];
@@ -995,39 +1039,40 @@ function unsolclic_routeros($dev) {
 
          // Not link only (AP), setting DHCP
 
-         $dhcp = array();
-         $dhcp[] = '/ip dhcp-server lease';
-         $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
-         $dhcp[] = ':delay 1';
-         $maxip = _dec_addr(guifi_ip_op($item[netstart]));
-         if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
-           if (isset($link['interface'][ipv4][ipv4]))
-           if (_dec_addr($link['interface'][ipv4][ipv4]) >= $maxip)
-             $maxip = _dec_addr($link['interface'][ipv4][ipv4]) + 1;
-           if ($link['interface'][mac] == null)
-             $rmac = 'ff:ff:ff:ff:ff:ff';
-           else $rmac = $link['interface'][mac];
-           $dhcp[] = sprintf('add address=%s mac-address=%s client-id=%s server=dhcp-%s',$link['interface'][ipv4][ipv4],$rmac,guifi_get_hostname($link[device_id]),$iname);
-         }
-         if (($maxip + 5) > (_dec_addr($item[netend]) - 5)) {
-           $maxip = _dec_addr($item['netend']);
-           $dhcp_disabled='yes';
-         } else {
-           $maxip = $maxip + 5;
-           $dhcp_disabled='no';
-         }
-         _outln_comment();
-         _outln_comment('DHCP');
-         foreach ($dhcp as $outln) 
-          _outln($outln);
-         _outln(sprintf(':foreach i in [/ip dhcp-server network find address=%s/%d] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
-         //_outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net dns-server=%s ntp-server=%s comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],implode(',',array_merge(array($ipv4[ipv4]),explode(' ',guifi_get_dns($zone)))),guifi_get_ntp($zone),$iname));
-         _outln(sprintf(':foreach i in [/ip pool find name=dhcp-%s] do={/ip pool remove $i;}',$iname));
-         _outln(sprintf('/ip pool add name=dhcp-%s ranges=%s-%s',$iname,_dec_to_ip($maxip),$item[netend]));
-         _outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],$iname));
-         _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
-         _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
-         
+         if ($mode=='ap') {
+           $dhcp = array();
+           $dhcp[] = '/ip dhcp-server lease';
+           $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
+           $dhcp[] = ':delay 1';
+           $maxip = _dec_addr(guifi_ip_op($item[netstart]));
+           if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
+             if (isset($link['interface'][ipv4][ipv4]))
+             if (_dec_addr($link['interface'][ipv4][ipv4]) >= $maxip)
+               $maxip = _dec_addr($link['interface'][ipv4][ipv4]) + 1;
+             if ($link['interface'][mac] == null)
+               $rmac = 'ff:ff:ff:ff:ff:ff';
+             else $rmac = $link['interface'][mac];
+             $dhcp[] = sprintf('add address=%s mac-address=%s client-id=%s server=dhcp-%s',$link['interface'][ipv4][ipv4],$rmac,guifi_get_hostname($link[device_id]),$iname);
+           }
+           if (($maxip + 5) > (_dec_addr($item[netend]) - 5)) {
+             $maxip = _dec_addr($item['netend']);
+             $dhcp_disabled='yes';
+           } else {
+             $maxip = $maxip + 5;
+             $dhcp_disabled='no';
+           }
+           _outln_comment();
+           _outln_comment('DHCP');
+           foreach ($dhcp as $outln) 
+            _outln($outln);
+           _outln(sprintf(':foreach i in [/ip dhcp-server network find address=%s/%d] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
+           //_outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net dns-server=%s ntp-server=%s comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],implode(',',array_merge(array($ipv4[ipv4]),explode(' ',guifi_get_dns($zone)))),guifi_get_ntp($zone),$iname));
+           _outln(sprintf(':foreach i in [/ip pool find name=dhcp-%s] do={/ip pool remove $i;}',$iname));
+           _outln(sprintf('/ip pool add name=dhcp-%s ranges=%s-%s',$iname,_dec_to_ip($maxip),$item[netend]));
+           _outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],$iname));
+           _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
+           _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
+         }        
        } // wLan, wLan/Lan or client
        _outln_comment();
     } // foreach radio->interface
@@ -1035,6 +1080,66 @@ function unsolclic_routeros($dev) {
     _outln(':delay 1');
 
   } // foreach radio
+
+  if ($firewall) {
+     _outln_comment();
+     _outln_comment('Device has firewall (setting up as CPE)');
+
+    // Setting gateway
+     _outln(sprintf('/ip route add gateway=%s',$link['interface'][ipv4][ipv4]));
+
+    // Setting proxy-arp
+    _outln('/interface ethernet set ether1 arp=proxy-arp');
+    _outln('/ip address');
+    _outln(':foreach i in [find address=192.168.1.1/24] do={remove $i}');
+    _outln('/ip address add address=192.168.1.1/24 network=192.168.1.0 broadcast=192.168.1.255 interface=ether1 comment="" disabled=no');
+    _outln(':delay 1');
+    _outln('/ip pool');
+    _outln(':foreach i in [find name=private] do={remove $i}');
+    _outln('add name="private" ranges=192.168.1.100,192.168.1.200');
+    _outln(':delay 1');
+    _outln('/ip dhcp-server');
+    _outln(':foreach i in [find name=private] do={remove $i}');
+    _outln('add name="private" interface=ether1 lease-time=3d address-pool=private bootp-support=static authoritative=after-2sec-delay disabled=no');
+    _outln(':delay 1');
+    _outln('/ip dhcp-server network');
+    _outln(':foreach i in [find] do={remove $i}');
+    _outln(sprintf('add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=%s domain="guifi.net" comment=""',implode(',',$dns)));
+    _outln(':delay 1');
+    _outln('/ip dhcp-client');
+    _outln(':foreach i in [find] do={remove $i}');
+    _outln(':delay 1');
+    _outln('add interface=wlan1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes comment="" disabled=no');
+    _outln('/ip firewall nat');
+    _outln(':foreach i in [find] do={remove $i}');
+    _outln(':delay 1');
+    _outln('add chain=srcnat out-interface=wlan1 action=masquerade comment="" disabled=no');
+    _outln('/ip firewall filter');
+    _outln(':foreach i in [find] do={remove $i}');
+    _outln('add chain=input connection-state=established action=accept comment="Allow Established connections" disabled=no');
+    _outln('add chain=input protocol=udp action=accept comment="Allow UDP" disabled=no');
+    _outln('add chain=input src-address=192.168.1.0/24 action=accept comment="Allow access to router from known network" disabled=no');
+    _outln('add chain=input protocol=tcp dst-port=22 action=accept comment="Allow remote ssh" disabled=no');
+    _outln('add chain=input protocol=udp dst-port=161 action=accept comment="Allow snmp" disabled=no');
+    _outln('add chain=input protocol=icmp action=accept comment="Allow ping" disabled=no');
+    _outln('add chain=input action=drop comment="Drop anything else" disabled=no');
+    _outln('add chain=input protocol=tcp connection-state=invalid action=drop comment="" disabled=no');
+    _outln('add chain=forward connection-state=established action=accept comment="Allow already established connections" disabled=no');
+    _outln('add chain=forward connection-state=related action=accept comment="Allow related connections" disabled=no');
+    _outln('add chain=forward protocol=tcp connection-state=invalid action=drop comment="Drop invalid connections" disabled=no');
+    _outln('add chain=forward action=drop comment="Drop anything else" disabled=no');
+    _outln(':delay 1');
+ 
+    // End of Unsolclic
+    _outln_comment();
+    _outln(sprintf(':log info "Unsolclic for %d-%s executed."',$dev->id,$dev->nick));
+    _outln('/');
+    return; 
+  }
+
+  _outln_comment();
+  _outln_comment('Routed device');
+
 
   // Now, defining other interfaces (if they aren't yet)
   _outln_comment();
@@ -1106,31 +1211,6 @@ function unsolclic_routeros($dev) {
        _outln(':foreach i in [/routing ospf network find area=backbone] do={/routing ospf network remove $i;}');
        _outln('/routing ospf network add network=0.0.0.0/0 area=backbone disabled=yes');
   }
-
-  // Graphing
-  _outln_comment();
-  _outln_comment(t('Graphing'));
-  foreach ($ospf_interfaces as $key=>$interface) {
-#     _outln(sprintf(':foreach i in [/tool graphing interface find interface=%s] do={/tool graphing interface remove $i;}',$interface));
-     _outln(sprintf('/tool graphing interface add interface=%s',$interface));
-  }
-
-  // Bandwidth-server
-  _outln_comment();
-  _outln_comment(t('Bandwidth-server'));
-  _outln('/ tool bandwidth-server set enabled=yes authenticate=no allocate-udp-ports-from=2000');
-
-  // SNMP 
-  _outln_comment();
-  _outln_comment('SNMP');
-  _outln(sprintf('/snmp set contact="guifi@guifi.net" enabled=yes location="%s"',$node->nick));
-
-  // User guest
-  _outln_comment();
-  _outln_comment('Guest user');
-  _outln('/user');
-  _outln(':foreach i in [find group=read] do={/user remove $i;}');
-  _outln('add name="guest" group=read address=0.0.0.0/0 comment="" disabled=no');
 
 
   // End of Unsolclic

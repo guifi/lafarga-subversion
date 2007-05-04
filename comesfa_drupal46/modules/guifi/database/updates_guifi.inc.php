@@ -13,7 +13,8 @@ $sql_updates = array(
  353 => 'guifiupdate_03',
  354 => 'guifiupdate_04',
  356 => 'guifiupdate_05',
- 357 => 'guifiupdate_06'
+ 357 => 'guifiupdate_06',
+ 358 => 'guifiupdate_08'
 );
 
 
@@ -237,6 +238,20 @@ function guifiupdate_06() {
   $ret[] = update_sql("ALTER TABLE guifi_devices ADD `graph_server` varchar(40) default NULL after `url_mrtg_server`");
   $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description) VALUES ('service', 'SNPgraphs','SNP graph server')");
   $ret[] = update_sql("TRUNCATE TABLE {cache}");
+  return $ret;
+}
+
+function guifiupdate_08() {
+  $ret = array();
+
+  $ret[] = update_sql("ALTER TABLE `guifi_model` ADD `virtualAP` ENUM( 'Yes', 'No' ) NOT NULL DEFAULT 'No' AFTER `AP`");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (20, 8, 'Supertrasto RB133C guifi.net', NULL, 1, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes')");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (21, 8, 'Supertrasto RB133 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes')");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (22, 8, 'Supertrasto RB112 guifi.net', NULL, 2, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes')");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (23, 8, 'Supertrasto RB153 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes')");
+  $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (24, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes')");
+  $ret[] = update_sql("UPDATE guifi_types SET relations = 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net' WHERE TYPE = 'firmware' AND text = 'RouterOSv2.9'");
+
   return $ret;
 }
 
