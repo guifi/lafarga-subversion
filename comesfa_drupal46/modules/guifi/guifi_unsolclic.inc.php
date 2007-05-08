@@ -1020,7 +1020,9 @@ function unsolclic_routeros($dev) {
 	   if (!isset($ospf_routerid)) $ospf_routerid=$ipv4[ipv4];  
          } // each wds link (ipv4)
        } else { // wds
-         // wLan, wLan/Lan or client
+         // wLan, wLan/Lan, Hotspot or client
+
+         // Defining all networks and IP addresses at the interface
          if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
            if ($interface[interface_type] == 'wLan/Lan')
              $iname = $interface[interface_type];
@@ -1034,12 +1036,41 @@ function unsolclic_routeros($dev) {
            $ospf_routerid=$ipv4[ipv4];
          }
 
+           // HotSpot
+         if ($interface[interface_type] == 'HotSpot') {
+           _outln_comment();
+           _outln_comment('HotSpot');
+           _outln('/interface wireless');
+           _outln(sprintf(':foreach i in [find name=hotspot%d] do={remove $i}',$radio_id+1));
+           _outln(sprintf('add name="hotspot%d" arp=enabled master-interface=wlan%d ssid="guifi.net-HotSpot"  disabled="no"',$radio_id+1,$radio_id+1));
+           _outln('/ip address');
+           _outln(sprintf(':foreach i in [find address=192.168.%d.1/24] do={remove $i}',$radio_id+100));
+           _outln(sprintf('/ip address add address=192.168.%d.1/24 interface=hotspot%d disabled=no',$radio_id+100,$radio_id+1));
+           _outln('/ip pool');
+           _outln(sprintf(':foreach i in [find name=hs-pool-%d] do={remove $i}',$radio_id+100));
+           _outln(sprintf('add name="hs-pool-%d" ranges=192.168.%d.2-192.168.%d.254',$radio_id+100,$radio_id+100,$radio_id+100));
+           _outln('/ip dhcp-server');
+           _outln(sprintf(':foreach i in [find name=hs-dhcp-%d] do={remove $i}',$radio_id+100));
+           _outln(sprintf('add name="hs-dhcp-%d" interface=hotspot%d lease-time=1h address-pool=hs-pool-%d bootp-support=static authoritative=after-2sec-delay disabled=no',$radio_id+100,$radio_id+1,$radio_id+100));
+           _outln('/ip hotspot profile');
+           _outln(sprintf(':foreach i in [find name=hsprof%d] do={remove $i}',$radio_id+1));
+           _outln(sprintf('add name="hsprof%d" hotspot-address=192.168.%d.1 dns-name="guests.guifi.net" html-directory=hotspot smtp-server=0.0.0.0 login-by=http-pap,trial split-user-domain=no trial-uptime=30m/1d trial-user-profile=default use-radius=no',$radio_id+1,$radio_id+100));
+           _outln('/ip hotspot user profile');
+           _outln('set default name="default" advertise-url=http://guifi.net/trespassos/');
+           _outln('/ip hotspot');
+           _outln(sprintf(':foreach i in [find name=hotspot%d] do={remove $i}',$radio_id+1));
+           _outln(sprintf('add name="hotspot%d" interface=hotspot%d address-pool=hs-pool-%d profile=hsprof%d idle-timeout=5m keepalive-timeout=none addresses-per-mac=2 disabled=no',$radio_id+1,$radio_id+1,$radio_id+100,$radio_id+1));
+           _outln_comment('end of HotSpot');
+         } // HotSpot
+
 
          _outln(':delay 1');
 
          // Not link only (AP), setting DHCP
 
          if ($mode=='ap') {
+
+           // DHCP 
            $dhcp = array();
            $dhcp[] = '/ip dhcp-server lease';
            $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
@@ -1072,6 +1103,7 @@ function unsolclic_routeros($dev) {
            _outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],$iname));
            _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
            _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
+
          }        
        } // wLan, wLan/Lan or client
        _outln_comment();
@@ -1091,6 +1123,8 @@ function unsolclic_routeros($dev) {
     // Setting proxy-arp
     _outln('/interface ethernet set ether1 arp=proxy-arp');
     _outln('/ip address');
+
+    // Setting private network and DHCP
     _outln(':foreach i in [find address=192.168.1.1/24] do={remove $i}');
     _outln('/ip address add address=192.168.1.1/24 network=192.168.1.0 broadcast=192.168.1.255 interface=ether1 comment="" disabled=no');
     _outln(':delay 1');
@@ -1106,14 +1140,22 @@ function unsolclic_routeros($dev) {
     _outln(':foreach i in [find] do={remove $i}');
     _outln(sprintf('add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=%s domain="guifi.net" comment=""',implode(',',$dns)));
     _outln(':delay 1');
+
+    // be sure that there is no dhcp client requests since having a static ip
     _outln('/ip dhcp-client');
     _outln(':foreach i in [find] do={remove $i}');
     _outln(':delay 1');
+
+    // Gateway routing to wlan
     _outln('add interface=wlan1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes comment="" disabled=no');
+
+    // NAT private network
     _outln('/ip firewall nat');
     _outln(':foreach i in [find] do={remove $i}');
     _outln(':delay 1');
     _outln('add chain=srcnat out-interface=wlan1 action=masquerade comment="" disabled=no');
+
+    // Firewall enabled, allowing winbox, ssh and snmp
     _outln('/ip firewall filter');
     _outln(':foreach i in [find] do={remove $i}');
     _outln('add chain=input connection-state=established action=accept comment="Allow Established connections" disabled=no');
@@ -1179,6 +1221,16 @@ function unsolclic_routeros($dev) {
       }
     }
   }
+
+  // NAT for internal addresses while being used inside the router
+  
+  _outln_comment();
+  _outln_comment(t('Internal addresses NAT'));
+  _outln(':foreach i in [/ip filter nat find src-address=172.25.0.0/16] do={/ip filter nat remove $i;}');
+  _outln(':foreach i in [/ip filter nat find src-address=192.168.0.0/16] do={/ip filter nat remove $i;}');
+  _outln('/ip filter nat');
+  _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
 
   // BGP
   _outln_comment();

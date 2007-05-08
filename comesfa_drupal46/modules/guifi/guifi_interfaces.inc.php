@@ -33,6 +33,7 @@ function guifi_interface_form($edit) {
   // list interfaces
   if (!empty($edit['interfaces'])) foreach ($edit['interfaces'] as $key => $interface) {
       if ($interface[deleted]) continue;
+      if ($interface[interface_type] == 'HotSpot') continue;
 //       print_r($interface);
 
       // Present interface information & radio group

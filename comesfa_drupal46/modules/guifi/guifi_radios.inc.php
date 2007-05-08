@@ -79,16 +79,14 @@ function guifi_radio_form(&$edit) {
   if (!isset($edit[edit_details]))
   if (!empty($edit['radios'])) foreach ($edit['radios'] as $key => $radio) {
       if ($radio[deleted]) continue;
+      unset($rrows);
+      $rrows = array();
 //      print_r($radio);
 //      $form .= guifi_form_hidden('radios]['.$key.']',$radio);
 
       // Present radio information & radio group
-      if ($radio['mode'] == 'ap')
-        $rowspan = 5;
-      else
-        $rowspan = 3;
       $row = array(
-                    array('data'=>'#'.$key.form_radio('', 'edit_details', $key),'rowspan'=>$rowspan,'valign'=>'top','width'=>1),
+                    array('data'=>'#'.$key.form_radio('', 'edit_details', $key),'rowspan'=>"0",'valign'=>'top','width'=>1),
                     array('data'=>$radio['mode'],'width'=>1),
 //                    form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,20),
                     array('data'=>form_select(null, 'radios]['.$key.'][channel', $edit['radios'][$key]["channel"], 
@@ -104,25 +102,38 @@ function guifi_radio_form(&$edit) {
                     array('data'=>$radio['antenna_angle'].'º','align'=>'right','width'=>1),
                     array('data'=>$radio['antenna_azimuth'].'º','align'=>'right','width'=>1)
                    );
-      $rows[] = $row;
+      $rrows[] = $row;
 
       // radio interfaces
 //      print_r($edit);
+
+      $hotspot = false;
+
       if (count($radio['interfaces'])>0) 
       foreach ($radio['interfaces'] as $ki=>$interface) {
+        if ($interface[deleted]) continue;
 
         unset($wlan_addr);
 
 //     print "type: $interface[interface_type]\n<br />";
         switch ($interface[interface_type]) {
         case 'wds/p2p':
+          $iname = $interface[interface_type];
           $add_link = t('Add WDS/bridge p2p link');
+          break;
+        case 'HotSpot':
+          $iname = form_radio('', 'edit_details', $key.','.$ki).$interface[interface_type];
+          $hotspot = true;
           break;
         case 'wLan/Lan':
         case 'wLan':
+          if ($interface[interface_type] == 'wLan')
+            $iname = form_radio('', 'edit_details', $key.','.$ki).$interface[interface_type];
+          else 
+            $iname = $interface[interface_type];
           $add_link = t('Add AP/Client link');
 
-          if (user_access('administer guifi networks')) {
+		  if (user_access('administer guifi networks')) {
             $wlan_addr[] = array('data'=>form_textfield(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][ipv4]',
                                                            $interface[ipv4][$key][ipv4],16,16,null),'width=1');
             $wlan_addr[] = array('data'=>form_select(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][netmask]',
@@ -141,18 +152,18 @@ function guifi_radio_form(&$edit) {
 
 //        print_r($interface);
 //        print "\n<br>";
-       
+
         if ($add_link != '') {
           if (isset($wlan_addr)) {
-            $rows[] = array_merge(array(array('data'=>$interface['interface_type'],'width'=>1)),
+            $rrows[] = array_merge(array(array('data'=>$iname,'width'=>1)),
                                   $wlan_addr,
                                   array(array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>'1'))
                                  );
           } else
-            $rows[] = array(array('data'=>$interface['interface_type'],'width'=>1),
-                            array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>8));
+            $rrows[] = array(array('data'=>$iname,'width'=>1),
+                            array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>0));
         } else
-          $rows[] = array(array('data'=>$interface['interface_type'],'colspan'=>8));
+          $rrows[] = array(array('data'=>$iname,'colspan'=>0));
 
         if (count($interface['ipv4']))
         unset($lrows);
@@ -173,16 +184,23 @@ function guifi_radio_form(&$edit) {
         }
         $header = array(null,t('node-device'),t('status'),t('local ip'),t('remote ip'));
         if (count($lrows) > 0)
-          $rows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>8));
+          $rrows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>0));
         else
-          $rows[] = array(array('data'=>theme('table',null,$lrows),'colspan'=>8));
-      }
+          $rrows[] = array(array('data'=>theme('table',null,$lrows),'colspan'=>0));
+      } // foreach interface
 
       // If AP & no wLan interface, allow to create one
-      if ((count($radio[interfaces]) < 2) and ($radio[mode] == 'ap')) {
-        $rows[] = array(array('data'=>form_button(t('Add wLan for clients'), 'op['.$key.']'),'colspan'=>8));
-        $rows[] = array(array('data'=>'&nbsp;','colspan'=>8));
+      if (((count($radio[interfaces]) < 2) and ($radio[mode] == 'ap')) or 
+         (user_access('administer guifi networks'))) {
+        $buttons = form_button(t('Add wLan for clients'), 'op['.$key.']');
       }
+      if ((!$hotspot) and ($radio[mode] == 'ap')) {
+        $buttons .= form_button(t('Add Hotspot for guests'), 'op['.$key.']');
+      }
+      $rrows[] = array(array('data'=>$buttons,'colspan'=>0));
+
+      $rows[] = array(array('data'=>theme('table',null,$rrows),'colspan'=>0));
+      
   }
   if (isset($rows)) {
     
@@ -255,6 +273,22 @@ function guifi_add_radio_wlan($edit,$radio) {
    $edit['radios'][$radio]['interfaces'][$interface_id][ipv4][$radio][netmask]='255.255.255.224';
    $edit['radios'][$radio]['interfaces'][$interface_id][ipv4][$radio][links]=array();
    $edit['radios'][$radio]['interfaces'][$interface_id][interface_type]='wLan';
+
+   return $edit;
+}
+
+function guifi_add_hotspot($edit,$radio) {
+   $interface_id=guifi_next_interface($edit);
+
+   // obtaining a public IP fot the hotspot NAT
+
+   // filling variables
+   $edit['radios'][$radio]['interfaces'][$interface_id]=array();
+   $edit['radios'][$radio]['interfaces'][$interface_id]['new']=true;
+   $edit['radios'][$radio]['interfaces'][$interface_id][device_id]=$edit[id];
+   $edit['radios'][$radio]['interfaces'][$interface_id][id]=$interface_id;
+   $edit['radios'][$radio]['interfaces'][$interface_id][radiodev_counter]=$rc;
+   $edit['radios'][$radio]['interfaces'][$interface_id][interface_type]='HotSpot';
 
    return $edit;
 }
@@ -338,6 +372,31 @@ function guifi_add_radio($edit) {
  return $edit;
 }
 
+
+function guifi_delete_radio_interface($edit,$op) {
+  $parse=explode(',',$edit[edit_details]);
+
+  switch ($op) {
+  case t('Delete selected'):
+      $output .= '<h2>'.t('Are you sure you want to delete this interface?').'</h2>'.$edit[radios][$parse[0]][ssid].' '.
+                                                                                     $edit[radios][$parse[0]][interfaces][$parse[1]][interface_type];
+      $output .= '<br />'.form_button(t('Confirm delete'),'op').
+                        form_button(t('Back to list'),'op');
+      $output .= $message;
+    break;
+  case t('Confirm delete'):
+      if ($edit[radios][$parse[0]][interfaces][$parse[1]]['new'])
+        unset($edit[radios][$parse[0]][interfaces][$parse[1]]);
+      else
+        $output .= form_hidden('radios]['.$parse[0].'][interfaces]['.$parse[1].'][deleted',true);
+      $output .= '<h2>'.t('Interface deleted').'</h2>'.$link_text;
+      $output .= '<br />'.form_button(t('Back to list'),'op');
+      drupal_set_message(t('The interface %name has been deleted. To prevent accidental deletions, the delete will be confirmed only when you submit the changes.',array('%name' => theme('placeholder',$edit['radios'][$parse[0]]['ssid'].' '.$edit[radios][$parse[0]][interfaces][$parse[1]][interface_type]))));
+    break;
+  }
+  $output .= guifi_form_hidden('',$edit);
+  print theme('page',form($output));
+}
 
 function guifi_delete_radio($edit,$op) {
   $radio_id=$edit[edit_details];

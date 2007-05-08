@@ -153,37 +153,34 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$id_field)
       $link[links][$link_id]['interface'][device_id]=$device_id;
       $link[links][$link_id]['interface'][radiodev_counter]=$radiodev_counter;
       if ($link[links][$link_id][link_type] == 'ap/client') {
-//        print_r($interface_type);
-//        print_r($edit);
-//        print_r($link);
-        if ($interface_type == 'Wan') {
-          if ($radiodev_counter == 0)
-             $itype = 'wLan/Lan';
-          else
-             $itype = 'wLan';
-          $query_ri = db_query('SELECT id,mac FROM {guifi_interfaces} WHERE interface_type="%s" AND device_id=%d AND radiodev_counter=%d',$itype,$device_id,$radiodev_counter);
-        } else {
-           $itype = 'Wan';
-           $query_ri = db_query('SELECT id,mac FROM {guifi_interfaces} WHERE interface_type="Wan" AND device_id=%d',$device_id);
-        }
-//        print "Itype: $itype Device: $device_id Radiodev: $radiodev_counter\n<br />";
-//        $ri = db_fetch_array(db_query('SELECT id,mac FROM {guifi_interfaces} WHERE interface_type="%s" AND device_id=%d AND radiodev_counter=%d',$itype,$device_id,$radiodev_counter));
-        $ri = db_fetch_array($query_ri);
-        $link[links][$link_id]['interface_id']=$ri['id'];
-        $link[links][$link_id]['interface'][id]=$ri['id'];
-        $link[links][$link_id]['interface'][mac]=$ri[mac];
-        $link[links][$link_id]['interface'][ipv4][interface_id]=$ri[id];
-
         // if WAN, assign local and remote ips
         if ($interface_type == 'Wan') {
-          $ipAP = db_fetch_array(db_query('SELECT * FROM {guifi_ipv4} WHERE interface_id=%d AND id=%d',$ri[id],$radiodev_counter));
-          $link[links][$link_id]['interface'][ipv4][ipv4]=$ipAP[ipv4];
-          $link[links][$link_id]['interface'][ipv4][netmask]=$ipAP[netmask];
           $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
-          $item = _ipcalc($ipAP[ipv4],$ipAP[netmask]);
+          $qAP = db_query('SELECT i.id, i.mac, a.ipv4, a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.device_id = %d AND i.interface_type in ("wLan/Lan","wLan") AND i.radiodev_counter=%d AND a.interface_id=i.id',$device_id, $radiodev_counter);
+          while ($ipAP = db_fetch_array($qAP)) {
+            $link[links][$link_id]['interface'][ipv4][ipv4]=$ipAP[ipv4];
+            $link[links][$link_id]['interface'][ipv4][netmask]=$ipAP[netmask];
+            $item = _ipcalc($ipAP[ipv4],$ipAP[netmask]);
+            $link[ipv4] = guifi_next_ip($item['netid'],$ipAP[netmask],$ips_allocated);
+            if ($link[ipv4] != null)
+              break;
+            drupal_set_message(t('Network was full, looking for more networks available...'));
+          }
+
+          // if network was full, delete link
+          if ($link[ipv4] == null) {
+            drupal_set_message(t('No networks where available for this node, link was not created, contact your network administrator.'),'error');
+            unset($link[links][$link_id]);
+            return;
+          }
+
+          drupal_set_message(t('Got IP address %net/%mask. Link created.',array('%net' => theme('placeholder', $link[ipv4]), '%mask' => theme('placeholder', $ipAP[netmask])  )));
+
+          $link[links][$link_id]['interface_id']=$ipAP['id'];
+          $link[links][$link_id]['interface'][id]=$ipAP['id'];
+          $link[links][$link_id]['interface'][mac]=$ipAP[mac];
+          $link[links][$link_id]['interface'][ipv4][interface_id]=$ipAP['id'];
           $link['new'] = true;
-          $link[ipv4] = guifi_next_ip($item['netid'],$ipAP[netmask],$ips_allocated);
-//          print_r($item);
           $link[netmask] = $ipAP[netmask];
         }
       }
@@ -471,6 +468,7 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
        $base_ip[netmask]=$edit[radios][$radio_id][interfaces][$interface_id][ipv4][$radio_id][netmask];
        $item = _ipcalc($base_ip[ipv4],$base_ip[netmask]);
        $ip= guifi_next_ip($item['netid'],$base_ip[netmask],$ips_allocated);
+       if ($ip == null) return;
        $newlk['interface'] = array();
        $newlk['interface'][interface_type] = 'Wan';
        $newlk['interface'][ipv4] = array();

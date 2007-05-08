@@ -166,6 +166,11 @@ function guifi_edit_device($id = 0) {
       guifi_edit_device_validate($edit);
       $output .= guifi_edit_device_form($edit);
       break;
+    case t('Add Hotspot for guests'):
+      $edit = guifi_add_hotspot($edit,$interface);
+      guifi_edit_device_validate($edit);
+      $output .= guifi_edit_device_form($edit);
+      break;
     case t('Add interface'):
       guifi_add_interface($edit);
       guifi_edit_device_validate($edit);
@@ -205,6 +210,7 @@ function guifi_edit_device($id = 0) {
       break;
     case t('Delete selected'):
     case t('Confirm delete'):
+      print_r($edit[edit_details]);
       $parse = explode(',',$edit[edit_details]);
       if (!isset($edit[edit_details])) {
         form_set_error(null,t('Nothing selected.'));
@@ -212,8 +218,10 @@ function guifi_edit_device($id = 0) {
         // is radio
         if (count($parse) == 1) 
           guifi_delete_radio($edit,$op);
+        else if (count($parse) == 2)
+          guifi_delete_radio_interface($edit,$op);
         else
-           guifi_delete_link($edit,$op);
+          guifi_delete_link($edit,$op);
       } else {
         // interface
         guifi_delete_interface($edit,$op);
@@ -255,7 +263,7 @@ function guifi_get_device($id,$ret = 'array') {
   // getting device radios
   if ($device['type'] == 'radio') {
     // Get radio
-    $qr = db_query('SELECT * FROM {guifi_radios} WHERE id = %d', $id);
+    $qr = db_query('SELECT * FROM {guifi_radios} WHERE id = %d ORDER BY id, radiodev_counter', $id);
     if (db_num_rows($qr) == 0) {
 //      drupal_set_message(t('Fatal Error: This device (%id %name) has no radio. Report this error to your network administrator.',array('%id' => theme('placeholder', $id), '%name' => theme('placeholder', $device['nick']))));
       return $device;
@@ -271,7 +279,7 @@ function guifi_get_device($id,$ret = 'array') {
       $device['radios'][$radio['radiodev_counter']] = $radio;
 
       // get interface
-      $qi = db_query('SELECT * FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d ORDER BY interface_type, id',$device['id'],$radio['radiodev_counter']);
+      $qi = db_query('SELECT * FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d ORDER BY id, interface_type, radiodev_counter',$device['id'],$radio['radiodev_counter']);
       while ($i = db_fetch_array($qi)) {
 //        print  "\n<br />Interface: ";
 //        print_r($i);
