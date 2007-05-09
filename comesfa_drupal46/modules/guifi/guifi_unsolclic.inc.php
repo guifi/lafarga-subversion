@@ -1067,8 +1067,7 @@ function unsolclic_routeros($dev) {
          _outln(':delay 1');
 
          // Not link only (AP), setting DHCP
-
-         if ($mode=='ap') {
+         if ($mode=='ap-bridge') {
 
            // DHCP 
            $dhcp = array();
@@ -1226,9 +1225,9 @@ function unsolclic_routeros($dev) {
   
   _outln_comment();
   _outln_comment(t('Internal addresses NAT'));
-  _outln(':foreach i in [/ip filter nat find src-address=172.25.0.0/16] do={/ip filter nat remove $i;}');
-  _outln(':foreach i in [/ip filter nat find src-address=192.168.0.0/16] do={/ip filter nat remove $i;}');
-  _outln('/ip filter nat');
+  _outln(':foreach i in [/ip firewall filter nat find src-address=172.25.0.0/16] do={/ip filter nat remove $i;}');
+  _outln(':foreach i in [/ip firewall filter nat find src-address=192.168.0.0/16] do={/ip filter nat remove $i;}');
+  _outln('/ip firewall filter nat');
   _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
   _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
 
