@@ -414,7 +414,7 @@ function guifi_get_hostname($id) {
   return guifi_to_7bits($device->nick);
 }
 
-function guifi_get_ap_rssi($id,$radiodev_counter) {
+function guifi_get_ap_ssid($id,$radiodev_counter) {
   $radio = db_fetch_object(db_query("SELECT r.ssid, d.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE r.id=%d AND r.radiodev_counter=%d",$id,$radiodev_counter));
   return guifi_to_7bits($radio->ssid);
 }

@@ -502,8 +502,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      else {
        _outln_nvram('wan_proto','static');
        _outln_nvram('wan_ipaddr',$wan->ipv4);
-       $item = _ipcalc($wan->ipv4, $wan->netmask);
-       _outln_nvram('wan_gateway',$item['netstart']);
+//       _outln_nvram('wan_gateway',$item['netstart']);
        _outln_nvram('wan_netmask',$wan->netmask);
        if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')){
 	  _outln_nvram('fullswitch','1');
@@ -529,7 +528,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('wl0_net_mode','b-only');
    _outln_nvram('wl_afterburner','on');
    _outln_nvram('wl_frameburst','on');
-   # _outln_nvram('txpwr','80');
+   _outln_nvram('txpwr','28');
    _outln_nvram('txant','0');
    _outln_nvram('wl0_antdiv','0');
    _outln_nvram('wl_antdiv','0');
@@ -594,18 +593,21 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      if (isset($ipv4[links])) foreach ($ipv4[links] as $key => $link) {
        if ($link['link_type'] == 'ap/client') {
        $ap_macs[] = $link['interface']['mac'];
+
+       $gateway = $link['interface']['ipv4']['ipv4'];
        
        if (($dev->variable['firmware'] == 'Alchemy') or ($dev->variable['firmware'] == 'Talisman')) {
          _outln_nvram('wl_mode','wet');
          _outln_nvram('wl0_mode','wet');
-         _outln_nvram('wl_ssid','guifi.net-'.guifi_get_ap_rssi($link['interface']['device_id'],$link['interface']['radiodev_counter']));
+         _outln_nvram('wl_ssid','guifi.net-'.guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']));
        }
 
        if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')) {
          _outln_nvram('wl_mode','sta');
          _outln_nvram('wl0_mode','sta');
-         _outln_nvram('wl_ssid','guifi.net-'.guifi_get_ap_rssi($link['interface']['device_id'],$link['interface']['radiodev_counter']));
+         _outln_nvram('wl_ssid','guifi.net-'.guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']));
        }
+       _outln_nvram('wan_gateway',$gateway);
       }
      }
      if ($dev->variable['firmware'] == 'Alchemy') {
@@ -959,7 +961,7 @@ function unsolclic_routeros($dev) {
       foreach ($radio[interfaces] as $interface) 
       foreach ($interface[ipv4] as $ipv4) 
       foreach ($ipv4[links] as $link) 
-        $ssid = guifi_get_ap_rssi($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+        $ssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
       $mode = 'station';
       if ($radio[mode]=='client')
         $firewall=true;
