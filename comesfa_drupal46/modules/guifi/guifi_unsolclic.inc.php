@@ -1044,7 +1044,7 @@ function unsolclic_routeros($dev) {
            _outln_comment('HotSpot');
            _outln('/interface wireless');
            _outln(sprintf(':foreach i in [find name=hotspot%d] do={remove $i}',$radio_id+1));
-           _outln(sprintf('add name="hotspot%d" arp=enabled master-interface=wlan%d ssid="guifi.net-HotSpot"  disabled="no"',$radio_id+1,$radio_id+1));
+           _outln(sprintf('add name="hotspot%d" arp=enabled master-interface=wlan%d ssid="guifi.net-%s" disabled="no"',$radio_id+1,$radio_id+1,variable_get("hotspot_ssid","HotSpot")));
            _outln('/ip address');
            _outln(sprintf(':foreach i in [find address=192.168.%d.1/24] do={remove $i}',$radio_id+100));
            _outln(sprintf('/ip address add address=192.168.%d.1/24 interface=hotspot%d disabled=no',$radio_id+100,$radio_id+1));
@@ -1230,8 +1230,8 @@ function unsolclic_routeros($dev) {
   _outln(':foreach i in [/ip firewall nat find src-address=172.25.0.0/16] do={/ip filter nat remove $i;}');
   _outln(':foreach i in [/ip firewall nat find src-address=192.168.0.0/16] do={/ip filter nat remove $i;}');
   _outln('/ip firewall nat');
-  _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
-  _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
 
   // BGP
   _outln_comment();

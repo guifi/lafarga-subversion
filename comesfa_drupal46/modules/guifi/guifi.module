@@ -512,6 +512,7 @@ function guifi_settings() {
   $output .= form_textfield("Default contact", "guifi_contact", variable_get("guifi_contact", 'netadmin@guifi.net'), 55, 255, t("An email will be submitted to this address when no contact address is present."));
   $output .= form_select(t('Max. Distance'), 'guifi_max_distance', variable_get('guifi_max_distance', 25), drupal_map_assoc(array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100)), t('At which distance the report of neighbours ends. In Kms.'));
   $vocabularies = taxonomy_get_vocabularies();
+  $output .= form_textfield("Hotspot SSID", "hotspot_ssid", variable_get("hotspot_ssid", t("HotSpot")), 35, 255, t("SSID name for the hotspot open access for guests"));
   $output .= form_textfield("Path to rrdtool", "rrdtool", variable_get("rrdtool_path", t("/usr/bin/rrdtool")), 35, 255, t("Full path to rrtool executable"));
   $output .= form_textfield("Path to mrtg rrd files", "rrddb_path", variable_get("rrddb_path", t("/home/comesfa/mrtg/logs/")), 35, 255, t("Full path to rrtd database files"));
   $output .= form_textfield("Path to mrtg img files", "rrdimg_path", variable_get("rrdimg_path", t("/home/comesfa/mrtg/images/")), 35, 255, t("Full path to rrtd img files"));
