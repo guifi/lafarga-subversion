@@ -831,7 +831,7 @@ function unsolclic_routeros($dev) {
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
-  _outln_comment(t('Configuration for RouterOS 2.9'));
+  _outln_comment(t('Configuration for RouterOS > 2.9.40'));
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
   _outln_comment(t('WARNING: Beta version'));
