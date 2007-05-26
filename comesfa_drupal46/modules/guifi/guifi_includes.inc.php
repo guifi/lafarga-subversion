@@ -704,6 +704,8 @@ function guifi_next_ip($base_ip = '0.0.0.0', $mask_range = '0.0.0.0', $ips_alloc
 
 function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $network_type = 'public',$ips_allocated = null) {
 
+  // print "Going to allocate network ".$mask_allocate."-".$network_type;
+
   global $user;
 
   $zone_fetch = db_fetch_object(db_query("SELECT l.zone_id id, z.master FROM {guifi_location} l LEFT JOIN {guifi_zone} z ON l.zone_id=z.id WHERE l.id=%d",$nid));
