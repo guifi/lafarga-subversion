@@ -1135,7 +1135,7 @@ function unsolclic_routeros($dev) {
     _outln(':delay 1');
     _outln('/ip pool');
     _outln(':foreach i in [find name=private] do={remove $i}');
-    _outln('add name="private" ranges=192.168.1.100,192.168.1.200');
+    _outln('add name="private" ranges=192.168.1.100-192.168.1.200');
     _outln(':delay 1');
     _outln('/ip dhcp-server');
     _outln(':foreach i in [find name=private] do={remove $i}');
@@ -1150,9 +1150,6 @@ function unsolclic_routeros($dev) {
     _outln('/ip dhcp-client');
     _outln(':foreach i in [find] do={remove $i}');
     _outln(':delay 1');
-
-    // Gateway routing to wlan
-    _outln('add interface=wlan1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes comment="" disabled=no');
 
     // NAT private network
     _outln('/ip firewall nat');
