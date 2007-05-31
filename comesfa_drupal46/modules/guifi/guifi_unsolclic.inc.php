@@ -1058,6 +1058,9 @@ function unsolclic_routeros($dev) {
            _outln('/ip dhcp-server');
            _outln(sprintf(':foreach i in [find name=hs-dhcp-%d] do={remove $i}',$radio_id+100));
            _outln(sprintf('add name="hs-dhcp-%d" interface=hotspot%d lease-time=1h address-pool=hs-pool-%d bootp-support=static authoritative=after-2sec-delay disabled=no',$radio_id+100,$radio_id+1,$radio_id+100));
+           _outln('/ip dhcp-server network');
+           _outln(sprintf(':foreach i in [find address=192.168.%d.0/24] do={remove $i}',$radio_id+100));
+           _outln(sprintf('add address=192.168.%d.0/24 gateway=192.168.%d.1 domain=guifi.net comment=dhcp-%s',$radio_id+100,$radio_id+100,$radio_id));
            _outln('/ip hotspot profile');
            _outln(sprintf(':foreach i in [find name=hsprof%d] do={remove $i}',$radio_id+1));
            _outln(sprintf('add name="hsprof%d" hotspot-address=192.168.%d.1 dns-name="guests.guifi.net" html-directory=hotspot smtp-server=0.0.0.0 login-by=http-pap,trial split-user-domain=no trial-uptime=30m/1d trial-user-profile=default use-radius=no',$radio_id+1,$radio_id+100));
