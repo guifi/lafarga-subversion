@@ -1,3 +1,4 @@
+<?php global $filter_ip; ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?php print $language; ?>" xml:lang="<?php print $language; ?>">
@@ -69,6 +70,24 @@
       <div id="mission"><div class="sw1"><div class="sw2"><div class="sw3"><?php print $mission; ?></div></div></div></div>
     <?php endif; ?>
 
+<?php if ( !$filter_ip ): ?>
+<center>
+<script type="text/javascript"><!--
+google_ad_client = "pub-3241715727040799";
+google_ad_width = 468;
+google_ad_height = 60;
+google_ad_format = "468x60_as";
+google_ad_type = "text";
+//2007-05-29: Superior
+google_ad_channel = "0189167230";
+//-->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</center><br>
+<?php endif; ?>
+    
     <?php print $breadcrumb ?>
 
     <?php if ($title != ""): ?>
@@ -88,6 +107,24 @@
     <?php endif; ?>
         
     <?php print phptemplate_wrap_content($content) ?>
+
+<?php if ( !$filter_ip ): ?>
+<br><center>
+<script type="text/javascript"><!--
+google_ad_client = "pub-3241715727040799";
+google_ad_width = 468;
+google_ad_height = 60;
+google_ad_format = "468x60_as";
+google_ad_type = "text";
+//2007-05-29: Inferior
+google_ad_channel = "1806657103";
+//-->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</center>
+<?php endif; ?>    
  
     <?php if ($footer_message): ?><div id="footer" class="footer-<?php print $layout; ?>"><p><?php print $footer_message; ?></p></div><?php endif; ?>
   </div></div>
@@ -108,5 +145,14 @@
       <?php print $closure;?></div>
   </div></div><div id="end" class="end-<?php print $layout; ?>"><div class="ew1"><div class="ew2"></div></div></div>
 <br>
+
+<script src="http://www.google-analytics.com/urchin.js" 
+type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-1979864-2";
+urchinTracker();
+</script>
+
 </body>
 </html>
