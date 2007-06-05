@@ -87,17 +87,25 @@ function guifi_interface_form($edit) {
           if ($link[deleted]) continue;
           $ip = _ipcalc($ipv4['ipv4'],$ipv4['netmask']);
 //          print_r($link);
+
+          // fill routing field
+          if (user_access('administer guifi networks'))
+             $routing = form_select(null,'interfaces]['.$key.'][ipv4]['.$ka.'][links]['.$kl.'][routing', $link[routing], guifi_types('routing'));
+          else 
+             $routing = $link[routing];
          
+
           $lrows[] = array(
                            form_radio('', 'edit_details', 'interface,'.$key.','.$ka.','.$kl),
                            guifi_get_hostname($link['device_id']),
                            form_select(null,'interfaces]['.$key.'][ipv4]['.$ka.'][links]['.$kl.'][flag', $link['flag'], guifi_types('status')),
                            $link['interface']['interface_type'],
-                           $link['interface']['ipv4']['ipv4']
+                           $link['interface']['ipv4']['ipv4'],
+                           $routing
                           );
         }
         if (count($lrows) > 0) {
-          $header = array(null,t('linked device'),t('status'),t('type'),t('ip'));
+          $header = array(null,t('linked device'),t('status'),t('type'),t('ip'),t('routing'));
           $arows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>99));
         } else
           $arows[] = array(array('data'=>'&nbsp;','colspan'=>99));

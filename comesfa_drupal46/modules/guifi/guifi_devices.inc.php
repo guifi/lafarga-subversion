@@ -633,16 +633,16 @@ function guifi_save_interfaces($edit,$var,$radiodev_counter = null,$cascade = fa
                   db_query('INSERT INTO {guifi_ipv4} (id, interface_id, ipv4, netmask) VALUES (%d, %d, "%s", "%s")',$link[ipv4_id],$link[interface_id],$link['interface'][ipv4][ipv4],$link['interface'][ipv4][netmask]);
                 }
 
-              db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s")',$lnew[newid],$link[nid],$link[device_id],$link[interface_id],$link[ipv4_id],$link[link_type],$link[flag]);
+              db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, routing, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s")',$lnew[newid],$link[nid],$link[device_id],$link[interface_id],$link[ipv4_id],$link[link_type],$link[routing],$link[flag]);
 
               } else {
-                db_query('UPDATE {guifi_links} SET ipv4_id=%d, link_type="%s", flag="%s" WHERE id=%d and interface_id=%d',$ipv4[id],$link[link_type],$link[flag],$link[id],$interface_id);
-                db_query('UPDATE {guifi_links} SET ipv4_id=%d, link_type="%s", flag="%s" WHERE id=%d and interface_id=%d',$link[ipv4_id],$link[link_type],$link[flag],$link[id],$link[interface_id]);
+                db_query('UPDATE {guifi_links} SET ipv4_id=%d, link_type="%s", routing="%s", flag="%s" WHERE id=%d and interface_id=%d',$ipv4[id],$link[link_type],$link[routing], $link[flag],$link[id],$interface_id);
+                db_query('UPDATE {guifi_links} SET ipv4_id=%d, link_type="%s", routing="%s", flag="%s" WHERE id=%d and interface_id=%d',$link[ipv4_id],$link[link_type],$link[routing], $link[flag],$link[id],$link[interface_id]);
 
                 if ($link['link_type'] == 'cable') {
                   // Updtating remote interface_type when link type is cable
                   if ($link['interface'][radiodev_counter] != null) 
-                    db_query('UPDATE {guifi_interfaces} SET radiodev_counter=%d interface_type="%s" WHERE id=%d',$link['interface'][radiodev_counter],$link['interface'][interface_type],$link['interface_id']);
+                    db_query('UPDATE {guifi_interfaces} SET radiodev_counter=%d, interface_type="%s" WHERE id=%d',$link['interface'][radiodev_counter],$link['interface'][interface_type],$link['interface_id']);
                   else
                     db_query('UPDATE {guifi_interfaces} SET interface_type="%s" WHERE id=%d',$link['interface'][interface_type],$link['interface_id']);
                 }
@@ -953,6 +953,7 @@ function guifi_device_links_print($device,$ltype = '%') {
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                     array('data' => t($link['flag']).$img_url,
                           'class' => $link['flag']),
+                    $link[routing],
                     $gDist,
                     $dAz.'-'.$dOr);  
       if ($interface['interface_type'] == 'wds/p2p')
@@ -982,6 +983,7 @@ function guifi_device_links_print($device,$ltype = '%') {
                        $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                        array('data' => t($link['flag']). $img_url,
                              'class' => $link['flag']),
+                       $link[routing],
                        array('data'=>'-','align'=>'center') , 
                        array('data'=>'-','align'=>'center'));  
       $ltotal++;
@@ -997,7 +999,7 @@ function guifi_device_links_print($device,$ltype = '%') {
     $rows = array_merge($rows,$rows_cable);
   return '<h2>'.$title.'</h2>'.
          '<h3>'.t('Totals').': '.$ltotal.' '.t('links').', '.$dtotal.' '.t('kms.').'</h3>'.
-         theme('table',array(t('interface'),t('id'),t('device'),t('node'),t('ip address'),'&nbsp;',t('status'),t('kms.'),t('az.')),$rows);
+         theme('table',array(t('interface'),t('id'),t('device'),t('node'),t('ip address'),'&nbsp;',t('status'),t('routing'),t('kms.'),t('az.')),$rows);
 }
 
 function guifi_device_link_list($id = 0, $ltype = '%') {
@@ -1009,9 +1011,9 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
   else
   $title = t('links').' ('.$ltype.')';
  
-  $header = array(t('type'),t('linked devices'), t('ip'), t('status'), t('kms.'),t('az.'));
+  $header = array(t('type'),t('linked devices'), t('ip'), t('status'), t('routing'), t('kms.'),t('az.'));
 
-  $queryloc1 = db_query("SELECT c.id, c.link_type, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, i.interface_type itype, c.flag, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_location} l ON d.nid = l.id WHERE c.device_id = %d AND link_type like '%s' ORDER BY c.link_type, c.device_id",$id,$ltype);
+  $queryloc1 = db_query("SELECT c.id, c.link_type, c.routing, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, i.interface_type itype, c.flag, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_location} l ON d.nid = l.id WHERE c.device_id = %d AND link_type like '%s' ORDER BY c.link_type, c.device_id",$id,$ltype);
   if (db_num_rows($queryloc1)) {
     while ($loc1 = db_fetch_object($queryloc1)) {
       $queryloc2 = db_query("SELECT c.id, l.nick, r.ssid, c.device_id, d.nick device_nick, a.ipv4 ip, i.interface_type itype, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE c.id = %d AND c.device_id != %d",$loc1->id,$loc1->device_id);
@@ -1044,6 +1046,7 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
                      $loc1->ip.'/'.$loc2->ip,
                    array('data' => t($loc1->flag), 'class' => $loc1->flag),
                    array('data' => $gDist,'class' => 'number'),
+                   $loc1->routing,
                    $dAz.'-'.$dOr);
       }
     }

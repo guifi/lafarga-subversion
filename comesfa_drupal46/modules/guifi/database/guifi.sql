@@ -108,6 +108,7 @@ CREATE TABLE guifi_links (
   interface_id int(11) NOT NULL ,
   ipv4_id int(11) NOT NULL ,
   link_type varchar(40) NOT NULL ,
+  routing varchar(40),
   flag varchar(40) NOT NULL default 'Planned',
   PRIMARY KEY (device_id,id), 
   KEY (id)
@@ -311,10 +312,9 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'Talisman', 'Talisman from sveasoft','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'DD-WRT',   'DD-WRT from BrainSlayer','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'DD-guifi', 'DD-guifi from Miquel Martos','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'RouterOS', 'RouterOS 2.9 from Mikrotik','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2');
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'DD-guifi', 'DD-guifi from Miquel Martos','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'RouterOSv2.9', 'RouterOS 2.9 from Mikrotik','Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
--- INSERT INTO `guifi_types` (type, text, description) VALUES ('firmware', 'OpenWRT',  'OpenWRT');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT-whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
 
 --
 -- antenna types
@@ -425,6 +425,19 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('channel'
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('channel',"5660",'17.- 5660 MHz','802.11a|802.11abg');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('channel',"5680",'18.- 5680 MHz','802.11a|802.11abg');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('channel',"5700",'19.- 5700 MHz','802.11a|802.11abg');
+
+--
+-- Routing methods
+-- Relations contains supported firmwares
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"n/a",'None','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"Static",'Static routing','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"Gateway",'Gateway to AP','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"OSPF",'OSPF','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"BGP",'BGP','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"OLSR",'OLSR','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"OLSR-NG",'OLSR-NG','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"BATMAN",'BATMAN','');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing',"RIP",'RIP','');
 
 --
 -- radio manufacturers

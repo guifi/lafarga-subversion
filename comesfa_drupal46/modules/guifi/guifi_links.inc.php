@@ -56,12 +56,19 @@ function guifi_links_form($edit_details,$edit) {
               guifi_get_hostname($ifvar['links'][$link_id]['device_id']);
   }
 
+  // fill routing field
+  if (user_access('administer guifi networks'))
+    $routing = form_select(null,$fprefix.'links]['.$link_id.'][routing', $ifvar['links'][$link_id]['routing'], guifi_types('routing'));
+  else
+    $routing = $ifvar['links'][$link_id]['routing'];
+
   $row[] = array(
                $ifvar['links'][$link_id]['link_type'],
                $linked,
-               form_select(null,$fprefix.'links]['.$link_id.'][flag', $ifvar['links'][$link_id]['flag'], guifi_types('status'))
+               form_select(null,$fprefix.'links]['.$link_id.'][flag', $ifvar['links'][$link_id]['flag'], guifi_types('status')),
+               $routing
               );
-  $lform[] = array(theme('table',array(t('type'),t('linked node-device'),t('status')),$row));
+  $lform[] = array(theme('table',array(t('type'),t('linked node-device'),t('status'),t('routing')),$row));
   $row = array();
   if ( (($interface_type != 'Wan') and ($edit[type] == 'radio')) or
      (!$ifvar['links'][$link_id]['new'])) {
@@ -448,6 +455,7 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
     $newlk['interface'][ipv4]['new']=true;
     $newlk['interface'][ipv4][ipv4]=$ip2;
     $newlk['interface'][ipv4][netmask]='255.255.255.252';
+    $newlk['routing'] = 'BGP';
     $newif = array();
     $newif['new']=true;
     $newif[interface_id]=$interface_id;
@@ -462,6 +470,7 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
     break;
   case 'ap/client':
     $newlk[link_type]='ap/client';
+    $newlk['routing'] = 'Gateway';
     // if in mode AP
     if ($edit[radios][$radio_id][mode] == 'ap') {
        $base_ip[ipv4]=$edit[radios][$radio_id][interfaces][$interface_id][ipv4][$radio_id][ipv4];
@@ -493,10 +502,13 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
       $ip1 = $edit[interfaces][$interface_id][ipv4][$ipv4_id][ipv4];
       $mask1 = $edit[interfaces][$interface_id][ipv4][$ipv4_id][netmask];
     } else {
-      if ($edit[newip][$interface_id] == 'backbone')
+      if ($edit[newip][$interface_id] == 'backbone') {
+        $newlk['routing'] = 'BGP';
         $mask1 = '255.255.255.252';
-      else 
+      } else {
+        $newlk['routing'] = 'n/a';
         $mask1 = '255.255.255.224';
+      }
 
       $net = guifi_get_subnet_by_nid($edit[nid],$mask1,$edit[newip][$interface_id],$ips_allocated);
       $ip1 = guifi_ip_op($net);

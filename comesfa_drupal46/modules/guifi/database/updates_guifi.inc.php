@@ -14,7 +14,8 @@ $sql_updates = array(
  354 => 'guifiupdate_04',
  356 => 'guifiupdate_05',
  357 => 'guifiupdate_06',
- 358 => 'guifiupdate_08'
+ 358 => 'guifiupdate_08',
+ 359 => 'guifiupdate_09'
 );
 
 
@@ -251,6 +252,35 @@ function guifiupdate_08() {
   $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (23, 8, 'Supertrasto RB153 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes')");
   $ret[] = update_sql("INSERT INTO `guifi_model` VALUES (24, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes')");
   $ret[] = update_sql("UPDATE guifi_types SET relations = 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net' WHERE TYPE = 'firmware' AND text = 'RouterOSv2.9'");
+
+  return $ret;
+}
+
+function guifiupdate_09() {
+  $ret[] = update_sql("ALTER TABLE `guifi_links` ADD `routing` VARCHAR( 40 ) NULL AFTER `link_type` ;");
+  $ret[] = update_sql("update guifi_links set routing='BGP' where link_type in ('cable','wds');");
+  $ret[] = update_sql("update guifi_links set routing='Gateway' where link_type in ('ap/client');");
+  
+  $ql = db_query('SELECT l.id,d.extra FROM {guifi_links} l, {guifi_devices} d WHERE l.link_type in ("wds","cable") AND l.device_id = d.id');
+  while ($link = db_fetch_object($ql)) {
+    $firm = unserialize($link->extra);
+    if (isset($firm[model_id])) {
+      if ($firm[model_id] < 19) 
+        $ret[] = update_sql(sprintf("UPDATE {guifi_links} SET routing = 'OSPF' WHERE id = %d",$link->id));
+    } else
+        $ret[] = update_sql(sprintf("UPDATE {guifi_links} SET routing = 'n/a' WHERE id = %d",$link->id));
+  }
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','n/a','None','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','Static','Static routing','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','Gateway','Gateway to AP','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','OSPF','OSPF','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','BGP','BGP','Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','OLSR','OLSR','');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','OLSR-NG','OLSR-NG','');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','BATMAN','BATMAN','');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('routing','RIP','RIP','');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
+  $ret[] = update_sql("INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
 
   return $ret;
 }

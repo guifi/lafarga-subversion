@@ -171,6 +171,13 @@ function guifi_radio_form(&$edit) {
         if (count($interface[ipv4]) > 0) foreach ($interface['ipv4'] as $ka=>$ipv4) 
         if (!empty($ipv4[links])) foreach ($ipv4['links'] as $kl=>$link) {
           if ($link[deleted]) continue;
+
+          // fill routing field
+          if (user_access('administer guifi networks'))
+             $routing = form_select(null,'radios]['.$key.'][interfaces]['.$ki.'][ipv4]['.$ka.'][links]['.$kl.'][routing', $link['routing'], guifi_types('routing'));
+          else
+             $routing = $link[routing];
+
           $ip = _ipcalc($ipv4['ipv4'],$ipv4['netmask']);
 //          print_r($link);
           $lrows[] = array(
@@ -179,10 +186,11 @@ function guifi_radio_form(&$edit) {
                            guifi_get_hostname($link['device_id']),
                            form_select(null,'radios]['.$key.'][interfaces]['.$ki.'][ipv4]['.$ka.'][links]['.$kl.'][flag', $link['flag'], array_diff(guifi_types('status'),array('Dropped'=>t('Dropped')))),
                            $ipv4['ipv4'].'/'.$ip['maskbits'],
-                           $link['interface']['ipv4']['ipv4']
+                           $link['interface']['ipv4']['ipv4'],
+                           $routing
                           );
         }
-        $header = array(null,t('node-device'),t('status'),t('local ip'),t('remote ip'));
+        $header = array(null,t('node-device'),t('status'),t('local ip'),t('remote ip'),t('routing'));
         if (count($lrows) > 0)
           $rrows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>0));
         else
