@@ -606,7 +606,7 @@ function guifi_save_interfaces($edit,$var,$radiodev_counter = null,$cascade = fa
 
               if ($link['new']) {
                 $lnew = db_fetch_array(db_query('SELECT max(id)+1 newid FROM {guifi_links}'));
-                db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s")',$lnew[newid],$edit[nid],$edit[id],$interface[id],$ipv4_id,$link[link_type],$link[flag]);
+                db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, routing, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s", "%s")',$lnew[newid],$edit[nid],$edit[id],$interface[id],$ipv4_id,$link[link_type],$klink[routing], $link[flag]);
 
 //              if ($link['interface']['new']) {
                 if (($link['interface']['new']) and ($remote_interface[id] == null)) {
@@ -633,7 +633,7 @@ function guifi_save_interfaces($edit,$var,$radiodev_counter = null,$cascade = fa
                   db_query('INSERT INTO {guifi_ipv4} (id, interface_id, ipv4, netmask) VALUES (%d, %d, "%s", "%s")',$link[ipv4_id],$link[interface_id],$link['interface'][ipv4][ipv4],$link['interface'][ipv4][netmask]);
                 }
 
-              db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, routing, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s")',$lnew[newid],$link[nid],$link[device_id],$link[interface_id],$link[ipv4_id],$link[link_type],$link[routing],$link[flag]);
+              db_query('INSERT INTO {guifi_links} (id, nid, device_id, interface_id, ipv4_id, link_type, routing, flag) VALUES (%d, %d, %d, %d, %d, "%s", "%s", "%s")',$lnew[newid],$link[nid],$link[device_id],$link[interface_id],$link[ipv4_id],$link[link_type],$link[routing],$link[flag]);
 
               } else {
                 db_query('UPDATE {guifi_links} SET ipv4_id=%d, link_type="%s", routing="%s", flag="%s" WHERE id=%d and interface_id=%d',$ipv4[id],$link[link_type],$link[routing], $link[flag],$link[id],$interface_id);
