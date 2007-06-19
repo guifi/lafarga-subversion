@@ -1001,7 +1001,7 @@ function unsolclic_routeros($dev) {
 
     if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {
        _outln(':delay 1');
-       _outln_comment($interface[interface_type]);
+       _outln_comment('Type: '.$interface[interface_type]);
        if ($interface[interface_type] == 'wds/p2p') {
          _outln_comment(t('Remove all existing wds interfaces'));
          _outln(sprintf(':foreach i in [/interface wireless wds find master-interface=wlan%s] \ ',$radio_id+1));
@@ -1036,6 +1036,8 @@ function unsolclic_routeros($dev) {
              $iname = 'wlan'.($radio_id+1);
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
            _outln('/ip address');
+           if ($interface[interface_type]=='Wan')
+             _outln(sprintf(':foreach i in [find interface=%s] do={remove $i}',$iname));
            _outln(sprintf(':foreach i in [find address=%s/%d] do={remove $i}',$ipv4[ipv4],$item[maskbits]));
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=no',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$iname));
            $defined_ips[$ipv4[ipv4]] = $item;
@@ -1231,8 +1233,8 @@ function unsolclic_routeros($dev) {
   
   _outln_comment();
   _outln_comment(t('Internal addresses NAT'));
-  _outln(':foreach i in [/ip firewall nat find src-address=172.25.0.0/16] do={/ip filter nat remove $i;}');
-  _outln(':foreach i in [/ip firewall nat find src-address=192.168.0.0/16] do={/ip filter nat remove $i;}');
+  _outln(':foreach i in [/ip firewall nat find src-address=172.25.0.0/16] do={/ip firewall nat remove $i;}');
+  _outln(':foreach i in [/ip firewall nat find src-address=192.168.0.0/16] do={/ip firewall nat remove $i;}');
   _outln('/ip firewall nat');
   _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
   _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
