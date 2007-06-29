@@ -70,7 +70,7 @@
       <div id="mission"><div class="sw1"><div class="sw2"><div class="sw3"><?php print $mission; ?></div></div></div></div>
     <?php endif; ?>
 
-<?php if ( !$filter_ip ): ?>
+<?php if ( !$filter_ip && False ): ?>
 <center>
 <script type="text/javascript"><!--
 google_ad_client = "pub-3241715727040799";
@@ -108,7 +108,7 @@ google_ad_channel = "0189167230";
         
     <?php print phptemplate_wrap_content($content) ?>
 
-<?php if ( !$filter_ip ): ?>
+<?php if ( !$filter_ip && False ): ?>
 <br><center>
 <script type="text/javascript"><!--
 google_ad_client = "pub-3241715727040799";

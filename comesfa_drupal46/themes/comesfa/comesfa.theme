@@ -113,7 +113,7 @@ function comesfa_page($content, $title = NULL, $breadcrumb = NULL) {
   }
 
   $output .= "   <td id=\"main\">\n";
-  if ( !$filter_ip ) {
+  if ( !$filter_ip && False ) {
     $output .= <<<EOF
 <center>
 <script type="text/javascript"><!--
@@ -154,7 +154,7 @@ EOF;
   $output .= $content;
   $output .= "\n<!-- end content -->\n";
 
-  if ( !$filter_ip ) {
+  if ( !$filter_ip && False ) {
     $output .= <<<EOF
 <br><center>
 <script type="text/javascript"><!--
