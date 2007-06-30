@@ -106,7 +106,7 @@ function guifiupdate_01() {
                        `netmask` varchar(16) NOT NULL default '255.255.255.0',
                        PRIMARY KEY  (`interface_id`,`id`),
                        UNIQUE KEY `ipv4` (`ipv4`)
-                     )");
+                     ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
   $qi = db_query('SELECT * FROM {guifi_interfaces}');
   while ($i = db_fetch_object($qi)) {
      if ($i->ipv4 != null)

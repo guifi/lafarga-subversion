@@ -19,7 +19,7 @@ CREATE TABLE `guifi_location` (
   `timestamp_created` int(11) NOT NULL default '0',
   `timestamp_changed` int(11) default NULL,
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- Estructura de la taula `guifi_networks`
@@ -39,7 +39,7 @@ CREATE TABLE `guifi_networks` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `networks` (`base`(16),`mask`(16)),
   KEY `net_zone` (`zone`)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- Estructura de la taula `guifi_zone`
@@ -71,7 +71,7 @@ CREATE TABLE `guifi_zone` (
 
   PRIMARY KEY  (`id`),
   KEY `name` (`title`(10))
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
         
 CREATE TABLE guifi_devices (
   id int(11) NOT NULL auto_increment,
@@ -91,7 +91,7 @@ CREATE TABLE guifi_devices (
   timestamp_changed int(11) NOT NULL default '0',
   PRIMARY KEY  (id),
   UNIQUE KEY nick (nick)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 --
 -- table guifi_links
@@ -112,7 +112,7 @@ CREATE TABLE guifi_links (
   flag varchar(40) NOT NULL default 'Planned',
   PRIMARY KEY (device_id,id), 
   KEY (id)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 CREATE TABLE guifi_interfaces (
  id int(11) NOT NULL auto_increment,       
@@ -120,7 +120,7 @@ CREATE TABLE guifi_interfaces (
  interface_type varchar(40) NOT NULL,
  mac varchar(20) NOT NULL default '00:00:00:00:00:00',
  PRIMARY KEY (`device_id`,`id`)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 CREATE TABLE guifi_radios (
   id int(11) NOT NULL auto_increment,
@@ -137,7 +137,7 @@ CREATE TABLE guifi_radios (
   clients_accepted enum('Yes','No') NOT NULL default 'Yes',
   PRIMARY KEY  (id,radiodev_counter),
   KEY  (nid)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 
 CREATE TABLE guifi_types (
@@ -148,7 +148,7 @@ CREATE TABLE guifi_types (
   relations longtext NULL,
   PRIMARY KEY  (type,id),
   KEY text (text)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- Estructura de la taula `guifi_services`
@@ -168,7 +168,7 @@ CREATE TABLE `guifi_services` (
   `timestamp_created` int(11) NOT NULL default '0',
   `timestamp_changed` int(11) default NULL,
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- Estructura de la taula `guifi_users`
@@ -190,7 +190,7 @@ CREATE TABLE `guifi_users` (
   `timestamp_changed` int(10) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `username` (`username`)
-);
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- interface types
@@ -448,22 +448,22 @@ CREATE TABLE `guifi_manufacturer` (
   `nom` varchar(40) NOT NULL default '',
   `url` varchar(40) default NULL,
   PRIMARY KEY  (`fid`)
-) TYPE=MyISAM AUTO_INCREMENT=9 ;
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- Volcant dades de la taula `guifi_manufacturer`
 -- 
 
 INSERT INTO `guifi_manufacturer` VALUES (0, 'Other', null);
-INSERT INTO `guifi_manufacturer` VALUES (1, 'D-Link', 'http://www.dlink.com');
-INSERT INTO `guifi_manufacturer` VALUES (2, 'Linksys', 'http://www.linksys.com');
-INSERT INTO `guifi_manufacturer` VALUES (3, 'Conceptonic', 'http://www.conceptronic.net/');
-INSERT INTO `guifi_manufacturer` VALUES (4, 'US Robotics', 'http://www.usr.com');
-INSERT INTO `guifi_manufacturer` VALUES (5, '3Com', 'http://www.3com.com');
-INSERT INTO `guifi_manufacturer` VALUES (6, 'Zyxel', 'http://www.zyxel.com');
-INSERT INTO `guifi_manufacturer` VALUES (7, 'Conceptronic', NULL);
-INSERT INTO `guifi_manufacturer` VALUES (8, 'Mikrotik', 'http://mikrotik.com');
-INSERT INTO `guifi_manufacturer` VALUES (9, 'Buffalo', 'http://www.buffalotech.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'D-Link', 'http://www.dlink.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Linksys', 'http://www.linksys.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Conceptonic', 'http://www.conceptronic.net/');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'US Robotics', 'http://www.usr.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, '3Com', 'http://www.3com.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Zyxel', 'http://www.zyxel.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Conceptronic', NULL);
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Mikrotik', 'http://mikrotik.com');
+INSERT INTO `guifi_manufacturer` VALUES (0, 'Buffalo', 'http://www.buffalotech.com');
 -- phpMyAdmin SQL Dump
 -- version 2.7.0-pl2
 -- http://www.phpmyadmin.net
@@ -507,36 +507,37 @@ CREATE TABLE `guifi_model` (
   `comentaris` varchar(240) default NULL,
   `supported` enum('Yes','No','Deprecated') NOT NULL default 'Yes',
   PRIMARY KEY  (`mid`)
-) TYPE=MyISAM AUTO_INCREMENT=20 ;
+)  TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- 
 -- guifi_model
 -- 
 
 INSERT INTO `guifi_model` VALUES (0, 0, 'Other', NULL, 1, NULL, '802.11a/b/g', 'Si', 'No', 'Si', 'Si', 'Si', NULL, NULL, 'Si', 'Si', NULL, NULL, NULL, 'wLan/Lan', NULL, 'To be used for unknown or not listed devices', 'Yes'); 
-INSERT INTO `guifi_model` VALUES (1, 2, 'WRT54Gv1-4', 'Extern', 1, 251, '802.11b/g', 'Si', 'No', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT...','Yes');
-INSERT INTO `guifi_model` VALUES (2, 4, 'USR5450', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-5450&page=overview&loc=span', 'suporta snmp, 108...','Deprectated');
-INSERT INTO `guifi_model` VALUES (3, 4, 'USR8054', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'No', 'No', 'No', 'RP-SMA', '2', 'Si', 'Si', 'No', 'Si', 'No', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-8054&page=overview&loc=span', 'suporta snmp, 108...','Deprecated');
-INSERT INTO `guifi_model` VALUES (4, 1, 'DWL-2000AP+', 'Extern', 1, 0, '802.11b/g', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.dlink.es/?go=n3UbJWiD+YSHWPFL1WecNQcr8NQe9UH9RtZOHa06dX6U9AJhlDtnw5L4mVO+s93xky+DSk2hueOIj+pl9A7TpjAkaMQ=', '','Deprecated');
-INSERT INTO `guifi_model` VALUES (5, 1, 'DWL-2100AP', 'Extern', 1, 250, '802.11b/g', 'Si', 'No', 'Si', 'No', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.dlink.es/?go=n3UbJWiD+YSHWPFL1WecNQcr8NQe9UH9RtZOHa06dX6U8QRhlDtnw5L4mVO+tdzxky+DSk2hueOIj+pv/g3QoTgkacA=', 'Hack de potència via comanda telnet  -overridetxpower; 2 antennas, 1 is inside.','Deprecated');
-INSERT INTO `guifi_model` VALUES (6, 6, 'Prestige 650W', 'Extern', 1, 0, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'Si', 'Si', 'No', '', 'No', 'wLan/Lan', 'http://www.zyxel.com/product/guifi_model.php?indexcate=1023416340&indexcate1=1021877946&indexFlagvalue=1021873638', 'Routser ADSL, útil per prescindir del kit USB i a més donar-se cobertura dins de casa. El venen a telefònica.','Deprecated');
-INSERT INTO `guifi_model` VALUES (7, 7, 'C54APT', 'Extern', 1, 250, '802.11b/g', 'Si', 'No', 'Si', 'No', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'No', 'Si', 'wLan/Lan', 'http://www.conceptronic.net/product3.asp?g=9&p=C54APT', '"hack" via telnet - overridetxpower. els guifi_model antics es podien actualitzar al firmware del DWL-2100AP','Deprecated');
-INSERT INTO `guifi_model` VALUES (8, 4, 'USR5410', 'PCMCIA', 1, 80, '802.11b/g', 'No', 'No', 'No', 'No', 'Si', '', '', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.usr-emea.com/products/p-wireless-product.asp?prod=net-5410&loc=span', 'suporta 108','Deprecated');
-INSERT INTO `guifi_model` VALUES (10, 7, 'C54c', 'PCMCIA', 1, 0, '802.11b/g', 'No', 'No', 'No', 'No', 'Si', '', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.conceptronic.net', '','Deprecated');
-INSERT INTO `guifi_model` VALUES (11, 7, 'C54i', 'PCI', 1, 0, '802.11b/g', 'Si', 'No', 'No', 'No', 'Si', 'RP-SMA', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.conceptronic.net', '','Deprecated');
-INSERT INTO `guifi_model` VALUES (12, 2, 'WAP11', 'Extern', 1, 80, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-TNC', '2', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.linksys.com/products/product.asp?grid=33&scid=35&prid=563', 'L''històric!','Deprecated');
-INSERT INTO `guifi_model` VALUES (13, 6, 'Prestige 650HW-31E', 'Extern', 1, 0, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'Si', 'Si', 'No', 'No', 'No', 'wLan/Lan', 'http://www.zyxel.co.uk/Products.32+B6JnR4X1p5WEVMcHJvZHVjdHNfcGkxW3Nob3dVaWRdPTQyJmNIYXNoPTc4NWYzZTA5MTc_.0.html', 'Router ADSL, útil per prescindir del kit USB i a més donar-se cobertura dins de casa. El venen a telefònica.','Deprecated');
-INSERT INTO `guifi_model` VALUES (14, 2, 'WAP54G', 'Extern', 1, 28, '802.11b/g', 'Si', 'No', 'No', 'No', 'Si', 'RP-TNC', '2', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', '', '','Deprecated');
-INSERT INTO `guifi_model` VALUES (15, 9, 'WHR-HP-G54, WHR-G54S', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-SMA', '1', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.buffalo-technology.com/products/product-detail.php?productid=124&categoryid=28', 'El canvi de potència, mode client i WDS, via hack.','Deprecated');
-INSERT INTO `guifi_model` VALUES (16, 2, 'WRT54GL', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
-INSERT INTO `guifi_model` VALUES (17, 2, 'WRT54GSv1', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
-INSERT INTO `guifi_model` VALUES (18, 2, 'WRT54GSv2', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
-INSERT INTO `guifi_model` VALUES (19, 8, 'Supertrasto RB532 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5|ether6|ether7|ether8|ether9', 'http://www.routerboard.com', NULL,'Yes');
-INSERT INTO `guifi_model` VALUES (20, 8, 'Supertrasto RB133C guifi.net', NULL, 1, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
-INSERT INTO `guifi_model` VALUES (21, 8, 'Supertrasto RB133 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
-INSERT INTO `guifi_model` VALUES (22, 8, 'Supertrasto RB112 guifi.net', NULL, 2, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
-INSERT INTO `guifi_model` VALUES (23, 8, 'Supertrasto RB153 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
-INSERT INTO `guifi_model` VALUES (24, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WRT54Gv1-4', 'Extern', 1, 251, '802.11b/g', 'Si', 'No', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT...','Yes');
+INSERT INTO `guifi_model` VALUES (0, 4, 'USR5450', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-5450&page=overview&loc=span', 'suporta snmp, 108...','Deprectated');
+INSERT INTO `guifi_model` VALUES (0, 4, 'USR8054', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'No', 'No', 'No', 'RP-SMA', '2', 'Si', 'Si', 'No', 'Si', 'No', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-8054&page=overview&loc=span', 'suporta snmp, 108...','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 1, 'DWL-2000AP+', 'Extern', 1, 0, '802.11b/g', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.dlink.es/?go=n3UbJWiD+YSHWPFL1WecNQcr8NQe9UH9RtZOHa06dX6U9AJhlDtnw5L4mVO+s93xky+DSk2hueOIj+pl9A7TpjAkaMQ=', '','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 1, 'DWL-2100AP', 'Extern', 1, 250, '802.11b/g', 'Si', 'No', 'Si', 'No', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.dlink.es/?go=n3UbJWiD+YSHWPFL1WecNQcr8NQe9UH9RtZOHa06dX6U8QRhlDtnw5L4mVO+tdzxky+DSk2hueOIj+pv/g3QoTgkacA=', 'Hack de potència via comanda telnet  -overridetxpower; 2 antennas, 1 is inside.','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 6, 'Prestige 650W', 'Extern', 1, 0, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'Si', 'Si', 'No', '', 'No', 'wLan/Lan', 'http://www.zyxel.com/product/guifi_model.php?indexcate=1023416340&indexcate1=1021877946&indexFlagvalue=1021873638', 'Routser ADSL, útil per prescindir del kit USB i a més donar-se cobertura dins de casa. El venen a telefònica.','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 7, 'C54APT', 'Extern', 1, 250, '802.11b/g', 'Si', 'No', 'Si', 'No', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'No', 'Si', 'wLan/Lan', 'http://www.conceptronic.net/product3.asp?g=9&p=C54APT', '"hack" via telnet - overridetxpower. els guifi_model antics es podien actualitzar al firmware del DWL-2100AP','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 4, 'USR5410', 'PCMCIA', 1, 80, '802.11b/g', 'No', 'No', 'No', 'No', 'Si', '', '', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.usr-emea.com/products/p-wireless-product.asp?prod=net-5410&loc=span', 'suporta 108','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 7, 'C54c', 'PCMCIA', 1, 0, '802.11b/g', 'No', 'No', 'No', 'No', 'Si', '', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.conceptronic.net', '','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 7, 'C54i', 'PCI', 1, 0, '802.11b/g', 'Si', 'No', 'No', 'No', 'Si', 'RP-SMA', '1', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.conceptronic.net', '','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WAP11', 'Extern', 1, 80, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-TNC', '2', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', 'http://www.linksys.com/products/product.asp?grid=33&scid=35&prid=563', 'L''històric!','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 6, 'Prestige 650HW-31E', 'Extern', 1, 0, '802.11b', 'Si', 'No', 'No', 'Si', 'Si', 'RP-SMA', '1', 'Si', 'Si', 'No', 'No', 'No', 'wLan/Lan', 'http://www.zyxel.co.uk/Products.32+B6JnR4X1p5WEVMcHJvZHVjdHNfcGkxW3Nob3dVaWRdPTQyJmNIYXNoPTc4NWYzZTA5MTc_.0.html', 'Router ADSL, útil per prescindir del kit USB i a més donar-se cobertura dins de casa. El venen a telefònica.','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WAP54G', 'Extern', 1, 28, '802.11b/g', 'Si', 'No', 'No', 'No', 'Si', 'RP-TNC', '2', 'No', 'No', 'No', 'No', 'No', 'wLan/Lan', '', '','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 9, 'WHR-HP-G54, WHR-G54S', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-SMA', '1', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.buffalo-technology.com/products/product-detail.php?productid=124&categoryid=28', 'El canvi de potència, mode client i WDS, via hack.','Deprecated');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WRT54GL', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WRT54GSv1', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
+INSERT INTO `guifi_model` VALUES (0, 2, 'WRT54GSv2', 'Extern', 1, 251, '802.11b/g', 'No', 'Si', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT, DD-WRT, ...','Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto RB532 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5|ether6|ether7|ether8|ether9', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto RB133C guifi.net', NULL, 1, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto RB133 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto RB112 guifi.net', NULL, 2, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto RB153 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (0, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
+
 
 
 CREATE TABLE `guifi_ipv4` (
@@ -546,4 +547,4 @@ CREATE TABLE `guifi_ipv4` (
   `netmask` varchar(16) NOT NULL default '255.255.255.0',
   PRIMARY KEY  (`interface_id`,`id`),
   UNIQUE KEY `ipv4` (`ipv4`)
-)
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
