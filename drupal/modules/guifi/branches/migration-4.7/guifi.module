@@ -34,10 +34,9 @@ function guifi_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
-
      $items[] = array('path' => 'node/add/guifi-zone', 'title' => t('guifi zone'),
         'access' => user_access('create guifi zones'));
-     $items[] = array('path' => 'node/add/guifi', 'title' => t('guifi node'),
+     $items[] = array('path' => 'node/add/guifi-node', 'title' => t('guifi node'),
         'access' => user_access('create guifi nodes'));
      $items[] = array('path' => 'node/add/guifi-service', 'title' => t('guifi service'),
         'access' => user_access('create guifi nodes'));
@@ -471,6 +470,17 @@ function guifi_perm() {
   return array('administer guifi zones','administer guifi networks','create guifi zones','create guifi nodes','administer guifi users','manage guifi users');
 }
 
+/**
+ * Implementation of hook_node_info().
+ */
+function guifi_node_info() {
+  return array(
+      'guifi-zone' => array('name' => t('guifi zone'), 'base' => 'guifi_zone'),
+      'guifi-node' => array('name' => t('guifi node'), 'base' => 'guifi_node'),
+      'guifi-service' => array('name' => t('guifi service'), 'base' => 'guifi_service')
+  );
+}
+
 function guifi_settings() {
   global $sql_updates;
 
@@ -530,36 +540,6 @@ function guifi_settings() {
 function guifi_system($field){
   $system["description"] = t("Mesh network database");
   return $system[$field];
-}
-
-
-function guifi_node_types() {
-  $types = array('guifi-zone','guifi-node','guifi-service');
-  return $types;
-}
-
-function guifi_node_name($node) {
-
-  if (is_string($node)) 
-  // if just adding a node, return its type name
-  switch ($node) {
-    case 'guifi-zone':
-      return t('guifi zone');
-    case 'guifi-node':
-      return t('guifi node');
-    case 'guifi-service':
-      return t('guifi service');
-  }
- 
-  // for reports, returns name and title 
-  switch ($node->type) {
-    case ('guifi-zone'):
-      return t('guifi zone %title', array('%title' => theme('placeholder', $node->title )));
-    case ('guifi-node'):
-      return t('guifi node %title', array('%title' => theme('placeholder', $node->title )));
-    case ('guifi-service'):
-      return t('guifi service %title', array('%title' => theme('placeholder', $node->title )));
-  }
 }
 
 function guifi_block($op = "list", $delta = 0) {
@@ -636,7 +616,7 @@ function guifi_block($op = "list", $delta = 0) {
 
 function guifi_access($op, $node) {
   global $user;
-
+  $br->br();
   switch($op) {
     case 'create':
       return user_access("create guifi nodes");

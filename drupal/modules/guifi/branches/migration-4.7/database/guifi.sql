@@ -217,7 +217,7 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('interfac
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'ap',          'AP or AP with WDS', 'ap|client');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'client',      'Wireless client',   'ap');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'bridge',      'Wireless Bridge',   'bridge');
-INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('mode', 'routedclient','Routed client');
+INSERT INTO `guifi_types` (type, text, description) VALUES ('mode', 'routedclient','Routed client');
 
 --
 -- link types

@@ -8,6 +8,26 @@
 
 
 /**
+ * Implementation of hook_access().
+ */
+function guifi_zone_access($op, $node) {
+  global $user;
+  if ($op == 'create') {
+    return user_access('create guifi zones');
+  }
+
+  if ($op == 'update') {
+    if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+}
+
+
+/**
  * Menu callback; present the main guifi zone management page.
  */
 function guifi_overview($id=0) {
@@ -54,8 +74,17 @@ function guifi_zone_load($node_nid) {
 /**
  * Present the guifi zone editing form.
  */
-function guifi_zone_form(&$node, &$param) {
+function guifi_zone_form(&$node) {
 
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5,
+  );
+
+  return $form;
   
   $form .= form_select(t('Parent zone'), 'master', $node->master, guifi_zones_listbox(), t('The parent zone where this zone belongs to.'));
   $form .= form_textarea(t('Description of the zone'), 'body', $node->body, 60, 20, t('This text will be displayed as the page. Should contain information of the zone.'), NULL, TRUE);

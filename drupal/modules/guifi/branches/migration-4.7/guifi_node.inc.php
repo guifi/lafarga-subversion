@@ -33,7 +33,18 @@ function guifi_node_access($op, $node) {
 /**
  * Present the guifi zone editing form.
  */
-function guifi_node_form(&$node, &$param) {
+function guifi_node_form(&$node) {
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5
+  );
+
+  return $form;
+
   global $user;
 
 //  print "Nid: ".$node->nid." title: ".$node->title." GetLat: ".$_GET['Lat'];

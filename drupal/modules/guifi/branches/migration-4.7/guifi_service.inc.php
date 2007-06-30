@@ -33,8 +33,18 @@ function guifi_service_access($op, $node) {
 /**
  * Present the guifi zone editing form.
  */
-function guifi_service_form(&$node, &$param) {
+function guifi_service_form(&$node) {
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5,
+  );
   
+  return $form;
+
   global $user;
 
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
