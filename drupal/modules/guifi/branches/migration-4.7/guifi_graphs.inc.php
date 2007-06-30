@@ -94,7 +94,7 @@ function guifi_graph_detail() {
   $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day * 31,-300));
   $rows[] = array(t('year'));
   $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day * 365,-300));
-  $output .= theme('table', NULL, array_merge($rows));
+  $output .= theme('table', array(), array_merge($rows));
   $output .= "</div>"._guifi_script_calendar();
  
   drupal_set_html_head('<script type="text/javascript" src="modules/guifi/includes/calendar.js"></script> <script type="text/javascript" src="modules/guifi/includes/lang/calendar-ca.js"></script> <script type="text/javascript" src="modules/guifi/includes/lang/calendar-en.js"><</script> <script type="text/javascript" src="modules/guifi/includes/calendar-setup.js"></script>'); 

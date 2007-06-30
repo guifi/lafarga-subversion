@@ -18,7 +18,7 @@ function guifi_radio_form(&$edit) {
                 array('data'=>form_textfield(t("Device MAC Address"), "mac", $edit["mac"], 17, 17,  t('Base/Main MAC Address.<br />Some configurations won\'t work if s blank')),'valign'=>'top')
                  );
 
-  $form = form_group(t('Radio main information'),theme('table',null,$rows));
+  $form = form_group(t('Radio main information'),theme('table',array(),$rows));
 
   unset($edit_form);
   unset($rows);
@@ -67,7 +67,7 @@ function guifi_radio_form(&$edit) {
                            form_button(t('Back to list'), 'op')
                           );
 
-      $form .= form_group(t('Wireless Configuration').'-'.t('Mode').': '.$edit['radios'][$key_detail[0]]["mode"],theme('table',null,$radiorows));
+      $form .= form_group(t('Wireless Configuration').'-'.t('Mode').': '.$edit['radios'][$key_detail[0]]["mode"],theme('table',array(),$radiorows));
       break;
     case 4:
       $form = guifi_links_form($edit['edit_details'],$edit);
@@ -194,7 +194,7 @@ function guifi_radio_form(&$edit) {
         if (count($lrows) > 0)
           $rrows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>0));
         else
-          $rrows[] = array(array('data'=>theme('table',null,$lrows),'colspan'=>0));
+          $rrows[] = array(array('data'=>theme('table',array(),$lrows),'colspan'=>0));
       } // foreach interface
 
       // If AP & no wLan interface, allow to create one
@@ -207,7 +207,7 @@ function guifi_radio_form(&$edit) {
       }
       $rrows[] = array(array('data'=>$buttons,'colspan'=>0));
 
-      $rows[] = array(array('data'=>theme('table',null,$rrows),'colspan'=>0));
+      $rows[] = array(array('data'=>theme('table',array(),$rrows),'colspan'=>0));
       
   }
   if (isset($rows)) {
@@ -250,7 +250,7 @@ function guifi_radio_form(&$edit) {
                array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', $modes_arr, NULL),'valign'=>'bottom'),
                array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
                    );
-    $form .= form_group(t('Add new radio'),theme('table',null,$erow),t('Usage:<br />Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
+    $form .= form_group(t('Add new radio'),theme('table',array(),$erow),t('Usage:<br />Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
   } else {  
     $edit_form .= form_item(null,t('You can add radios to this device once has been saved into de database'));
     $form .= form_group(t('Add new radio'),$edit_form,null);

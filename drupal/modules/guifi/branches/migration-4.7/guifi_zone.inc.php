@@ -367,7 +367,7 @@ function guifi_zone_print($id) {
 //            .'&nbsp;&middot;&nbsp;' .l(t('limits'),'admin/guifi/zone/limit/' .$id) 
 //            );
   
-  $table = theme('table', null, guifi_zone_print_data($zone));
+  $table = theme('table', array(), guifi_zone_print_data($zone));
   $output .= theme('box', t('zone information'), $table);
 
   return $output;
@@ -562,7 +562,7 @@ function guifi_zone_availability($node) {
   
   $output = '<h2>' .t('Availability of ') .' ' .$node->title .'</h2>';
   $rows[] = array(guifi_zone_availability_recurse($node));
-  $output .= theme('table', null, array_merge($rows),array('width'=>'100%'));
+  $output .= theme('table', array(), array_merge($rows),array('width'=>'100%'));
   return $output;
 }
 

@@ -94,7 +94,7 @@ function guifi_links_form($edit_details,$edit) {
 
     $lform[] = array(theme('table',array(null,t('type'),t('ip'),t('mask')), $row));
   }
-  $form.= form_group(t('Link details form'),theme('table',null,$lform).
+  $form.= form_group(t('Link details form'),theme('table',array(),$lform).
               form_button(t('Back to list'), 'op').
               form_button(t('Reset'), 'op')
               ,null);

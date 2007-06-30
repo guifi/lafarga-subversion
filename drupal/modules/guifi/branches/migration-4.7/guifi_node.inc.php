@@ -269,7 +269,7 @@ function guifi_node_view(&$node) {
   switch ($op) {
     case 'all': case 'data': case 'default':
       // node details
-      $output .= theme('table', NULL, guifi_node_print_data($node));
+      $output .= theme('table', array(), guifi_node_print_data($node));
       if ($op == 'data') break;
     case 'graphs':
       // node graphs

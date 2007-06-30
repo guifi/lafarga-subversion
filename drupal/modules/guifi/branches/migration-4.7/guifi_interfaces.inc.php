@@ -126,7 +126,7 @@ function guifi_interface_form($edit) {
     if (user_access('administer guifi networks'))
       $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
     $headers = array(null,t('type'),t('mac'));
-    $form .= form_group(t('device interfaces'),theme('table', null, $rows),t("Use this form section to describe the cable connections between devices or servers in your node. You must define <strong>ONLY</strong> the public servers available to the network, or those which require a public address assigned, <strong>NOT</strong> your private network behind your firewall/NAT.<br />Do not use this section if you don't understand this."));
+    $form .= form_group(t('device interfaces'),theme('table', array(), $rows),t("Use this form section to describe the cable connections between devices or servers in your node. You must define <strong>ONLY</strong> the public servers available to the network, or those which require a public address assigned, <strong>NOT</strong> your private network behind your firewall/NAT.<br />Do not use this section if you don't understand this."));
   }
 
   // Edit interface form or add new radio
@@ -138,7 +138,7 @@ function guifi_interface_form($edit) {
                  array('data'=>form_select(t('Interface'), 'newinterface_type', 'Lan', guifi_array_combine($free, $free), NULL),'valign'=>'bottom'),
                  array('data'=>form_button(t('Add interface'), 'op'),'valign'=>'bottom')
                    );
-      $form .= form_group(t('Add new interface'),theme('table',null,$erow),t('Add a new interface for wired connections to another devices which are avaiable at the network, i.e. to another radio while building a Supernode.'));
+      $form .= form_group(t('Add new interface'),theme('table',array(),$erow),t('Add a new interface for wired connections to another devices which are avaiable at the network, i.e. to another radio while building a Supernode.'));
     } else {
       $edit_form .= form_item(null,t('This device has all the possible interfaces already defined.'));
       $form .= form_group(t('Add new interface'),$edit_form,null);

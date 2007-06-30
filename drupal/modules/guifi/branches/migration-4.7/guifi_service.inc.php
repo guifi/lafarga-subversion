@@ -365,7 +365,7 @@ function guifi_service_view(&$node) {
   switch ($op) {
     case 'all': case 'data': case 'default':
       // node details
-      $output .= theme('table', NULL, guifi_service_print_data($node));
+      $output .= theme('table', array(), guifi_service_print_data($node));
       if ($op == 'data') break;
       break;
     case 'users': 

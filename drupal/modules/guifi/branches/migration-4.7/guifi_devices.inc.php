@@ -424,13 +424,13 @@ function guifi_edit_device_form($edit, $node = null) {
                   array('data'=>form_textfield(t('contact'), 'contact', $edit['contact'], 20, 128, t('Mailid where changes on the device will be notified,<br />used for network administration.'), NULL, TRUE),'valign'=>'top'),
                   array('data'=>form_select(t('Status'), 'flag', $edit['flag'], guifi_types('status'), t('Current status of this device.')),'valign'=>'top'),
                  );
-  $form .=  form_group(t('Main device information'),theme('table',null,$rows));
+  $form .=  form_group(t('Main device information'),theme('table',array(),$rows));
   unset($rows);
   if (user_access('administer guifi zones') and $edit['type'] == 'radio') {
     $rows[] = array(
                   array('data'=>form_select(t("Server which collects traffic and availability data"), "graph_server", ($edit['graph_server'] ? $edit['graph_server'] : 0), array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'), t("If not specified, inherits node properties."))),
                    );
-    $form .=  form_group(t('Monitoring parameters'),theme('table',null,$rows));
+    $form .=  form_group(t('Monitoring parameters'),theme('table',array(),$rows));
   }
 
 
@@ -862,7 +862,7 @@ function guifi_device_print($id) {
 
   switch (arg(4)) {
   case 'all': case 'data': default:
-    $table = theme('table', NULL, guifi_device_print_data($device));
+    $table = theme('table', array(), guifi_device_print_data($device));
     $output .= theme('box', $title, $table);
     if (arg(4) == 'data') break;
   case 'graphs':
