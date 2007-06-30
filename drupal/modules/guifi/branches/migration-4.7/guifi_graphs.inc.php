@@ -13,7 +13,7 @@ function guifi_graph_detail() {
   }
   
   if ($type=='supernode') {
-    $node = node_load(array('nid' => $_GET['node']));
+    $node = node_load($_GET['node']);
     if ($node->graph_server == -1) {
       $rows[] = array(t('This node has the graphs disabled.'));
       return array_merge($rows);

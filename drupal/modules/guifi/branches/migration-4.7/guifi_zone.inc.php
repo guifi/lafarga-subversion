@@ -508,7 +508,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
     while ($zone = db_fetch_object($result)) {
       $rows[] = array(
                       array('data' => '<a href="node/'.$zone->id.'/view/availability">'.$zone->title,'class' => 'fullwidth'));
-      $child = node_load(array('nid' => $zone->id));
+      $child = node_load($zone->id);
       $rows[] = array(guifi_zone_availability_recurse($child,$depth,$maxdepth));
     } // end while zones
       

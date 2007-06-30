@@ -98,7 +98,7 @@ function guifi_edit_user($id = 0) {
         $edit['id'] = 0; //Add a new user
         $item = arg(1);
         if (is_numeric($item)) {
-          $node = node_load(array('nid'=>$item));
+          $node = node_load($item);
           if ($node->type == 'guifi-node')
             $edit['nid'] = $item;
         } 
@@ -311,7 +311,7 @@ function guifi_dump_passwd($node) {
 } 
 
   function _get_zonename($id) {
-    $zone = node_load(array('nid'=>$id));
+    $zone = node_load($id);
     return $zone->title;
   }
 
@@ -388,7 +388,7 @@ if (is_array($node->var[fed]))
 	$extra = unserialize($item->extra);
 	if (($item->id!=$node->nid) & (is_array($extra[fed])))
 	    {   		
-	     $p_node = node_load(array('nid' => $item->id));
+	     $p_node = node_load($item->id);
 	     if ( in_array('OUT',$extra[fed]))
 	        {
 		 $head .= '#   ' .$p_node->nid." - ".$p_node->title."\n";  

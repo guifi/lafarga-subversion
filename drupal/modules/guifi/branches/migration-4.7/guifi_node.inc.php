@@ -350,7 +350,7 @@ function guifi_node_radio_list($id = 0) {
 
 function guifi_node_distances($id) {
 
-  $node = node_load(array('nid' => $id));
+  $node = node_load($id);
 
   drupal_set_title(t('distances from').' '.$node->nick);
 

@@ -49,7 +49,7 @@ function guifi_add_device() {
       $output .= guifi_edit_device_form($edit);
       break;
     default:
-      $node = node_load(array('nid'=>$edit['nid']));
+      $node = node_load($edit['nid']);
 
       // new device, setting default values
       $edit['links'] = array();
@@ -413,7 +413,7 @@ function guifi_edit_device_form($edit, $node = null) {
 
 
   if ($node == null)
-    $node = node_load(array('nid'=>$edit['nid']));
+    $node = node_load($edit['nid']);
 
   $form = '<div class="node-form">';
   // default to all current values, just in case we miss some in the form
@@ -855,7 +855,7 @@ function guifi_device_print($id) {
   if (empty($device))
     return print theme('page',null,t('device').': '.$id);
     
-  $node = node_load(array('nid' => $device[nid])); 
+  $node = node_load($device[nid]); 
   
   $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
   $output .= guifi_zone_ariadna($node->zone_id);

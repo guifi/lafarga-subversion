@@ -12,8 +12,8 @@ function guifi_unsolclic($id, $format = 'html') {
   $rc_startup = "";
   $dev = array2object(guifi_get_device($id));
 //  print_r($dev);
-  $loc = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$loc->zone_id));
+  $loc = node_load($dev->nid);
+  $zone = node_load($loc->zone_id);
 
   if ($dev->variable['firmware'] == 'n/a') {
 	_outln_comment(t("ERROR: I do need a firmware selected at the radio web interface: ").'<a href=/guifi/device/'.$id.'/edit>http://guifi.net/guifi/device/'.$id.'/edit');
@@ -827,8 +827,8 @@ function unsolclic_routeros($dev) {
 
     }
     
-  $node = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$node->zone_id));
+  $node = node_load($dev->nid);
+  $zone = node_load($node->zone_id);
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
   _outln_comment(t('Configuration for RouterOS > 2.9.40'));

@@ -165,7 +165,7 @@ function guifi_menu($may_cache) {
 
     // node menus
     if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(array('nid' => arg(1)));
+      $node = node_load(arg(1));
 
       // zone menus
       if (($node->nid) && ($node->type == 'guifi-zone')) {
@@ -663,7 +663,7 @@ function guifi_device_access($op, $id) {
  
   $device = guifi_get_device($id);
 
-  $node = node_load(array('nid'=>$device['nid']));
+  $node = node_load($device['nid']);
 
   switch($op) {
     case 'create':
@@ -823,7 +823,7 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
   }
 
   switch ($node->type) {
@@ -843,7 +843,7 @@ function guifi_edit(&$node, $teaser = 0, $page = 0) {
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
   }
 
   switch ($node->type) {

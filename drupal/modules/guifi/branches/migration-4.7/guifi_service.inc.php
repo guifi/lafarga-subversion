@@ -304,7 +304,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
 
   $current_service = '';  
   while ($service = db_fetch_object($query)) {
-    $node = node_load(array('nid'=>$service->id));
+    $node = node_load($service->id);
     if ($current_service != $service->service_type) {
       $typedescr = db_fetch_object(db_query("SELECT * FROM {guifi_types} WHERE type='service' AND text = '%s'",$service->service_type));
       $rows[] = array('<strong>'.t($typedescr->description).'</strong>',null,null,null);
