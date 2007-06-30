@@ -15,7 +15,7 @@ function budgets_menu($may_cache) {
 
   if ($may_cache) {
 
-    $items[] = array('path' => 'node/add/budgets', 'title' => t('budget'),
+    $items[] = array('path' => 'node/add/budget', 'title' => t('budget'),
       'access' => user_access('create budgets'));
 
 
@@ -120,7 +120,7 @@ function budgets_help($section) {
       return t('<p>Select an operation from the menus to manage zones.</p>');
     case 'admin/guifi/zone/add':
       return t('<p>Enter de zone information.</p>');
-    case 'node/add#budgets':
+    case 'node/add#budget':
       return t("<p>Create a budget. A budget is an itemized project with allocated due costs. Therefore, contributors can donate funds to it.</p>");
   }
 }
@@ -143,6 +143,13 @@ function budgets_link($type, $node = 0, $main) {
 function budgets_perm() {
   return array('administer budgets','create budgets');
 }
+
+/**
+ * Implementation of hook_node_info().
+ */
+function budgets_node_info() {
+  return array('budget' => array('name' => t('budget'), 'base' => 'budget'));
+}  
 
 function _budget_expires_list() {
   return array('1w'=>t('One week'),'2w'=>t('Two weeks'),'1m'=>t('One month'),'2m'=>t('Two months'),'1q'=>t('One quarter'),'4m'=>t('4 months'),'1h'=>t('Half year'),'1y'=>t('One year'));
@@ -174,19 +181,6 @@ function budgets_settings() {
 //  return $system[$field];
 //}
 
-
-function budgets_node_types() {
-  $types = array();
-  $types[] = 'budgets';
-  return $types;
-}
-
-function budgets_node_name($node) {
-  if (!empty($node->title))
-    return t('budget: %title', array('%title' => theme('placeholder', $node->title )));
-  return t('budget');
-}
-
 function budgets_block($op = "list", $delta = 0) {
   if ($op == "list") {
     $blocks[0]["info"] = variable_get("budget_block_title",t("Open budgets"));
@@ -210,7 +204,7 @@ function budgets_block($op = "list", $delta = 0) {
 }
 
 
-function budgets_access($op, $node) {
+function budget_access($op, $node) {
   global $user;
 
   switch($op) {
@@ -254,7 +248,18 @@ function budgets_load($node) {
   return $budget;
 }
 
-function budgets_edit_form($node) {
+function budget_edit_form(&$node) {
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5
+  );
+
+  return $form;
+    
 
     $output = '<div class="extras">';
     $output .= form_group(t('General'),
@@ -349,8 +354,8 @@ function budgets_edit_form($node) {
 }
 
 
-function budgets_form(&$node, &$param) {
-  return budgets_edit_form($node);  
+function budget_form(&$node, &$param) {
+  return budget_edit_form($node);  
 }
 
 function budgets_edit_item($node,$op = null) {
@@ -711,7 +716,7 @@ function budgets_print_funds($node) {
     foreach ($node->funds as $fund_id => $fund) {
       if ($fund['fund_status'] != 'Declined')
         $total = $total + $fund['amount'];
-      if (budgets_access('update',$node))
+      if (budget_access('update',$node))
         $rows[] = array(
                    format_date($fund['timestamp_created']),
                    $fund['contributor_name'],
@@ -735,7 +740,7 @@ function budgets_print_funds($node) {
                  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right'),
                  null,null);
   $header = array(t('Date'),t('Name'),t('Amount'),t('Status'));
-  if (budgets_access('update',$node)) {
+  if (budget_access('update',$node)) {
     $header = array_merge($header,array(t('Email'),t('Telf'),t('Comments'),'&nbsp;'));
     $output .= theme('table', $header, $rows);
     $output .= form_button(t('Submit'),'op');
