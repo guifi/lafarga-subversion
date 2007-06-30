@@ -32,7 +32,7 @@ function budgets_menu($may_cache) {
       'type' => MENU_SUGGESTED_ITEM);
 
     if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(array('nid' => arg(1)));
+      $node = node_load(arg(1));
 
       // budget menus
       if (($node->nid) && ($node->type == 'budgets')) {
@@ -516,11 +516,11 @@ function budgets_page($zone = NULL) {
     $output = '';
     while ($node = db_fetch_object($result)) {
       if ($zone == null) 
-        $output .= node_view(node_load(array('nid' => $node->nid)), 1);
+        $output .= node_view(node_load($node->nid), 1);
       else {
         $zones = explode(",",$node->guifi_zones);
         if (in_array($zone,$zones))
-          $output .= node_view(node_load(array('nid' => $node->nid)), 1);
+          $output .= node_view(node_load($node->nid), 1);
       }
     }
     $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
@@ -536,7 +536,7 @@ function budgets_view(&$node, $teaser = 0, $page = 0) {
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
   }
 
 
@@ -811,7 +811,7 @@ function budgets_edit(&$node, $teaser = 0, $page = 0) {
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
   }
 
   switch ($node->type) {
