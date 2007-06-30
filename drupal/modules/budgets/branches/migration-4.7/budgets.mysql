@@ -14,7 +14,7 @@ CREATE TABLE `budget_funds` (
   `comments` longtext NOT NULL,
   `timestamp_created` int(11) NOT NULL default '0',
   PRIMARY KEY  (`nid`,`fund_id`)
-) TYPE=MyISAM;
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- --------------------------------------------------------
 
@@ -31,7 +31,7 @@ CREATE TABLE `budget_items` (
   `cost` decimal(10,2) NOT NULL default '0.00',
   `weight` int(3) NOT NULL default '0',
   PRIMARY KEY  (`nid`,`item_id`)
-) TYPE=MyISAM;
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 -- --------------------------------------------------------
 
@@ -51,5 +51,5 @@ CREATE TABLE `budgets` (
   `currency_symbol` varchar(5) NOT NULL default '€',
   `min_contribution` decimal(10,2) NOT NULL default '0.00',
   PRIMARY KEY  (`nid`)
-) TYPE=MyISAM;
-        
+) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;
+
