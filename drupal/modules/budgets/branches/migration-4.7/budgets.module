@@ -436,7 +436,7 @@ function budgets_validate(&$node) {
     // we have to do what the framework would do for us so we don't lose
     // information.
     if( isset($_POST['edit']) ) {
-      $node = array2object($_POST['edit']);
+      $node = (object) $_POST['edit'];
     }
     $action = array_keys($_POST['form_item']);
     
