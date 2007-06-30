@@ -402,7 +402,7 @@ function guifi_get_device($id,$ret = 'array') {
   else {
     foreach ($device as $k => $field)
       $var->$k = $field;
-    return array2object($device);
+    return (object) $device;
   }
 }
 
