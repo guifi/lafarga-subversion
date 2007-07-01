@@ -130,6 +130,7 @@ function guifi_user_reset_password($edit) {
     if ($mail_success) {
       watchdog('user', t('Password mailed to %name at %email.', array('%name' => theme('placeholder', $edit['username']), '%email' => theme('placeholder', $edit['email']))));
       drupal_set_message(t('Your password and further instructions have been sent to your e-mail address.'));
+      guifi_edit_user_save($edit);
     }
     else {
       watchdog('user', t('Error mailing password to %name at %email.', array('%name' => theme('placeholder', $email['username']), '%email' => theme('placeholder', $edit['email']))), WATCHDOG_ERROR);
