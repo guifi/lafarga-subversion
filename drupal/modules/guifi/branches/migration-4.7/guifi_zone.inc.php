@@ -75,16 +75,165 @@ function guifi_zone_load($node_nid) {
  * Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node) {
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20;
+  
 
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#required' => TRUE,
     '#default_value' => $node->title,
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
+  $form['master'] = array(
+    '#type' => 'select',
+    '#title' => t('Parent zone'),
+    '#required' => FALSE,
+    '#default_value' => $node->master,
+    '#options' => guifi_zones_listbox(),
+    '#description' => t('The parent zone where this zone belongs to.'),
+    '#weight' => $form_weight++,
+  );
+  $form['body'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Description of the zone'), 
+    '#default_value' => $node->body, 
+    '#cols' => 60, 
+    '#rows' => 20, 
+    '#required' => TRUE,
+    '#description' =>t('This text will be displayed as the page. Should contain information of the zone.'),
+    '#weight' => $form_weight++,
+  );
+  
+  // Els que no són administradors ja en tenen prou amb aquestes dades.
+  if (!user_access('administer guifi zones'))
+    return form($form);
 
+  $form['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Short abreviation'),
+    '#required' => FALSE,
+    '#default_value' => $node->nick,
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('Single word, 7-bits characters. Used while default values as hostname, SSID, etc...'),
+    '#weight' => $form_weight++,
+  );
+  $form['time_zone'] = array(
+    '#type' => 'select',
+    '#title' => t('Time zone'),
+    '#required' => FALSE,
+    '#default_value' => $node->time_zone,
+    '#options' => guifi_types('tz'),
+    '#weight' => $form_weight++,
+  );
+  $form['homepage'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Zone homepage'),
+    '#required' => FALSE,
+    '#default_value' => $node->homepage,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('URL of the local community homepage, if exists. Usefull for those who want to use this site just for network administration, but have their own portal.'),
+    '#weight' => $form_weight++,
+  );
+  $form['notification'] = array(
+    '#type' => 'textfield',
+    '#title' => t('email notification'),
+    '#required' => FALSE,
+    '#default_value' => $node->notification,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('Mailid where changes on the zone will be notified. Usefull for decentralized administration.'),
+    '#weight' => $form_weight++,
+  );
+  
+  // Separació Paràmetre globals de xarxa
+  $form['sep-global-param'] = array(
+    '#value' => '<hr /><h2>'.t('zone global network parameters').'</h2>',
+  '#weight' => $form_weight++,
+  );
+  $form['dns_servers'] = array(
+    '#type' => 'textfield',
+    '#title' => t('DNS Servers'),
+    '#required' => FALSE,
+    '#default_value' => $node->dns_servers,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('The Name Servers of this zone, will inherit parent DNS servers if blank. Separated by ",".'),
+    '#weight' => $form_weight++,
+  );
+  $form['ntp_servers'] = array(
+    '#type' => 'textfield',
+    '#title' => t('NTP Servers'),
+    '#required' => FALSE,
+    '#default_value' => $node->ntp_servers,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('The network time protocol (clock) servers of this zone, will inherit parent NTP servers if blank. Separated by ",".'),
+    '#weight' => $form_weight++,
+  );
+  $form['ospf_zone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OSPF zone id'),
+    '#required' => FALSE,
+    '#default_value' => $node->ospf_zone,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'),
+    '#weight' => $form_weight++,
+  );
+  $form['mrtg_servers'] = array(
+    '#type' => 'textfield',
+    '#title' => t('MRTG zone url'),
+    '#required' => FALSE,
+    '#default_value' => $node->mrtg_servers,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#description' => t('This URL will be used for the obtaining of graphs from external servers to guifi.'),
+    '#weight' => $form_weight++,
+  );
+  
+  // Aquesta condició sempre es complirà, doncs ja s'ha fet anteriorment
+  if (user_access('administer guifi zones')) 
+    $form['graph_server'] = array(
+      '#type' => 'select',
+      '#title' => t("Server which collects traffic and availability data"),
+      '#required' => FALSE,
+      '#default_value' => ($node->graph_server ? $node->graph_server : 0),
+      '#options' => array('0'=>'Default','-1'=>'None') + guifi_services_select('SNPgraphs'),
+      '#description' => t("If not specified, inherits parent zone properties."),
+      '#weight' => $form_weight++,
+    );
+  
+  
+  // Separació Paràmetres dels mapes
+  $form['sep-maps-param'] = array(
+    '#value' => '<hr /><h2>'.t('zone mapping parameters').'</h2>',
+    '#weight' => $form_weight++,
+  );
+  $form['bottom-left-corner'] = array(
+    '#type' => 'item',
+    '#title' => t('Bottom left corner'),
+    '#value' => '<input type="text" name="edit[minx]" size="12" maxlength="24" value="' .  $node->minx .'"/> ' . '<input type="text" name="edit[miny]" size="12" maxlength="24" value="' .  $node->miny .'"/> ',
+    '#description' => t('Coordinates (Lon/Lat) of the bottom left corner of the map.'),
+    '#weight' => $form_weight++,
+  );
+  $form['upper-left-corner'] = array(
+    '#type' => 'item',
+    '#title' => t('Upper right corner'),
+    '#value' => '<input type="text" name="edit[maxx]" size="12" maxlength="24" value="' .  $node->maxx .'"/> ' . '<input type="text" name="edit[maxy]" size="12" maxlength="24" value="' .  $node->maxy .'"/> ',
+    '#description' => t('Coordinates (Lon/Lat) of the upper right corner of the map.'),
+    '#weight' => $form_weight++,
+  );
+  
   return $form;
+
+
+
+  // Codi antic, Eliminar-lo
   
   $form .= form_select(t('Parent zone'), 'master', $node->master, guifi_zones_listbox(), t('The parent zone where this zone belongs to.'));
   $form .= form_textarea(t('Description of the zone'), 'body', $node->body, 60, 20, t('This text will be displayed as the page. Should contain information of the zone.'), NULL, TRUE);

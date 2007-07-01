@@ -34,19 +34,513 @@ function guifi_service_access($op, $node) {
  * Present the guifi zone editing form.
  */
 function guifi_service_form(&$node) {
-
+  global $user;
+  
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20;
+  
+  // ----
+  // El títol el primer de tot
+  // ------------------------------------------------
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#required' => TRUE,
     '#default_value' => $node->title,
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   
+  
+  // ----
+  // Comprovacions i petits canvis
+  // ------------------------------------------------
+  // Algunes dades per defecte
+  if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
+    $zone = guifi_get_zone($node->title);
+    $node->zone_id = $node->title;
+    $node->contact = $user->mail;
+    $default = t('<service>');
+    $node->title = null;
+    $node->nick = $zone->nick.$default;
+    $node->status_flag = 'Planned';
+  }
+  
+  // Obtenim la descripció dels tipus de serveis
+  $type = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type='service' AND text='%s'",$node->service_type));
+  
+  // Si el servei existeix mostrem el tipus i la descripció
+  if ($node->nid > 0)
+    $form['service-type'] = array(
+      '#type' => 'item',
+      '#title' => t('Service type'),
+      '#value' => $node->service_type,
+      '#description' => t($type->description),
+      '#weight' => $form_weight++,
+    );
+  
+  $form['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nick'),
+    '#required' => TRUE,
+    '#size' => 20,
+    '#maxlength' => 20, 
+    '#default_value' => $node->nick,
+    '#description' => t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''),
+    '#weight' => $form_weight++,
+  );
+  $form['contact'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Contact'),
+    '#required' => FALSE,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#default_value' => $node->contact,
+    '#description' => t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''),
+    '#weight' => $form_weight++,
+  );
+  // *** Codi comentat on hi podia haver un select per escollir la zona.
+  // *** Caldrà traduir-lo
+  //  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
+  
+  $form['general-param'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General parameters'),
+    '#weight' => $form_weight++,
+  );
+  $form['general-param']['device_id'] = array(
+    '#type' => 'select',
+    '#title' => t("Device"),
+    '#required' => FALSE,
+    '#default_value' => $node->device_id,
+    '#options' => guifi_servers_select(),
+    '#description' => t('Where it runs.'),
+    '#weight' => $form_weight++,
+  );
+  
+  if (!$node->nid) {
+    $types = guifi_types('service');
+    array_shift($types);
+    $form['general-param']['service_type'] = array(
+      '#type' => 'select',
+      '#title' => t("Service"),
+      '#required' => FALSE,
+      '#default_value' => $node->service_type,
+      '#options' => $types,
+      '#description' => t('Type of service'),
+      '#weight' => $form_weight++,
+    );
+  }
+  else
+    $form['general-param']['service_type']= array(
+      '#type' => 'hidden',
+      '#default_value' => $node->service_type,
+      '#weight' => $form_weight++,
+    );
+  
+  $form['general-param']['status_flag'] = array(
+    '#type' => 'select',
+    '#title' => t("Status"),
+    '#required' => FALSE,
+    '#default_value' => $node->status_flag,
+    '#options' => guifi_types('status'),
+    '#description' => t('Current status'),
+    '#weight' => $form_weight++,
+  );
+  
+  
+  
+  // ----
+  // Formulari depenent del tipus de servei
+  // ------------------------------------------------
+  unset($specs);
+  // Si el servei està definit
+  if ($node->nid > 0) {
+    // Crem el grup dels paràmetres específics
+    $form['specs-param'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Specific %type parameters',array('%type' => theme('placeholder',$type->description))),
+      '#weight' => $form_weight++,
+    );
+    
+    // Mostrem els paràmetres específics
+    switch ($node->service_type) {
+      case 'mail':
+        $specs['var][in'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Inbound mail server'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['in'],
+          '#description' => t('Where email clients have to be configured for getting email messages'),
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][out'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Outbound mail server'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['out'],
+          '#description' => t('Where email clients have to be configured for sending email messages'),
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][webmail'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Webmail url'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['webmail'],
+          '#description' => t('URL for accessing to this mail server, if there is'),
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][admin'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Admin web interface'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['admin'],
+          '#description' => t('Where to create/edit/delete users, change passwords, etc...'),
+          '#weight' => $form_weight++,
+        );      
+        break;
+        
+        
+      case 'asterisk':
+        $specs['var][prefix'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Dial prefix'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['prefix'],
+          '#description' => t('Dial prefix for calling this server extensions'),
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][incoming'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Incoming calls'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['incoming'],
+          '#description' => t('Server or IP address where the calls have to be sent'),
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][protocols'] = array(
+          '#type' => 'checkboxes', 
+          '#title' => t('Protocols'),
+          '#default_value' => $node->var['protocols'], 
+          '#options' => array('IAX'=>'IAX','SIP'=>'SIP'),
+          '#weight' => $form_weight++,
+        );
+        break;
+        
+        
+      case 'NTP':
+        $specs['var][ntp'] = array(
+          '#type' => 'textfield',
+          '#title' => t('IP address or hostname'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['ntp'],
+          '#weight' => $form_weight++,
+        );      
+        break;
+        
+        
+      case 'ftp':
+        $specs['var][ftphost'] = array(
+          '#type' => 'textfield',
+          '#title' => t('IP address or hostname'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['ftphost'],
+          '#weight' => $form_weight++,
+        );      
+        $specs['var][protocols'] = array(
+          '#type' => 'checkboxes', 
+          '#title' => t('Protocols'),
+          '#default_value' => $node->var['protocols'], 
+          '#options' => array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS'),
+          '#weight' => $form_weight++,
+        );
+        break;
+        
+        
+      case 'Proxy': case 'ADSL':
+        $specs['var][down'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Download'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['down'],
+          '#description' => t('Download bandwidth'),
+          '#weight' => $form_weight++,
+        );
+        $specs['var][up'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Upload'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['up'],
+          '#description' => t('Upload bandwidth'),
+          '#weight' => $form_weight++,
+        );
+        
+        if ($node->service_type == 'ADSL')
+          break;
+        
+        $specs['var][fed'] = array(
+          '#type' => 'checkboxes', 
+          '#title' => t('Proxy federation'),
+          '#default_value' => $node->var['fed'], 
+          '#options' => array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys')),
+          '#weight' => $form_weight++,
+        );
+        $specs['var][proxy'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Name'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['proxy'],
+          '#weight' => $form_weight++,
+        );
+        $specs['var][port'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Port'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 60, 
+          '#default_value' => $node->var['port'],
+          '#weight' => $form_weight++,
+        );
+        $form['var][type'] = array(
+          '#type' => 'select',
+          '#title' => t("Zone"),
+          '#required' => FALSE,
+          '#default_value' => $node->var['type'],
+          '#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP'),
+          '#weight' => $form_weight++,
+        );        
+        break;
+        
+        
+      default:
+        $specs['var][url'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Port'),
+          '#required' => FALSE,
+          '#size' => 60,
+          '#maxlength' => 250, 
+          '#default_value' => $node->var['url'],
+          '#weight' => $form_weight++,
+        );
+        break;
+    }
+    
+    // Si és un tipus conegut, afegeix els paràmetres específics
+    if (isset($specs)) 
+      $form['specs-param'] += $specs;
+    // Sinó, l'elimina
+    else
+      unset($form['specs-param']);
+  }
+  
+  
+  
+  
+  // ----
+  // Formulari depenent del tipus de servei
+  // ------------------------------------------------
+  unset($domains);
+  if ($node->nid > 0) {
+    // Crem el grup dels paràmetres de domini
+    $form['domains-param'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Homepages'),
+      '#description' => t('Press "Preview" to get more rows'),
+      '#weight' => $form_weight++,
+    );
+    
+    // Mostrem els paràmetres específics
+    switch ($node->service_type) {
+      case 'mail': case 'DNS': 
+        $key = 0;
+        if (isset($node->var['domains'])) {
+          if (count($node->var['domains']) > 0) {
+            foreach ($node->var['domains'] as $key => $domain) {
+              if ($node->var['domains'][$key] != '') {
+                $domains['var][domains]['] = array(
+                  '#type' => 'textfield',
+                  '#required' => FALSE,
+                  '#size' => 60,
+                  '#maxlength' => 60, 
+                  '#default_value' => $node->var['domains'][$key],
+                  '#weight' => $form_weight++,
+                );
+              }
+            }
+          }
+        }
+        for ($i = 0; $i < 2; $i++) {
+          $domains['var][domains]['.($i + $key + 1)] = array(
+            '#type' => 'textfield',
+            '#required' => FALSE,
+            '#size' => 60,
+            '#maxlength' => 60,
+            '#weight' => $form_weight++,
+          );
+        }
+    }
+    
+    // Si és un tipus conegut, afegeix els paràmetres específics
+    if (isset($domains)) 
+      $form['domains-param'] += $domains;
+    // Sinó, l'elimina
+    else
+      unset($form['domains-param']);
+  }
+  
+  
+  
+  
+  // ----
+  // Formulari depenent del tipus de servei
+  // ------------------------------------------------
+  unset($homepages);
+  if ($node->nid > 0) {
+    // Crem el grup dels paràmetres de domini
+    $form['homepages-param'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Homepages'),
+      '#description' => t('Press "Preview" to get more rows'),
+      '#weight' => $form_weight++,
+    );
+    
+    switch ($node->service_type) {
+      case 'web':
+        $key = 0;
+        if (isset($node->var['homepages'])) {
+          if (count($node->var['homepages']) > 0) {
+            foreach ($node->var['homepages'] as $key => $homepage) {
+              if ($node->var['homepages'][$key] != '') {
+                $homepages['var][homepages]['] = array(
+                  '#type' => 'textfield',
+                  '#required' => FALSE,
+                  '#size' => 60,
+                  '#maxlength' => 60, 
+                  '#default_value' => $node->var['homepages'][$key],
+                  '#weight' => $form_weight++,
+                );
+              }
+            }
+          }
+        }
+        for ($i = 0; $i < 2; $i++) {
+          $domains['var][homepages]['.($i + $key + 1)] = array(
+            '#type' => 'textfield',
+            '#required' => FALSE,
+            '#size' => 60,
+            '#maxlength' => 60,
+            '#weight' => $form_weight++,
+          );
+        }
+    }
+    
+    // Si és un tipus conegut, afegeix els paràmetres específics
+    if (isset($homepages)) 
+      $form['homepages-param'] += $homepages;
+    // Sinó, l'elimina
+    else
+      unset($form['homepages-param']);
+  }
+    
+    
+  unset($ircservers);
+  if ($node->nid > 0) {
+    // Crem el grup dels paràmetres de domini
+    $form['ircservers-param'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('IRC servers'),
+      '#description' => t('Press "Preview" to get more rows'),
+      '#weight' => $form_weight++,
+    );
+    
+    switch ($node->service_type) {
+      case 'irc': 
+        $key = 0;
+        if (isset($node->var['irc'])) {
+          if (count($node->var['irc']) > 0) {
+            foreach ($node->var['irc'] as $key => $irc) {
+              if ($node->var['irc'][$key] != '') {
+                $ircservers['var][irc]['] = array(
+                  '#type' => 'textfield',
+                  '#required' => FALSE,
+                  '#size' => 60,
+                  '#maxlength' => 60, 
+                  '#default_value' => $node->var['irc'][$key],
+                  '#weight' => $form_weight++,
+                );
+              }
+            }
+          }
+        }
+        for ($i = 0; $i < 2; $i++) {
+          $ircservers['var][irc]['.($i + $key + 1)] = array(
+            '#type' => 'textfield',
+            '#required' => FALSE,
+            '#size' => 60,
+            '#maxlength' => 60,
+            '#weight' => $form_weight++,
+          );
+        }
+    }
+    
+    // Si és un tipus conegut, afegeix els paràmetres específics
+    if (isset($ircservers)) 
+      $form['ircservers-param'] += $ircservers;
+    // Sinó, l'elimina
+    else
+      unset($form['ircservers-param']);
+  }
+  
+  
+  
+  
+  // ----
+  // El text descriptiu del servei 
+  // ------------------------------------------------
+  $form['body'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Body'), 
+    '#default_value' => $node->body, 
+    '#cols' => 60, 
+    '#rows' => 20, 
+    '#required' => TRUE,
+    '#description' => t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''),
+    '#weight' => $form_weight++,
+  );
+  
+  
   return $form;
-
-  global $user;
-
+  
+  
+  
+  
+  
+  
+  
+  // *** Codi antic. No s'hi arribarà mai. S'ha d'esborrar.
+  
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
     $zone = guifi_get_zone($node->title);
     $node->zone_id = $node->title;

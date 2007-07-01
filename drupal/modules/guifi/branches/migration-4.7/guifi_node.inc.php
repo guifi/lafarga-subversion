@@ -34,20 +34,29 @@ function guifi_node_access($op, $node) {
  * Present the guifi zone editing form.
  */
 function guifi_node_form(&$node) {
-
+  global $user;
+  
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20;
+  
+  // ----
+  // El títol el primer de tot
+  // ------------------------------------------------
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#required' => TRUE,
     '#default_value' => $node->title,
-    '#weight' => -5
+    '#weight' => $form_weight++,
   );
-
-  return $form;
-
-  global $user;
-
-//  print "Nid: ".$node->nid." title: ".$node->title." GetLat: ".$_GET['Lat'];
+  
+  
+  // ----
+  // Comprovacions i petits canvis
+  // ------------------------------------------------
+  
+  //  print "Nid: ".$node->nid." title: ".$node->title." GetLat: ".$_GET['Lat'];
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
     $zone = guifi_get_zone($node->title);
     $node->zone_id = $node->title;
@@ -60,16 +69,163 @@ function guifi_node_form(&$node) {
     $node->lon = $_GET['Lon'];
     $node->contact = $user->mail;
     $node->status_flag = 'Planned';
-    $output .= form_item(t('License and usage agreement'),variable_get('guifi_license',null),t('You must accept this agreement to be authorized to create new nodes.'),null,false);
-    $output .= form_radio(t('Yes, I have read this and accepted'),'agreement','Yes',false,null);
+    
+    $form['license'] = array(
+      '#type' => 'item',
+      '#title' => t('License and usage agreement'),
+      '#value' => variable_get('guifi_license',null),
+      '#description' => t('You must accept this agreement to be authorized to create new nodes.'),
+      '#weight' => $form_weight++,
+    );
+    $form['agreement']= array(
+      '#type' => 'radio',
+      '#title' => t('Yes, I have read this and accepted'),
+      '#default_value' => 'Yes',
+      '#weight' => $form_weight++,
+    );
   } else
-    $output .= form_hidden('agreement','Yes');
+    $form['agreement']= array(
+      '#type' => 'hidden',
+      '#default_value' => 'Yes',
+      '#weight' => $form_weight++,
+    );
+  
+  
+  // ----
+  // Dades del node
+  // ------------------------------------------------
+  $form['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nick'),
+    '#required' => TRUE,
+    '#size' => 20,
+    '#maxlength' => 20, 
+    '#default_value' => $node->nick,
+    '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''),
+    '#weight' => $form_weight++,
+  );
+  $form['contact'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Contact'),
+    '#required' => FALSE,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#default_value' => $node->contact,
+    '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''),
+    '#weight' => $form_weight++,
+  );
+  $form['zone_id'] = array(
+    '#type' => 'select',
+    '#title' => t("Zone"),
+    '#required' => FALSE,
+    '#default_value' => $node->zone_id,
+    '#options' => guifi_zones_listbox(),
+    '#description' => t('The zone where this node where this node belongs to.'),
+    '#weight' => $form_weight++,
+  );
+  
+  
+  // Position
+  if ($node->lat != NULL) {
+    $node->latdeg = floor($node->lat);
+    $node->latmin = (($node->lat - floor($node->lat)) * 60);
+    $node->latseg = round(($node->latmin - floor($node->latmin)) * 60,4);
+    $node->latmin = floor($node->latmin);
+  }
+  if ($node->lon != NULL) {
+    $node->londeg = floor($node->lon);
+    $node->lonmin = (($node->lon - floor($node->lon)) * 60);
+    $node->lonseg = round(($node->lonmin - floor($node->lonmin)) * 60,4);
+    $node->lonmin = floor($node->lonmin);
+  }
+  
+  $form['position'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Position'),
+    '#weight' => $form_weight++,
+  );
+  $form['position']['longitude'] = array(
+    '#type' => 'item',
+    '#title' => t('Longitude'),
+    '#value' => '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="' .  $node->londeg .'"/> ' . '<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/> ' . '<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"',
+    '#weight' => $form_weight++,
+  );
+  $form['position']['latitude'] = array(
+    '#type' => 'item',
+    '#title' => t('Latitude'),
+    '#value' => '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="' .  $node->latdeg .'"/> ' . '<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/> ' . '<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"',
+    '#description' => t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'),
+    '#weight' => $form_weight++,
+  );
+  $form['position']['zone_description'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Zone description'),
+    '#required' => FALSE,
+    '#size' => 60,
+    '#maxlength' => 128, 
+    '#default_value' => $node->zone_description,
+    '#description' => t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street.") . ($error['zone'] ? $error["zone"] : ''),
+    '#weight' => $form_weight++,
+  );
 
-
-
-  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''), null, true);
-  $output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
-  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
+  $form['elevation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Antenna elevation'),
+    '#required' => FALSE,
+    '#size' => 20,
+    '#maxlength' => 20, 
+    '#default_value' => $node->elevation,
+    '#description' => t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''),
+    '#weight' => $form_weight++,
+  );
+  
+  // Si ets administrador pots definir el servidor de dades
+  if (user_access('administer guifi zones')) 
+    $form['graph_server'] = array(
+      '#type' => 'select',
+      '#title' => t("Server which collects traffic and availability data"),
+      '#required' => FALSE,
+      '#default_value' => ($node->graph_server ? $node->graph_server : 0),
+      '#options' => array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'),
+      '#description' => t("If not specified, inherits zone properties."),
+      '#weight' => $form_weight++,
+    );
+  
+  $form['stable'] = array(
+    '#type' => 'select',
+    '#title' => t("It's supposed to be a stable online node?"),
+    '#required' => FALSE,
+    '#default_value' => ($node->stable ? $node->stable : 'Yes'),
+    '#options' => array('Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'), 'No' => t("I'm sorry. Will be connected just when I'm online")),
+    '#description' => t("That helps while planning a mesh network. We should know which locations are likely available to provide stable links."),
+    '#weight' => $form_weight++,
+  );
+  
+  $form['body'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Body'), 
+    '#default_value' => $node->body, 
+    '#cols' => 60, 
+    '#rows' => 20, 
+    '#required' => TRUE,
+    '#description' => t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''),
+    '#weight' => $form_weight++,
+  );
+  // Això no sé benbé què és
+  //  $output .= implode("", taxonomy_node_form("wifi", $node));
+  $form['status_flag']= array(
+    '#type' => 'hidden',
+    '#default_value' => $node->status_flag,
+    '#weight' => $form_weight++,
+  );
+  
+  return $form;
+  
+  
+  
+  
+  
+  // *** Codi vell. Per esborrar
 
   // Position
   if ($node->lat != NULL) {
