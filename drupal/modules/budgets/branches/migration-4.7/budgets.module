@@ -249,7 +249,9 @@ function budgets_load($node) {
 }
 
 function budget_edit_form(&$node) {
-  
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20
   
   
   // ----
@@ -261,7 +263,7 @@ function budget_edit_form(&$node) {
     '#required' => TRUE,
     '#default_value' => $node->title,
     '#description' => '',
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   
   
@@ -277,7 +279,7 @@ function budget_edit_form(&$node) {
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#tree' => FALSE,
-    '#weight' => -4,
+    '#weight' => $form_weight++,
   );
   $form['general']['budget_status'] = array(
     '#type' => 'select',
@@ -286,7 +288,7 @@ function budget_edit_form(&$node) {
     '#default_value' => $node->budget_status,
     '#options' => array('Preparation'=>t('Preparation'),'Open'=>t('Open'),'Closed'=>t('Closed')),
     '#description' => '',
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   $form['general']['txtexpire'] = array(
     '#type' => 'textfield',
@@ -296,7 +298,7 @@ function budget_edit_form(&$node) {
     '#size' => 10,
     '#maxlength' => 10, 
     '#description' => t('Date when this budget will expire (format: YYYY-MM-YY)'),
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   
   // Moneda
@@ -304,7 +306,7 @@ function budget_edit_form(&$node) {
     '#type' => 'fieldset',
     '#title' => t('Currency'),
     '#description' => '',
-    '#weight' => -3,
+    '#weight' => $form_weight++,
   );
   $form['currency']['currency_txt'] = array(
     '#type' => 'textfield',
@@ -314,7 +316,7 @@ function budget_edit_form(&$node) {
     '#size' => 10,
     '#maxlength' => 10, 
     '#description' => t('abbreviation'),
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   $form['currency']['currency_symbol'] = array(
     '#type' => 'textfield',
@@ -323,7 +325,7 @@ function budget_edit_form(&$node) {
     '#default_value' => $node->currency_symbol,
     '#size' => 5,
     '#maxlength' => 5,
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   
   // Contribucions
@@ -331,7 +333,7 @@ function budget_edit_form(&$node) {
     '#type' => 'fieldset',
     '#title' => t('Contributions'),
     '#description' => '',
-    '#weight' => -2,
+    '#weight' => $form_weight++,
   );
   $form['contributions']['min_contribution'] = array(
     '#type' => 'textfield',
@@ -341,7 +343,7 @@ function budget_edit_form(&$node) {
     '#size' => 10,
     '#maxlength' => 10, 
     '#description' => t('Under this amount, contributions will not be accepted'),
-    '#weight' => -5,
+    '#weight' => $form_weight++,
   );
   
   
@@ -434,14 +436,14 @@ function budget_edit_form(&$node) {
       '#title' => t('Budget items'),
       '#value' => t('There is no budget items yet for this project'),
       '#description' => t('Add values by pressing the "Add budget item" button'),
-      '#weight' => 0,
+      '#weight' => $form_weight++,
     );
   }
   
   $form['form_item[add]'] = array(
     '#type' => 'button', 
     '#value' => t('Add budget item'), 
-    '#weight' => 0,
+    '#weight' => $form_weight++,
   );
   
   // Això no sé perquè hi és
@@ -461,8 +463,8 @@ function budget_edit_form(&$node) {
     '#cols' => 60, 
     '#rows' => 10, 
     '#required' => FALSE,
-    '#description' =>t("Description of the project. Describe here it's purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the &lt;!-- header --&gt; tag"),
-    '#weight' => 1,
+    '#description' =>t("Description of the project. Describe here it's purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the &lt;!-- header --&gt; tag") . ($error['body'] ? $error['body'] : ''),
+    '#weight' => $form_weight++,
   );
   $form['zones'] = array(
     '#type' => 'select',
@@ -472,7 +474,7 @@ function budget_edit_form(&$node) {
     '#multiple' => TRUE,
     '#options' => guifi_zones_listbox(),
     '#description' => t("If there are, zones where this budget apply specifically."),
-    '#weight' => 2,
+    '#weight' => $form_weight++,
   );
   $form['promoter'] = array(
     '#type' => 'textarea', 
@@ -482,7 +484,7 @@ function budget_edit_form(&$node) {
     '#rows' => 3, 
     '#required' => FALSE,
     '#description' => t('Explain here who are you, how to contact you, why people have to trust you, what you have already done...'),
-    '#weight' => 3,
+    '#weight' => $form_weight++,
   );
   $form['payment_instructions'] = array(
     '#type' => 'textarea', 
@@ -492,7 +494,7 @@ function budget_edit_form(&$node) {
     '#rows' => 7, 
     '#required' => FALSE,
     '#description' => t("Explain here how to send money funds for this project, it can be an account for money transfers, ask for contact information, links to paypal or similar online applications..."),
-    '#weight' => 4,
+    '#weight' => $form_weight++,
   );
   $form['terms'] = array(
     '#type' => 'textarea', 
@@ -502,11 +504,14 @@ function budget_edit_form(&$node) {
     '#rows' => 7, 
     '#required' => FALSE,
     '#description' => t("Explain here the terms and conditions of this project or use the default text provided"),
-    '#weight' => 5,
+    '#weight' => $form_weight++,
   );
   
   return $form;
-    
+  
+  
+  
+  // Codi antic. Eliminar-lo
 
     $output = '<div class="extras">';
     $output .= form_group(t('General'),
