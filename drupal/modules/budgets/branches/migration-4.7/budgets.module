@@ -255,7 +255,52 @@ function budget_edit_form(&$node) {
     '#title' => t('Title'),
     '#required' => TRUE,
     '#default_value' => $node->title,
-    '#weight' => -5
+    '#description' => '',
+    '#weight' => -5,
+  );
+  $form['general'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#tree' => FALSE,
+  );
+  $form['general']['budget_status'] = array(
+    '#type' => 'select',
+    '#title' => t('Status'),
+    '#required' => FALSE,
+    '#default_value' => $node->budget_status,
+    '#options' => array('Preparation'=>t('Preparation'),'Open'=>t('Open'),'Closed'=>t('Closed')),
+    '#description' => '',
+    '#weight' => -5,
+  );
+  $form['general']['txtexpire'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expiration'),
+    '#required' => FALSE,
+    '#default_value' => $node->txtexpire,
+    '#description' => '',
+    '#weight' => -5,
+  );
+  $form['currency'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Currency'),
+    '#description' => 'desc cuur',
+  );
+  $form['currency']['currency_txt'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text'),
+    '#required' => FALSE,
+    '#default_value' => $node->currency_txt,
+    '#description' => '',
+    '#weight' => -5,
+  );
+  $form['currency']['currency_symbol'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Symbol'),
+    '#required' => FALSE,
+    '#default_value' => $node->currency_symbol,
+    '#weight' => -5,
   );
 
   return $form;
