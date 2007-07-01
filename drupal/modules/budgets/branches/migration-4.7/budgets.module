@@ -249,7 +249,12 @@ function budgets_load($node) {
 }
 
 function budget_edit_form(&$node) {
-
+  
+  
+  
+  // ----
+  // Establir el títol del pressupost
+  // --------------------------------------------
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -258,6 +263,14 @@ function budget_edit_form(&$node) {
     '#description' => '',
     '#weight' => -5,
   );
+  
+  
+  
+  // ----
+  // Establir el tipus de presupost i algunes condicions
+  // --------------------------------------------
+  
+  // General
   $form['general'] = array(
     '#type' => 'fieldset',
     '#title' => t('General'),
@@ -279,20 +292,26 @@ function budget_edit_form(&$node) {
     '#title' => t('Expiration'),
     '#required' => FALSE,
     '#default_value' => $node->txtexpire,
-    '#description' => '',
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('Date when this budget will expire (format: YYYY-MM-YY)'),
     '#weight' => -5,
   );
+  
+  // Moneda
   $form['currency'] = array(
     '#type' => 'fieldset',
     '#title' => t('Currency'),
-    '#description' => 'desc cuur',
+    '#description' => '',
   );
   $form['currency']['currency_txt'] = array(
     '#type' => 'textfield',
     '#title' => t('Text'),
     '#required' => FALSE,
     '#default_value' => $node->currency_txt,
-    '#description' => '',
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('abbreviation'),
     '#weight' => -5,
   );
   $form['currency']['currency_symbol'] = array(
@@ -300,9 +319,187 @@ function budget_edit_form(&$node) {
     '#title' => t('Symbol'),
     '#required' => FALSE,
     '#default_value' => $node->currency_symbol,
+    '#size' => 5,
+    '#maxlength' => 5,
     '#weight' => -5,
   );
+  
+  // Contribucions
+  $form['contributions'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Contributions'),
+    '#description' => '',
+  );
+  $form['contributions']['min_contribution'] = array(
+    '#type' => 'textfield',
+    '#title' => '',
+    '#required' => FALSE,
+    '#default_value' => $node->min_contribution,
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('Under this amount, contributions will not be accepted'),
+    '#weight' => -5,
+  );
+  
+  
+  // ----
+  // Llistar els elements del pressupost
+  // --------------------------------------------
+  // Mirarem de generar-ho en una altra funció (depèn)
+  if( is_array($node->items) && !empty($node->items)) {
+    $nocomponents = count($node->items);
+    
+    // sorting array by weight
+    foreach ($node->items as $item_id => $item)
+      $items_sorted[$item_id] = $item['weight'];
+    asort($items_sorted);
+    
+    $total = 0;
+    foreach($items_sorted as $item_id => $weight) {
+      $subtotal = $node->items[$item_id]['quantity']* $node->items[$item_id]['cost'];
+      $total = $total + $subtotal;
+      
+      $form['components']= array(
+        '#type' => 'fieldset',
+        '#title' => t('Contributions'),
+        '#description' => '',
+      );
+      $form['components']['item_checked']= array(
+        '#type' => 'radio',
+        '#title' => '',
+        '#default_value' => $item_id,
+      );
+      $form['components']["items][".$item_id.'][description']= array(
+        '#type' => 'hidden', 
+        '#value' => $node->items[$item_id]['description'],
+      );
+      $form['components']["items][".$item_id.'][comments']= array(
+        '#type' => 'hidden', 
+        '#value' => $node->items[$item_id]['comments'],
+      );
+      $form['components']["items][".$item_id.'][quantity'] = array(
+        '#type' => 'textfield',
+        '#title' => '',
+        '#required' => FALSE,
+        '#default_value' => $node->items[$item_id]['quantity'],
+        '#size' => 6,
+        '#maxlength' => 12,
+      );
+      $form['components']["items][".$item_id.'][cost'] = array(
+        '#type' => 'textfield',
+        '#title' => '',
+        '#required' => FALSE,
+        '#default_value' => $node->items[$item_id]['cost'],
+        '#size' => 10,
+        '#maxlength' => 11,
+      );
+      $form['components']['data'] = array(
+        '#type' => 'item',
+        '#title' => '',
+        '#value' => number_format($subtotal,2,',','.'),
+      );
+      $form['components']["items][".$item_id.'][weight'] = array(
+        '#type' => 'weight',
+        '#title' => '',
+        '#default_value' => $node->items[$item_id]['weight'],
+        '#delta' => 20,
+      );
+    }
+    
+//    $rows[] = array(null,'<strong>'.t('Total').'</strong>',null,null,null,
+//array('data'=>'<strong>'.number_format($total,2,',','.').'</strong>','align'=>'right'),null);
 
+    $form['help'] = array(
+      '#type' => 'item',
+      '#title' => '',
+      '#value' => t('To edit an item description or comment, check its box and press "Edit selected".') "<br>". t('To delete an item, check its box and press "Delete selected".') "<br>". t('You can edit units, cost and weight values directly in the form.') ."<br>". t('Remember to set weight on the components or they will be added to the budget in a random order.') ."<br>". t('The components are sorted first by weight and then by name.'),
+    );
+    $form['form_item[edit]'] = array(
+      '#type' => 'button',
+      '#value' => t('Edit selected'),
+      '#weight' => -5,
+    );
+    $form['form_item[delete]'] = array(
+      '#type' => 'button', 
+      '#value' => t('Delete selected'), 
+      '#weight' => -5,
+    );
+  } else {
+    $form['help'] = array(
+      '#type' => 'item',
+      '#title' => t('Budget items'),
+      '#value' => t('There is no budget items yet for this project'),
+      '#description' => t('Add values by pressing the "Add budget item" button'),
+    );
+  }
+  
+  $form['form_item[add]'] = array(
+    '#type' => 'button', 
+    '#value' => t('Add budget item'), 
+    '#weight' => -5,
+  );
+  
+  // Això no sé perquè hi és
+  if (!empty($node->budget_items)) {
+  }
+  
+  
+  
+  
+  // ----
+  // Llistat de la informació associada
+  // --------------------------------------------
+  $form['body'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Body'), 
+    '#default_value' => $node->body, 
+    '#cols' => 60, 
+    '#rows' => 10, 
+    '#required' => FALSE,
+    '#description' =>t("Description of the project. Describe here it's purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the &lt;!-- header --&gt; tag"),
+    '#weight' => -5,
+  );
+  $form['zones'] = array(
+    '#type' => 'select',
+    '#title' => t('Zones'),
+    '#required' => FALSE,
+    '#default_value' => $node->zones,
+    '#multiple' => TRUE,
+    '#options' => guifi_zones_listbox(),
+    '#description' => t("If there are, zones where this budget apply specifically."),
+    '#weight' => -5,
+  );
+  $form['promoter'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Promoter(s)'), 
+    '#default_value' => $node->promoter, 
+    '#cols' => 60, 
+    '#rows' => 3, 
+    '#required' => FALSE,
+    '#description' => t('Explain here who are you, how to contact you, why people have to trust you, what you have already done...'),
+    '#weight' => -5,
+  );
+  $form['payment_instructions'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Payment instructions'), 
+    '#default_value' => $node->payment_instructions, 
+    '#cols' => 60, 
+    '#rows' => 7, 
+    '#required' => FALSE,
+    '#description' => t("Explain here how to send money funds for this project, it can be an account for money transfers, ask for contact information, links to paypal or similar online applications..."),
+    '#weight' => -5,
+  );
+  $form['terms'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Terms & Conditions'), 
+    '#default_value' => $node->terms, 
+    '#cols' => 60, 
+    '#rows' => 7, 
+    '#required' => FALSE,
+    '#description' => t("Explain here the terms and conditions of this project or use the default text provided"),
+    '#weight' => -5,
+  );
+  
   return $form;
     
 
