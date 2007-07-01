@@ -277,6 +277,7 @@ function budget_edit_form(&$node) {
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#tree' => FALSE,
+    '#weight' => -4,
   );
   $form['general']['budget_status'] = array(
     '#type' => 'select',
@@ -303,6 +304,7 @@ function budget_edit_form(&$node) {
     '#type' => 'fieldset',
     '#title' => t('Currency'),
     '#description' => '',
+    '#weight' => -3,
   );
   $form['currency']['currency_txt'] = array(
     '#type' => 'textfield',
@@ -329,6 +331,7 @@ function budget_edit_form(&$node) {
     '#type' => 'fieldset',
     '#title' => t('Contributions'),
     '#description' => '',
+    '#weight' => -2,
   );
   $form['contributions']['min_contribution'] = array(
     '#type' => 'textfield',
@@ -347,7 +350,7 @@ function budget_edit_form(&$node) {
   // --------------------------------------------
   // Mirarem de generar-ho en una altra funció (depèn)
   if( is_array($node->items) && !empty($node->items)) {
-    $nocomponents = count($node->items);
+/*    $nocomponents = count($node->items);
     
     // sorting array by weight
     foreach ($node->items as $item_id => $item)
@@ -413,6 +416,7 @@ function budget_edit_form(&$node) {
       '#type' => 'item',
       '#title' => '',
       '#value' => t('To edit an item description or comment, check its box and press "Edit selected".') "<br>". t('To delete an item, check its box and press "Delete selected".') "<br>". t('You can edit units, cost and weight values directly in the form.') ."<br>". t('Remember to set weight on the components or they will be added to the budget in a random order.') ."<br>". t('The components are sorted first by weight and then by name.'),
+      '#weight' => -5,
     );
     $form['form_item[edit]'] = array(
       '#type' => 'button',
@@ -423,20 +427,21 @@ function budget_edit_form(&$node) {
       '#type' => 'button', 
       '#value' => t('Delete selected'), 
       '#weight' => -5,
-    );
+    );*/
   } else {
     $form['help'] = array(
       '#type' => 'item',
       '#title' => t('Budget items'),
       '#value' => t('There is no budget items yet for this project'),
       '#description' => t('Add values by pressing the "Add budget item" button'),
+      '#weight' => 0,
     );
   }
   
   $form['form_item[add]'] = array(
     '#type' => 'button', 
     '#value' => t('Add budget item'), 
-    '#weight' => -5,
+    '#weight' => 0,
   );
   
   // Això no sé perquè hi és
@@ -457,7 +462,7 @@ function budget_edit_form(&$node) {
     '#rows' => 10, 
     '#required' => FALSE,
     '#description' =>t("Description of the project. Describe here it's purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the &lt;!-- header --&gt; tag"),
-    '#weight' => -5,
+    '#weight' => 1,
   );
   $form['zones'] = array(
     '#type' => 'select',
@@ -467,7 +472,7 @@ function budget_edit_form(&$node) {
     '#multiple' => TRUE,
     '#options' => guifi_zones_listbox(),
     '#description' => t("If there are, zones where this budget apply specifically."),
-    '#weight' => -5,
+    '#weight' => 2,
   );
   $form['promoter'] = array(
     '#type' => 'textarea', 
@@ -477,7 +482,7 @@ function budget_edit_form(&$node) {
     '#rows' => 3, 
     '#required' => FALSE,
     '#description' => t('Explain here who are you, how to contact you, why people have to trust you, what you have already done...'),
-    '#weight' => -5,
+    '#weight' => 3,
   );
   $form['payment_instructions'] = array(
     '#type' => 'textarea', 
@@ -487,7 +492,7 @@ function budget_edit_form(&$node) {
     '#rows' => 7, 
     '#required' => FALSE,
     '#description' => t("Explain here how to send money funds for this project, it can be an account for money transfers, ask for contact information, links to paypal or similar online applications..."),
-    '#weight' => -5,
+    '#weight' => 4,
   );
   $form['terms'] = array(
     '#type' => 'textarea', 
@@ -497,7 +502,7 @@ function budget_edit_form(&$node) {
     '#rows' => 7, 
     '#required' => FALSE,
     '#description' => t("Explain here the terms and conditions of this project or use the default text provided"),
-    '#weight' => -5,
+    '#weight' => 5,
   );
   
   return $form;
