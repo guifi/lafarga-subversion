@@ -65,10 +65,10 @@ function guifi_get_zone($id) {
 /**
  * Present the guifi zone editing form.
  */
-function guifi_zone_load($node_nid) {
-  $node = db_fetch_object(db_query("SELECT * FROM {guifi_zone} WHERE id = '%d'", $node_nid));
+function guifi_zone_load($node) {
+  $loaded = db_fetch_object(db_query("SELECT * FROM {guifi_zone} WHERE id = '%d'", $node->nid));
   
-  return $node;
+  return $loaded;
 }
 
 /**
@@ -215,7 +215,39 @@ function guifi_zone_form(&$node) {
     '#value' => '<hr /><h2>'.t('zone mapping parameters').'</h2>',
     '#weight' => $form_weight++,
   );
-  $form['bottom-left-corner'] = array(
+  $form['minx'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Bottom left corner'),
+    '#default_value' => $node->minx,
+    '#size' => 12,
+    '#maxlength' => 24, 
+    '#description' => t('Coordinates (Lon/Lat) of the bottom left corner of the map.'),
+    '#weight' => $form_weight++,
+  );
+  $form['miny'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->miny,
+    '#size' => 12,
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['maxx'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Bottom left corner'),
+    '#default_value' => $node->maxx,
+    '#size' => 12,
+    '#maxlength' => 24, 
+    '#description' => t('Coordinates (Lon/Lat) of the upper right corner of the map.'),
+    '#weight' => $form_weight++,
+  );
+  $form['maxy'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->maxy,
+    '#size' => 12,
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+/*  $form['bottom-left-corner'] = array(
     '#type' => 'item',
     '#title' => t('Bottom left corner'),
     '#value' => '<input type="text" name="edit[minx]" size="12" maxlength="24" value="' .  $node->minx .'"/> ' . '<input type="text" name="edit[miny]" size="12" maxlength="24" value="' .  $node->miny .'"/> ',
@@ -228,7 +260,7 @@ function guifi_zone_form(&$node) {
     '#value' => '<input type="text" name="edit[maxx]" size="12" maxlength="24" value="' .  $node->maxx .'"/> ' . '<input type="text" name="edit[maxy]" size="12" maxlength="24" value="' .  $node->maxy .'"/> ',
     '#description' => t('Coordinates (Lon/Lat) of the upper right corner of the map.'),
     '#weight' => $form_weight++,
-  );
+  );*/
   
   return $form;
 

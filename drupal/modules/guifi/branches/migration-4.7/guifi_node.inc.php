@@ -31,6 +31,15 @@ function guifi_node_access($op, $node) {
 **/
 
 /**
+ * Present the guifi node editing form.
+ */
+function guifi_node_load($node) {
+  $loaded = db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
+
+  return $loaded;
+}
+    
+ /**
  * Present the guifi zone editing form.
  */
 function guifi_node_form(&$node) {
@@ -78,9 +87,10 @@ function guifi_node_form(&$node) {
       '#weight' => $form_weight++,
     );
     $form['agreement']= array(
-      '#type' => 'radio',
-      '#title' => t('Yes, I have read this and accepted'),
-      '#default_value' => 'Yes',
+      '#type' => 'radios',
+//      '#title' => t('Yes, I have read this and accepted'),
+      '#default_value' => 'No',
+      '#options' => array('Yes'=>t('Yes, I have read this and accepted')),
       '#weight' => $form_weight++,
     );
   } else
@@ -144,7 +154,51 @@ function guifi_node_form(&$node) {
     '#title' => t('Position'),
     '#weight' => $form_weight++,
   );
-  $form['position']['longitude'] = array(
+  $form['position']['londeg'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Longitude'),
+    '#default_value' => $node->londeg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['position']['lonmin'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->lonmin,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['position']['lonseg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->lonseg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['position']['latdeg'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Latitude'),
+    '#default_value' => $node->latdeg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['position']['latmin'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->latmin,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+  $form['position']['latseg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->latseg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#weight' => $form_weight++,
+  );
+/*  $form['position']['longitude'] = array(
     '#type' => 'item',
     '#title' => t('Longitude'),
     '#value' => '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="' .  $node->londeg .'"/>º ' . '<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/>\' ' . '<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"',
@@ -156,7 +210,7 @@ function guifi_node_form(&$node) {
     '#value' => '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="' .  $node->latdeg .'"/>º ' . '<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/>\' ' . '<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"',
     '#description' => t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'),
     '#weight' => $form_weight++,
-  );
+  );*/
   $form['position']['zone_description'] = array(
     '#type' => 'textfield',
     '#title' => t('Zone description'),
@@ -207,7 +261,7 @@ function guifi_node_form(&$node) {
     '#default_value' => $node->body, 
     '#cols' => 60, 
     '#rows' => 20, 
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#description' => t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''),
     '#weight' => $form_weight++,
   );
@@ -274,7 +328,6 @@ function guifi_node_form(&$node) {
  * Preparem les dades del node a mostrar en el formulari
  */
 function guifi_node_prepare(&$node) {
-  // En principi no cal fer-hi res.
 }
 
 /**
@@ -296,7 +349,7 @@ function guifi_node_validate(&$node) {
   if (($node->zone_id == 0) && (!empty($node->nick))) {
     form_set_error('zone_id', t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
   }
-  
+
   if ($node->elevation == 0)
     $node->elevation = NULL;
   if (($node->elevation < -1) && ($node->elevation != NULL))
@@ -330,6 +383,28 @@ function guifi_node_validate(&$node) {
 
 }
 
+
+/**
+ * Action befor save into the database.
+ */
+function guifi_node_submit(&$node) {
+  if ($node->latdeg != NULL)
+        $node->lat = $node->latdeg;
+  if ($node->latmin != NULL)
+        $node->lat = $node->lat + ($node->latmin / 60);   if ($node->latseg != NULL)
+        $node->lat = $node->lat + ($node->latseg / 3600);   if ($node->londeg != NULL)
+        $node->lon = $node->londeg;
+  if ($node->lonmin != NULL)
+        $node->lon = $node->lon + ($node->lonmin / 60);
+  if ($node->lonseg != NULL)
+        $node->lon = $node->lon + ($node->lonseg / 3600);
+
+  if ($node->lat == 0)
+    $node->lat = NULL;
+  if ($node->lon == 0)
+    $node->lon = NULL;
+}
+
 /**
  * Save changes to a guifi item into the database.
  */
@@ -337,7 +412,7 @@ function guifi_node_validate(&$node) {
 function guifi_node_insert($node) {
   global $user;
 
-  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %.10f, %.10f, %d, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
+  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %f, %f, %d, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
 
 
   // Refresh maps
@@ -361,7 +436,7 @@ function guifi_node_update($node) {
     cache_clear_all();
   }
 
-  db_query("UPDATE {guifi_location} SET zone_id = %d, zone_description = '%s', nick = '%s', lat = %.10f, lon = %.10f, elevation = %d, graph_server = '%s', contact = '%s', status_flag = '%s', stable = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid, $node->nid);
+  db_query("UPDATE {guifi_location} SET zone_id = %d, zone_description = '%s', nick = '%s', lat = %f, lon = %f, elevation = %d, graph_server = '%s', contact = '%s', status_flag = '%s', stable = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid, $node->nid);
 
 }
 
@@ -369,6 +444,24 @@ function guifi_node_update($node) {
  * outputs the zone information data
 **/
 function guifi_node_print_data($node) {
+  // En les previsualitzacions mirem de preparar les dades.
+  if ($node->latdeg != NULL)
+        $node->lat = $node->latdeg;
+  if ($node->latmin != NULL)
+        $node->lat = $node->lat + ($node->latmin / 60);   if ($node->latseg != NULL)
+        $node->lat = $node->lat + ($node->latseg / 3600);   if ($node->londeg != NULL)
+        $node->lon = $node->londeg;
+  if ($node->lonmin != NULL)
+        $node->lon = $node->lon + ($node->lonmin / 60);
+  if ($node->lonseg != NULL)
+        $node->lon = $node->lon + ($node->lonseg / 3600);
+
+  if ($node->lat == 0)
+    $node->lat = NULL;
+  if ($node->lon == 0)
+    $node->lon = NULL;
+
+  // Codi que ja hi havia
   
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));

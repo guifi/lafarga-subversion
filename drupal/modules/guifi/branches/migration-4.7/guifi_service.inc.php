@@ -31,7 +31,17 @@ function guifi_service_access($op, $node) {
 **/
 
 /**
- * Present the guifi zone editing form.
+ * Present the guifi service editing form.
+ */   
+function guifi_servide_load($node) {
+  $loaded = db_fetch_object(db_query("SELECT * FROM {guifi_services} WHERE id = '%d'", $node->nid));
+  $loaded->var = unserialize($loaded->extra);
+
+  return $loaded;    
+}
+
+/**
+ * Present the guifi service editing form.
  */
 function guifi_service_form(&$node) {
   global $user;
@@ -525,7 +535,7 @@ function guifi_service_form(&$node) {
     '#default_value' => $node->body, 
     '#cols' => 60, 
     '#rows' => 20, 
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#description' => t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''),
     '#weight' => $form_weight++,
   );

@@ -168,21 +168,21 @@ function guifi_menu($may_cache) {
 
       // zone menus
       if (($node->nid) && ($node->type == 'guifi-zone')) {
-        $items[] = array('path' => 'node/'. arg(1) .'view', 'title' => t('view'),
-          'callback' => 'guifi_view',
-          'callback arguments' => arg(1),
+        $items[] = array('path' => 'node/'. arg(1) .'/view', 'title' => t('view'),
+//          'callback' => 'guifi_view',
+//          'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
         $items[] = array('path' => 'node/'. arg(1) .'/view/all', 'title' => t('all'),
-          'callback' => 'guifi_view',
-          'callback arguments' => arg(1),
+//          'callback' => 'guifi_view',
+//          'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
         $items[] = array('path' => 'node/'. arg(1) .'/view/view', 'title' => t('page'),
-          'callback' => 'guifi_view',
-          'callback arguments' => arg(1),
+//          'callback' => 'guifi_view',
+//          'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 1,
           'type' => MENU_LOCAL_TASK);
@@ -846,6 +846,7 @@ function guifi_device_access($op, $id) {
   }
 }
 
+// *** Aquesta funció ja no serveix. S'haurà d'eliminar
 function guifi_load($node) {
   switch ($node->type) {
     case 'guifi-zone':
@@ -992,8 +993,10 @@ function guifi_page($zone = NULL) {
   print theme('page', $output);
 }
 
+// *** Aquesta funció ja no serveix. S'haurà d'eliminar
 function guifi_view(&$node, $teaser = 0, $page = 0) {
-
+  echo $node->type;
+  $br->br();
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
