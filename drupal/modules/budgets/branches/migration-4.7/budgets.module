@@ -15,7 +15,7 @@ function budgets_menu($may_cache) {
 
   if ($may_cache) {
 
-    $items[] = array('path' => 'node/add/budget', 'title' => t('budget'),
+    $items[] = array('path' => 'node/add/budgets', 'title' => t('budget'),
       'access' => user_access('create budgets'));
 
 
@@ -120,7 +120,7 @@ function budgets_help($section) {
       return t('<p>Select an operation from the menus to manage zones.</p>');
     case 'admin/guifi/zone/add':
       return t('<p>Enter de zone information.</p>');
-    case 'node/add#budget':
+    case 'node/add#budgets':
       return t("<p>Create a budget. A budget is an itemized project with allocated due costs. Therefore, contributors can donate funds to it.</p>");
   }
 }
@@ -148,7 +148,7 @@ function budgets_perm() {
  * Implementation of hook_node_info().
  */
 function budgets_node_info() {
-  return array('budget' => array('name' => t('budget'), 'base' => 'budget'));
+  return array('budgets' => array('name' => t('budgets'), 'base' => 'budgets'));
 }  
 
 function _budget_expires_list() {
@@ -283,14 +283,14 @@ function budgets_block($op = "list", $delta = 0) {
 }
 
 
-function budget_access($op, $node) {
+function budgets_access($op, $node) {
   global $user;
 
   switch($op) {
     case 'create':
       return user_access("create budgets");
     case 'update':
-      if ($node->type == 'budget') {
+      if ($node->type == 'budgets') {
         if ((user_access('administer budgets')) || ($node->uid == $user->uid)) {
           return TRUE;
         }
@@ -327,7 +327,7 @@ function budgets_load($node) {
   return $budget;
 }
 
-function budget_edit_form(&$node) {
+function budgets_form(&$node) {
   // A partir d'ara l'ordre el definirem per aquesta variable.
   // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
   $form_weight = -20;
@@ -694,10 +694,6 @@ function budget_edit_form(&$node) {
 
 }
 
-
-function budget_form(&$node, &$param) {
-  return budget_edit_form($node);  
-}
 
 function budgets_edit_item($node,$op = null) {
 
@@ -1087,7 +1083,7 @@ function budgets_print_funds($node) {
     foreach ($node->funds as $fund_id => $fund) {
       if ($fund['fund_status'] != 'Declined')
         $total = $total + $fund['amount'];
-      if (budget_access('update',$node))
+      if (budgets_access('update',$node))
         $rows[] = array(
                    format_date($fund['timestamp_created']),
                    $fund['contributor_name'],
@@ -1111,7 +1107,7 @@ function budgets_print_funds($node) {
                  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right'),
                  null,null);
   $header = array(t('Date'),t('Name'),t('Amount'),t('Status'));
-  if (budget_access('update',$node)) {
+  if (budgets_access('update',$node)) {
     $header = array_merge($header,array(t('Email'),t('Telf'),t('Comments'),'&nbsp;'));
     $output .= theme('table', $header, $rows);
     $output .= form_button(t('Submit'),'op');
