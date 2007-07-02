@@ -70,7 +70,7 @@ CREATE TABLE guifi_zone (
   local enum('Yes','No') NOT NULL DEFAULT 'Yes',
   nodexchange_url VARCHAR( 255 ) NULL,
   refresh INT NULL,
-  remote_server_id VARCHAR( 255 ) NULL;
+  remote_server_id VARCHAR( 255 ) NULL,
   weight tinyint(4) NOT NULL default '0',
   valid tinyint(1) NOT NULL default '0',
   user_created int(10) NOT NULL default '0',
@@ -138,10 +138,9 @@ CREATE TABLE guifi_interfaces (
 
 CREATE TABLE guifi_radios (
   id int(11) NOT NULL auto_increment,
-  radiodev_counter tinyint(2) NOT NULL default '0',
   nid int(11) NOT NULL,
   model_id int(10) NOT NULL,
-  radiodev_counter TINYINT( 2 ) NOT NULL DEFAULT '0',
+  radiodev_counter TINYINT(2) NOT NULL DEFAULT '0',
   ssid varchar(20) NOT NULL default '',
   mode varchar(40) NOT NULL,
   protocol varchar(40) NOT NULL default '802.11bg',
@@ -526,7 +525,6 @@ CREATE TABLE guifi_model (
   fid int(11) NOT NULL default '1',
   model varchar(40) NOT NULL default '',
   tipus enum('Extern','PCI','PCMCIA') default NULL,
-  radiodev_max TINYINT( 2 ) NOT NULL DEFAULT '0',
   radiodev_max tinyint(2) NOT NULL default '1',
   potencia_max int(11) default NULL,
   modes enum('802.11b/g','802.11b','802.11a','802.11a/b/g','WiMax','802.11n') NOT NULL default '802.11b/g',
