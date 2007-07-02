@@ -661,9 +661,16 @@ function guifi_service_form(&$node) {
 }
 
 /**
+ * Preparem les dades del servei a mostrar en el formulari
+ */
+function guifi_service_prepare(&$node) {
+  // En principi no cal fer-hi res.
+}
+
+/**
  * Confirm that an edited guifi item has fields properly filled in.
  */
-function guifi_edit_service_validate(&$node) {
+function guifi_service_validate(&$node) {
   guifi_validate_nick($node->nick);
 
   if (!empty($node->nick)) { 

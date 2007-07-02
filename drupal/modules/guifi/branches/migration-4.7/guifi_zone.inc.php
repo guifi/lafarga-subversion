@@ -298,9 +298,16 @@ function guifi_zone_map($node) {
 }
 
 /**
+ * Preparem les dades de la zona a mostrar en el formulari
+ */
+function guifi_zone_prepare(&$node) {
+  // En principi no cal fer-hi res.
+}
+
+/**
  * Confirm that an edited guifi item has fields properly filled in.
  */
-function guifi_edit_zone_validate(&$node) {
+function guifi_zone_validate(&$node) {
   function validate_limits($x, $y, $message) {
     if (!is_numeric($x))
       form_set_error($field, $message.' '.t("Lon must be numeric."));
