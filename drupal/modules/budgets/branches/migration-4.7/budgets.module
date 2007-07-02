@@ -251,7 +251,7 @@ function budgets_load($node) {
 function budget_edit_form(&$node) {
   // A partir d'ara l'ordre el definirem per aquesta variable.
   // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
-  $form_weight = -20
+  $form_weight = -20;
   
   
   // ----
@@ -265,7 +265,7 @@ function budget_edit_form(&$node) {
     '#description' => '',
     '#weight' => $form_weight++,
   );
-  
+
   
   
   // ----
@@ -352,7 +352,7 @@ function budget_edit_form(&$node) {
   // --------------------------------------------
   // Mirarem de generar-ho en una altra funció (depèn)
   if( is_array($node->items) && !empty($node->items)) {
-/*    $nocomponents = count($node->items);
+    $nocomponents = count($node->items);
     
     // sorting array by weight
     foreach ($node->items as $item_id => $item)
@@ -364,23 +364,27 @@ function budget_edit_form(&$node) {
       $subtotal = $node->items[$item_id]['quantity']* $node->items[$item_id]['cost'];
       $total = $total + $subtotal;
       
-      $form['components']= array(
+      $form['components'] = array(
         '#type' => 'fieldset',
         '#title' => t('Contributions'),
         '#description' => '',
+        '#weight' => $form_weight++,
       );
-      $form['components']['item_checked']= array(
+      $form['components']['item_checked'] = array(
         '#type' => 'radio',
         '#title' => '',
         '#default_value' => $item_id,
+        '#weight' => $form_weight++,
       );
-      $form['components']["items][".$item_id.'][description']= array(
+      $form['components']["items][".$item_id.'][description'] = array(
         '#type' => 'hidden', 
         '#value' => $node->items[$item_id]['description'],
+        '#weight' => $form_weight++,
       );
-      $form['components']["items][".$item_id.'][comments']= array(
+      $form['components']["items][".$item_id.'][comments'] = array(
         '#type' => 'hidden', 
         '#value' => $node->items[$item_id]['comments'],
+        '#weight' => $form_weight++,
       );
       $form['components']["items][".$item_id.'][quantity'] = array(
         '#type' => 'textfield',
@@ -389,6 +393,7 @@ function budget_edit_form(&$node) {
         '#default_value' => $node->items[$item_id]['quantity'],
         '#size' => 6,
         '#maxlength' => 12,
+        '#weight' => $form_weight++,
       );
       $form['components']["items][".$item_id.'][cost'] = array(
         '#type' => 'textfield',
@@ -397,17 +402,20 @@ function budget_edit_form(&$node) {
         '#default_value' => $node->items[$item_id]['cost'],
         '#size' => 10,
         '#maxlength' => 11,
+        '#weight' => $form_weight++,
       );
       $form['components']['data'] = array(
         '#type' => 'item',
         '#title' => '',
         '#value' => number_format($subtotal,2,',','.'),
+        '#weight' => $form_weight++,
       );
       $form['components']["items][".$item_id.'][weight'] = array(
         '#type' => 'weight',
         '#title' => '',
         '#default_value' => $node->items[$item_id]['weight'],
         '#delta' => 20,
+        '#weight' => $form_weight++,
       );
     }
     
@@ -417,20 +425,21 @@ function budget_edit_form(&$node) {
     $form['help'] = array(
       '#type' => 'item',
       '#title' => '',
-      '#value' => t('To edit an item description or comment, check its box and press "Edit selected".') "<br>". t('To delete an item, check its box and press "Delete selected".') "<br>". t('You can edit units, cost and weight values directly in the form.') ."<br>". t('Remember to set weight on the components or they will be added to the budget in a random order.') ."<br>". t('The components are sorted first by weight and then by name.'),
-      '#weight' => -5,
+      '#value' => t('To edit an item description or comment, check its box and press "Edit selected".') ."<br>". t('To delete an item, check its box and press "Delete selected".') ."<br>". t('You can edit units, cost and weight values directly in the form.') ."<br>". t('Remember to set weight on the components or they will be added to the budget in a random order.') ."<br>". t('The components are sorted first by weight and then by name.'),
+      '#weight' => $form_weight++,
     );
     $form['form_item[edit]'] = array(
       '#type' => 'button',
       '#value' => t('Edit selected'),
-      '#weight' => -5,
+      '#weight' => $form_weight++,
     );
     $form['form_item[delete]'] = array(
       '#type' => 'button', 
       '#value' => t('Delete selected'), 
-      '#weight' => -5,
-    );*/
-  } else {
+      '#weight' => $form_weight++,
+    );
+  }
+  else {
     $form['help'] = array(
       '#type' => 'item',
       '#title' => t('Budget items'),
@@ -439,6 +448,7 @@ function budget_edit_form(&$node) {
       '#weight' => $form_weight++,
     );
   }
+ 
   
   $form['form_item[add]'] = array(
     '#type' => 'button', 
