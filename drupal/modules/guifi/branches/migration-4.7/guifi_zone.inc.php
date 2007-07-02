@@ -78,7 +78,7 @@ function guifi_zone_form(&$node) {
   // A partir d'ara l'ordre el definirem per aquesta variable.
   // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
   $form_weight = -20;
-
+  
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -86,8 +86,8 @@ function guifi_zone_form(&$node) {
     '#default_value' => $node->title,
     '#weight' => $form_weight++,
   );
-
-
+  
+  
   $form['master'] = array(
     '#type' => 'select',
     '#title' => t('Parent zone'),
@@ -154,7 +154,7 @@ function guifi_zone_form(&$node) {
   // Separació Paràmetre globals de xarxa
   $form['sep-global-param'] = array(
     '#value' => '<hr /><h2>'.t('zone global network parameters').'</h2>',
-  '#weight' => $form_weight++,
+    '#weight' => $form_weight++,
   );
   $form['dns_servers'] = array(
     '#type' => 'textfield',

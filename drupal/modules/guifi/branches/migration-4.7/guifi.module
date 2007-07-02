@@ -483,7 +483,12 @@ function guifi_node_info() {
 
 function guifi_settings() {
   global $sql_updates;
-
+  
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20;
+  
+  // Aquesta funció no sembla que s'utilitzi enlloc
   function update_sql($sql) {
     $result = db_query($sql);
     if ($result) {
@@ -499,17 +504,200 @@ function guifi_settings() {
   $last_version = variable_get("guifi_db_version",0);
   foreach ($sql_updates as $version => $func) {
     if ($version > $last_version) {
-      $output .= "<strong>$version</strong><br />\n<pre>\n";
+      $form['version-markup-ini'] = array(
+        '#value' => "<strong>$version</strong><br />\n<pre>\n",
+        '#weight' => $form_weight++,
+      );
+
       $ret = $func();
       foreach ($ret as $return) {
-        $output.= $return[1];
-        $output.= $return[2];
+        $form['version-markup-rslt'] = array(
+          '#value' => $return[1] . $return[2],
+          '#weight' => $form_weight++,
+        );
       }
       variable_set("guifi_db_version", $version);
-      $output .= "</pre>\n";
+
+      $form['version-markup-end'] = array(
+        '#value' => "</pre>\n",
+        '#weight' => $form_weight++,
+      );
     }
   }
   db_query('DELETE FROM {cache}');
+  
+  // ----
+  // Muntatge del formulari
+  // --------------------------------  
+  $form['guifi_license'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('License agreement'), 
+    '#default_value' => variable_get("guifi_license", t("By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned if inappropiate use.s detected")), 
+    '#cols' => 60, 
+    '#rows' => 10, 
+    '#description' => t("Agreement &#038; help message when creating new nodes, users will not be able to create nodes unless they accept this message."),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Block title'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_title", t("guifi.net")),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Title of guifi block..."),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_root'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Root zone'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_root", 'guifi_zones'),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("URL of the root zone..."),
+    '#weight' => $form_weight++,
+  );  
+  $form['guifi_contact'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default contact'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_contact", 'netadmin@guifi.net'),
+    '#size' => 55,
+    '#maxlength' => 255, 
+    '#description' => t("An email will be submitted to this address when no contact address is present."),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_max_distance'] = array(
+    '#type' => 'select',
+    '#title' => t('Max. Distance'),
+    '#required' => FALSE,
+    '#default_value' => variable_get('guifi_max_distance', 25),
+    '#options' => drupal_map_assoc(array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100)),
+    '#description' => t('At which distance the report of neighbours ends. In Kms.'),
+    '#weight' => $form_weight++,
+  );
+  
+  // *** Aquesta linia no sembla que faci res. 
+  $vocabularies = taxonomy_get_vocabularies();
+  
+  $form['hotspot_ssid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hotspot SSID'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("hotspot_ssid", t("HotSpot"),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("SSID name for the hotspot open access for guests"),
+    '#weight' => $form_weight++,
+  );
+  $form['rrdtool'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to rrdtool'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("rrdtool_path", t("/usr/bin/rrdtool")),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Full path to rrtool executable"),
+    '#weight' => $form_weight++,
+  );
+  $form['rrddb_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to mrtg rrd files'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("rrddb_path", t("/home/comesfa/mrtg/logs/"),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Full path to rrtd database files"),
+    '#weight' => $form_weight++,
+  );
+  $form['rrdimg_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to mrtg img files'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("rrdimg_path", t("/home/comesfa/mrtg/images/"),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Full path to rrtd img files"),
+    '#weight' => $form_weight++,
+  );
+  $form['graphs_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL for local graphs'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("graphs_url", t("http://gufi.net/snpservices/graphs/graphs.php")),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Base URL for local rrd graphs"),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_log'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Log file'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_log", t("/home/comesfa/logs/guifi.log")),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Full path to filename"),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_loglevel'] = array(
+    '#type' => 'select',
+    '#title' => t('Log level'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_loglevel", 0),
+    '#options' => array(0=>'None',1=>'Basic',2=>'Trace',3=>'Full'),
+    '#description' => t('At which distance the report of neighbours ends. In Kms.'),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_rebuildmaps'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Rebuild maps mark'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_rebuildmaps", '/tmp/ms_tmp/REBUILD'),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Full path to filename to be created to indicate that maps should be refreshed"),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_maps'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL for maps module'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_maps", 'http://maps.guifi.net'),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Base URL for the mapping GIS application (guifimaps)"),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_decimal'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Decimal separator'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_decimal", ','),
+    '#size' => 1,
+    '#maxlength' => 1, 
+    '#description' => t("Decimal character for formatting numbers"),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_thousand'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Thousands separator'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_thousand", '.'),
+    '#size' => 1,
+    '#maxlength' => 1, 
+    '#description' => t("Thousands separatos for formatting numbers"),
+    '#weight' => $form_weight++,
+  );
+  
+  
+  return $form;
+  
+  
+  
+  
+  // *** Codi antic, s'haurà d'esborrar
 
 //  if 
 //  $installed_version = variable_get("guifi_version","1.0");
