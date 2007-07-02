@@ -33,7 +33,7 @@ function guifi_service_access($op, $node) {
 /**
  * Present the guifi service editing form.
  */   
-function guifi_servide_load($node) {
+function guifi_service_load($node) {
   $loaded = db_fetch_object(db_query("SELECT * FROM {guifi_services} WHERE id = '%d'", $node->nid));
   $loaded->var = unserialize($loaded->extra);
 
@@ -84,7 +84,7 @@ function guifi_service_form(&$node) {
     $form['service-type'] = array(
       '#type' => 'item',
       '#title' => t('Service type'),
-      '#value' => $node->service_type,
+      '#value' => $node->service_type."-",
       '#description' => t($type->description),
       '#weight' => $form_weight++,
     );
