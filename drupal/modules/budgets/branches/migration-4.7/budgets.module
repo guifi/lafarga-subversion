@@ -746,7 +746,8 @@ function budgets_edit_item($node,$op = null) {
   print theme('page', form($output));
 }
 
-function budgets_validate(&$node) {
+// Nova funció que fa part de la feina del validate
+function budgets_prepare(&$node) {
 
   if (empty($node->nid)) {
     // Fill default values
@@ -776,6 +777,35 @@ function budgets_validate(&$node) {
   }
 
 
+  // Follow the framework if going to edit other forms
+  if (isset($_POST['form_item'])) {
+    // If we are adding a new componenet or removing a old one
+    // we have to do what the framework would do for us so we don't lose
+    // information.
+    if( isset($_POST['edit']) ) {
+      $node = (object) $_POST['edit'];
+    }
+    $action = array_keys($_POST['form_item']);
+    
+    // if not adding an item and no item selected, set error
+    // else, goes to item form
+    if (($action[0] != 'add') and (!isset($node->item_checked)))  
+      form_set_error('', t('You must select an item to perform this action'));
+    else switch ($action[0]) {
+        case 'delete': 
+          unset($node->items[$node->item_checked]);
+          break;
+        default:
+          budgets_edit_item($node,$action[0]);
+          exit(0);
+    }
+  }
+  if( isset($_POST['back_to_form']) ) {
+    $node->items = $_POST['edit']['items'];
+  }
+}
+
+function budgets_validate(&$node) {
   // Follow the framework if going to edit other forms
   if (isset($_POST['form_item'])) {
     // If we are adding a new componenet or removing a old one
