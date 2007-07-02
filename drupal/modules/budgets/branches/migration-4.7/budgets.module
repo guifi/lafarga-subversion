@@ -156,6 +156,85 @@ function _budget_expires_list() {
 }
 
 function budgets_settings() {
+  // A partir d'ara l'ordre el definirem per aquesta variable.
+  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
+  $form_weight = -20;
+  
+  
+  $form['budget_block_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Block title'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_block_title", t("budgets & funds")),
+    '#size' => 35,
+    '#maxlength' => 255, 
+    '#description' => t("Title of budgets block..."),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_payment'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Default payment instructions'), 
+    '#default_value' => _budgets_variable("budget_payment"), 
+    '#cols' => 60, 
+    '#rows' => 10, 
+    '#description' => t("Default text for budget 'Terms & Conditions' box."),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_terms'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Default terms & conditions'), 
+    '#default_value' => _budgets_variable("budget_terms"),
+    '#cols' => 60, 
+    '#rows' => 10, 
+    '#description' => t("Default text for budget 'Terms & Conditions' box."),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_expires'] = array(
+    '#type' => 'select',
+    '#title' => t('Default expiration'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_expires",12),
+    '#options' => _budget_expires_list(),
+    '#description' => t('By default, how many weeks the budget will expire (closed if not covered)'),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_currency_txt'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default currency text'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_currency_txt","Euros"),
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('By default, currency abbreviation)'),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_currency_symbol'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default currency symbol'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_currency_symbol","€"),
+    '#size' => 5,
+    '#maxlength' => 5, 
+    '#description' => t('By default, currency symbol)'),
+    '#weight' => $form_weight++,
+  );
+  $form['budget_minimum'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default minimum contribution'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_minimum","0"),
+    '#size' => 10,
+    '#maxlength' => 10, 
+    '#description' => t('By default, minimum amount of each single contribution'),
+    '#weight' => $form_weight++,
+  );
+  
+  return $form;
+  
+  
+  
+  // *** Codi antic, s'haurà d'esborrar
+  
 //  $installed_version = variable_get("budgets_version","1.0");
 //  if ($installed_version < 2) {
 //    $output = l("upgrade to budget module version 2.0","admin/settings/budgets/upgrade");
