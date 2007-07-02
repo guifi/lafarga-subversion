@@ -78,7 +78,6 @@ function guifi_zone_form(&$node) {
   // A partir d'ara l'ordre el definirem per aquesta variable.
   // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
   $form_weight = -20;
-  
 
   $form['title'] = array(
     '#type' => 'textfield',
@@ -87,6 +86,8 @@ function guifi_zone_form(&$node) {
     '#default_value' => $node->title,
     '#weight' => $form_weight++,
   );
+
+
   $form['master'] = array(
     '#type' => 'select',
     '#title' => t('Parent zone'),
@@ -109,7 +110,7 @@ function guifi_zone_form(&$node) {
   
   // Els que no són administradors ja en tenen prou amb aquestes dades.
   if (!user_access('administer guifi zones'))
-    return form($form);
+    return $form;
 
   $form['nick'] = array(
     '#type' => 'textfield',

@@ -50,8 +50,8 @@ function guifi_service_form(&$node) {
     '#default_value' => $node->title,
     '#weight' => $form_weight++,
   );
-  
-  
+
+
   // ----
   // Comprovacions i petits canvis
   // ------------------------------------------------

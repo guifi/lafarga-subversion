@@ -50,8 +50,8 @@ function guifi_node_form(&$node) {
     '#default_value' => $node->title,
     '#weight' => $form_weight++,
   );
-  
-  
+
+
   // ----
   // Comprovacions i petits canvis
   // ------------------------------------------------
@@ -147,13 +147,13 @@ function guifi_node_form(&$node) {
   $form['position']['longitude'] = array(
     '#type' => 'item',
     '#title' => t('Longitude'),
-    '#value' => '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="' .  $node->londeg .'"/> ' . '<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/> ' . '<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"',
+    '#value' => '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="' .  $node->londeg .'"/>º ' . '<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/>\' ' . '<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"',
     '#weight' => $form_weight++,
   );
   $form['position']['latitude'] = array(
     '#type' => 'item',
     '#title' => t('Latitude'),
-    '#value' => '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="' .  $node->latdeg .'"/> ' . '<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/> ' . '<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"',
+    '#value' => '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="' .  $node->latdeg .'"/>º ' . '<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/>\' ' . '<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"',
     '#description' => t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'),
     '#weight' => $form_weight++,
   );
