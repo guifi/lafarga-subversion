@@ -1,5 +1,6 @@
 <?php
 
+// Generador dels unsolclic
 function guifi_unsolclic($id, $format = 'html') {
   $version = "v3.6-beta";
   global $rc_startup;
