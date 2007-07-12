@@ -528,6 +528,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('wl0_net_mode','b-only');
    _outln_nvram('wl_afterburner','on');
    _outln_nvram('wl_frameburst','on');
+   // Setting outpur power (mW)
    _outln_nvram('txpwr','28');
    _outln_nvram('txant','0');
    _outln_nvram('wl0_antdiv','0');
