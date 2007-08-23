@@ -5,7 +5,7 @@ $info = array(
 
   // Pre-defined color schemes
   'schemes' => array(
-    '#000000,#880000,#eeeeee,#cccccc,#000000' => t('guifi.net clear (Default)',
+    '#000000,#880000,#eeeeee,#cccccc,#000000' => t('guifi.net clear (Default)'),
     '#0072b9,#027ac6,#2385c2,#5ab5ee,#494949' => t('Blue Lagoon'),
     '#464849,#2f416f,#2a2b2d,#5d6779,#494949' => t('Ash'),
     '#55c0e2,#000000,#085360,#007e94,#696969' => t('Aquamarine'),
