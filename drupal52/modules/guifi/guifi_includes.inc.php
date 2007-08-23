@@ -1465,7 +1465,9 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
    $log .= $table.' '.t('UPDATED').":<br />";
    foreach ($new_data as $k=>$value) {
      $log .= "\t - ".$k.': '.$orig_data[$k].' -> '.$value.'<br />';
-     if (is_numeric($value))
+     if (is_float($value))
+       $values_data[$k] = $k.'=%f';
+     else if (is_numeric($value))
        $values_data[$k] = $k.'=%d';
      else
        $values_data[$k] = $k."='%s'";
