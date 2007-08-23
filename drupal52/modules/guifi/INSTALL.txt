@@ -7,17 +7,25 @@ Install & configuration of guifi.net module:
 - Install & configure your site with a supported drupal engine (5.2)
 
 - Enable you site  with clean url's 
-  (Administer->Site configuration->Clean URLs)
+  (Administer->Site configuration->Clean URLs)mysql_fix_privilege_tables
 
 - (Optional) Install GMap module for the current drupal version if you like to 
-  enjoy google maps API support within guifi.net module
+  enjoy google maps API support within guifi.net module.
 
 - Place the guifi.net module files in the standard drupal subdirectory tree 
   for modules (modules/guifi).
-
+  Take the files from the SVN latest release, ex. of anonymous get:
+    Being at the modules directory:
+    # svn co --username anonymous 
+      https://svn.projectes.lafarga.cat/svn/guifi/drupal52/modules .
+    Being at the themes directory (once it gets available, in the meantime, 
+    the most tested theme is garland):
+    # svn co --username anonymous 
+      https://svn.projectes.lafarga.cat/svn/guifi/drupal52/themes .
+    
 - Enable guifi.net module by checking the check box and save the changes
   (Administer->Site building->Modules->guifi.net)
-  This will create all the initial database schema needed by guifi.net module
+  This will create all the initial database schema needed by guifi.net module  
 
 - Set up the permission controls for guifi.net
   You might consider to create a few roles before, such as "network admins" and
@@ -80,3 +88,9 @@ Developer's tips & tricks:
 - Feel free to provide patches to the current SUBVERSION release
 - You can activate trace levels by going to the guifi.net configuration page
   (Administer->Site configuration->guifi.net)
+  
+NOTES:
+  The LOS graphs require the gnuplot package installed and a grid file,
+  Currently there is a grid file available only for Catalonia (cata.grd). 
+  
+  

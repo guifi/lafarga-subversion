@@ -504,6 +504,7 @@ function guifi_node_insert($node) {
   global $user;
 
   $node->new=true;
+  $node->id  = $node->nid;
   $node->lat = (float)$node->lat;
   $node->lon = (float)$node->lon;
   $nnode = _guifi_db_sql('guifi_location',array('id'=>$node->nid),(array)$node,$log,$to_mail);
