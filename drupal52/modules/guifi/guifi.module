@@ -154,7 +154,7 @@ function guifi_menu($may_cache) {
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 11);
     $items[] = array('path' => 'guifi/device/'.arg(2).'/edit', 'title' => t('edit device'),
-      'callback' => 'guifi_device_edit',
+      'callback' => 'guifi_edit_device',
       'callback arguments' => arg(2),
 //      'access' => user_access('create guifi nodes'), 	 
       'access' => guifi_device_access('update',arg(2)),
