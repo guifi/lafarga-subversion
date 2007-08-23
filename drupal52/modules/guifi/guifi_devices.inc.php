@@ -285,6 +285,7 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   // if new device, initializing variables
   if (($edit['nid'] == null) && ($nid != null)) {
     $edit['nid'] = $nid;
+    $edit['new'] = true;
     $edit['type'] = $type;
     $edit['links'] = array();
     $edit['netmask'] = '255.255.255.224';
