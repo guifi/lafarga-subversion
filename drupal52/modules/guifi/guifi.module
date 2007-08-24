@@ -20,45 +20,44 @@ include_once("guifi_includes.inc.php");  // misc. routines
 include_once("guifi_networkutils.inc.php");  // network calc routines
 include_once("GeoCalc.class.php");       // geographic routines
 
-/**
- * Implementation of node hooks.
- */
 
+/** Implementation of drupal main hooks.
+ *
+ 
+/** menu hooks
+ */
+ 
 function guifi_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
 
-     $items[] = array('path' => 'node/add/guifi-zone', 'title' => t('guifi zone'),
-        'access' => user_access('create guifi zones'));
-     $items[] = array('path' => 'node/add/guifi', 'title' => t('guifi node'),
-        'access' => user_access('create guifi nodes'));
-     $items[] = array('path' => 'node/add/guifi-service', 'title' => t('guifi service'),
-        'access' => user_access('create guifi nodes'));
-//     $items[] = array('path' => 'node/add/guifi-device', 'title' => t('create guifi device'),
-//        'access' => user_access('create guifi nodes'));
-
-
-//    $items[] = array('path' => 'admin/guifi', 'title' => t('guifi'),
-//      'callback' => 'guifi_overview',
-//      'access' => user_access('administer guifi zones'));
+    $items[] = array('path' => 'node/add/guifi-zone', 'title' => t('guifi zone'),
+      'access' => user_access('create guifi zones'));
+    $items[] = array('path' => 'node/add/guifi', 'title' => t('guifi node'),
+      'access' => user_access('create guifi nodes'));
+    $items[] = array('path' => 'node/add/guifi-service', 
+                      'title' => t('guifi service'),
+      'access' => user_access('create guifi nodes'));
     $items[] = array('path' => 'admin/guifi/list', 'title' => t('list'),
       'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
-    $items[] = array('path' => 'admin/guifi/ipv4/add', 'title' => t('add ipv4 network allocation'),
+    $items[] = array('path' => 'admin/guifi/ipv4/add', 
+      'title' => t('add ipv4 network allocation'),
       'callback' => 'guifi_edit_ipv4',
       'access' => user_access('administer guifi networks'),
       'type' => MENU_LOCAL_TASK);
-    $items[] = array('path' => 'admin/guifi/ipv4/edit', 'title' => t('edit guifi zone network range'),
+    $items[] = array('path' => 'admin/guifi/ipv4/edit', 
+      'title' => t('edit guifi zone network range'),
       'callback' => 'guifi_edit_ipv4',
       'access' => user_access('administer guifi networks'),
       'type' => MENU_CALLBACK);
-    $items[] = array('path' => 'admin/guifi/ipv4/delete', 'title' => t('delete guifi zone network range'),
+    $items[] = array('path' => 'admin/guifi/ipv4/delete', 
+      'title' => t('delete guifi zone network range'),
       'callback' => 'guifi_delete_ipv4',
       'access' => user_access('administer guifi networks'),
       'type' => MENU_CALLBACK);
 
   } else {
-// D51 begin
     $items[] = array(
       'path' => 'admin/settings/guifi',
       'title' => t('guifi.net'),
@@ -68,103 +67,124 @@ function guifi_menu($may_cache) {
       'access' => user_access('administer site configuration'),
       'type' => MENU_NORMAL_ITEM, // optional
      );
-//D51 end
-     $items[] = array('path' => 'guifi/add/device', 'title' => t('add device'), 	 
-       'callback' => 'guifi_add_device', 	 
-       'access' => user_access('create guifi nodes'), 	 
-       'type' => MENU_LOCAL_TASK);
-     $items[] = array('path' => 'guifi/graph', 'title' => t('display graph'),
-       'callback' => 'guifi_graph',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/graph_detail', 'title' => t('display detailed node graphs'),
-       'callback' => 'guifi_graph_detail',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/purge', 'title' => t('purge orphan devices/interfaces/ip addresses'),
-       'callback' => 'guifi_purge',
-       'access' => user_access('administer guifi networks'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/mrtg', 'title' => t('generate mrtg config file'),
-       'callback' => 'guifi_mrtg',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/nodexchange', 'title' => t('export zone in nodeXchange format'),
-       'callback' => 'guifi_nodexchange',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/cnml', 'title' => t('export zone in CNML format'),
-       'callback' => 'guifi_cnml',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/gml', 'title' => t('export zone in gml format'),
-       'callback' => 'guifi_gml',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'guifi/refresh', 'title' => t('check if data must be refreshed'),
-       'callback' => 'guifi_refresh',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
-     $items[] = array('path' => 'admin/settings/guifi/upgrade', 'title' => t('upgrade from previous versions'),
-       'callback' => 'guifi_upgrade',
-       'access' => user_access('access content'),
-       'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/add/device', 
+      'title' => t('add device'),	 
+      'callback' => 'guifi_add_device', 	 
+      'access' => user_access('create guifi nodes'), 	 
+      'type' => MENU_LOCAL_TASK);
+     $items[] = array('path' => 'guifi/graph', 
+      'title' => t('display graph'),
+      'callback' => 'guifi_graph',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/graph_detail', 
+      'title' => t('display detailed node graphs'),
+      'callback' => 'guifi_graph_detail',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/purge', 
+      'title' => t('purge orphan devices/interfaces/ip addresses'),
+      'callback' => 'guifi_purge',
+      'access' => user_access('administer guifi networks'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/mrtg', 
+      'title' => t('generate mrtg config file'),
+      'callback' => 'guifi_mrtg',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/nodexchange', 
+      'title' => t('export zone in nodeXchange format'),
+      'callback' => 'guifi_nodexchange',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/cnml', 
+      'title' => t('export zone in CNML format'),
+      'callback' => 'guifi_cnml',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/gml', 
+      'title' => t('export zone in gml format'),
+      'callback' => 'guifi_gml',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'guifi/refresh', 
+      'title' => t('check if data must be refreshed'),
+      'callback' => 'guifi_refresh',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
+     $items[] = array('path' => 'admin/settings/guifi/upgrade', 
+      'title' => t('upgrade from previous versions'),
+      'callback' => 'guifi_upgrade',
+      'access' => user_access('access content'),
+      'type' => MENU_SUGGESTED_ITEM);
 
 
     // guifi module menus
-    $items[] = array('path' => 'guifi', 'title' => t('guifi mesh networking database & provisioning system'),
+    $items[] = array('path' => 'guifi', 
+      'title' => t('guifi mesh networking database & provisioning system'),
       'callback' => 'guifi_page',
       'access' => user_access('access content'),
       'type' => MENU_SUGGESTED_ITEM);
     // device management menus
     if (arg(1) == 'device') {
-    $items[] = array('path' => 'guifi/device/'.arg(2), 'title' => t('view device'),
+    $items[] = array('path' => 'guifi/device/'.arg(2), 
+      'title' => t('view device'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'access' => user_access('access content'),
       'type' => MENU_SUGGESTED_ITEM);
-    $items[] = array('path' => 'guifi/device/add', 'title' => t('Add device'),
+    $items[] = array('path' => 'guifi/device/add', 
+      'title' => t('Add device'),
       'callback' => 'guifi_add_device',
       'access' => user_access('create guifi nodes'),
       'type' => MENU_SUGGESTED_ITEM);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view', 'title' => t('view'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view', 
+      'title' => t('view'),
       'callback arguments' => arg(2),
       'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/all', 'title' => t('all'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/all', 
+      'title' => t('all'),
       'callback arguments' => arg(2),
       'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/data', 'title' => t('data'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/data', 
+      'title' => t('data'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 7);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/graphs', 'title' => t('graphs'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/graphs', 
+      'title' => t('graphs'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 8);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/links', 'title' => t('links'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/links', 
+      'title' => t('links'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 9);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/interfaces', 'title' => t('interfaces'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/interfaces', 
+      'title' => t('interfaces'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 10);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/services', 'title' => t('services'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/services', 
+      'title' => t('services'),
       'callback' => 'guifi_device_print',
       'callback arguments' => arg(2),
       'type' => MENU_LOCAL_TASK, 'weight' => 11);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/edit', 'title' => t('edit device'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/edit', 
+      'title' => t('edit device'),
       'callback' => 'guifi_edit_device',
       'callback arguments' => arg(2),
-//      'access' => user_access('create guifi nodes'), 	 
       'access' => guifi_device_access('update',arg(2)),
       'type' => MENU_LOCAL_TASK);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/unsolclic', 'title' => t('unsolclic'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/view/unsolclic', 
+      'title' => t('unsolclic'),
       'callback' => 'guifi_unsolclic',
       'callback arguments' => arg(2),
       'weight' => 10,
       'type' => MENU_LOCAL_TASK);
-    $items[] = array('path' => 'guifi/device/'.arg(2).'/delete', 'title' => t('delete device'),
+    $items[] = array('path' => 'guifi/device/'.arg(2).'/delete', 
+      'title' => t('delete device'),
       'callback' => 'guifi_delete_device',
       'callback arguments' => arg(2),
       'access' => guifi_device_access('update',arg(2)),
@@ -178,64 +198,75 @@ function guifi_menu($may_cache) {
 
       // zone menus
       if (($node->nid) && ($node->type == 'guifi_zone')) {
-        $items[] = array('path' => 'node/'. arg(1) .'view', 'title' => t('view'),
+        $items[] = array('path' => 'node/'. arg(1) .'view', 
+          'title' => t('view'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 'title' => t('all'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 
+          'title' => t('all'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/view', 'title' => t('page'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/view', 
+          'title' => t('page'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 1,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/nodes', 'title' => t('nodes'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/nodes', 
+          'title' => t('nodes'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 2,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/map', 'title' => t('map'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/map', 
+          'title' => t('map'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 3,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 'title' => t('data'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 
+          'title' => t('data'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 4,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/availability', 'title' => t('availability'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/availability', 
+          'title' => t('availability'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 5,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/services', 'title' => t('services'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/services', 
+          'title' => t('services'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 6,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4', 'title' => t('networks'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4', 
+          'title' => t('networks'),
           'callback' => 'guifi_zone_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 7,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/all', 'title' => t('list'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/all', 
+          'title' => t('list'),
           'callback arguments' => arg(1),
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/add', 'title' => t('add network range'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/add', 
+          'title' => t('add network range'),
           'callback' => 'guifi_edit_ipv4',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
@@ -243,13 +274,15 @@ function guifi_menu($may_cache) {
           'type' => MENU_LOCAL_TASK);
 
         // Menus of edit
-        $items[] = array('path' => 'node/'. arg(1) .'edit', 'title' => t('edit'),
+        $items[] = array('path' => 'node/'. arg(1) .'edit', 
+          'title' => t('edit'),
           'callback' => 'guifi_edit',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/edit/data', 'title' => t('data'),
+        $items[] = array('path' => 'node/'. arg(1) .'/edit/data', 
+          'title' => t('data'),
           'callback' => 'guifi_edit',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
@@ -257,7 +290,8 @@ function guifi_menu($may_cache) {
           'type' => MENU_DEFAULT_LOCAL_TASK);
 
         // Menus of ipv4
-        $items[] = array('path' => 'node/'. arg(1) .'/add_ipv4', 'title' => t('Add ipv4 network'),
+        $items[] = array('path' => 'node/'. arg(1) .'/add_ipv4', 
+          'title' => t('Add ipv4 network'),
           'callback' => 'guifi_add_ipv4',
           'callback arguments' => arg(1),
           'access' => user_access('administer guifi networks'),
@@ -267,62 +301,73 @@ function guifi_menu($may_cache) {
 
       // node (location) menus
       if (($node->nid) && ($node->type == 'guifi_node')) {
-        $items[] = array('path' => 'node/'. arg(1) .'/add', 'title' => t('Add device'),
+        $items[] = array('path' => 'node/'. arg(1) .'/add', 
+          'title' => t('Add device'),
           'callback' => 'guifi_device_create',
           'callback arguments' => arg(1),
           'access' => user_access('create guifi nodes'),
           'weight' => 10,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'view', 'title' => t('view'),
+        $items[] = array('path' => 'node/'. arg(1) .'view', 
+          'title' => t('view'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 'title' => t('all'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 
+          'title' => t('all'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 'title' => t('data'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 
+          'title' => t('data'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 1,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/graphs', 'title' => t('graphs'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/graphs', 
+          'title' => t('graphs'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 2,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/devices', 'title' => t('devices'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/devices', 
+          'title' => t('devices'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 3,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/links', 'title' => t('links'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/links', 
+          'title' => t('links'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 4,
           'type' => MENU_LOCAL_TASK);
-        if ((($node->lat != '') and ($node->lon != '')) and (($node->lat > 0) and ($node->lon > 0)))
-        $items[] = array('path' => 'node/'. arg(1) .'/view/distances', 'title' => t('distances'),
-          'callback' => 'guifi_node_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 5,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/services', 'title' => t('services'),
+        if ((($node->lat != '') and ($node->lon != '')) 
+           and (($node->lat > 0) and ($node->lon > 0)))
+          $items[] = array('path' => 'node/'. arg(1) .'/view/distances', 
+            'title' => t('distances'),
+            'callback' => 'guifi_node_view',
+            'callback arguments' => arg(1),
+            'access' => user_access('access content'),
+            'weight' => 5,
+            'type' => MENU_LOCAL_TASK);
+        $items[] = array('path' => 'node/'. arg(1) .'/view/services', 
+          'title' => t('services'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 6,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/users', 'title' => t('users'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/users', 
+          'title' => t('users'),
           'callback' => 'guifi_node_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
@@ -332,48 +377,56 @@ function guifi_menu($may_cache) {
 
       // service menus
       if (($node->nid) && ($node->type == 'guifi_service')) {
-        $items[] = array('path' => 'node/'. arg(1) .'view', 'title' => t('view'),
+        $items[] = array('path' => 'node/'. arg(1) .'view', 
+          'title' => t('view'),
           'callback' => 'guifi_service_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 'title' => t('all'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 
+          'title' => t('all'),
           'callback' => 'guifi_service_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => -10,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/view', 'title' => t('page'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/view', 
+          'title' => t('page'),
           'callback' => 'guifi_service_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 1,
           'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 'title' => t('data'),
+        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 
+          'title' => t('data'),
           'callback' => 'guifi_service_view',
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 2,
           'type' => MENU_LOCAL_TASK);
         if ($node->service_type == 'Proxy') {
-          $items[] = array('path' => 'node/'. arg(1) .'/view/users', 'title' => t('users'),
+          $items[] = array('path' => 'node/'. arg(1) .'/view/users', 
+            'title' => t('users'),
             'callback' => 'guifi_service_view',
             'callback arguments' => arg(1),
             'access' => user_access('access content'),
             'weight' => 3,
             'type' => MENU_LOCAL_TASK);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/passwd', 'title' => t('passwd'),
+          $items[] = array('path' => 'node/'. arg(1) .'/view/passwd', 
+            'title' => t('passwd'),
             'callback' => 'guifi_service_view',
             'callback arguments' => arg(1),
             'access' => user_access('access content'),
             'type' => MENU_CUSTOM_ITEM);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/federated', 'title' => t('federated'),
+          $items[] = array('path' => 'node/'. arg(1) .'/view/federated', 
+            'title' => t('federated'),
             'callback' => 'guifi_service_view',
             'callback arguments' => arg(1),
             'access' => user_access('access content'),
             'type' => MENU_CUSTOM_ITEM);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/ldif', 'title' => t('ldif'),
+          $items[] = array('path' => 'node/'. arg(1) .'/view/ldif', 
+            'title' => t('ldif'),
             'callback' => 'guifi_service_view',
             'callback arguments' => arg(1),
             'access' => user_access('access content'),
@@ -388,10 +441,7 @@ function guifi_menu($may_cache) {
 
   return $items;
 }
-
-// D51 begin
-/**
- * Implementation of hook_help().
+/** info hook.
  */
 function guifi_node_info() {
   return array(
@@ -412,11 +462,7 @@ function guifi_node_info() {
     ),
   );
 }
-// D51 end
-
-
-/**
- * Implementation of hook_help().
+/** help hook
  */
 function guifi_help($section) {
   switch ($section) {
@@ -433,70 +479,6 @@ function guifi_help($section) {
     case 'node/add#guifi-service':
       return t("Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... .");
   }
-}
-
-function guifi_purge() {
-  // deleting orphan devices
-  unset($del);
-  $q =db_query('SELECT d.id FROM {guifi_devices} d LEFT JOIN {guifi_location} n ON d.nid=n.id WHERE n.id IS NULL');
-  while ($r = db_fetch_object($q) )
-    $del[] .= $r->id;
-
-  if (count($del)) {
-    $SqlDelDev = sprintf("DELETE FROM {guifi_devices} WHERE id IN (%s)",implode(',',$del));
-    db_query($SqlDelDev);
-    $SqlDelRad = sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",implode(',',$del));
-    db_query($SqlDelRad);
-  }
-
-  // deleting orphan radios
-  unset($del);
-  $q =db_query('SELECT r.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE d.id IS NULL');
-  while ($r = db_fetch_object($q) )
-    $del[] .= $r->id;
-
-  if (count($del)) {
-    $SqlDelRad = sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",implode(',',$del));
-    print $SqlDelRad;
-    db_query($SqlDelRad);
-  }
-
-  // deleting orphan interfaces
-  unset($del);
-  $q =db_query('SELECT i.id FROM {guifi_interfaces} i LEFT JOIN {guifi_devices} d ON i.device_id=d.id WHERE d.id IS NULL');
-  while ($r = db_fetch_object($q) )
-    $del[] .= $r->id;
-
-  if (count($del)) {
-    $SqlDel= sprintf("DELETE FROM {guifi_interfaces} WHERE id IN (%s)",implode(',',$del));
-    print $SqlDel;
-    db_query($SqlDel);
-  }
-
-  // deleting orphan ip addresses
-  unset($del);
-  $q =db_query('SELECT a.interface_id FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id WHERE i.id IS NULL');
-  while ($r = db_fetch_object($q) )
-    $del[] .= $r->interface_id;
-
-  if (count($del)) {
-    $SqlDel= sprintf("DELETE FROM {guifi_ipv4} WHERE interface_id IN (%s)",implode(',',$del));
-    print $SqlDel;
-    db_query($SqlDel);
-  }
-
-  // deleting orphan links
-  unset($del);
-  $q =db_query('SELECT l.id FROM {guifi_links} l LEFT JOIN {guifi_devices} d ON l.device_id=d.id WHERE d.id IS NULL');
-  while ($r = db_fetch_object($q) )
-    $del[] .= $r->id;
-
-  if (count($del)) {
-    $SqlDel= sprintf("DELETE FROM {guifi_links} WHERE id IN (%s)",implode(',',$del));
-    print $SqlDel;
-    db_query($SqlDel);
-  }
-
 }
 
 /**
@@ -824,6 +806,102 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
 function guifi_cron() {
   // delete orphan devices, radios, ip addresses & links
   guifi_purge();
+}
+
+/** putge orphan data
+ */
+function guifi_purge() {
+  // deleting orphan devices
+  unset($del);
+  $q =db_query('SELECT 
+                  d.id 
+                FROM {guifi_devices} d 
+                  LEFT JOIN {guifi_location} n ON d.nid=n.id 
+                WHERE n.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDelDev = 
+      sprintf("DELETE FROM {guifi_devices} WHERE id IN (%s)",
+        implode(',',$del));
+    db_query($SqlDelDev);
+    $SqlDelRad = 
+      sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",
+        implode(',',$del));
+    db_query($SqlDelRad);
+  }
+
+  // deleting orphan radios
+  unset($del);
+  $q =db_query('SELECT 
+                  r.id 
+                FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id
+                WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDelRad = 
+      sprintf("DELETE FROM {guifi_radios} WHERE id IN (%s)",
+        implode(',',$del));
+    print $SqlDelRad;
+    db_query($SqlDelRad);
+  }
+
+  // deleting orphan interfaces
+  unset($del);
+  $q =db_query('SELECT 
+                  i.id 
+                FROM {guifi_interfaces} i 
+                  LEFT JOIN {guifi_devices} d ON i.device_id=d.id 
+                WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDel= 
+      sprintf("DELETE FROM {guifi_interfaces} WHERE id IN (%s)",
+        implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
+  // deleting orphan ip addresses
+  unset($del);
+  $q =db_query('SELECT a.interface_id 
+                FROM {guifi_ipv4} a 
+                  LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id 
+                WHERE i.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->interface_id;
+
+  if (count($del)) {
+    $SqlDel= 
+      sprintf("DELETE FROM {guifi_ipv4} WHERE interface_id IN (%s)",
+        implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
+  // deleting orphan links
+  unset($del);
+  $q =db_query('SELECT 
+                  l.id 
+                FROM {guifi_links} l 
+                  LEFT JOIN {guifi_devices} d ON l.device_id=d.id 
+                WHERE d.id IS NULL');
+  while ($r = db_fetch_object($q) )
+    $del[] .= $r->id;
+
+  if (count($del)) {
+    $SqlDel= 
+      sprintf("DELETE FROM {guifi_links} WHERE id IN (%s)",
+        implode(',',$del));
+    print $SqlDel;
+    db_query($SqlDel);
+  }
+
 }
 
 ?>
