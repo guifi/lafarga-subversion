@@ -23,17 +23,7 @@ function guifi_overview($id=0) {
 **/
 
 
-/**
- * Menu callback; hide a guifi item.
- */
-function guifi_disable_zone($id) {
-  db_query('UPDATE {guifi_zone} SET valid = 0 WHERE id = %d', $id);
-  drupal_set_message(t('guifi zone disabled.'));
-  drupal_goto('admin/guifi/'.$node->id);
-}
-
-/**
- * Get zone information 
+/** Get zone from the database an fill the variable
 **/
 function guifi_get_zone($id) {
 
@@ -45,8 +35,15 @@ function guifi_get_zone($id) {
 /**
  * Load the zone from the guifi database.
  */
-function guifi_zone_load($node) {
-  $loaded = db_fetch_object(db_query("SELECT * FROM {guifi_zone} WHERE id = '%d'", $node->nid));
+function guifi_zone_load($id) {
+  $loaded = db_fetch_object(
+    db_query("
+    SELECT 
+      * 
+    FROM {guifi_zone} 
+    WHERE 
+      id = '%d'", 
+    $node->nid));
   if (($zone->nick == '') or ($zone->nick == null))
     $zone->nick = guifi_abbreviate($zone->title);
 
@@ -588,7 +585,7 @@ function guifi_zone_print_data($zone) {
 **/
 function guifi_zone_print($id) {
 
-  $zone = guifi_get_zone($id);
+  $zone = guifi_zone_load($id);
  
 //  $header = array(t('operations'), 
 //            l(t('geo-reference'),'admin/guifi/zone/geo/' .$id) 
@@ -606,7 +603,7 @@ function guifi_zone_print($id) {
 **/
 function guifi_zone_ipv4($id) {
 
-  $zone = guifi_get_zone($id);
+  $zone = guifi_zone_load($id);
 
   $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'),t('operations'));
   $table = theme('table', $header, guifi_ipv4_print_data($zone));

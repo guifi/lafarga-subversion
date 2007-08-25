@@ -163,7 +163,7 @@ function guifi_ipv4_print_data($zone) {
     }
     $master = $zone->master;
     if ( $zone->master > 0)
-      $zone = guifi_get_zone($zone->master);
+      $zone = guifi_zone_load($zone->master);
   } while ( $master  > 0);
 
   return array_merge($rows);

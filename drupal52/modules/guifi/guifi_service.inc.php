@@ -38,7 +38,7 @@ function guifi_service_form(&$node, &$param) {
   global $user;
 
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
-    $zone = guifi_get_zone($node->title);
+    $zone = guifi_zone_load($node->title);
     $node->zone_id = $node->title;
     $node->contact = $user->mail;
     $default = t('<service>');

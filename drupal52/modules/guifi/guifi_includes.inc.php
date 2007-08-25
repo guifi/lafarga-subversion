@@ -906,7 +906,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
   global $user;
 
   $zone_fetch = db_fetch_object(db_query("SELECT l.zone_id id, z.master FROM {guifi_location} l LEFT JOIN {guifi_zone} z ON l.zone_id=z.id WHERE l.id=%d",$nid));
-  $zone = guifi_get_zone($zone_fetch->id);
+  $zone = guifi_zone_load($zone_fetch->id);
   $rzone = $zone;
 
   $depth = 0;
@@ -983,7 +983,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
     // Take a look at the parent network zones
     $master = $zone->master;
     if ( $zone->master > 0)
-      $zone = guifi_get_zone($zone->master);
+      $zone = guifi_zone_load($zone->master);
   } while ( $master  > 0);
 
   return false;
@@ -1105,9 +1105,9 @@ function guifi_log($level, $var, $var2 = null) {
 
 function guifi_to_7bits($str) {
  $str = iconv('UTF-8', 'ASCII//IGNORE', $str);
- $ignore_chars = '"ºª\!"@·#$%&/()=?¿\'¿¡*+[]{};:_-.,<>';
+ $ignore_chars = '"\!"@#$%&/()=?\'*+[]{};:_-.,<>';
  $str_new = str_replace(str_split($ignore_chars),'',$str);
-// $from =  "ÀÈÌÒÙÁÉÍÓÚÄËÏÖÜàèìòùáéíóúäëïöüçÇñÑâêîôûÂÊÎÔÛ";
+// $from =  "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½;
 // $to   =  "aeiuoaeiouaeiouaeiouaeiouaeioucCnNaeiouaeiou";
 // $str_new = str_replace(str_split($from),str_split($to),$str_new);
  guifi_log(GUIFILOG_FULL,'Converted to 7 bits: '.$str_new);
