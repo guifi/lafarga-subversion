@@ -2,13 +2,13 @@
 // $Id: guifi.module x$
 
 /**
- * @file
+ * @file guifi_node.incp.php
  * Manage guifi_node 
  * rroca
  */
 
-/**
- * Implementation of hook_access().
+/* main node (locations) hooks */
+/** guifi_node_access(): construct node permissions
  */
 function guifi_node_access($op, $node) {
   global $user; 
@@ -17,7 +17,8 @@ function guifi_node_access($op, $node) {
   }
 
   if ($op == 'update') {
-    if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
+    if ((user_access('administer guifi zones')) ||
+     ($node->uid == $user->uid)) {
       return TRUE;
     }
     else {
@@ -26,12 +27,42 @@ function guifi_node_access($op, $node) {
   }
 }
 
-/**
- * zone editing functions
+/** guifi_node_add(): creates a new node
+**/
+function guifi_node_add($id) {
+  $zone = guifi_zone_load($id);
+  // Set the defaults for a node of this zone
+  // Callback to node/guifi-node/add
+  drupal_goto('node/add/guifi-node?edit[title]='.$zone->id);
+}
+
+/** guifi_node_delete(): deletes a given node
+**/
+function guifi_node_delete(&$node) {
+  $to_mail = array();
+  $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
+  drupal_set_message($log);
+  guifi_notification(
+           $to_mail, 
+           t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
+           $log);
+  cache_clear_all();
+  variable_set('guifi_refresh_cnml',time());
+  variable_set('guifi_refresh_maps',time());
+
+  return;
+}
+
+/** guifi_node_load(): load and constructs node array from the database
+**/
+function guifi_node_load($node) {
+      return db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
+}
+
+/** node editing functions
 **/
 
-/**
- * Present the guifi zone editing form.
+/** guifi_node_form(): Present the node editing form.
  */
 function guifi_node_form(&$node, &$param) {
   global $user;
@@ -67,7 +98,7 @@ function guifi_node_form(&$node, &$param) {
   
   //  print "Nid: ".$node->nid." title: ".$node->title." GetLat: ".$_GET['Lat'];
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
-    $zone = guifi_get_zone($node->title);
+    $zone = guifi_zone_load($node->title);
     $node->zone_id = $node->title;
     $default = t('<nodename>');
     $node->title = null;
@@ -133,9 +164,6 @@ function guifi_node_form(&$node, &$param) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-
-
-
   $form['position'] = array(
     '#type' => 'fieldset',
     '#title' => t('Node postion settings'),
@@ -143,9 +171,6 @@ function guifi_node_form(&$node, &$param) {
     '#collapsible' => false,
 //    '#collapsed' => TRUE,
   );
-
-
-  
   $form['position']['zone_id'] = array(
     '#type' => 'select',
     '#title' => t("Zone"),
@@ -155,8 +180,6 @@ function guifi_node_form(&$node, &$param) {
     '#description' => t('The zone where this node where this node belongs to.'),
     '#weight' => 0,
   );
-  
-  
   // Position
   if ($node->lat != NULL) {
     $node->latdeg = floor($node->lat);
@@ -207,19 +230,11 @@ function guifi_node_form(&$node, &$param) {
     if ((($node->lat == 0) and ($node->lon == 0)) or
        ($node->lat == null) or
        ($node->lon == null)) 
-//       $map_macro = variable_get('gmap_user_map', '[gmap |id=usermap |center=0,30 |zoom=16 |width=100% |height=400px]');
-//      $map_macro = '[gmap |id=usermap|center=17,-4|zoom=2|width=500px|height=400px]';
-      $map_macro = '[gmap |id=usermap|center=17,-4|zoom=2|width=100%|height=400px]';
-//      $map_macro = '[gmap zoom=7 | id=usermap |center=41.9738,2.2383 |width=100% |height=400px | control=Large |type=Hybrid]';
+      $map_macro = 
+        '[gmap |id=usermap|center=17,-4|zoom=2|width=100%|height=400px]';
     else
-        $map_macro = '[gmap |id=usermap|center=17,-4|zoom=13|width=100%|height=400px|type=Hybrid]';
-//      $map_macro = '[gmap |id=usermap|center='.$node->lat.','.$node->lon.'|zoom=17|width=500px|height=400px|type=Map]';
-
-//    $map_macro = variable_get('gmap_user_map', '[gmap |id=usermap |center=0,30 |zoom=16 |width=100% |height=400px]');
-
-//    print_r($map_macro);
-//    print_r($node);
-//    print_r($_POST);
+      $map_macro = 
+        '[gmap|id=usermap|center=17,-4|zoom=13|width=100%|height=400px|type=Hybrid]';
     $form['position']['gmap_node']['#value'] = 
       gmap_set_location($map_macro, 
         $form['position'], array('latitude' => 'lat', 'longitude' => 'lon'));
@@ -228,7 +243,13 @@ function guifi_node_form(&$node, &$param) {
   $form['position']['longitude'] = array(
     '#type' => 'item',
     '#title' => t('Longitude'),
-    '#prefix' => '<table><th>&nbsp</th><th>'.t('degrees (decimal values allowed)').'</th><th>'.t('minutes').'</th><th>'.t('seconds').'</th><tr><td>',
+    '#prefix' => '<table><th>&nbsp</th><th>'.
+      t('degrees (decimal values allowed)').
+        '</th><th>'.
+        t('minutes').
+        '</th><th>'.
+        t('seconds').
+        '</th><tr><td>',
     '#suffix' => '</td>',
     '#weight' => 1,
   );  
@@ -294,19 +315,6 @@ function guifi_node_form(&$node, &$param) {
     '#weight' => 8,
   );
   }
-/*  $form['position']['longitude'] = array(
-    '#type' => 'item',
-    '#title' => t('Longitude'),
-    '#value' => '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="' .  $node->londeg .'"/>º ' . '<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/>\' ' . '<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"',
-    '#weight' => $form_weight++,
-  );
-  $form['position']['latitude'] = array(
-    '#type' => 'item',
-    '#title' => t('Latitude'),
-    '#value' => '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="' .  $node->latdeg .'"/>º ' . '<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/>\' ' . '<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"',
-    '#description' => t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'),
-    '#weight' => $form_weight++,
-  );*/
   $form['position']['zone_description'] = array(
     '#type' => 'textfield',
     '#title' => t('Zone description'),
@@ -336,8 +344,11 @@ function guifi_node_form(&$node, &$param) {
       '#type' => 'select',
       '#title' => t("Server which collects traffic and availability data"),
       '#required' => FALSE,
-      '#default_value' => ($node->graph_server ? $node->graph_server : 0),
-      '#options' => array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'),
+      '#default_value' => 
+        ($node->graph_server ? $node->graph_server : 0),
+      '#options' => array(
+        '0'=>t('Default'),
+        '-1'=>t('None')) + guifi_services_select('SNPgraphs'),
       '#description' => t("If not specified, inherits zone properties."),
       '#weight' => 0,
     );
@@ -347,8 +358,11 @@ function guifi_node_form(&$node, &$param) {
     '#title' => t("It's supposed to be a stable online node?"),
     '#required' => FALSE,
     '#default_value' => ($node->stable ? $node->stable : 'Yes'),
-    '#options' => array('Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'), 'No' => t("I'm sorry. Will be connected just when I'm online")),
-    '#description' => t("That helps while planning a mesh network. We should know which locations are likely available to provide stable links."),
+    '#options' => array(
+      'Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'), 
+      'No' => t("I'm sorry. Will be connected just when I'm online")),
+    '#description' => 
+      t("That helps while planning a mesh network. We should know which locations are likely available to provide stable links."),
     '#weight' => 1,
   );
   
@@ -371,110 +385,69 @@ function guifi_node_form(&$node, &$param) {
   );
   
   return $form;
-//  print "Nid: ".$node->nid." title: ".$node->title." GetLat: ".$_GET['Lat'];
-  if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
-    $zone = guifi_get_zone($node->title);
-    $node->zone_id = $node->title;
-    $default = t('<nodename>');
-    $node->title = null;
-    $node->nick = $zone->nick.$default;
-  }
-  if (empty($node->nid)) {
-    $node->lat = $_GET['Lat'];
-    $node->lon = $_GET['Lon'];
-    $node->contact = $user->mail;
-    $node->status_flag = 'Planned';
-    $output .= form_item(t('License and usage agreement'),variable_get('guifi_license',null),t('You must accept this agreement to be authorized to create new nodes.'),null,false);
-    $output .= form_radio(t('Yes, I have read this and accepted'),'agreement','Yes',false,null);
-  } else
-    $output .= form_hidden('agreement','Yes');
-
-
-
-  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''), null, true);
-  $output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
-  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
-
-  // Position
-  if ($node->lat != NULL) {
-    $node->latdeg = floor($node->lat);
-    $node->latmin = (($node->lat - floor($node->lat)) * 60);
-    $node->latseg = round(($node->latmin - floor($node->latmin)) * 60,4);
-    $node->latmin = floor($node->latmin);
-  }
-  if ($node->lon != NULL) {
-    $node->londeg = floor($node->lon);
-    $node->lonmin = (($node->lon - floor($node->lon)) * 60);
-    $node->lonseg = round(($node->lonmin - floor($node->lonmin)) * 60,4);
-    $node->lonmin = floor($node->lonmin);
-  }
-  $degminsec = form_item(t('Longitude'),
-                '<input type="text" name="edit[londeg]" size="12" maxlength="24" value="'. $node->londeg .'"/> '
-                .'<input type="text" name="edit[lonmin]" size="12" maxlength="24" value="'. $node->lonmin .'"/> '
-                .'<input type="text" name="edit[lonseg]" size="12" maxlength="24" value="'. $node->lonseg .'"/>"'
-                , NULL, NULL, FALSE);
-  $degminsec .= form_item(t('Latitude'),
-                '<input type="text" name="edit[latdeg]" size="12" maxlength="24" value="'. $node->latdeg .'"/> '
-                .'<input type="text" name="edit[latmin]" size="12" maxlength="24" value="'. $node->latmin .'"/> '
-                .'<input type="text" name="edit[latseg]" size="12" maxlength="24" value="'. $node->latseg .'"/>"'
-                , t('Latitude &#038; Longitude: positive means EAST/NORTH, negative WEST/SOUTH.<br />If you provide data in decimal, leave the following fields empty and a conversion will be made.'), NULL, FALSE);
-  $degminsec .= form_textfield(t("Zone description"), "zone_description", $node->zone_description, 60, 128, t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street.") . ($error['zone'] ? $error["zone"] : ''));
-  $output .= form_group('Position',$degminsec,null);
-  $output .= form_textfield(t("Antenna elevation"), "elevation", $node->elevation, 20, 20, t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''));
-
-  if (user_access('administer guifi zones')) $output .= form_select(t("Server which collects traffic and availability data"), "graph_server", ($node->graph_server ? $node->graph_server : 0), array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'), t("If not specified, inherits zone properties."));
-
-  $stable_types = array('Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'),
-                        'No' => t("I'm sorry. Will be connected just when I'm online"));
-
-  $output .= form_select(t("It's supposed to be a stable online node?"), "stable", ($node->stable ? $node->stable : 'Yes'), $stable_types, t("That helps while planning a mesh network. We should know which locations are likely available to provide stable links."));
-
-//  $output .= implode("", taxonomy_node_form("wifi", $node));
-
-  $output .= form_textarea(t("Body"), "body", $node->body, 60, 20, t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''));
-  
-  $output .= form_hidden('status_flag',$node->status_flag);
-
   return $output;
 }
 
-/**
- * Confirm that an edited guifi item has fields properly filled in.
+/** _guifi_line_edit_device_form(): creates an url for editing the form
+ */
+function _guifi_line_edit_device_form($id) {
+  unset($form);
+  $form['id'] = array('#type' => 'hidden', '#value' => $id);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
+  $form['#action'] = url('guifi/device/'. $id.'/edit');
+  return $form;
+}
+/** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
  */
 function guifi_node_validate(&$node) {
   guifi_validate_nick($node->nick);
 
   if ($node->agreement != 'Yes')
-      form_set_error('agreement', t('You must read and accept the license &#038; terms and conditions to be allowed to create nodes.'));
+      form_set_error(
+        'agreement', 
+        t('You must read and accept the license &#038; terms and conditions to be allowed to create nodes.'));
 
   if (!empty($node->nick)) { 
-    $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",strtolower($node->nick),$node->nid);
+    $query = db_query("
+      SELECT 
+        nick 
+      FROM {guifi_location} 
+      WHERE lcase(nick)='%s' 
+        AND id <> %d",
+      strtolower($node->nick),$node->nid);
     if (db_num_rows($query))
       form_set_error('nick', t('Nick already in use.'));
   }
 
   // not at root zone
   if (($node->zone_id == 0) && (!empty($node->nick))) {
-    form_set_error('zone_id', t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
+    form_set_error(
+      'zone_id', 
+      t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
   }
   
   if ($node->elevation == 0)
     $node->elevation = NULL;
   if (($node->elevation < -1) && ($node->elevation != NULL))
-    form_set_error('elevation', t('Elevation must be above the floor! :)'));
+    form_set_error(
+      'elevation', 
+      t('Elevation must be above the floor! :)'));
   if (($node->elevation > 100) && ($node->elevation != NULL))
-    form_set_error('elevation', t('Do you mean that you are flying over the earth??? :)'));
-
+    form_set_error(
+      'elevation', 
+      t('Do you mean that you are flying over the earth??? :)'));
   if ($node->latdeg != NULL)
-        $node->lat = $node->latdeg;
+    $node->lat = $node->latdeg;
   if ($node->latmin != NULL)
-        $node->lat = $node->lat + ($node->latmin / 60);   if ($node->latseg != NULL)
-        $node->lat = $node->lat + ($node->latseg / 3600);   if ($node->londeg != NULL)
-        $node->lon = $node->londeg;
+    $node->lat = $node->lat + ($node->latmin / 60);   
+  if ($node->latseg != NULL)
+    $node->lat = $node->lat + ($node->latseg / 3600);   
+  if ($node->londeg != NULL)
+    $node->lon = $node->londeg;
   if ($node->lonmin != NULL)
-        $node->lon = $node->lon + ($node->lonmin / 60);
+    $node->lon = $node->lon + ($node->lonmin / 60);
   if ($node->lonseg != NULL)
-        $node->lon = $node->lon + ($node->lonseg / 3600);
+    $node->lon = $node->lon + ($node->lonseg / 3600);
 
   if ($node->lat == 0)
     $node->lat = NULL;
@@ -482,24 +455,29 @@ function guifi_node_validate(&$node) {
     $node->lon = NULL;
 
   if (($node->lat == NULL) and ($node->lon == NULL)) {
-    form_set_error('lon', t('Please provide lon/lat information for the node. You can obtain by using the maps and clicking over the point where the node is located.'));
+    form_set_error(
+      'lon', 
+      t('Please provide lon/lat information for the node. You can obtain by using the maps and clicking over the point where the node is located.'));
   if (($node->lat > 180) or ($node->lat < -180))
-    form_set_error('lat', t('Latitude must be between -180 and 180 degrees.'));
+    form_set_error(
+      'lat', 
+      t('Latitude must be between -180 and 180 degrees.'));
   if (($node->lon > 90) or ($node->lon < -90))
-    form_set_error('lon', t('Longitude must be between -90 and 90 degrees.'));
+    form_set_error(
+      'lon', 
+      t('Longitude must be between -90 and 90 degrees.'));
   }
 
 }
 
-/**
- * Save changes to a guifi item into the database.
+/** guifi_node_submit(): Save changes to a guifi item into the database.
  */
-
 function guifi_node_submit(&$node) {
   guifi_node_validate($node);
 }
 
-
+/** guifi_node_insert(): Create a new node in the database
+ */
 function guifi_node_insert($node) {
   global $user;
 
@@ -507,24 +485,30 @@ function guifi_node_insert($node) {
   $node->id  = $node->nid;
   $node->lat = (float)$node->lat;
   $node->lon = (float)$node->lon;
-  $nnode = _guifi_db_sql('guifi_location',array('id'=>$node->nid),(array)$node,$log,$to_mail);
-//  db_query("INSERT INTO {guifi_location} ( id, zone_id, zone_description, nick, lat, lon, elevation, graph_server, contact, status_flag, stable, timestamp_created, user_created) VALUES (%d, %d, '%s', '%s', %f, %f, %d, %d, '%s', '%s', '%s',  %d, %d)", $node->nid, $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid);
-
+  $nnode = _guifi_db_sql(
+    'guifi_location',
+    array('id'=>$node->nid),(array)$node,$log,$to_mail);
 
   // Refresh maps
-//  touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
   variable_set('guifi_refresh_cnml',time());
   variable_set('guifi_refresh_maps',time());
 
   cache_clear_all();
 }
 
+/** guifi_node_update(): Update a node in the database */
 function guifi_node_update($node) {
   global $user;
 
   // Refresh maps?
-  $pn = db_fetch_object(db_query('SELECT * FROM {guifi_location} l WHERE l.id=%d',$node->nid));  
-  if (($pn->lat != $node->lat) || ($pn->lon != $node->lon) || ($pn->status_flag != $node->status_flag)) {
+  $pn = db_fetch_object(db_query(
+    'SELECT * 
+    FROM {guifi_location} l 
+    WHERE l.id=%d',
+    $node->nid));  
+  if (($pn->lat != $node->lat) || 
+    ($pn->lon != $node->lon) || 
+    ($pn->status_flag != $node->status_flag)) {
 //    touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
     variable_set('guifi_refresh_cnml',time());
     variable_set('guifi_refresh_maps',time());
@@ -534,14 +518,16 @@ function guifi_node_update($node) {
 
   $node->lat = (float)$node->lat;
   $node->lon = (float)$node->lon;
-  $nnode = _guifi_db_sql('guifi_location',array('id'=>$node->id),(array)$node,$log,$to_mail);
-
-//  db_query("UPDATE {guifi_location} SET zone_id = %d, zone_description = '%s', nick = '%s', lat = %f, lon = %f, elevation = %d, graph_server = '%s', contact = '%s', status_flag = '%s', stable = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->zone_description, $node->nick, $node->lat, $node->lon, $node->elevation, $node->graph_server, $node->contact, $node->status_flag, $node->stable, time(), $user->uid, $node->nid);
+  $nnode = _guifi_db_sql(
+    'guifi_location',
+    array('id'=>$node->id),
+    (array)$node,$log,$to_mail);
 
 }
 
-/**
- * outputs the zone information data
+/** node visualization (view) function calls */
+
+/** guifi_node_print_data(): outputs the node information (d)ata
 **/
 function guifi_node_print_data($node) {
   
@@ -592,8 +578,7 @@ function guifi_node_print_data($node) {
   return array_merge($rows);
 }
 
-/**
- * outputs the node information
+/** guifi_node_view(): outputs the node information
 **/
 function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
 
@@ -686,15 +671,8 @@ function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
 //    print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
 }
 
-
-function _guifi_line_edit_device_form($id) {
-  unset($form);
-  $form['id'] = array('#type' => 'hidden', '#value' => $id);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
-  $form['#action'] = url('guifi/device/'. $id.'/edit');
-  return $form;
-}
-
+/** guifi_node_radio_list(): list of node devices
+**/
 function guifi_node_radio_list($id = 0) {
   
   $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
@@ -736,6 +714,8 @@ function guifi_node_radio_list($id = 0) {
   return '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
 }
 
+/** guifi_node_print_distances(): list of neighbors
+**/
 function guifi_node_distances($id,$edit = NULL) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_node_distances()',$edit);
@@ -979,6 +959,8 @@ function guifi_node_distances($id,$edit = NULL) {
   return $form;
 }
 
+/** guifi_node_link_list(): list of node links
+**/
 function guifi_node_link_list($id = 0, $ltype = '%') {
   $oGC = new GeoCalc();
 
@@ -1054,33 +1036,6 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
     return $output;
   }
   return NULL;
-}
-
-function guifi_node_add($id) {
-  $zone = guifi_get_zone($id);
-  // Set the defaults for a node of this zone
-  // Callback to node/guifi-node/add
-  drupal_goto('node/add/guifi-node?edit[title]='.$zone->id);
-}
-
-function guifi_node_delete(&$node) {
-  $to_mail = array();
-  $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
-  drupal_set_message($log);
-  guifi_notification(
-           $to_mail, 
-           t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
-           $log);
-  cache_clear_all();
-  variable_set('guifi_refresh_cnml',time());
-  variable_set('guifi_refresh_maps',time());
-
-  return;
-}
-
-
-function guifi_node_load($node) {
-      return db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
 }
 
 

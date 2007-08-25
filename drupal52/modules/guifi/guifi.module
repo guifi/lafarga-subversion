@@ -14,7 +14,8 @@ include_once("guifi_graphs.inc.php");    // graphs management
 include_once("guifi_unsolclic.inc.php"); // unsolclic generator 
 include_once("guifi_nodexchange.inc.php");// nodeXchange (XML) generator 
 include_once("guifi_cnml.inc.php");      // CNML (XML) generator 
-include_once("guifi_gml.inc.php");       // gml (geographic XML export) generator 
+include_once("guifi_gml.inc.php");       // gml (geographic XML export)
+                                         // generator 
 include_once("guifi_maps.inc.php");      // maps management
 include_once("guifi_includes.inc.php");  // misc. routines
 include_once("guifi_networkutils.inc.php");  // network calc routines
@@ -25,14 +26,22 @@ include_once("GeoCalc.class.php");       // geographic routines
  *
  
 /** menu hooks
- */
+  
+// D51 end
+
+//  if 
+//  $installed_version = variable_get("guifi_version","1.0");
+//  if ($installed_version < 2) {
+//    $output = l("upgrade to guifi module version 2.0","admin/settings/guifi/upgrade");
+//  } */
  
 function guifi_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
 
-    $items[] = array('path' => 'node/add/guifi-zone', 'title' => t('guifi zone'),
+    $items[] = array('path' => 'node/add/guifi-zone', 
+      'title' => t('guifi zone'),
       'access' => user_access('create guifi zones'));
     $items[] = array('path' => 'node/add/guifi', 'title' => t('guifi node'),
       'access' => user_access('create guifi nodes'));
@@ -585,33 +594,6 @@ function guifi_admin_settings() {
   
   
   return system_settings_form($form);
-  
-// D51 end
-
-//  if 
-//  $installed_version = variable_get("guifi_version","1.0");
-//  if ($installed_version < 2) {
-//    $output = l("upgrade to guifi module version 2.0","admin/settings/guifi/upgrade");
-//  }
-  $output .= form_textarea("License agreement", "guifi_license", variable_get("guifi_license", t("By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned if inappropiate use.s detected")), 80, 10, t("Agreement &#038; help message when creating new nodes, users will not be able to create nodes unless they accept this message."));
-  $output .= form_textfield("Block title", "guifi_title", variable_get("guifi_title", t("guifi.net")), 35, 255, t("Title of guifi block..."));
-  $output .= form_textfield("Root zone", "guifi_root", variable_get("guifi_root", 'guifi_zones'), 35, 255, t("URL of the root zone..."));
-  $output .= form_textfield("Default contact", "guifi_contact", variable_get("guifi_contact", 'netadmin@guifi.net'), 55, 255, t("An email will be submitted to this address when no contact address is present."));
-  $output .= form_select(t('Max. Distance'), 'guifi_max_distance', variable_get('guifi_max_distance', 25), drupal_map_assoc(array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100)), t('At which distance the report of neighbours ends. In Kms.'));
-  $vocabularies = taxonomy_get_vocabularies();
-  $output .= form_textfield("Hotspot SSID", "hotspot_ssid", variable_get("hotspot_ssid", t("HotSpot")), 35, 255, t("SSID name for the hotspot open access for guests"));
-  $output .= form_textfield("Path to rrdtool", "rrdtool", variable_get("rrdtool_path", t("/usr/bin/rrdtool")), 35, 255, t("Full path to rrtool executable"));
-  $output .= form_textfield("Path to mrtg rrd files", "rrddb_path", variable_get("rrddb_path", t("/home/comesfa/mrtg/logs/")), 35, 255, t("Full path to rrtd database files"));
-  $output .= form_textfield("Path to mrtg img files", "rrdimg_path", variable_get("rrdimg_path", t("/home/comesfa/mrtg/images/")), 35, 255, t("Full path to rrtd img files"));
-  $output .= form_textfield("URL for local graphs", "graphs_url", variable_get("graphs_url", t("http://gufi.net/snpservices/graphs/graphs.php")), 35, 255, t("Base URL for local rrd graphs"));
-  $output .= form_textfield("Log file", "guifi_log", variable_get("guifi_log", t("/home/comesfa/logs/guifi.log")), 35, 255, t("Full path to filename"));
-  $output .= form_select("Log level", "guifi_loglevel", variable_get("guifi_loglevel", 0), array(0=>'None',1=>'Basic',2=>'Trace',3=>'Full'), null);
-  $output .= form_textfield("Rebuild maps mark", "guifi_rebuildmaps", variable_get("guifi_rebuildmaps", '/tmp/ms_tmp/REBUILD'), 35, 255, t("Full path to filename to be created to indicate that maps should be refreshed"));
-  $output .= form_textfield("URL for maps module", "guifi_maps", variable_get("guifi_maps", 'http://maps.guifi.net'), 35, 255, t("Base URL for the mapping GIS application (guifimaps)"));
-  $output .= form_textfield("Decimal separator", "guifi_decimal", variable_get("guifi_decimal", ','), 1, 1, t("Decimal character for formatting numbers"));
-  $output .= form_textfield("Thousands separator", "guifi_thousand", variable_get("guifi_thousand", '.'), 1, 1, t("Thousands separatos for formatting numbers"));
-
- return $output;
 }
 
 
@@ -625,27 +607,70 @@ function guifi_block($op = "list", $delta = 0) {
     return $blocks;
   }
   else {
-    $block['subject'] = t(variable_get("guifi_title","<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
-    $tnodes = db_query('SELECT status_flag, count(*) c from {guifi_location} GROUP BY status_flag');
+    $block['subject'] = t(variable_get("guifi_title",
+      "<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
+    $tnodes = db_query('
+      SELECT 
+        status_flag, count(*) c 
+      FROM {guifi_location} 
+      GROUP BY status_flag');
     $str = '';
     $rows = array();
     $totals = 0;
     while ($summary = db_fetch_object($tnodes)) {
-      $rows[] = array(t($summary->status_flag),array('data'=>number_format($summary->c,0,null,variable_get('guifi_thousand',',')),'class'=>$summary->status_flag));
+      $rows[] = array(
+        t($summary->status_flag),
+        array(
+          'data'=>
+            number_format(
+              $summary->c,
+              0,
+              null,
+              variable_get(
+                'guifi_thousand',
+                ',')
+            ),
+            'class'=>$summary->status_flag));
       $totals = $totals + $summary->c;
     }
-    $header = array(t('Nodes'),'<p align=RIGHT>'.number_format($totals,0,null,variable_get('guifi_thousand','.')).'</p>');
+    $header = array(
+      t('Nodes'),
+      '<p align=RIGHT>'.
+        number_format(
+          $totals,
+          0,
+          null,
+          variable_get('guifi_thousand','.')
+        ).'</p>');
     $content = theme('table', $header, $rows);
-    $content .= '<div class="more-link">'. l(t('node list and maps...'), variable_get('guifi_root','/guifi_zones'), array('title' => t('Go to the list of nodes root page and their maps.'))) .'</div>';
+    $content .= '<div class="more-link">'. 
+      l(t('node list and maps...'),
+        variable_get('guifi_root','/guifi_zones'), 
+        array(
+          'title' => t('Go to the list of nodes root page and their maps.'))) .'</div>';
 
-    $qlinks = db_query('SELECT l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1, n1.lon lon1, n2.lat lat2, n2.lon lon2 FROM guifi_links l1 LEFT JOIN guifi_links l2 ON l1.id=l2.id LEFT JOIN guifi_location n1 ON l1.nid=n1.id LEFT JOIN guifi_location n2 ON l2.nid=n2.id WHERE l1.nid != l2.nid AND l1.device_id != l2.device_id');
+    $qlinks = db_query('
+      SELECT 
+        l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1, 
+        n1.lon lon1, n2.lat lat2, n2.lon lon2 
+      FROM guifi_links l1 
+        LEFT JOIN guifi_links l2 ON l1.id=l2.id 
+        LEFT JOIN guifi_location n1 ON l1.nid=n1.id 
+        LEFT JOIN guifi_location n2 ON l2.nid=n2.id 
+      WHERE l1.nid != l2.nid AND l1.device_id != l2.device_id');
     unset($listed);
     while ($link = db_fetch_object($qlinks)) {
       if (!isset($listed[$link->id]) )
         $listed[$link->id] = $link;
       else
         continue; 
-      $d = round($oGC->EllipsoidDistance($link->lat1, $link->lon1, $link->lat2, $link->lon2),1);
+      $d = 
+        round($oGC->EllipsoidDistance(
+          $link->lat1, 
+          $link->lon1, 
+          $link->lat2, 
+          $link->lon2),
+          1);
       switch ($link->link_type) {
         case 'wds': $type=t('PtP link'); break;
         case 'ap/client': $type=t('ap/client'); break;
@@ -655,34 +680,62 @@ function guifi_block($op = "list", $delta = 0) {
         $dTotals[$type]['dTotal'] += $d; 
         $dTotals[$type]['count'] ++;
       } else
-       guifi_log(GUIFILOG_BASIC,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',$link->nid1,$link->nid2,$d));
+       guifi_log(GUIFILOG_BASIC,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
+        $link->nid1,
+        $link->nid2,
+        $d));
     }
 
     unset($rows);
     $rows=array();
     if (count($dTotals)) foreach ($dTotals as $key=>$dTotal) 
     if ($dTotal['dTotal']) {
-      $rows[] = array($key,
-                       array('data'=>number_format($dTotal['count'],0,null,variable_get('guifi_thousand','.')),
-                             'align'=>'right'),
-                       array('data'=>number_format($dTotal['dTotal'],2,variable_get('guifi_decimal',','),variable_get('guifi_thousand','.')),
-                             'align'=>'right')
-                      );
+      $rows[] = array(
+        $key,
+        array(
+          'data'=>number_format(
+            $dTotal['count'],
+            0,
+            null,
+            variable_get('guifi_thousand','.')),
+          'align'=>'right'),
+        array(
+          'data'=>number_format(
+            $dTotal['dTotal'],
+            2,
+            variable_get('guifi_decimal',','),
+            variable_get('guifi_thousand','.')),
+          'align'=>'right')
+        );
       $lcount += $dTotal['count'];
       $ldTotal += $dTotal['dTotal'];
     }
     if ($lcount)
-      $rows[] = array('<strong>'.t('Total').'</strong>',
-                       array('data'=>number_format($lcount,0,null,variable_get('guifi_thousand','.')),
-                             'align'=>'right'),
-                       array('data'=>number_format($ldTotal,2,variable_get('guifi_decimal',','),variable_get('guifi_thousand','.')),
-                             'align'=>'right')
-                      );
-    $content.= theme('table',array(t('Wireless<br />links'),'<p align="right">#</p>',t('kms.')),$rows);
+      $rows[] = array(
+        '<strong>'.t('Total').'</strong>',
+        array(
+          'data'=>number_format(
+            $lcount,
+            0,
+            null,
+            variable_get('guifi_thousand','.')),
+          'align'=>'right'),
+        array(
+          'data'=>number_format(
+            $ldTotal,
+            2,
+            variable_get('guifi_decimal',','),
+            variable_get('guifi_thousand','.')),
+          'align'=>'right')
+      );
+    $content.= theme(
+      'table',
+      array(t('Wireless<br />links'),
+      '<p align="right">#</p>',t('kms.')),$rows);
 
     $block['content'] = $content;
     return $block;
-//    return print theme("block", $blocktitle, dictionary_page_form() );
+
   }
 }
 
@@ -696,7 +749,8 @@ function guifi_access($op, $node) {
     case 'update':
     case 'delete':
       if ($node->type == 'guifi-node') {
-        if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
+        if ((user_access('administer guifi zones')) || 
+          ($node->uid == $user->uid)) {
           return TRUE;
         }
         else {
@@ -722,10 +776,12 @@ function guifi_device_access($op, $id) {
     case 'create':
       return user_access("create guifi nodes");
     case 'update':
-      if ((user_access('administer guifi zones')) || ($device['user_created'] == $user->uid) || ($node->uid == $user->uid)) {
+      if ((user_access('administer guifi zones')) ||
+        ($device['user_created'] == $user->uid) || 
+        ($node->uid == $user->uid)) 
+      {
         return TRUE;
-      }
-      else {
+      } else {
         return FALSE;
       }
   }
@@ -739,7 +795,8 @@ function guifi_link($type, $node = 0){
     $links['mrtg'] = array(
       'title'=> t('create mrtg config'),
       'href'=>"guifi/mrtg/$node->nid",
-      'attributes'=>array('title'=>t('get an mrtg configuration file for this zone')));
+      'attributes'=>array(
+        'title'=>t('get an mrtg configuration file for this zone')));
     $links['nodeXchange'] = array(
       'title'=> t('nodeXchange'),
       'href'=>"guifi/nodexchange/$node->nid",
