@@ -1289,7 +1289,7 @@ function guifi_device_links_print($device,$ltype = '%') {
     $rows = array_merge($rows_ap_client,$rows);
   if (count($rows_cable) > 1) 
     $rows = array_merge($rows,$rows_cable);
-  return '<h2>'.$title.'</h2>'.update.php?op=finished
+  return '<h2>'.$title.'</h2>'.
          '<h3>'.t('Totals').': '.$ltotal.' '.t('links').', '.$dtotal.' '.t('kms.').'</h3>'.
          theme('table',array(t('interface'),t('id'),t('device'),t('node'),t('ip address'),'&nbsp;',t('status'),t('routing'),t('kms.'),t('az.')),$rows);
 }
