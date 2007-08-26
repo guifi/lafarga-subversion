@@ -557,10 +557,37 @@ function guifi_install() {
        UNIQUE KEY ipv4 (ipv4))
        COMMENT 'provide ipv4 tp interfaces'"
      );
+      db_query("CREATE TABLE `guifi_notify` (
+        `id` int(11) NOT NULL auto_increment,
+        `timestamp` int(11) NOT NULL,
+        `who_id` int(11) NOT NULL,
+        `who_name` varchar(255) NOT NULL,
+        `to_array` varchar(1024) NOT NULL,
+        `subject` varchar(255) NOT NULL,
+        `body` longtext NOT NULL,
+        PRIMARY KEY  (`id`)
+        )"
+      );
      break;
     case 'pgsql':
       break;
   }
 } 
+
+function guifi_update_1() {
+  $items = array();
+  $items[] = update_sql("
+    CREATE TABLE `guifi_notify` (
+        `id` int(11) NOT NULL auto_increment,
+        `timestamp` int(11) NOT NULL,
+        `who_id` int(11) NOT NULL,
+        `who_name` varchar(255) NOT NULL,
+        `to_array` varchar(1024) NOT NULL,
+        `subject` varchar(255) NOT NULL,
+        `body` longtext NOT NULL,
+        PRIMARY KEY  (`id`)
+        )");
+  return $items;
+}
 
 ?>

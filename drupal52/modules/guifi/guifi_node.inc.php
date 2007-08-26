@@ -42,7 +42,7 @@ function guifi_node_delete(&$node) {
   $to_mail = array();
   $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
   drupal_set_message($log);
-  guifi_notification(
+  guifi_notify(
            $to_mail, 
            t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
            $log);

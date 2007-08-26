@@ -19,6 +19,7 @@ include_once("guifi_gml.inc.php");       // gml (geographic XML export)
 include_once("guifi_maps.inc.php");      // maps management
 include_once("guifi_includes.inc.php");  // misc. routines
 include_once("guifi_networkutils.inc.php");  // network calc routines
+include_once("guifi_sql.inc.php");       // database changes 
 include_once("GeoCalc.class.php");       // geographic routines
 
 
@@ -826,17 +827,10 @@ function guifi_link($type, $node = 0){
   return $links;
 }
 
-function guifi_page($zone = NULL) {
-  $output = guifi_overview_tree($zone);
+function guifi_page() {
+  //TODO: Make some welcome page
+  return $output;
 
-  if ($zone) {
-    $output .= '<hr />Node view ' .$zone;
-    $output .= guifi_zone_print($zone);
-  } else {
-    $output .= t('This is the root zone for of the network. Navigate in the zone hierarchy above to drill down into the database.');
-  }
-
-  print theme('page', $output);
 }
 
 function guifi_view(&$node, $teaser = 0, $page = 0) {

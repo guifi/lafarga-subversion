@@ -95,7 +95,7 @@ function guifi_delete_device($id, $notify = true, $verbose = true) {
   if ($_POST['confirm']) {
     $log = _guifi_db_delete('guifi_devices',array('id'=>$id),$to_mail);
     drupal_set_message($log);
-    guifi_notification(
+    guifi_notify(
            $to_mail, 
            t('The device %name has been DELETED by %user.',array('%name' => $data->name, '%user' => $user->name)),
            $log,
@@ -936,7 +936,7 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
     $rc++;
   } // foreach radio
 
-  guifi_notification($to_mail, 
+  guifi_notify($to_mail, 
            t('The device %name has been UPDATED by %user.',array('%name' => $edit['nick'], '%user' => $user->name)),
            $log,
            $verbose,
