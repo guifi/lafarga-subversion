@@ -5,23 +5,13 @@
  */
 
 
-/**
- * device editing functions
+/** device editing functions
 **/
-
+/** guifi_edit_device_form_submit(): Performs submit actions
+*/
 function guifi_edit_device_form_submit($form_id, &$form_values) {
-  // WARNING! I have no idea why, but sometimes form_values comes empty
-  // or having the previous copy
-  // if (is_null($form_values))
-//  $form_values = $_POST;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_submit()');
-/*
-print "\n<br>submit form_values\n<br>";
-print_r($form_values);
-print "\n<br>submit POST\n<br>";
-print_r($_POST);
-exit(0);
 
   /* Check if there is an action to take over the current form */
   $key = false;
@@ -43,7 +33,8 @@ exit(0);
       // call to the action _submit hook
       $action = explode(',',$key);
       if (function_exists($action[1].'_submit')) 
-        call_user_func_array($action[1].'_submit',array(&$form_values,$action));
+        call_user_func_array($action[1].'_submit',
+          array(&$form_values,$action));
     }
     // save 
     $id = guifi_edit_device_save($form_values);
@@ -52,78 +43,13 @@ exit(0);
     drupal_goto('guifi/device/'.$id.'/edit');
     break;
   default:
-    guifi_log(GUIFILOG_TRACE,'exit guifi_edit_device_form_submit without saving...');
+    guifi_log(GUIFILOG_TRACE,
+      'exit guifi_edit_device_form_submit without saving...');
     return;
   }
 
 }
-/***
-* Hook to delete radio interface (confirmation dialog)
-***/
-function guifi_confirm_delete_device($name,$id) {
 
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to delete this device?'),
-    '#value' => $name,
-    '#description' => t('WARNING: This action cannot be undone. The device and it\'s related information will be <strong>permanently deleted</strong>, that includes:<ul><li>The device</li><li>The related interfaces</li><li>The links where this device is present</li></ul>If you are really sure that you want to delete this information, press "Confirm delete".'),
-    '#weight' => 0,
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Confirm delete'),
-    '#name'  => 'confirm',
-    '#weight' => 1,
-  );
-  drupal_set_title(t('Delete device: (%name)',array('%name'=>$name)));
-
-  return $form;
-}
-
-/***
- * Delete device
- * Main process
-***/
-function guifi_delete_device($id, $notify = true, $verbose = true) {
-  global $user;
-
-  guifi_log(GUIFILOG_TRACE,'function guifi_delete_device()');
-  $to_mail = array();
-
-  $data = db_fetch_object(db_query('SELECT nid, nick name FROM {guifi_devices} WHERE id=%d',$id));
-
-  if ($_POST['confirm']) {
-    $log = _guifi_db_delete('guifi_devices',array('id'=>$id),$to_mail);
-    drupal_set_message($log);
-    guifi_notify(
-           $to_mail, 
-           t('The device %name has been DELETED by %user.',array('%name' => $data->name, '%user' => $user->name)),
-           $log,
-           $verbose,
-           $notify);
-    drupal_goto('node/'.$data->nid);
-  }
-
-  return drupal_get_form('guifi_confirm_delete_device',$data->name,$data->nid);
-}
-
-
-
-/**
- * Menu callback; add a device to a node 
- */
-function guifi_add_device() {
-  guifi_log(GUIFILOG_TRACE,'function guifi_add_device()');
-  return drupal_get_form('guifi_edit_device_form',null,arg(3),arg(4));
-}
-
-function guifi_edit_device($id) {
-  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device()');
-  if ($_POST['op'] == t('Reset'))
-    drupal_goto('guifi/device/'.$id.'/edit');
-//  return drupal_get_form('guifi_edit_device_form',$id,null,null);
-  print theme('page',drupal_get_form('guifi_edit_device_form',$id,null,null),false);
-}
 
 /**
  * Get device information 
@@ -302,12 +228,13 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   drupal_set_breadcrumb(array(l($node->title,'node/'.$edit['nid']),l($edit['nick'],'guifi/device/'.$edit['id'])));
 
   // if contact is null, then get it from the node or the user logged in drupal
-  if (is_null($edit['contact'])) if (valid_email_address($node->contact)) {
-    $edit['contact'] = $node->contact;
-  } else {
-    drupal_set_message(t('The node has not a valid email address as a contact. Using your email as a default. Change the contact mail address if necessary.'));
-    $edit['contact'] = $user->mail;
-  }
+  if (is_null($edit['notification']))
+    if (guifi_notification_validate($node->notification)) {
+      $edit['notification'] = $node->notification;
+    } else {
+      drupal_set_message(t('The node has not a valid email address as a contact. Using your email as a default. Change the contact mail address if necessary.'));
+      $edit['notification'] = $user->mail;
+    }
 
   // if nick is null, get a default name 
   if ($edit['nick'] == "") {
@@ -373,15 +300,15 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
       '#description' => t("Current status of this device."),
       '#weight' => 2,
    );
-  $form['main']['contact'] = array(
+  $form['main']['notification'] = array(
     '#type' => 'textfield',
-    '#size' => 20,
-    '#maxlength' => 128,
+    '#size' => 60,
+    '#maxlength' => 1024,
     '#weight' => 1,
     '#title' => t('contact'),
     '#required' => TRUE,
-    '#default_value' => $edit['contact'],
-    '#description' =>  t('Mailid where changes on the device will be notified,<br />used for network administration.')
+    '#default_value' => $edit['notification'],
+    '#description' =>  t('Mailid where changes on the device will be notified, if many, separated by \',\'<br />used for network administration.')
   );
   if (user_access('administer guifi zones') and $edit['type'] == 'radio') {
     $form['main']['graph_server'] = array(
@@ -440,16 +367,8 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
 
   return $form;
 }
-/****
- * Function to alter the form
-****/
-function guifi_edit_device_form_alter($form_id,&$edit) {
-  print "Hola form_alter!!!\n<br>";
-  print_r($edit);
-}
 
-/**
- * Confirm that an edited guifi item has fields properly filled in.
+/** guifi_edit_device_form_validate(): Confirm that an edited device has fields properly filled.
  */
 function guifi_edit_device_form_validate($form_id,$edit,$form) {
 //  print "Hola validate!!\n<br>";
@@ -466,14 +385,14 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
      form_set_error('nick', t('Nick already in use.'));
 
   // contact
-  if (empty($edit['contact'])) {
-     form_set_error('contact', $edit['contact'].t('You must set a contact address for this device.'));
+  if (empty($edit['notification'])) {
+     form_set_error('notification', $edit['contact'].t('You must set a contact address for this device.'));
   }
-  if (!valid_email_address($edit['contact'])) {
-    $message = t('The e-mail address %mail is not valid. Changed to your drupal email address.', array('%mail' => theme('placeholder', $edit['contact'])));
-    $edit['contact'] = $user->mail;
-    form_set_error('contact',$message);
-  }
+  $emails = guifi_notification_validate($edit['notification']);
+  if (!$emails) {
+    form_set_error('notification',t('Error while validating email address'));
+  } else
+    form_set_value($form['main']['notification'],$emails);
 
   // ssid
   if (empty($edit['ssid'])) {
@@ -518,10 +437,10 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
   guifi_links_validate($edit);
 }
 
-
-/***
- * function to save interfaces
+/** functions to save interfaces
 ***/
+
+/** To remove, for reference
 function guifi_save_interfaces($edit,$var,$rc_old = null,$rc_new = null,&$to_mail) {
   global $bridge;
 
@@ -817,9 +736,9 @@ function guifi_save_interfaces2($edit,$var,$rc_old = null,$rc_new = null, $casca
   }
 
 }
+**/
 
-/**
- * Save changes/insert devices 
+/** guifi_edit_device_save(): Save changes/insert devices
  */
 function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
   global $user;
@@ -894,9 +813,27 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
     $rc++;
   } // foreach radio
 
-  drupal_set_message($log);
+  $to_mail = explode(',',$edit['notification']);
+  
+  if ($edit['new'])
+    $subject = t('The device %name has been UPDATED by %user.',
+      array('%name' => $edit['nick'],
+        '%user' => $user->name));
+  else
+    $subject = t('The device %name has been CREATED by %user.',
+      array('%name' => $edit['nick'],
+        '%user' => $user->name));
+  
+  drupal_set_message($subject);
+  guifi_notify($to_mail,
+    $subject,
+    $log,
+    $verbose,
+    $notify);
+    
   return $ndevice['id'];
 
+/** To remove, for reference
   if (!$edit['id']) {
     $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_devices}'));
     if (is_null($next_id['id']))
@@ -943,8 +880,10 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
            $notify);
 
   return $edit['id'];
+  **/
 }
 
+/** To remove, for reference
 function guifi_edit_device_save2($edit) {
 
   global $user;
@@ -1010,9 +949,81 @@ function guifi_edit_device_save2($edit) {
 
   return ($edit[id]);
 }
+**/
+/** guifi_delete_device(): Delete a device
+ *
+***/
+function guifi_confirm_delete_device($name,$id) {
+
+  $form['help'] = array(
+    '#type' => 'item',
+    '#title' => t('Are you sure you want to delete this device?'),
+    '#value' => $name,
+    '#description' => t('WARNING: This action cannot be undone. The device and it\'s related information will be <strong>permanently deleted</strong>, that includes:<ul><li>The device</li><li>The related interfaces</li><li>The links where this device is present</li></ul>If you are really sure that you want to delete this information, press "Confirm delete".'),
+    '#weight' => 0,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Confirm delete'),
+    '#name'  => 'confirm',
+    '#weight' => 1,
+  );
+  drupal_set_title(t('Delete device: (%name)',array('%name'=>$name)));
+
+  return $form;
+}
+
+function guifi_delete_device($id, $notify = true, $verbose = true) {
+  global $user;
+
+  guifi_log(GUIFILOG_TRACE,'function guifi_delete_device()');
+
+  $data = db_fetch_object(db_query('
+    SELECT nid, nick name, notification
+    FROM {guifi_devices}
+    WHERE id=%d',
+    $id));
+  $to_mail = explode(',',$data->notification);
+
+  if ($_POST['confirm']) {
+    $log = _guifi_db_delete('guifi_devices',array('id'=>$id),$to_mail);
+    drupal_set_message($log);
+
+    $subject = t('The device %name has been DELETED by %user.',
+      array('%name' => $data->name,
+        '%user' => $user->name));
+    drupal_set_message($subject);
+    guifi_notify($to_mail,
+      $subject,
+      $log,
+      $verbose,
+      $notify);
+      
+    drupal_goto('node/'.$data->nid);
+  }
+
+  return drupal_get_form('guifi_confirm_delete_device',$data->name,$data->nid);
+}
+
+
 
 /**
- * outputs the device information data
+ * Menu callback; add a device to a node 
+ */
+function guifi_add_device() {
+  guifi_log(GUIFILOG_TRACE,'function guifi_add_device()');
+  return drupal_get_form('guifi_edit_device_form',null,arg(3),arg(4));
+}
+
+function guifi_edit_device($id) {
+  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device()');
+  if ($_POST['op'] == t('Reset'))
+    drupal_goto('guifi/device/'.$id.'/edit');
+//  return drupal_get_form('guifi_edit_device_form',$id,null,null);
+  print theme('page',drupal_get_form('guifi_edit_device_form',$id,null,null),false);
+}
+
+/** guifi_device_print_data(): outputs the device information data
 **/
 function guifi_device_print_data($device) {
 
@@ -1076,8 +1087,8 @@ function guifi_device_print_data($device) {
     $img_url = NULL;
 
   $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
-  if (($device['contact']) and (guifi_device_access('update',$device['id'])))
-    $rows[] = array(t('changes notified to (visible only if you have privileges)'),'<a href="mailto:'.$device['contact'].'">'.$device['contact'].'</a>'); 
+  if (($device['notification']) and (guifi_device_access('update',$device['id'])))
+    $rows[] = array(t('changes notified to (visible only if you have privileges)'),'<a href="mailto:'.$device['notification'].'">'.$device['notification'].'</a>');
   $rows[] = array(t('created by:').' '.$name_created .'&nbsp;' .t('on') .'&nbsp;' .format_date($device[timestamp_created]), 
                   t('updated by:').' '.$name_changed .'&nbsp;' .t('on') .'&nbsp;' .format_date($device[timestamp_changed])); 
 

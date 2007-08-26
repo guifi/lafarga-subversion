@@ -36,22 +36,6 @@ function guifi_node_add($id) {
   drupal_goto('node/add/guifi-node?edit[title]='.$zone->id);
 }
 
-/** guifi_node_delete(): deletes a given node
-**/
-function guifi_node_delete(&$node) {
-  $to_mail = array();
-  $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
-  drupal_set_message($log);
-  guifi_notify(
-           $to_mail, 
-           t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
-           $log);
-  cache_clear_all();
-  variable_set('guifi_refresh_cnml',time());
-  variable_set('guifi_refresh_maps',time());
-
-  return;
-}
 
 /** guifi_node_load(): load and constructs node array from the database
 **/
@@ -109,7 +93,7 @@ function guifi_node_form(&$node, &$param) {
       $node->lat = $_GET['Lat'];
     if (isset($_GET['Lon']))
       $node->lon = $_GET['Lon'];
-    $node->contact = $user->mail;
+    $node->notification = $user->mail;
     $node->status_flag = 'Planned';
     
     $form['license'] = array(
@@ -147,14 +131,14 @@ function guifi_node_form(&$node, &$param) {
     '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''),
     '#weight' => 2,
   );
-  $form['title']['contact'] = array(
+  $form['title']['notification'] = array(
     '#type' => 'textfield',
     '#title' => t('Contact'),
     '#required' => FALSE,
     '#size' => 60,
-    '#maxlength' => 128, 
-    '#default_value' => $node->contact,
-    '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''),
+    '#maxlength' => 1024, 
+    '#default_value' => $node->notification,
+    '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'") . ($error['notification'] ? $error["notification"] : ''),
     '#weight' => 3,
   );
   $form['title']['settings'] = array(
@@ -399,7 +383,7 @@ function _guifi_line_edit_device_form($id) {
 }
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
  */
-function guifi_node_validate(&$node) {
+function guifi_node_validate($node,$form) {
   guifi_validate_nick($node->nick);
 
   if ($node->agreement != 'Yes')
@@ -418,6 +402,13 @@ function guifi_node_validate(&$node) {
     if (db_num_rows($query))
       form_set_error('nick', t('Nick already in use.'));
   }
+
+  $emails = guifi_notification_validate($node->notification);
+  if (!$emails)
+    form_set_error('notification',
+      t('Error while validating email address'));
+  else 
+    form_set_value($form['title']['notification'],$emails);
 
   // not at root zone
   if (($node->zone_id == 0) && (!empty($node->nick))) {
@@ -470,17 +461,11 @@ function guifi_node_validate(&$node) {
 
 }
 
-/** guifi_node_submit(): Save changes to a guifi item into the database.
- */
-function guifi_node_submit(&$node) {
-  guifi_node_validate($node);
-}
-
 /** guifi_node_insert(): Create a new node in the database
  */
 function guifi_node_insert($node) {
-  global $user;
 
+  $to_mail = explode(',',$node->notification);
   $node->new=true;
   $node->id  = $node->nid;
   $node->lat = (float)$node->lat;
@@ -488,6 +473,10 @@ function guifi_node_insert($node) {
   $nnode = _guifi_db_sql(
     'guifi_location',
     array('id'=>$node->nid),(array)$node,$log,$to_mail);
+  guifi_notify(
+    $to_mail,
+    t('The node %name has been CREATED by %user.',array('%name' => $node->title, '%user' => $user->name)),
+    $log);
 
   // Refresh maps
   variable_set('guifi_refresh_cnml',time());
@@ -498,7 +487,8 @@ function guifi_node_insert($node) {
 
 /** guifi_node_update(): Update a node in the database */
 function guifi_node_update($node) {
-  global $user;
+  
+  $to_mail = explode(',',$node->notification);
 
   // Refresh maps?
   $pn = db_fetch_object(db_query(
@@ -522,9 +512,31 @@ function guifi_node_update($node) {
     'guifi_location',
     array('id'=>$node->id),
     (array)$node,$log,$to_mail);
+  guifi_notify(
+    $to_mail,
+    t('The node %name has been UPDATED by %user.',array('%name' => $node->title, '%user' => $user->name)),
+    $log);
 
 }
 
+
+/** guifi_node_delete(): deletes a given node
+**/
+function guifi_node_delete(&$node) {
+  
+  $to_mail = explode(',',$node->notification);
+  $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
+  drupal_set_message($log);
+  guifi_notify(
+           $to_mail, 
+           t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
+           $log);
+  cache_clear_all();
+  variable_set('guifi_refresh_cnml',time());
+  variable_set('guifi_refresh_maps',time());
+
+  return;
+}
 /** node visualization (view) function calls */
 
 /** guifi_node_print_data(): outputs the node information (d)ata
@@ -548,6 +560,14 @@ function guifi_node_print_data($node) {
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground')); 
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag)); 
 
+  if (($node->notification) and (user_access('administer guifi networks')))
+    $rows[] = array(
+      t('changes notified to (visible only if you are privileged):'),
+      array(
+        'data'=>
+          '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
+          'colspan'=>2));
+      
   switch ($node->graph_server) {
   case -1: 
     $graphtxt = t('Graphs disabled.'); 
@@ -569,12 +589,10 @@ function guifi_node_print_data($node) {
   
   $rows[] = array(null,null,null);
   $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
-  if ($node->timestamp_created > 0) 
-    $rows[] = array(t('created by'),$name_created->name,format_date($node->timestamp_created)); 
-  else
-    $rows[] = array(t('created by'),$name_created->name,null); 
-  if ($node->timestamp_changed > 0) 
-    $rows[] = array(t('last update'),$name_changed->name,format_date($node->timestamp_changed)); 
+  if ($node->timestamp_created > 0)
+    $rows[] = array(t('created by'),l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created));
+  if ($node->timestamp_changed > 0)
+    $rows[] = array(t('updated by'),l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed));
   return array_merge($rows);
 }
 

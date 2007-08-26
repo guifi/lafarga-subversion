@@ -105,8 +105,8 @@ function guifi_zone_form(&$node, &$param) {
     '#required' => TRUE,
     '#default_value' => $node->notification,
     '#size' => 60,
-    '#maxlength' => 128, 
-    '#description' => t('Mailid where changes on the zone will be notified. Usefull for decentralized administration.'),
+    '#maxlength' => 1024, 
+    '#description' => t('Mails where changes at the zone will be notified. Usefull for decentralized administration. If more than one, separated by \',\''),
     '#weight' => $form_weight++,
   );
   
@@ -314,6 +314,13 @@ function guifi_zone_validate($node,$form) {
         t("Latitude has to be between -90 and 90"));
   }
 
+  $emails = guifi_notification_validate($node->notification);
+  if (!$emails)
+    form_set_error('notification',
+      t('Error while validating email address'));
+  else 
+    form_set_value($form['notification'],$emails);
+  
   if (($node->nick == "") or (is_null($node->nick))) {
     $nick = guifi_abbreviate($node->title);
     drupal_set_message(t('Zone nick has been set to:').' '.$nick);
@@ -366,13 +373,13 @@ function guifi_zone_insert($node) {
   $node->maxx = (float)$node->maxx;
   $node->miny = (float)$node->miny;
   $node->maxy = (float)$node->maxy;
-  $to_mail = array($node->notification);
+  $to_mail = explode(',',$node->notification);
   $nzone = _guifi_db_sql(
     'guifi_zone',
     array('id'=>$node->id),(array)$node,$log,$to_mail);
     
   guifi_notify(
-    $node->notification,
+    explode(',',$node->notification),
     t('A new zone %nick-%name has been created',
       array('%nick'=>$node->nick,'%name'=>$node->title)),
     $log);
@@ -407,7 +414,7 @@ function guifi_zone_update($node) {
   $node->maxx = (float)$node->maxx;
   $node->miny = (float)$node->miny;
   $node->maxy = (float)$node->maxy;
-  $to_mail = array($node->notification);
+  $to_mail = explode(',',$node->notification);
   $nzone = _guifi_db_sql(
     'guifi_zone',
     array('id'=>$node->id),
@@ -415,7 +422,7 @@ function guifi_zone_update($node) {
     $log,
     $to_mail);
   guifi_notify(
-    $node->notification,
+    explode(',',$node->notification),
     t('Zone %nick-%name has been updated',
       array('%nick'=>$node->nick,'%name'=>$node->title)),
     $log);
@@ -447,7 +454,7 @@ function guifi_zone_delete(&$node) {
     $delete = false;
   }
 
-  $to = array($node->notification);
+  $to = explode(',',$node->notification);
   $to[] = variable_get('guifi_contact','webmestre@guifi.net');
   if (!$delete) {
     $messages = drupal_get_messages(null,FALSE);
@@ -637,7 +644,7 @@ function guifi_zone_nodes($node) {
   // Going to list the zone nodes
   $rows = array();
   $result = pager_query('
-    SELECT l.id,l.nick, l.contact, l.zone_description, 
+    SELECT l.id,l.nick, l.notification, l.zone_description,
       l.status_flag, count(*) radios 
     FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid 
     WHERE l.zone_id = %d 
@@ -701,7 +708,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
     } // end while zones
       
   if ($depth < $maxdepth)  {
-    $result = db_query('SELECT l.id,l.nick, l.contact, l.zone_description, l.status_flag, count(*) radios FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid WHERE l.zone_id = %d GROUP BY 1,2,3,4,5 ORDER BY radios DESC, l.nick',$node->nid);
+    $result = db_query('SELECT l.id,l.nick, l.notification, l.zone_description, l.status_flag, count(*) radios FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid WHERE l.zone_id = %d GROUP BY 1,2,3,4,5 ORDER BY radios DESC, l.nick',$node->nid);
     if (db_num_rows($result) > 0) 
       while ($loc = db_fetch_object($result)) {
         $qdevices = db_query("SELECT d.id, d.nick, d.flag FROM {guifi_devices} d WHERE nid=%d",$loc->id);

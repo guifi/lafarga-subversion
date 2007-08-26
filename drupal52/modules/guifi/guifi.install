@@ -44,7 +44,7 @@ function guifi_install() {
        lat decimal(10,6) default NULL,
        lon decimal(10,6) default NULL,
        elevation int(11) default NULL,
-       contact varchar(40) default NULL,
+       notification varchar(1024) NOT NULL,
        status_flag varchar(40) NOT NULL default 'Planned',
        stable enum('Yes','No') NOT NULL default 'Yes',
        graph_server varchar(40) default NULL,
@@ -86,7 +86,7 @@ function guifi_install() {
        map_coord mediumtext NOT NULL,
        map_poly mediumtext NOT NULL,
        homepage varchar(255) default NULL,
-       notification varchar(255) default NULL,
+       notification varchar(1024) NOT NULL,
        ospf_zone varchar(255) default NULL,
        minx decimal(10,6) default NULL,
        miny decimal(10,6) default NULL,
@@ -111,7 +111,7 @@ function guifi_install() {
        nid int(11) NOT NULL COMMENT 'foreign key to guifi_location(id)',
        nick varchar(40) NOT NULL,
        type varchar(40) NOT NULL,
-       contact varchar(40) default NULL,
+       notification varchar(1024) NOT NULL,
        mac varchar(20) NOT NULL default '00:00:00:00:00:00',
        comment longtext default NULL,
        flag varchar(40) NOT NULL default 'Planned',
@@ -577,7 +577,7 @@ function guifi_install() {
 function guifi_update_1() {
   $items = array();
   $items[] = update_sql("
-    CREATE TABLE `guifi_notify` (
+    CREATE TABLE {guifi_notify} (
         `id` int(11) NOT NULL auto_increment,
         `timestamp` int(11) NOT NULL,
         `who_id` int(11) NOT NULL,
@@ -587,6 +587,23 @@ function guifi_update_1() {
         `body` longtext NOT NULL,
         PRIMARY KEY  (`id`)
         )");
+  return $items;
+}
+function guifi_update_2() {
+  $items = array();
+  $items[] = update_sql("
+    ALTER TABLE {guifi_location}
+    CHANGE contact notification
+    VARCHAR( 1024 ) NOT NULL");
+  $items[] = update_sql("
+    ALTER TABLE {guifi_devices}
+    CHANGE contact notification
+    VARCHAR( 1024 ) NOT NULL");
+  $items[] = update_sql("
+    ALTER TABLE {guifi_zone}
+    CHANGE notification notification 
+    VARCHAR( 1024 ) NOT NULL");
+
   return $items;
 }
 

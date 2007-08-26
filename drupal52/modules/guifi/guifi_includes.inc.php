@@ -1318,16 +1318,15 @@ function guifi_refresh($parameter) {
 function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = true) {
   global $user;
   
+  guifi_log(GUIFILOG_TRACE,'function guifi_notify()');
   if (!is_array($to_mail))
-    $to_mail = array($to_mail);
-    
+    $to_mail = explode(',',$to_mail);
   $to_mail[] = $user->mail;
   $to_mail[] = variable_get('guifi_contact','netadmin@guifi.net');
   $to_mail = array_unique($to_mail);
   foreach ($to_mail as $k=>$mail)
-    if (!valid_email_address($mail))
+    if (!valid_email_address(trim($mail)))
       unset($to_mail[$k]);
-
   $message = str_replace('<em>',' *',$message);
   $message = str_replace('</em>','* ',$message);
   $message = str_replace(array('<br>','<br />'),"\n",$message);
@@ -1340,7 +1339,6 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
     drupal_set_message($subject);
 
   if ($notify) {
-    $to = implode(',',$to_mail);
     if ($to_mail != null) {
       db_query("
         INSERT INTO {guifi_notify}
@@ -1362,5 +1360,38 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
   return $log_html;
 }
 
+/** guifi_notification_l(): Constructs a link to the emails
+  notification
+**/
+function guifi_notification_l($to = array()) {
+  $ls = array();
+  foreach ($to as $email) {
+    $ls[] = '<a href="mailto:'.
+      $email.'">'.$email.'</a>';
+  }
+  return implode(', ',$ls);
+}
+
+
+/** guifi_notification_validate(): check for valid emails
+  * arguments:
+  * @to: string with a list of emails sepparated by comma
+  * @returns: foretted str if all valid, FALSE otherwise
+**/
+function guifi_notification_validate($to) {
+  $to = trim(trim(str_replace(';',',',$to)),',');
+  $emails = explode(',',$to);
+  $trimmed = array();
+  foreach ($emails as $email) {
+    $temail = trim($email);
+    if (!valid_email_address($temail)) {
+      drupal_set_message(
+        t('%email is not valid',array('%email'=>$temail)),'error');
+      return FALSE;
+    }
+    $trimmed[] = $temail;
+  }
+  return implode(', ',$trimmed);
+}
 
 ?>

@@ -182,8 +182,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete Device
   case 'guifi_devices':
     $item=db_fetch_object(db_query(
-      'SELECT d.nick dname, d.contact, d.nid, d.type, d.comment, 
-        l.nick nname, l.contact ncontact 
+      'SELECT d.nick dname, d.notification, d.nid, d.type, d.comment,
+        l.nick nname, l.notification ncontact
        FROM {guifi_devices} d LEFT JOIN {guifi_location} l ON d.nid=l.id 
        WHERE d.id = %d', 
        $key['id']));
@@ -206,7 +206,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $item=db_fetch_object(db_query(
        'SELECT 
           r.protocol, r.ssid sid, r.mode, r.radiodev_counter, 
-          d.nick dname, d.contact, d.nid, l.nick nname 
+          d.nick dname, d.notification, d.nid, l.nick nname
         FROM {guifi_radios} r, {guifi_devices} d, {guifi_location} l 
         WHERE  r.id = %d AND r.radiodev_counter = %d AND
           r.id=d.id AND d.nid=l.id', 
@@ -223,7 +223,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete Interfaces
   case 'guifi_interfaces':
     $item=db_fetch_object(db_query(
-       'SELECT i.interface_type, i.radiodev_counter, d.nick dname, d.contact, d.nid, l.nick nname 
+       'SELECT i.interface_type, i.radiodev_counter, d.nick dname, d.notification, d.nid, l.nick nname
         FROM {guifi_interfaces} i LEFT JOIN {guifi_devices} d ON i.device_id=d.id LEFT JOIN {guifi_location} l ON d.nid=l.id 
         WHERE i.id = %d', 
         $key['id']));
@@ -239,7 +239,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete ipv4
   case 'guifi_ipv4':
     $item=db_fetch_object(db_query(
-       'SELECT a.id, a.interface_id, a.ipv4, i.interface_type, d.nick dname, d.contact, d.nid, l.nick nname 
+       'SELECT a.id, a.interface_id, a.ipv4, i.interface_type, d.nick dname, d.notification, d.nid, l.nick nname
         FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id LEFT JOIN {guifi_devices} d ON i.device_id=d.id LEFT JOIN {guifi_location} l ON d.nid=l.id 
         WHERE a.id = %d AND a.interface_id=%d', 
         $key['id'],$key['interface_id']));
@@ -256,7 +256,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete links
   case 'guifi_links':
     $item=db_fetch_object(db_query(
-       'SELECT l.id, l.link_type, l.ipv4_id, i.id interface_id, d.nick dname, d.id device_id, d.contact, d.nid, n.nick nname 
+       'SELECT l.id, l.link_type, l.ipv4_id, i.id interface_id, d.nick dname, d.id device_id, d.notification, d.nid, n.nick nname
         FROM {guifi_links} l LEFT JOIN {guifi_interfaces} i ON l.interface_id=i.id LEFT JOIN {guifi_devices} d ON l.device_id=d.id LEFT JOIN {guifi_location} n ON l.nid=n.id 
         WHERE l.id = %d AND l.device_id=%d', 
         $key['id'],$key['device_id']));
@@ -302,8 +302,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     WHERE ".$where_str));
   if ($count['c'] != 1)
     return $log.'<br>'.t('There was nothing to delete at %table with (%where)',array('%table'=>$table,'%where'=>$where_str));
-  if (!in_array($item->contact,$to_mail))
-    $to_mail[] = $item->contact;
+  if (!in_array($item->notification,$to_mail))
+    $to_mail[] = $item->notification;
   if (!in_array($item->ncontact,$to_mail))
     $to_mail[] = $item->ncontact;
 
