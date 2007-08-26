@@ -1289,7 +1289,7 @@ function guifi_device_links_print($device,$ltype = '%') {
     $rows = array_merge($rows_ap_client,$rows);
   if (count($rows_cable) > 1) 
     $rows = array_merge($rows,$rows_cable);
-  return '<h2>'.$title.'</h2>'.
+  return '<h2>'.$title.'</h2>'.update.php?op=finished
          '<h3>'.t('Totals').': '.$ltotal.' '.t('links').', '.$dtotal.' '.t('kms.').'</h3>'.
          theme('table',array(t('interface'),t('id'),t('device'),t('node'),t('ip address'),'&nbsp;',t('status'),t('routing'),t('kms.'),t('az.')),$rows);
 }
@@ -1305,10 +1305,38 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
  
   $header = array(t('type'),t('linked devices'), t('ip'), t('status'), t('routing'), t('kms.'),t('az.'));
 
-  $queryloc1 = db_query("SELECT c.id, c.link_type, c.routing, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, i.interface_type itype, c.flag, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_location} l ON d.nid = l.id WHERE c.device_id = %d AND link_type like '%s' ORDER BY c.link_type, c.device_id",$id,$ltype);
+  $queryloc1 = db_query("
+    SELECT
+      c.id, c.link_type, c.routing, l.nick, c.device_id, d.nick
+      device_nick, a.ipv4 ip, i.interface_type itype, c.flag,
+      l.lat, l.lon
+    FROM {guifi_links} c
+      LEFT JOIN {guifi_devices} d ON c.device_id=d.id
+      LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id
+      LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id
+      LEFT JOIN {guifi_location} l ON d.nid = l.id
+    WHERE c.device_id = %d
+      AND link_type like '%s'
+    ORDER BY c.link_type, c.device_id",
+    $id,$ltype);
   if (db_num_rows($queryloc1)) {
     while ($loc1 = db_fetch_object($queryloc1)) {
-      $queryloc2 = db_query("SELECT c.id, l.nick, r.ssid, c.device_id, d.nick device_nick, a.ipv4 ip, i.interface_type itype, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE c.id = %d AND c.device_id != %d",$loc1->id,$loc1->device_id);
+      $queryloc2 = db_query("
+        SELECT
+          c.id, l.nick, r.ssid, c.device_id, d.nick device_nick,
+          a.ipv4 ip, i.interface_type itype, l.lat, l.lon
+        FROM {guifi_links} c
+          LEFT JOIN {guifi_devices} d ON c.device_id=d.id
+          LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id
+          LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id
+            AND a.id=c.ipv4_id
+          LEFT JOIN {guifi_location} l ON d.nid = l.id
+          LEFT JOIN {guifi_radios} r ON d.id=r.id
+            AND i.radiodev_counter=r.radiodev_counter
+        WHERE c.id = %d
+          AND c.device_id != %d",
+          $loc1->id,
+          $loc1->device_id);
       while ($loc2 = db_fetch_object($queryloc2)) {
         $gDist = round($oGC->EllipsoidDistance($loc1->lat, $loc1->lon, $loc2->lat, $loc2->lon),3);
         if ($gDist) {
