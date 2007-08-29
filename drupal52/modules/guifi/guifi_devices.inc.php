@@ -51,8 +51,7 @@ function guifi_edit_device_form_submit($form_id, &$form_values) {
 }
 
 
-/**
- * Get device information 
+/** guifi_get_device(): get a device and all its related information and builds an array
 **/
 function guifi_get_device($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_get_device()');
@@ -1024,7 +1023,8 @@ function guifi_edit_device($id) {
 }
 
 /** guifi_device_print_data(): outputs the device information data
-**/
+ **/
+
 function guifi_device_print_data($device) {
 
   $created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $device[user_created]));

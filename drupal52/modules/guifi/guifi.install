@@ -591,6 +591,7 @@ function guifi_update_1() {
 }
 function guifi_update_2() {
   $items = array();
+  
   $items[] = update_sql("
     ALTER TABLE {guifi_location}
     CHANGE contact notification
@@ -604,6 +605,29 @@ function guifi_update_2() {
     CHANGE notification notification 
     VARCHAR( 1024 ) NOT NULL");
 
+  /* Converting IPv4 tables from strings to long integers
+  db_query("CREATE TABLE {guifi_ipv4s} (
+       id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',
+       interface_id int(11) NOT NULL default '0' COMMENT 'primary key 2nd column and foreign key to guifi_interfaces(id)',
+       ipv4 bigint default NULL,
+       netmask smallint NOT NULL default 27,
+       PRIMARY KEY  (interface_id,id),
+       UNIQUE KEY ipv4 (ipv4))
+       COMMENT 'provide ipv4 tp interfaces'"
+     );
+  $qi = db_query("SELECT * FROM comesfa46.guifi_ipv4");
+  while ($ipv4 = db_fetch_object($qi)) {
+     if (ip2long($ipv4->ipv4) != -1)
+     db_query("INSERT INTO {guifi_ipv4s} (id, interface_id, ipv4, netmask)
+               VALUES (%d, %d, %d, %d)",
+       $ipv4->id,
+       $ipv4->interface_id,
+       ip2long($ipv4->ipv4),
+       27);
+    $c++;
+  }
+  */
+  
   return $items;
 }
 

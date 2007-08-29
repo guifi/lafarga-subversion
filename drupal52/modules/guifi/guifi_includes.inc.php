@@ -626,6 +626,8 @@ function guifi_abbreviate($str,$len = 5) {
   return str_replace(" ","",$str);
 }
 
+/** IP functions to get IP's within a subnet or allocate new subnets **/
+
 /**
  * guifi_get_ips
  *  gets a the allocated ips
@@ -646,7 +648,6 @@ function guifi_get_ips($start = '0.0.0.0', $mask = '0.0.0.0',$edit = null) {
         guifi_merge_ip($ip, $ips,false);
     }
   }
-  
 
   // going to get current device ips
   if ($edit != null)
@@ -691,7 +692,6 @@ function guifi_merge_ip($ip, &$ips_allocated, $sort = true) {
     sort($ips_allocated);
 }
 
-
 /**
  * guifi_get_nets
  *  gets a the allocated networks for a given range
@@ -717,7 +717,7 @@ function guifi_get_nets($start = '0.0.0.0', $mask = '255.255.0.0') {
 }
 
 /**
- * guifi_find_subnet
+ * guifi_find_subnetcontact
  *  finds in the given range, the next free range to allocate a subnet
  *  without allocated ip's
  * @base_ip 
@@ -1315,10 +1315,21 @@ function guifi_refresh($parameter) {
  *    $to_mail with valid emails and not unique
  *    $message in text format 
 ***/
+
+/** Notification engine
+  * Messages are being stored at guifi_notify table, and once guifi_notify_period expires
+  * are being aggregated per user and a mail will be sent.
+  **/
+
+/** guifi_notify(): Post a message to the notification queue
+*/
 function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = true) {
   global $user;
   
   guifi_log(GUIFILOG_TRACE,'function guifi_notify()');
+  if (variable_get('guifi_notify_period',86400) == -1)
+    return;
+    
   if (!is_array($to_mail))
     $to_mail = explode(',',$to_mail);
   $to_mail[] = $user->mail;
@@ -1355,25 +1366,13 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
         t('A notification will be sent to: %to',
           array('%to'=>implode(',',$to_mail))));
     }
+
   }
   watchdog('guifi',$log_html,WATCHDOG_NOTICE);
   return $log_html;
 }
 
-/** guifi_notification_l(): Constructs a link to the emails
-  notification
-**/
-function guifi_notification_l($to = array()) {
-  $ls = array();
-  foreach ($to as $email) {
-    $ls[] = '<a href="mailto:'.
-      $email.'">'.$email.'</a>';
-  }
-  return implode(', ',$ls);
-}
-
-
-/** guifi_notification_validate(): check for valid emails
+/** guifi_notification_validate(): validates that the given emails are correct
   * arguments:
   * @to: string with a list of emails sepparated by comma
   * @returns: foretted str if all valid, FALSE otherwise
@@ -1392,6 +1391,66 @@ function guifi_notification_validate($to) {
     $trimmed[] = $temail;
   }
   return implode(', ',$trimmed);
+}
+
+/** guifi_notify_send(): Delivers all the waiting messages and empties the queue
+*/
+function guifi_notify_send() {
+
+  $destinations = array();
+  $messages     = array();
+  // Get all the queue to be processesed, grouping to every single destination
+  $qt = db_query("
+    SELECT *
+    FROM {guifi_notify}");
+  while ($message = db_fetch_array($qt)) {
+    $messages[$message['id']] = $message;
+    foreach (unserialize($message['to_array']) as $dest)
+       $destinations[$dest][] = $message['id'];
+  }
+
+  // For every destination, construct a single mail with all messages
+  $errors = false;
+  foreach ($destinations as $to=>$msgs) {
+    $body = str_repeat('-',72)."\n\n".
+      t('Complete messages')."\n".str_repeat('-',72)."\n";
+    $subjects = t('Summary:')."\n".str_repeat('-',72)."\n";
+    foreach ($msgs as $msg_id) {
+      $subjects .= format_date($messages[$msg_id]['timestamp']).' ** '.
+        $messages[$msg_id]['who_name'].' '.
+        $messages[$msg_id]['subject']."\n";
+      $body .=
+        format_date($messages[$msg_id]['timestamp']).' ** '.
+        $messages[$msg_id]['who_name'].' '.
+        $messages[$msg_id]['subject']."\n".
+        $messages[$msg_id]['body']."\n".str_repeat('-',72)."\n";
+    }
+//     if (count($msgs) == 1) {
+//     print "\n<br>Sending a mail to: $to\n<br>";
+//     print_r($msgs);
+    $error = drupal_mail(null,
+      $to,
+      t('[guifi.net notifications] Report of changes'),
+      $subjects.
+      $body,
+      variable_get('guifi_contact','webmestre@guifi.net')
+    );
+    
+    if ($error)
+      watchdog('guifi',t('Report of changes sent to %name',
+        array('%name'=>$to)));
+    else {
+      watchdog('guifi',
+        t('Report of changes was unable to be sent to %name',
+        array('%name'=>$to)));
+      $errors = true;
+    }
+
+  }
+  // delete messages
+//   if (!$errors)
+//     db_query("DELETE {guifi_notify}
+//       WHERE id in (".implode(',',array_keys($messages)).")")
 }
 
 ?>

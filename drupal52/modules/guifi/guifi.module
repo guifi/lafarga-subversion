@@ -135,6 +135,15 @@ function guifi_menu($may_cache) {
       'callback' => 'guifi_page',
       'access' => user_access('access content'),
       'type' => MENU_SUGGESTED_ITEM);
+
+    // cron tasks: Empty notification queue
+    $items[] = array('path' => 'guifi/notify',
+      'title' => t('send notifications'),
+      'callback' => 'guifi_notify_send',
+      'access' => 'administer guifi networks',
+      'type' => MENU_LOCAL_TASK,
+    );
+
     // device management menus
     if (arg(1) == 'device') {
     $items[] = array('path' => 'guifi/device/'.arg(2), 
@@ -200,7 +209,7 @@ function guifi_menu($may_cache) {
       'access' => guifi_device_access('update',arg(2)),
       'weight' => 10,
       'type' => MENU_LOCAL_TASK);
-    } 
+    }
 
     // zone menus
     if (arg(0) == 'node' && is_numeric(arg(1))) {
@@ -542,6 +551,24 @@ function guifi_admin_settings() {
     '#description' => t("An email will be submitted to this address when no contact address is present."),
     '#weight' => $form_weight++,
   );
+  $form['guifi_notify_period'] = array(
+    '#type' => 'select',
+    '#title' => t('Send notifications every'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_notify_period", 86400),
+    '#options' => array(
+      -1=>t('Never (disabled)'),
+      0=>t('Every cron'),
+      3600=>t('Hourly'),
+      72000=>t('Every 2 hours'),
+      21600=>t('Every 6 hours'),
+      43200=>t('Every 12 hours'),
+      86400=>t('Daily'),
+      172800=>t('Every other day'),
+      604800=>t('Weekly')),
+    '#description' => t('When the notification messages queue will be delivered, if set to "Never", no messages will be post at the queue.'),
+    '#weight' => $form_weight++,
+  );
   
   $form['hotspot_ssid'] = array(
     '#type' => 'textfield',
@@ -856,6 +883,12 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
 
 function guifi_cron() {
   // delete orphan devices, radios, ip addresses & links
+  $msg_exp = drupal_get_variable('guifi_notify_period',86400);
+  if ($msg_exp >= 0)
+  if ($time > $msg_exp) {
+    guifi_notify_send();
+    drupal_set_variable('guifi_notify_period',time());
+  }
   guifi_purge();
 }
 
