@@ -735,7 +735,8 @@ function guifi_node_radio_list($id = 0) {
 /** guifi_node_print_distances(): list of neighbors
 **/
 function guifi_node_distances($id,$edit = NULL) {
-
+  global $base_url;
+  
   guifi_log(GUIFILOG_TRACE,'function guifi_node_distances()',$edit);
 
   $node = node_load(array('nid' => $id));
@@ -878,7 +879,7 @@ function guifi_node_distances($id,$edit = NULL) {
     
     // genero URL del Perfil
     
-    $height_url = "modules/guifi/guifi_heights.php?x1=".$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
+    $height_url = $base_url. "/modules/guifi/guifi_heights.php?x1=".$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
     $height_url_small = $height_url."&width=200&height=100";
 
