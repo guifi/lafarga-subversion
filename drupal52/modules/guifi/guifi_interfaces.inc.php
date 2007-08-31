@@ -1,22 +1,38 @@
 <?php
 
-function guifi_interface_form(&$edit,&$fw = 500) {
-  $form = array();
+/* guifi_interface_form(): Main cable interface edit form */
+function guifi_interface_form(&$form,&$edit,&$fw = 500) {
+  
   if (empty($edit['interfaces']))
-    return $form;
-
-  $form['interfaces'] = array(
-    '#parents' => array('interfaces'),
+    return;
+/*
+  $form['if']['interfaces']['#type'] = 'fieldset';
+  $form['if']['interfaces']['#title'] = t('Cable connections');
+  $form['if']['interfaces']['#collapsible'] = 'true';
+  $form['if']['interfaces']['#collapsed'] = 'true';
+  $form['if']['interfaces']
+  $form['if']['interfaces']['#weight'] = $fw++;
+   
+*/
+  $form['interfaces']['#type'] = 'fieldset';
+  $form['interfaces']['#title'] = t('Cable connections');
+  $form['interfaces']['#collapsible'] = true;
+  $form['interfaces']['#collapsed'] = true;
+  $form['interfaces']['#tree'] = true;
+  $form['interfaces']['#weight'] = $fw++;
+  
+   /* $form['interfaces'] = array(
+//    '#parents' => array('i'),
     '#tree' => true,
     '#type' => 'fieldset',
     '#title' => t('Cable connections'),
     '#collapsible' => true,
     '#collapsed' => true,
     '#weight' => $fw++,
-  );
+  ); */
   foreach ($edit['interfaces'] as $iid=>$interface) {
     $form['interfaces'][$iid] = array(
-      '#parents' => array('interfaces',$iid),
+//      '#parents' => array('interfaces',$iid),
       '#type' => 'fieldset',
       '#title' => $interface['interface_type'],
       '#collapsible' => true,
@@ -30,7 +46,15 @@ function guifi_interface_form(&$edit,&$fw = 500) {
       '#weight' => $fw++,
     );
   }
-  return $form;
+
+  $form['interfaces']['AddCableInterface'] = array(
+    '#type'=>'submit',
+    '#parents'=>array('AddCableInterface'),
+    '#value'=>t('Add interface'),
+    '#name'=>'_action,_guifi_add_interface,',
+    '#weight'=>$fw++);
+    
+  return;
 
   unset($edit_form);
   unset($rows);
@@ -200,7 +224,50 @@ function guifi_add_interface_address(&$edit,$interface) {
 
 }
 
-function guifi_add_interface(&$edit) {
+/* Add cable interface */
+/* _guifi_add_interface(): Cofirmation dialog */
+function _guifi_add_interface(&$form,&$edit,$action) {
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_interface(%d)'));
+  $fw = 0;
+  guifi_form_hidden($form,$edit,$fw);
+  $form['help'] = array(
+    '#type' => 'item',
+    '#title' => t('Are you sure you want to create a new wLan interface for clients at this radio?'),
+    '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
+    '#description' => t('If you save at this point, this interface will be created and device saved.'),
+    '#weight' => 0,
+  );
+  drupal_set_title(t('Create a wLan interface at %name',array('%name'=>$edit['radios'][$radio]['ssid'])));
+  _guifi_device_buttons($form,$action);
+
+  return FALSE;
+}
+
+/* _guifi_add_interface_submit(): Action */
+function _guifi_add_interface_submit(&$edit,$action) {
+  $radio = $action[2];
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan_submit(%d)',$radio));
+
+
+  $interface = array();
+  $interface['new']=true;
+  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
+  //   print_r($ips_allocated);
+  $net = guifi_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
+  guifi_log(GUIFULOG_FULL,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/27");
+  $interface['ipv4'][$radio]=array();
+  $interface['ipv4'][$radio]['new']=true;
+  $interface['ipv4'][$radio]['ipv4']=guifi_ip_op($net);
+  guifi_log(GUIFILOG_FULL,"assigned IPv4: ".$edit['radios'][$radio]['interfaces'][$interface_id]['ipv4'][$radio]['ipv4']);
+  $interface['ipv4'][$radio]['netmask']='255.255.255.224';
+  $interface['ipv4'][$radio]['links']=array();
+  $interface['interface_type']='wLan';
+  $edit['radios'][$radio]['interfaces'][]=$interface;
+  
+  return TRUE;
+}
+/*
+function _guifi_add_interface_submit(&$edit) {
 
  $int = db_fetch_object(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
  $interface_id=$int->id;
@@ -214,6 +281,7 @@ function guifi_add_interface(&$edit) {
 
  return $edit;
 }
+*/
 
 
 function guifi_delete_interface(&$edit,$op) {

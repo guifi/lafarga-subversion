@@ -104,29 +104,50 @@ function guifi_links_form($edit_details,$edit) {
 function guifi_links_validate(&$edit) {
 
   guifi_log(GUIFILOG_TRACE,"function: guifi_links_validate()");
-//  guifi_log(GUIFILOG_FULL,"edit",$edit);
+  guifi_log(GUIFILOG_FULL,"edit",$edit);
 
   // Validating radio links
-  if (!empty($edit[radios]))      foreach ($edit[radios] as $radio_id=>$radio)
-  if (!empty($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface)
-  if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-  if (!empty($ipv4[links]))       foreach ($ipv4[links] as $link_id=>$link) {
-//    print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
-    guifi_links_validate_recurse(
-      $edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id],
-      $link_id,
-      $interface[interface_type],
-      array('radios',$radio_id,'interfaces',$interface_id,'ipv4',$ipv4_id,'links',$link_id));
+  if (isset($edit['radios']))
+    foreach ($edit['radios'] as $radio_id=>$radio)
+    if (isset($radio['interfaces']))
+     foreach ($radio['interfaces'] as $interface_id=>$interface)
+      if (isset($interface['ipv4']))
+        foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
+          if (isset($ipv4['links']))
+            foreach ($ipv4['links'] as $link_id=>$link) {
+//              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
+              guifi_links_validate_recurse(
+                $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id],
+                $link_id,
+                $interface['interface_type'],
+                array(
+                  'radios',
+                  $radio_id,
+                  'interfaces',
+                  $interface_id,'ipv4',
+                  $ipv4_id,
+                  'links',
+                  $link_id));
   }
+  
   // Validating cable/other links
-  if (!empty($edit[interfaces])) foreach ($edit[interfaces] as $interface_id=>$interface)
-  if (!empty($interface[ipv4]))   foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-  if (!empty($ipv4[links]))       foreach ($ipv4[links] as $link_id=>$link) {
-//    print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
-    guifi_links_validate_recurse(
-      $edit[interfaces][$interface_id][ipv4][$ipv4_id],$link_id,
-      $interface[interface_type],
-      array('interfaces',$interface_id,'ipv4',$ipv4_id,'links',$link_id));
+  if (isset($edit['interfaces']))
+    foreach ($edit['interfaces'] as $interface_id=>$interface)
+      if (isset($interface['ipv4']))
+        foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
+          if (isset($ipv4['links']))
+            foreach ($ipv4['links'] as $link_id=>$link) {
+//              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
+              guifi_links_validate_recurse(
+                $edit['interfaces'][$interface_id]['ipv4'][$ipv4_id],$link_id,
+                $interface['interface_type'],
+                array(
+                  'interfaces',
+                  $interface_id,
+                  'ipv4',
+                  $ipv4_id,
+                  'links',
+                  $link_id));
   }
 }
 
@@ -135,7 +156,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$parents =
 //    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
 
     if ($link[links][$link_id]['new']==true) 
-    if (!empty($link[links][$link_id][linked])) {
+    if (isset($link[links][$link_id][linked])) {
 
       // passat a guifi_device_save
 //      print "New Linked: \n<br />"; print_r($link);
@@ -234,7 +255,7 @@ function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$parents =
   $lexists = array();
 
 
-  if (!empty($edit['links'])) foreach ($edit['links'] as $key => $link) {
+  if (isset($edit['links'])) foreach ($edit['links'] as $key => $link) {
 
     guifi_log(GUIFILOG_TRACE, "Checking link", $link);
     if (($link['newlink']) or ($link['flag'] == 'Dropped')) {

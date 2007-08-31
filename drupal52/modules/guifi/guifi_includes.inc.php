@@ -265,13 +265,35 @@ function guifi_devices_select($filters) {
 
   if ($filters['type'] == 'cable') {
     if ($filters['mode'] != 'cable-router')
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$filters['from_node']);
+      $query = db_query("
+        SELECT
+          l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id
+        FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z
+        WHERE
+          l.id=%d
+          AND r.nid=l.id
+          AND l.zone_id=z.id",
+        $filters['from_node']);
     else
-      $query = db_query("SELECT l.lat, l.lon, r.nick ssid, r.id r.nid, z.id zone_id, r.type  FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z WHERE r.type IN ('radio','nat') AND l.id=%d AND r.nid=l.id AND l.zone_id=z.id",$filters['from_node']);
+      $query = db_query("
+        SELECT
+          l.lat, l.lon, r.nick ssid, r.id r.nid, z.id zone_id, r.type
+        FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z
+        WHERE r.type IN ('radio','nat')
+          AND l.id=%d AND r.nid=l.id
+          AND l.zone_id=z.id",
+        $filters['from_node']);
   } else
-    $query = db_query("SELECT l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id, r.radiodev_counter, r.ssid, r.mode FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z WHERE l.id<>%d AND r.nid=l.id AND l.zone_id=z.id",$filters['from_node']);
+    $query = db_query("
+      SELECT
+        l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id,
+        r.radiodev_counter, r.ssid, r.mode
+      FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z
+      WHERE l.id<>%d
+        AND r.nid=l.id
+        AND l.zone_id=z.id",
+        $filters['from_node']);
 
- 
   $devdist = array();
   $devarr = array(); 
   $k = 0;
@@ -280,15 +302,23 @@ function guifi_devices_select($filters) {
     $l = false;
     if ($filters['type']!='cable') {
       $oGC = new GeoCalc();
-      $node = db_fetch_object(db_query('SELECT lat, lon FROM {guifi_location} WHERE id=%d',$filters['from_node']));
-      $distance = round($oGC->EllipsoidDistance($device->lat, $device->lon, $node->lat, $node->lon),3);
+      $node = db_fetch_object(db_query('
+        SELECT lat, lon
+        FROM {guifi_location}
+        WHERE id=%d',
+        $filters['from_node']));
+      $distance = round($oGC->EllipsoidDistance(
+        $device->lat, $device->lon,
+        $node->lat, $node->lon),3);
       if (($distance > $filters['dmax']) or  
         ($distance < $filters['dmin'])) 
         continue;
       if ($filters['azimuth']) {
         foreach (explode('-',$filters['azimuth']) as $minmax) {
           list($min,$max) = explode(',',$minmax);
-          $Az = round($oGC->GCAzimuth($device->lat, $device->lon, $node->lat, $node->lon));
+          $Az = round($oGC->GCAzimuth(
+            $device->lat, $device->lon,
+            $node->lat, $node->lon));
           if (($Az <= $max) and ($Az >= $min))
             $l = true;
         } 
@@ -362,9 +392,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 }
 
 
-/***
- *  guifi_devices_select_filter($form,$filters);
-***/
+/* guifi_devices_select_filter($form,$filters): Construct a list of devices to link with */
 function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$fweight = -100) {
 
   
@@ -1183,11 +1211,19 @@ function guifi_nodexchange_tree($zid) {
 }
 
 function guifi_cnml_tree($zid) {
-  $result = db_query('SELECT z.id, z.master parent_id, z.title, z.time_zone, z.ntp_servers, z.dns_servers, z.graph_server, z.homepage, z.minx, z.miny, z.maxx, z.maxy,z.timestamp_created, z.timestamp_changed FROM {guifi_zone} z ORDER BY z.title');
+  $result = db_query('
+    SELECT z.id, z.master parent_id, z.title, z.time_zone, z.ntp_servers,
+      z.dns_servers, z.graph_server, z.homepage, z.minx, z.miny, z.maxx,
+      z.maxy,z.timestamp_created, z.timestamp_changed
+    FROM {guifi_zone} z
+    ORDER BY z.title');
   while ($zone = db_fetch_object($result)) {
     $zones[$zone->id] = $zone;
   }
-  $result = db_query('SELECT l.* FROM {guifi_location} l ORDER BY l.nick');
+  $result = db_query('
+    SELECT l.*
+    FROM {guifi_location} l
+    ORDER BY l.nick');
   while ($node = db_fetch_object($result)) {
     $zones[$node->zone_id]->nodes[] = $node;
   }
@@ -1211,13 +1247,19 @@ function guifi_cnml_tree($zid) {
 
 
 function guifi_form_hidden(&$form,$var,&$form_weight = -200) {
+
+//  guifi_log(GUIFILOG_TRACE,'function guifi_form_hidden()');
+
   foreach ($var as $key=>$value)
     if (is_array($value))  {
       $form[$key] = array('#tree' => 1);
       guifi_form_hidden($form[$key],$value,$form_weight);
     } else {
       if (!preg_match('/^_action/',$key))
-        $form[$key]=array('#type'=>'hidden','#value'=>$value, '#weight'=>$form_weight++);
+        $form[$key]=array(
+          '#type'=>'hidden',
+          '#value'=>$value,
+          '#weight'=>$form_weight++);
     }
   return;
 }
@@ -1229,7 +1271,15 @@ function guifi_count_radio_links($radio) {
 //  print_r($radio);
 
   if (is_numeric($radio)) {
-    $qc = db_query('SELECT l1.link_type type,count(*) c FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id = l2.id WHERE l1.device_id=%d AND l2.device_id != %d GROUP BY l1.link_type',$radio,$radio);
+    $qc = db_query('
+      SELECT l1.link_type type,count(*) c
+      FROM {guifi_links} l1
+        LEFT JOIN {guifi_links} l2 ON l1.id = l2.id
+      WHERE l1.device_id=%d
+        AND l2.device_id != %d
+      GROUP BY l1.link_type',
+      $radio,
+      $radio);
     while ($c = db_fetch_object($qc)) {
       switch ($c->type) {
       case 'ap/client': $ret[ap]++; break;
@@ -1253,7 +1303,9 @@ function guifi_count_radio_links($radio) {
 
 function guifi_next_interface($edit = null) {
    $next = 0;
-   $int = db_fetch_object(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
+   $int = db_fetch_object(db_query('
+    SELECT max(id)+1 id
+    FROM {guifi_interfaces}'));
    $next=$int->id;
 
    if (isset($edit))
@@ -1448,9 +1500,9 @@ function guifi_notify_send() {
 
   }
   // delete messages
-//   if (!$errors)
-//     db_query("DELETE {guifi_notify}
-//       WHERE id in (".implode(',',array_keys($messages)).")")
+   if (!$errors)
+     db_query("DELETE FROM {guifi_notify}
+       WHERE id in (".implode(',',array_keys($messages)).")");
 }
 
 ?>

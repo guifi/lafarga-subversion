@@ -5,13 +5,20 @@
  */
 
 
-/** device editing functions
-**/
-/** guifi_edit_device_form_submit(): Performs submit actions
-*/
+/***************************************
+   device editing functions
+****************************************/
+/* guifi_edit_device_form_submit(): Performs submit actions */
 function guifi_edit_device_form_submit($form_id, &$form_values) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_submit()');
+
+  if ($form_values['id'])
+  if (!guifi_device_access('update',$form_values['id']))
+  {
+    drupal_set_message(t('You are not authorized to edit this device','error'));
+    return;
+  }
 
   /* Check if there is an action to take over the current form */
   $key = false;
@@ -50,12 +57,15 @@ function guifi_edit_device_form_submit($form_id, &$form_values) {
 
 }
 
-
-/** guifi_get_device(): get a device and all its related information and builds an array
-**/
+/* guifi_get_device(): get a device and all its related information and builds an array */
 function guifi_get_device($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_get_device()');
-  $device = db_fetch_array(db_query('SELECT d.* FROM {guifi_devices} d  WHERE d.id = %d', $id));
+  
+  $device = db_fetch_array(db_query('
+    SELECT d.*
+    FROM {guifi_devices} d
+    WHERE d.id = %d',
+    $id));
   if (empty($device)) {
     drupal_set_message(t('Device does not exist.'));
     return;
@@ -65,11 +75,15 @@ function guifi_get_device($id,$ret = 'array') {
   else
     $device['variable'] = array();
  
-  unset($purge);
   // getting device radios
   if ($device['type'] == 'radio') {
     // Get radio
-    $qr = db_query('SELECT * FROM {guifi_radios} WHERE id = %d ORDER BY id, radiodev_counter', $id);
+    $qr = db_query('
+      SELECT *
+      FROM {guifi_radios}
+      WHERE id = %d
+      ORDER BY id, radiodev_counter',
+      $id);
     if (db_num_rows($qr) == 0) {
       return $device;
     }
@@ -84,7 +98,13 @@ function guifi_get_device($id,$ret = 'array') {
       $device['radios'][$radio['radiodev_counter']] = $radio;
 
       // get interface
-      $qi = db_query('SELECT * FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d ORDER BY id, interface_type, radiodev_counter',$device['id'],$radio['radiodev_counter']);
+      $qi = db_query('
+        SELECT *
+        FROM {guifi_interfaces}
+        WHERE device_id=%d AND radiodev_counter=%d
+        ORDER BY id, interface_type, radiodev_counter',
+        $device['id'],
+        $radio['radiodev_counter']);
       while ($i = db_fetch_array($qi)) {
         if ($device['radios'][$radio['radiodev_counter']]['mac'] == '')
           $device['radios'][$radio['radiodev_counter']]['mac'] = $i['mac'];
@@ -93,7 +113,12 @@ function guifi_get_device($id,$ret = 'array') {
         // get ipv4
         $ipdec = array();
         $iparr = array();
-        $qa = db_query('SELECT * FROM {guifi_ipv4} WHERE interface_id=%d',$i['id']);
+        $qa = db_query('
+          SELECT *
+          FROM {guifi_ipv4}
+          WHERE interface_id=%d',
+          $i['id']);
+        
         while ($a = db_fetch_array($qa)) {
           $ipdec[$a['id']] = _dec_addr($a['ipv4']);
           $iparr[$a['id']] = $a;
@@ -104,23 +129,45 @@ function guifi_get_device($id,$ret = 'array') {
           $a = $iparr[$ka];
           $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']]['ipv4'][$a['id']] = $a;
           // get linked devices
-          $qlsql = sprintf('SELECT l2.* FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l2.device_id != %d AND l1.device_id=%d AND l1.interface_id=%d AND l1.ipv4_id=%d',$id,$id,$i['id'],$a['id']);
+          $qlsql = sprintf('
+            SELECT l2.*
+            FROM {guifi_links} l1
+              LEFT JOIN {guifi_links} l2 ON l1.id=l2.id
+            WHERE l2.device_id != %d
+              AND l1.device_id=%d
+              AND l1.interface_id=%d
+              AND l1.ipv4_id=%d',
+            $id,
+            $id,
+            $i['id'],
+            $a['id']);
           $ql = db_query($qlsql);
 
           $ipdec2 = array();
           $iparr2 = array();
           while ($l = db_fetch_array($ql)) {
-            $qrasql = sprintf('SELECT * FROM {guifi_ipv4} WHERE id=%d AND interface_id=%d',$l['ipv4_id'],$l['interface_id']);
+            $qrasql = sprintf('
+              SELECT *
+              FROM {guifi_ipv4}
+              WHERE id=%d
+                AND interface_id=%d',
+              $l['ipv4_id'],
+              $l['interface_id']);
             $qra = db_query($qrasql);
 
             while ($ri = db_fetch_array($qra)) {
-              $rinterface = db_fetch_array(db_query('SELECT * FROM {guifi_interfaces} WHERE id=%d',$l['interface_id']));
+              $rinterface = db_fetch_array(db_query('
+                SELECT *
+                FROM {guifi_interfaces}
+                WHERE id=%d',
+                $l['interface_id']));
               $ipdec2[$l['id']] = _dec_addr($ri['ipv4']);
               $rinterface['ipv4']=$ri;
               $l['interface']=$rinterface;
               $iparr2[$l['id']] = $l;
             }
           } // each link
+          
           asort($ipdec2);
           foreach ($ipdec2 as $ka2=>$foo) {
             $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$iparr2[$ka2]['id']] = $iparr2[$ka2];
@@ -131,18 +178,31 @@ function guifi_get_device($id,$ret = 'array') {
   } 
 
   // getting other interfaces
-  $qi = db_query('SELECT * FROM {guifi_interfaces} WHERE device_id=%d AND (radiodev_counter is NULL OR interface_type NOT IN ("wLan","wds/p2p","Wan")) ORDER BY interface_type, id',$id);
+  $qi = db_query('
+    SELECT *
+    FROM {guifi_interfaces}
+    WHERE device_id=%d
+      AND (radiodev_counter is NULL
+      OR interface_type NOT IN ("wLan","wds/p2p","Wan","Hotspot"))
+    ORDER BY interface_type, id',
+    $id);
+    
   while ($i = db_fetch_array($qi)) {
     $device['interfaces'][$i['id']] = $i;
 
     // get ipv4
     $ipdec = array();
     $iparr = array();
-    $qa = db_query('SELECT * FROM {guifi_ipv4} WHERE interface_id=%d',$i['id']);
+    $qa = db_query('
+      SELECT *
+      FROM {guifi_ipv4}
+      WHERE interface_id=%d',
+      $i['id']);
     while ($a = db_fetch_array($qa)) {
       $ipdec[$a['id']] = _dec_addr($a['ipv4']);
       $iparr[$a['id']] = $a;
     }
+    
     asort($ipdec); 
       
     foreach($ipdec as $ka=>$foo) {
@@ -150,19 +210,41 @@ function guifi_get_device($id,$ret = 'array') {
       $device['interfaces'][$i['id']]['ipv4'][$a['id']] = $a;
     }
     // get linked devices
-    $ql = db_query('SELECT l2.* FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.link_type NOT IN ("ap/client","wds/p2p") AND l1.device_id=%d AND l1.interface_id=%d AND l2.device_id!=%d',$id,$i['id'],$id);
+    $ql = db_query('
+      SELECT l2.*
+      FROM {guifi_links} l1
+        LEFT JOIN {guifi_links} l2 ON l1.id=l2.id
+      WHERE l1.link_type NOT IN ("ap/client","wds/p2p")
+        AND l1.device_id=%d
+        AND l1.interface_id=%d
+        AND l2.device_id!=%d',
+      $id,
+      $i['id'],
+      $id);
     while ($l = db_fetch_array($ql)) {
       $ipdec2 = array();
       $iparr2 = array();
-      $qra = db_query('SELECT * FROM {guifi_ipv4} WHERE id=%d AND interface_id=%d',$l['ipv4_id'],$l['interface_id']);
+      $qra = db_query('
+        SELECT *
+        FROM {guifi_ipv4}
+        WHERE id=%d
+          AND interface_id=%d',
+        $l['ipv4_id'],
+        $l['interface_id']);
       while ($ra = db_fetch_array($qra)) {
         $ipdec2[$ra['id']] = _dec_addr($ra['ipv4']);
         $lr = $l;
-        $lr['interface'] = db_fetch_array(db_query('SELECT * FROM {guifi_interfaces} WHERE id=%d',$l['interface_id']));
+        $lr['interface'] = db_fetch_array(db_query('
+          SELECT *
+          FROM {guifi_interfaces}
+          WHERE id=%d',
+          $l['interface_id']));
         $lr['interface']['ipv4'] = $ra;
         $iparr2[$ra['id']] = $lr;
-      } 
+      }
+      
       asort($ipdec2);
+      
       foreach ($ipdec2 as $ka2=>$foo)
         $device['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$l['id']] = $iparr2[$ka2];
     }
@@ -177,13 +259,21 @@ function guifi_get_device($id,$ret = 'array') {
   }
 }
 
-/**
- * Present the guifi device editing form.
- */
+/* guifi_edit_device_form(): Present the guifi device main editing form. */
 function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = null) {
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form()');
+  guifi_log(GUIFILOG_FULL,null,$edit);
+
+  // Check permissions
+  if ($id)
+  if (!guifi_device_access('update',$id))
+  {
+    drupal_set_message(t('You are not authorized to edit this device','error'));
+    return;
+  }
+
   // Initializing the form
   $form['#multistep'] = TRUE;
   if ($id != null)
@@ -322,10 +412,13 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   }
 
   if (function_exists('guifi_'.$edit['type'].'_form'))
-    $form = array_merge($form,call_user_func('guifi_'.$edit['type'].'_form',$edit,$form_weight));
+    $form = array_merge($form,
+      call_user_func('guifi_'.$edit['type'].'_form',
+      $edit,
+      $form_weight));
 
   // Cable interfaces/links
-  $form = array_merge($form,guifi_interface_form($edit,$form_weight));
+  guifi_interface_form($form['if'],$edit,$form_weight = 2);
 
   // Comments & save/validate/reset buttons
   $form_weight = 200;
@@ -367,31 +460,54 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   return $form;
 }
 
-/** guifi_edit_device_form_validate(): Confirm that an edited device has fields properly filled.
- */
+/* guifi_edit_device_form_validate(): Confirm that an edited device has fields properly filled. */
 function guifi_edit_device_form_validate($form_id,$edit,$form) {
 //  print "Hola validate!!\n<br>";
 //  print_r($edit);
 
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_validate()');
-  // nick
-  guifi_validate_nick($edit['nick']);
+  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_validate()',$form_id);
 
-  $query = db_query("SELECT nick FROM {guifi_devices} WHERE lcase(nick)=lcase('%s') AND id <> %d",strtolower($edit['nick']),$edit['id']);
-  if (db_num_rows($query))
-     form_set_error('nick', t('Nick already in use.'));
+  if ($form_id == null)
+  {
+    drupal_set_message(t('Error: Trying to validate an unknown form.'),'error');
+    return;
+  }
+  
+  // nick
+  if (isset($form['main']['nick'])) {
+    guifi_validate_nick($edit['nick']);
+
+    $query = db_query("
+      SELECT nick
+      FROM {guifi_devices}
+      WHERE lcase(nick)=lcase('%s')
+       AND id <> %d",
+      strtolower($edit['nick']),
+      $edit['id']);
+    
+    if (db_num_rows($query))
+      form_set_error('nick', t('Nick already in use.'));
+  }
 
   // contact
-  if (empty($edit['notification'])) {
-     form_set_error('notification', $edit['contact'].t('You must set a contact address for this device.'));
+  if (isset($form['main']['notification'])) {
+    if (empty($edit['notification'])) {
+      form_set_error(
+        'notification',
+        $edit['contact'].
+        t('You must set a contact address for this device.'));
+    }
+    $emails = guifi_notification_validate($edit['notification']);
+    if (!$emails) {
+      form_set_error(
+        'notification',
+        t('Error while validating email address'));
+    } else
+      form_set_value($form['main']['notification'],$emails);
+
   }
-  $emails = guifi_notification_validate($edit['notification']);
-  if (!$emails) {
-    form_set_error('notification',t('Error while validating email address'));
-  } else
-    form_set_value($form['main']['notification'],$emails);
 
   // ssid
   if (empty($edit['ssid'])) {
@@ -400,8 +516,15 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
 
   // duplicated ip address
   if (!empty($edit['ipv4'])) {
-    if (db_num_rows(db_query("SELECT i.id FROM {guifi_interfaces} i,{guifi_ipv4} a WHERE i.id=a.interface_id AND a.ipv4='%s' AND i.device_id != %d",$edit['ipv4'],$edit['id']))) {
-      $message = t('IP %ipv4 already taken in the database. Choose another or leave the address blank.', array('%ipv4' => theme('placeholder', $edit['ipv4'])));
+    if (db_num_rows(db_query("
+      SELECT i.id
+      FROM {guifi_interfaces} i,{guifi_ipv4} a
+      WHERE i.id=a.interface_id AND a.ipv4='%s'
+        AND i.device_id != %d",
+      $edit['ipv4'],
+      $edit['id']))) {
+      $message = t('IP %ipv4 already taken in the database. Choose another or leave the address blank.',
+        array('%ipv4' => $edit['ipv4']));
       form_set_error('ipv4',$message);
     }
   }
@@ -436,10 +559,7 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
   guifi_links_validate($edit);
 }
 
-/** functions to save interfaces
-***/
-
-/** To remove, for reference
+/* functions to save interfaces, old code to be removed, for reference {
 function guifi_save_interfaces($edit,$var,$rc_old = null,$rc_new = null,&$to_mail) {
   global $bridge;
 
@@ -735,10 +855,9 @@ function guifi_save_interfaces2($edit,$var,$rc_old = null,$rc_new = null, $casca
   }
 
 }
-**/
+** } end of code to be removed */
 
-/** guifi_edit_device_save(): Save changes/insert devices
- */
+/* guifi_edit_device_save(): Save changes/insert devices */
 function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
   global $user;
   global $bridge;
@@ -760,6 +879,8 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
   if ($edit['radios']) foreach ($edit['radios'] as $radiodev_counter=>$radio) {
     $radio['id'] = $ndevice['id'];
     $radio['radiodev_counter'] = $rc;
+    $radio['nid']=$edit['nid'];
+    $radio['model_id']=$edit['variable']['model_id'];
     $nradio = _guifi_db_sql('guifi_radios',array('id'=>$radio['id'],'radiodev_counter'=>$radiodev_counter),$radio,$log,$to_mail);
     if (empty($nradio)) 
       continue;
@@ -815,11 +936,11 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
   $to_mail = explode(',',$edit['notification']);
   
   if ($edit['new'])
-    $subject = t('The device %name has been UPDATED by %user.',
+    $subject = t('The device %name has been CREATED by %user.',
       array('%name' => $edit['nick'],
         '%user' => $user->name));
   else
-    $subject = t('The device %name has been CREATED by %user.',
+    $subject = t('The device %name has been UPDATED by %user.',
       array('%name' => $edit['nick'],
         '%user' => $user->name));
   
@@ -882,7 +1003,7 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
   **/
 }
 
-/** To remove, for reference
+/* funtions to save devices, old code, to be removed, for reference {
 function guifi_edit_device_save2($edit) {
 
   global $user;
@@ -948,10 +1069,9 @@ function guifi_edit_device_save2($edit) {
 
   return ($edit[id]);
 }
-**/
-/** guifi_delete_device(): Delete a device
- *
-***/
+* } end of code to be removed */
+
+/* guifi_delete_device(): Delete a device */
 function guifi_confirm_delete_device($name,$id) {
 
   $form['help'] = array(
@@ -1004,16 +1124,7 @@ function guifi_delete_device($id, $notify = true, $verbose = true) {
   return drupal_get_form('guifi_confirm_delete_device',$data->name,$data->nid);
 }
 
-
-
-/**
- * Menu callback; add a device to a node 
- */
-function guifi_add_device() {
-  guifi_log(GUIFILOG_TRACE,'function guifi_add_device()');
-  return drupal_get_form('guifi_edit_device_form',null,arg(3),arg(4));
-}
-
+/* guifi_edit_device(): Menu callback for editing a device */
 function guifi_edit_device($id) {
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device()');
   if ($_POST['op'] == t('Reset'))
@@ -1022,13 +1133,109 @@ function guifi_edit_device($id) {
   print theme('page',drupal_get_form('guifi_edit_device_form',$id,null,null),false);
 }
 
-/** guifi_device_print_data(): outputs the device information data
- **/
+/* guifi_add_device(): Provides a form to create a new device */
+function guifi_add_device() {
+  guifi_log(GUIFILOG_TRACE,'function guifi_add_device()');
+  return drupal_get_form('guifi_edit_device_form',null,arg(3),arg(4));
+}
 
+/* guifi_device_create_form(): generates html output form with a listbox, choose the device type to create */
+function guifi_device_create_form($nid) {
+  $types = guifi_types('device');
+
+  if (!guifi_access('create',$nid)) {
+    $form['text_add'] = array(
+     '#type' => 'item',
+     '#value' => t('You are not allowed to update this node.'),
+     '#weight' => 0
+   );
+   return $form;
+  }
+  $form['nid'] = array(
+    '#type' => 'hidden',
+    '#value' => $nid
+  );
+  $form['text_add'] = array(
+    '#type' => 'item',
+    '#value' => t('Add a new device'),
+    '#prefix' => '<table style="width: 40em"><tr><td style="wiiidth: 200px">',
+    '#description' => t('Type of device to be created'),
+    '#suffix' => '</td>',
+    '#weight' => 0
+  );
+  $form['device_type'] = array(
+    '#type' => 'select',
+    '#options' => $types,
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#weight' => 1
+  );
+  $form['submit'] = array(
+    '#type' => 'submit', 
+    '#value' => t('add'),
+    '#prefix' => '<td>',
+    '#suffix' => '</td></tr></table>',
+    '#weight' => 2
+  );
+
+  return $form;
+}
+
+function guifi_device_create_form_submit($form_id, $form_values) {
+  return 'guifi/device/add/'.$form_values['nid'].'/'.$form_values['device_type'];
+}
+
+function guifi_device_create($nid) {
+  $form = drupal_get_form('guifi_device_create_form',$nid);
+  print theme('page',$form);
+}
+
+/* guifi_ADSL_form(): Create form for editiong DSL devices */
+function guifi_ADSL_form($edit) {
+
+  if (!isset($edit['variable']['download']))
+    $edit['variable']['download'] = 4000000;
+  if (!isset($edit['variable']['upload']))
+    $edit['variable']['upload'] = 640000;
+  $output .= form_select(t('Download'),'variable][download',$edit['variable']['download'],guifi_bandwidth_types(),
+                              t('Download bandwidth'));
+  $output .= form_select(t('Upload'),'variable][upload',$edit['variable']['upload'],guifi_bandwidth_types(),
+                              t('Upload bandwidth'));
+        
+  $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
+  return $output;
+}
+
+function guifi_bandwidth_types() {
+  return    array(  '64000'=>'64k',
+                               '128000'=>'128k',
+                               '256000'=>'256k',
+                               '512000'=>'512k',
+                               '640000'=>'640k',
+                              '1000000'=>'1M',
+                              '2000000'=>'2M',
+                              '4000000'=>'4M',
+                              '8000000'=>'8M',
+                             '20000000'=>'20M',
+                             '40000000'=>'40M');
+}
+
+/****************************************
+   device output information functions
+*****************************************/
+/* guifi_device_print_data(): outputs a detailed device information data */
 function guifi_device_print_data($device) {
 
-  $created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $device[user_created]));
-  $changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $device[user_changed]));
+  $created = db_fetch_object(db_query('
+    SELECT u.name
+    FROM {users} u
+    WHERE u.uid = %d',
+    $device[user_created]));
+  $changed = db_fetch_object(db_query('
+    SELECT u.name
+    FROM {users} u
+    WHERE u.uid = %d',
+    $device[user_changed]));
   $name_created = l($created->name,'user/'.$device['user_created']);
   $name_changed = l($changed->name,'user/'.$device['user_changed']);
   
@@ -1038,14 +1245,24 @@ function guifi_device_print_data($device) {
 
   // If radio, print model & firmware
   if ($device['type'] == 'radio') { 
-    $model = db_fetch_object(db_query("SELECT model, nom FROM {guifi_model} m LEFT JOIN {guifi_manufacturer} f ON m.fid=f.fid WHERE m.mid=%d",
-                             $device['variable']['model_id'])); 
+    $model = db_fetch_object(db_query("
+      SELECT model, nom
+      FROM {guifi_model} m LEFT JOIN {guifi_manufacturer} f ON m.fid=f.fid
+      WHERE m.mid=%d",
+      $device['variable']['model_id']));
     $rows[] = array($model->model,$device['variable']['firmware']); 
     // going to list all device radios
     if (count($device['radios'])) {
       unset($rowsr);
       foreach ($device['radios'] as $radio_id=>$radio) {
-        $rowsr[] = array($radio['ssid'],$radio['mode'],$radio['protocol'],$radio['channel'],$radio['mac'],$radio['clients_accepted']);
+        $rowsr[] = array(
+          $radio['ssid'],
+          $radio['mode'],
+          $radio['protocol'],
+          $radio['channel'],
+          $radio['mac'],
+          $radio['clients_accepted']
+        );
       }
       $rows[] =  array(array('data'=>theme('table',array(t('ssid'),t('mode'),t('protocol'),t('ch'),t('wireless mac'),t('clients')),$rowsr),'colspan'=>2));
     }
@@ -1095,24 +1312,29 @@ function guifi_device_print_data($device) {
   return array_merge($rows);
 }
 
-
-/**
- * outputs the device links data
-**/
+/* guifi_links_print_data(): outputs the device link data, create an array of rows per each link */
 function guifi_links_print_data($id) {
-  $query = db_query("SELECT i.*,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d ORDER BY i.interface_type",$id);
+  $query = db_query("
+    SELECT i.*,a.ipv4,a.netmask
+    FROM {guifi_interfaces} i, {guifi_ipv4} a
+    WHERE i.id=a.interface_id AND i.device_id=%d
+    ORDER BY i.interface_type",
+    $id);
   while ($if = db_fetch_object($query)) {
     $rows[] = array($if->interface_type,$if->ipv4.'/'.$ip['netid'],$if->netmask,$if->mac);
   }
   return array_merge($rows);
 }
   
-/**
- * outputs the device interfaces data
-**/
+/* guifi_interfaces_print_data(): outputs the device interfaces data */
 function guifi_interfaces_print_data($id) {
   $rows = array();
-  $query = db_query("SELECT i.*,a.ipv4,a.netmask, a.id ipv4_id FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d ORDER BY i.interface_type",$id);
+  $query = db_query("
+    SELECT i.*,a.ipv4,a.netmask, a.id ipv4_id
+    FROM {guifi_interfaces} i, {guifi_ipv4} a
+    WHERE i.id=a.interface_id AND i.device_id=%d
+    ORDER BY i.interface_type",
+    $id);
   while ($if = db_fetch_object($query)) {
     $ip = _ipcalc($if->ipv4,$if->netmask);
     $rows[] = array($if->id.'/'.$if->ipv4_id,$if->interface_type,$if->ipv4.'/'.$ip['maskbits'],$if->netmask,$if->mac);
@@ -1120,9 +1342,7 @@ function guifi_interfaces_print_data($id) {
   return array_merge($rows);
 }
   
-/**
- * outputs the device information
-**/
+/* guifi_device_print(): main print function, outputs the device information and call the others */
 function guifi_device_print($id = NULL) {
 //  print_r($_GET);
 //  print arg(0)."\n<br />";
@@ -1379,88 +1599,8 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
   return NULL;
 }
 
-/**
- * guifi_device_create_form
- * generates html output form with a listbox, choose the 
- * device type to create
-**/
-function guifi_device_create_form($nid) {
-  $types = guifi_types('device');
 
-  $form['nid'] = array(
-    '#type' => 'hidden',
-    '#value' => $nid
-  );
-  $form['text_add'] = array(
-    '#type' => 'item',
-    '#value' => t('Add a new device'),
-    '#prefix' => '<table style="width: 40em"><tr><td style="wiiidth: 200px">',
-    '#description' => t('Type of device to be created'),
-    '#suffix' => '</td>',
-    '#weight' => 0
-  );
-  $form['device_type'] = array(
-    '#type' => 'select',
-    '#options' => $types,
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
-    '#weight' => 1
-  );
-  $form['submit'] = array(
-    '#type' => 'submit', 
-    '#value' => t('add'),
-    '#prefix' => '<td>',
-    '#suffix' => '</td></tr></table>',
-    '#weight' => 2
-  );
-
-  return $form;
-}
-
-function guifi_device_create_form_submit($form_id, $form_values) {
-  return 'guifi/device/add/'.$form_values['nid'].'/'.$form_values['device_type'];
-}
-
-function guifi_device_create_form_validate($form_id, $form_values) {
-  return;
-}
-
-
-function guifi_device_create($nid) {
-  $form = drupal_get_form('guifi_device_create_form',$nid);
-  print theme('page',$form);
-}
-
-function guifi_bandwidth_types() {
-  return    array(  '64000'=>'64k',
-                               '128000'=>'128k',
-                               '256000'=>'256k',
-                               '512000'=>'512k',
-                               '640000'=>'640k',
-                              '1000000'=>'1M',
-                              '2000000'=>'2M',
-                              '4000000'=>'4M',
-                              '8000000'=>'8M',
-                             '20000000'=>'20M',
-                             '40000000'=>'40M');
-}
-
-function guifi_ADSL_form($edit) {
-
-  if (!isset($edit['variable']['download']))
-    $edit['variable']['download'] = 4000000;
-  if (!isset($edit['variable']['upload']))
-    $edit['variable']['upload'] = 640000;
-  $output .= form_select(t('Download'),'variable][download',$edit['variable']['download'],guifi_bandwidth_types(),
-                              t('Download bandwidth'));
-  $output .= form_select(t('Upload'),'variable][upload',$edit['variable']['upload'],guifi_bandwidth_types(),
-                              t('Upload bandwidth'));
-        
-  $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
-  return $output;
-}
-
-
+/*** TESTING FUNCTIONS, for testing purposes only {
 function guifi_device_edit($id) {
 //  print theme('page', drupal_get_form('guifi_device_form',$id),FALSE);
   print theme('page', guifi_device_form($id) ,FALSE);
@@ -1572,6 +1712,6 @@ function guifi_device_form_validate($form_id,$edit,$form) {
   form_set_value($form['nick_1'],'Hola_validat_'.$edit['nick_1']);
 }
 
-
+} END OF TESTING FUNCTIONS */
 
 ?>

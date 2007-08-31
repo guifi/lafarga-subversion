@@ -455,10 +455,12 @@ function guifi_menu($may_cache) {
     }
   }
 
-   $style = '<style type="text/css" media="all">@import "modules/guifi/guifi.css";</style>';
-   drupal_set_html_head($style);
-
   return $items;
+}
+
+/* guifi_init(): Initialization hook: Load stylesheet */
+function guifi_init() {
+  drupal_set_html_head('<style type="text/css" media="all">@import "modules/guifi/guifi.css";</style>');
 }
 /** info hook.
  */
@@ -776,14 +778,12 @@ function guifi_access($op, $node) {
       return user_access("create guifi nodes");
     case 'update':
     case 'delete':
-      if ($node->type == 'guifi-node') {
-        if ((user_access('administer guifi zones')) || 
-          ($node->uid == $user->uid)) {
+      if ($node->type == 'guifi_node') {
+        if ((user_access('administer guifi zones')) ||
+          (user_access('administer guifi networks')) ||
+          ($node->uid == $user->uid)) 
           return TRUE;
-        }
-        else {
-          return FALSE;
-        }
+        return FALSE;
       } else {
         return user_access("create guifi nodes");
       }
@@ -793,6 +793,12 @@ function guifi_access($op, $node) {
 function guifi_device_access($op, $id) {
   global $user;
 
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_access()',$id);
+  guifi_log(GUIFILOG_TRACE,'user=',$user);
+
+  if ($user->uid==0)
+    return FALSE;
+  
   if (empty($id) || ($id < 1))
    return FALSE;
 
@@ -804,14 +810,12 @@ function guifi_device_access($op, $id) {
     case 'create':
       return user_access("create guifi nodes");
     case 'update':
-      if ((user_access('administer guifi zones')) ||
+      if ((user_access('administer guifi networks')) ||
+        (user_access('administer guifi zones')) ||
         ($device['user_created'] == $user->uid) || 
-        ($node->uid == $user->uid)) 
-      {
+        ($node->user_created == $user->uid))
         return TRUE;
-      } else {
-        return FALSE;
-      }
+      return FALSE;
   }
 }
 
@@ -883,11 +887,12 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
 
 function guifi_cron() {
   // delete orphan devices, radios, ip addresses & links
-  $msg_exp = drupal_get_variable('guifi_notify_period',86400);
+  $msg_exp = variable_get('guifi_notify_last',0) +
+    variable_get('guifi_notify_period',86400);
   if ($msg_exp >= 0)
-  if ($time > $msg_exp) {
+  if (time() > $msg_exp) {
     guifi_notify_send();
-    drupal_set_variable('guifi_notify_period',time());
+    variable_set('guifi_notify_last',time());
   }
   guifi_purge();
 }

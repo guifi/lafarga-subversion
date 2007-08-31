@@ -1,5 +1,7 @@
 <?php
 
+/* Radio edit forms & functions */
+/* guifi_radio_form(): Main radio form (Common parameters)*/
 function guifi_radio_form(&$edit) {
   global $hotspot;
   global $bridge;
@@ -9,12 +11,15 @@ function guifi_radio_form(&$edit) {
   guifi_log(GUIFILOG_TRACE,'function guifi_radio_form()');
   unset($sidebar_left);
 
-  $querymid = db_query("SELECT mid, model, f.nom manufacturer FROM guifi_model m, guifi_manufacturer f WHERE f.fid = m.fid AND supported='Yes'");
+  $querymid = db_query("
+    SELECT mid, model, f.nom manufacturer
+    FROM guifi_model m, guifi_manufacturer f
+    WHERE f.fid = m.fid
+      AND supported='Yes'");
   while ($model = db_fetch_array($querymid)) {
      $models_array[$model["mid"]] = $model["manufacturer"] .", " .$model["model"];
   }
 
-  // Begin Drupal 4.7 code
   $form['radio_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Device model, firmware & MAC address').' ('.$edit['variable']['firmware'].')',
@@ -475,6 +480,7 @@ function guifi_radio_form(&$edit) {
   return $form;
 }
 
+/* _guifi_radio_form(): radio (loop per radio) form */
 function _guifi_radio_form(&$form, $radio, $key, &$form_weight = -200) {
 
 
@@ -649,7 +655,7 @@ function _guifi_radio_form(&$form, $radio, $key, &$form_weight = -200) {
     );
 }
 
-
+/* guifi_radio_interfaces_form(): Tadio interfaces form */
 function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
   global $hotspot;
   global $bridge;
@@ -930,14 +936,50 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
  return $weight;
 }
 
-/***
-* Hook to move radio up/down 
-***/
+/* guifi_radio_validate()): Validate radio, called as a hook while validating the form */
+function guifi_radio_validate($edit) {
+  guifi_log(GUIFILOG_TRACE,"function _guifi_radio_validate()");
+
+  if (!(empty($edit['mac']))) { 
+    $mac = _guifi_validate_mac($edit['mac']);
+    if ($mac) {
+      $edit['mac'] = $mac;
+    } else {
+      form_set_error(
+        'mac',
+        t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$edit['mac']);
+    }
+  }
+
+  if (($edit['variable']['firmware'] != 'n/a') and
+    ($edit['variable']['firmware'] != null)) {
+    $radio = db_fetch_object(db_query("
+      SELECT model
+      FROM {guifi_model}
+      WHERE mid='%d'",
+      $edit['variable']['model_id']));
+    if (!guifi_type_relation(
+      'firmware',
+      $edit['variable']['firmware'],
+      $radio->model)) {
+      form_set_error('variable][firmware',
+        t('This firmware with this radio model is NOT supported.'));
+    } 
+  }
+
+}
+
+/* Swapping rdios (move up & down) */
+/* _guifi_move_radio_updown(): Confirmation dialog */
 function _guifi_move_radio_updown(&$form,&$edit,$action) {
   $old=$action[2];
   $new=$action[3];
 
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_move_radio_updown(%d,%d)',$old,$new));
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('function _guifi_move_radio_updown(%d,%d)',
+    $old,
+    $new));
+    
   $fw = 0;
   guifi_form_hidden($form,$edit,$fw);
   $form['help'] = array(
@@ -954,10 +996,7 @@ function _guifi_move_radio_updown(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook for move radio up/down 
-* make the changes
-***/
+/* _guifi_move_radio_updown_submit(): Action */
 function _guifi_move_radio_updown_submit(&$edit,$action) {
   $old = $action[2];
   $new = $action[3];
@@ -974,9 +1013,8 @@ function _guifi_move_radio_updown_submit(&$edit,$action) {
   ksort($edit['radios']);
 }
 
-/***
-* Hook for add a wLan for clients (confirmation dialog)
-***/
+/* Add wlan */
+/* _guifi_add_wlan(): Cofirmation dialog */
 function _guifi_add_wlan(&$form,&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan(%d)',$radio));
@@ -995,9 +1033,7 @@ function _guifi_add_wlan(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook for add a wLan for clients (submit & save)
-***/
+/* _guifi_add_wlan_submit(): Action */
 function _guifi_add_wlan_submit(&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan_submit(%d)',$radio));
@@ -1021,9 +1057,7 @@ function _guifi_add_wlan_submit(&$edit,$action) {
   return TRUE;
 }
 
-/***
-* Hook for add a Hotspot for guests (confirmation dialog)
-***/
+/* Add Hotspot */
 function _guifi_add_hotspot(&$form,&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_hotspot(%d)',$radio));
@@ -1042,9 +1076,6 @@ function _guifi_add_hotspot(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook for add a Hotspot for guests (save)
-***/
 function _guifi_add_hotspot_submit(&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_hotspot_submit(%d)',$$radio));
@@ -1060,9 +1091,7 @@ function _guifi_add_hotspot_submit(&$edit,$action) {
   return TRUE;
 }
 
-/***
-* Hook for adding a new radio to a device
-***/
+/* Add  aradio to the device */
 function _guifi_add_radio(&$form,&$edit,$action) {
   guifi_log(GUIFILOG_TRACE, "function _guifi_add_radio()");
 
@@ -1170,7 +1199,7 @@ function _guifi_add_radio_submit(&$edit,$action) {
   }
 }
 
-
+/* Delete interface */
 function _guifi_delete_interface($edit,$op) {
   $parse=explode(',',$edit[edit_details]);
 
@@ -1195,9 +1224,8 @@ break;
 $output .= guifi_form_hidden('',$edit);
 print theme('page',form($output));
 }
-/***
-* function to add confirm buttons
-***/
+
+/* _guifi_device_buttons(): Common function to add confirmation buttons */
 function _guifi_device_buttons(&$form,$action,&$fweight = 100) {
 
   $action_str = implode(',',$action);
@@ -1208,13 +1236,20 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100) {
     '#value' => t('Reset'),
     '#weight' => $fweight++,
   );
-  $form['save_continue'] = array(
+    $form['save_continue'] = array(
     '#type' => 'submit',
     '#parents' => array($action_str),
     '#name' => $action_str,
     '#value' => t('Save & continue edit'),
     '#weight' => $fweight++,
   );
+  /* $form['accept'] = array(
+    '#type' => 'submit',
+    '#parents' => array($action_str),
+    '#name' => $action_str,
+    '#value' => t('Accept'),
+    '#weight' => $fweight++,
+  ); */
   $form['save_exit'] = array(
     '#type' => 'submit',
     '#parents' => array($action_str),
@@ -1224,9 +1259,7 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100) {
   );
 }
 
-/***
-* Hook to delete radio interface (confirmation dialog)
-***/
+/* Delete radio interface */
 function _guifi_delete_radio_interface(&$form,&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1248,9 +1281,6 @@ function _guifi_delete_radio_interface(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook to delete radio interface (delete)
-***/
 function _guifi_delete_radio_interface_submit(&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1258,10 +1288,7 @@ function _guifi_delete_radio_interface_submit(&$edit,$action) {
   $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted'] = true;
 }
 
-
-/***
-* Hook to delete radio interface ipv4 (confirmation dialog)
-***/
+/* Delete radio interface IPv4 */
 function _guifi_delete_radio_interface_ipv4(&$form,&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1287,9 +1314,6 @@ function _guifi_delete_radio_interface_ipv4(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook to delete radio interface ipv4 (submit)
-***/
 function _guifi_delete_radio_interface_ipv4_submit(&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1297,10 +1321,7 @@ function _guifi_delete_radio_interface_ipv4_submit(&$edit,$action) {
   $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted'] = true;
 }
 
-
-/***
-* Hook to delete radio interface link (dialog)
-***/
+/* Delete radio interface link */
 function _guifi_delete_radio_interface_link(&$form,&$edit,$action) {
   $radio_id    =$action[2];
   $interface_id=$action[3];
@@ -1328,9 +1349,7 @@ function _guifi_delete_radio_interface_link(&$form,&$edit,$action) {
   
   return FALSE;
 }
-/***
-* Hook to delete radio interface link (submit)
-***/
+
 function _guifi_delete_radio_interface_link_submit(&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1342,11 +1361,7 @@ function _guifi_delete_radio_interface_link_submit(&$edit,$action) {
   $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id]['links'][$link_id]['deleted'] = true;
 }
 
-
-
-/***
-* Hook to delete radio
-***/
+/* Delete radio */
 function _guifi_delete_radio(&$form,&$edit,$action) {
   guifi_log(GUIFILOG_TRACE,"function _guifi_delete_radio()");
   $radio_id=$action[2];
@@ -1373,31 +1388,7 @@ function _guifi_delete_radio_submit(&$edit,$action) {
   $edit['radios'][$radio_id]['deleted'] = true;
 }
 
-
-function guifi_radio_validate($edit) {
-  guifi_log(GUIFILOG_TRACE,"function _guifi_radio_validate()");
-
-  if (!(empty($edit['mac']))) { 
-    $mac = _guifi_validate_mac($edit['mac']);
-    if ($mac) {
-      $edit['mac'] = $mac;
-    } else {
-      form_set_error('mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$edit['mac']);
-    }
-  }
-
-  if (($edit['variable']['firmware'] != 'n/a') and ($edit['variable']['firmware'] != null)) {
-    $radio = db_fetch_object(db_query("SELECT model FROM {guifi_model} WHERE mid='%d'",$edit['variable']['model_id']));
-    if (!guifi_type_relation('firmware',$edit['variable']['firmware'],$radio->model)) {
-      form_set_error('variable][firmware',t('This firmware with this radio model is NOT supported.'));
-    } 
-  }
-
-}
-
-/***
-* Hook to link client to an AP 
-***/
+/* _guifi_link_2AP(): Link client to an AP */
 function _guifi_link_2AP(&$form,&$edit,$action) {
 
 
@@ -1487,9 +1478,7 @@ function _guifi_link_2AP(&$form,&$edit,$action) {
 
 }
 
-/***
-* Hook to add WDS/p2p linki, dialog form (choose an AP to link with)
-***/
+/* _guifi_add_wds(): Add WDS/p2p link */
 function _guifi_add_wds(&$form,&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
@@ -1514,10 +1503,17 @@ function _guifi_add_wds(&$form,&$edit,$action) {
     'azimuth' => "0,360",
   );
 
-  drupal_set_title(t('Choose an AP from the list to link with %ssid',array('%ssid'=> $edit['radios'][$radio_id]['ssid'])));
+  drupal_set_title(t(
+    'Choose an AP from the list to link with %ssid',
+    array(
+      '%ssid'=> $edit['radios'][$radio_id]['ssid'])));
 
   // Filter form
-  guifi_devices_select_filter($form,implode(',',$action),$edit['filters'],$form_weight);
+  guifi_devices_select_filter(
+    $form,
+    implode(',',$action),
+    $edit['filters'],
+    $form_weight);
 
   $choices = guifi_devices_select($edit['filters']);
 
@@ -1548,9 +1544,6 @@ function _guifi_add_wds(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/***
-* Hook to add WDS/p2p link, (create the link)
-***/
 function _guifi_add_wds_submit(&$edit,$action) {
   $radio_id=$action[2];
   $interface_id=$action[3];
