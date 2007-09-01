@@ -812,9 +812,16 @@ print theme('page',form($output));
 }
 
 /* _guifi_device_buttons(): Common function to add confirmation buttons */
-function _guifi_device_buttons(&$form,$action,&$fweight = 100) {
+function _guifi_device_buttons(&$form,$action,&$fweight = 100,$continue = FALSE) {
 
+  // if continue without save, the _sumit action should be taken while back to the form
+  if ($continue)
+    $action[1] .= '_submit';
+    
   $action_str = implode(',',$action);
+
+  $form['#multistep'] = TRUE;
+  $form['#redirect'] = FALSE;
 
   $form['reset'] = array(
     '#type' => 'submit',
@@ -822,7 +829,17 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100) {
     '#value' => t('Reset'),
     '#weight' => $fweight++,
   );
+  if ($continue) {
     $form['save_continue'] = array(
+      '#type' => 'submit',
+      '#parents' => array($action_str),
+      '#name' => $action_str,
+      '#value' => t('Continue edit'),
+      '#weight' => $fweight++,
+    );
+    return;
+  }
+  $form['save_continue'] = array(
     '#type' => 'submit',
     '#parents' => array($action_str),
     '#name' => $action_str,

@@ -794,7 +794,7 @@ function guifi_device_access($op, $id) {
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_access()',$id);
-  guifi_log(GUIFILOG_TRACE,'user=',$user);
+  guifi_log(GUIFILOG_FULL,'user=',$user);
 
   if ($user->uid==0)
     return FALSE;

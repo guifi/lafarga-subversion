@@ -328,7 +328,12 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   // if nick is null, get a default name 
   if ($edit['nick'] == "") {
     $zone = node_load($node->zone_id);
-    $devs = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_devices} WHERE type = '%s' AND nid = %d",$edit['type'],$edit['nid']));
+    $devs = db_fetch_object(db_query("
+      SELECT count(*) count
+      FROM {guifi_devices}
+      WHERE type = '%s'
+        AND nid = %d",
+      $edit['type'],$edit['nid']));
     $edit['nick'] = $node->nick.ucfirst(guifi_trim_vowels($edit['type'])).($devs->count + 1);
   }
 
@@ -348,6 +353,7 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
           return($form);
         }
       }
+      unset($edit[$key]);
     }
   }
 
