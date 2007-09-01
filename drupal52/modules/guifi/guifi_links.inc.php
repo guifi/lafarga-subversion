@@ -1,104 +1,125 @@
 <?php
 
-function guifi_links_form($edit_details,$edit) {
+function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
 
   // edit link details
-  guifi_log(GUIFILOG_TRACE,'guifi_links_form()',$edit);
+  guifi_log(GUIFILOG_TRACE,'guifi_links_form()',$link);
 
-//  print_r($edit);
-//  print $edit[edit_details];
-
-  unset($rows);
-  $det =  explode(',',$edit_details);
-  list($radio_id,$interface_id, $ipv4_id, $link_id) = explode(',',$edit_details);
-  if ($radio_id == 'interface') {
-    $curr_link = $edit[interfaces][$interface_id][ipv4][$ipv4_id][links][$link_id][linked];
-    $fprefix =  'interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][';
-    if ($edit[type] == 'radio')
-      $mode = 'cable';
-    else
-      $mode = 'cable-router';
-    $ifvar = $edit[interfaces][$interface_id][ipv4][$ipv4_id];
-    $interface_type = $edit['interfaces'][$interface_id]['interface_type'];
-  } else {
-    $curr_link = $edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id][links][$link_id][linked];
-    $fprefix =  'radios]['.$radio_id.'][interfaces]['.$interface_id.'][ipv4]['.$ipv4_id.'][';
-    $mode =  $edit['radios'][$radio_id]['mode'];
-    $ifvar = $edit[radios][$radio_id][interfaces][$interface_id][ipv4][$ipv4_id];
-    $interface_type = $edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'];
-  }
-
-  if (user_access('administer guifi networks')) {
-    $local_ip = form_textfield(null,$fprefix.'ipv4' ,
-                               $ifvar['ipv4'],16,16,null);
-    $local_mask = form_select(null,$fprefix.'netmask',
-                               $ifvar['netmask'],guifi_types('netmask',30,15),null);
-    $remote_ip = form_textfield(null,$fprefix.'links]['.$link_id.'][interface][ipv4][ipv4' ,
-                               $ifvar['links'][$link_id]['interface']['ipv4']['ipv4'],16,16,null);
-    $remote_mask = form_select(null,$fprefix.'links]['.$link_id.'][interface][ipv4][netmask',
-                               $ifvar['links'][$link_id]['interface']['ipv4']['netmask'],guifi_types('netmask',30,15),null);
-  } else {
-    $local_ip    = $ifvar['ipv4'];
-    $local_mask  = $ifvar['netmask'];
-    $remote_ip   = $ifvar['links'][$link_id]['interface']['ipv4']['ipv4'];
-    $remote_mask = $ifvar['links'][$link_id]['interface']['ipv4']['netmask'];
-  }
-
-  if ($ifvar['links'][$link_id]['new']) {
-    $link_choices = guifi_devices_select($edit[nid],$ifvar['links'][$link_id]['link_type'],
-                        $mode,$edit[id],$radio_id); 
-    $linked = form_select(null,$fprefix.'links]['.$link_id.'][linked',
-                               $curr_link,
-//                               $ifvar['links'][$link_id]['device_id'],
-                               $link_choices,null);
-  } else {
-    $linked = guifi_get_nodename($ifvar['links'][$link_id]['nid']).'-'.
-              guifi_get_hostname($ifvar['links'][$link_id]['device_id']);
-  }
-
-  // fill routing field
-  if (user_access('administer guifi networks'))
-    $routing = form_select(null,$fprefix.'links]['.$link_id.'][routing', $ifvar['links'][$link_id]['routing'], guifi_types('routing'));
+  $ki = $tree[count($tree)-3];
+  $ka = $tree[count($tree)-1];
+  if (count($tree)>4)
+    $rk = $tree[1];
   else
-    $routing = $ifvar['links'][$link_id]['routing'];
+    $rk = null;
 
-  $row[] = array(
-               $ifvar['links'][$link_id]['link_type'],
-               $linked,
-               form_select(null,$fprefix.'links]['.$link_id.'][flag', $ifvar['links'][$link_id]['flag'], guifi_types('status')),
-               $routing
-              );
-  $lform[] = array(theme('table',array(t('type'),t('linked node-device'),t('status'),t('routing')),$row));
-  $row = array();
-  if ( (($interface_type != 'Wan') and ($edit[type] == 'radio')) or
-     (!$ifvar['links'][$link_id]['new'])) {
-    $row[] = array(
-                 array('data'=>'<strong>'.t('local').': </strong>','align'=>'right'),
-                 $interface_type,                 
-                 $local_ip, $local_mask
-                );
-//  $i = db_fetch_array(db_query('SELECT interface_type FROM {guifi_interfaces}
-    if ($mode == 'cable' ) {
-      $ilist = array_merge(array($ifvar['links'][$link_id]['interface']['interface_type']),guifi_get_all_interfaces($ifvar['links'][$link_id]['device_id']));
-      $edit_type = form_select(null,$fprefix.'links]['.$link_id.'][interface][interface_type',
-                                    $ifvar['links'][$link_id]['interface']['interface_type'],
-                                    guifi_array_combine($ilist,$ilist));
-    } else {
-      $edit_type = $ifvar['links'][$link_id]['interface']['interface_type'];
-    }
-    $row[] = array(
-                 array('data'=>'<strong>'.t('remote').': </strong>','align'=>'right'),
-                 $edit_type,                
-                 $remote_ip, $remote_mask
-                );
-
-    $lform[] = array(theme('table',array(null,t('type'),t('ip'),t('mask')), $row));
-  }
-  $form.= form_group(t('Link details form'),theme('table',null,$lform).
-              form_button(t('Back to list'), 'op').
-              form_button(t('Reset'), 'op')
-              ,null);
-  return $form;
+  if ($multilink)
+    $prefix='<table><td>';
+  else
+      $prefix='<td>';
+      
+       // linked node-device
+  if ($link['type'] != 'cable')
+    $descr =  guifi_get_ap_ssid($link['device_id'],$link['radiodev_counter']);
+  else
+    $descr = guifi_get_interface_descr($link['interface_id']);
+  $f['link_name'] = array(
+    '#type' => 'item',
+    '#parents'=>array_merge($tree,array('links',0,'link_name')),
+    '#title' => guifi_get_nodename($link['nid']),
+    '#value'=>  guifi_get_hostname($link['device_id']),
+    '#description'=>guifi_get_interface_descr($link['interface_id']),
+    '#prefix'=> '<table><tr><td>',
+    '#suffix'=> '</td>',
+    '#weight' => $lweight++,
+  );
+        
+  if (user_access('administer guifi networks')) {
+    if (!$multilink)
+    $f['ipv4'] = array(
+      '#type'=> 'textfield',
+      '#parents'=>array_merge($tree,array('ipv4')),
+      '#size'=> 16,
+      '#maxlength'=>16,
+      '#default_value'=>$ipv4['ipv4'],
+      '#title'=>t('Local IPv4'),
+      '#prefix'=> $prefix,
+      '#suffix'=> '</td>',
+      '#weight'=> $lweight++,
+    );
+    $f['ipv4_remote'] = array(
+      '#type'=> 'textfield',
+      '#parents'=>array_merge(
+        $tree,
+        array('links',$link['id'],'interface','ipv4','ipv4')),
+      '#size'=> 16,
+      '#maxlength'=>16,
+      '#default_value'=>$link['interface']['ipv4']['ipv4'],
+      '#title'=>t('Remote IPv4'),
+      '#prefix'=> '<td>',
+      '#suffix'=> '</td>',
+      '#weight'=> $lweight++,
+    );
+    if (!$multilink)
+      $f['netmask'] = array(
+        '#type' => 'select',
+        '#parents'=>array_merge($tree,array('netmask')),
+        '#title' => t("Network mask"),
+        '#default_value' => $ipv4['netmask'],
+        '#options' => guifi_types('netmask',30,0),
+        '#prefix'=> '<td>',
+        '#suffix'=> '</td>',
+        '#weight' =>  $lweight++,
+      );
+   } else {
+    $f['ipv4_remote'] = array(
+      '#type' =>         'item',
+      '#parents'=>       array_merge($tree,array('links',$link['id'],'interface','ipv4','ipv4')),
+      '#title'=>         t('Remote IPv4'),
+      '#value'=>         $link['interface']['ipv4']['ipv4'],
+      '#description' =>  $link['interface']['ipv4']['netmask'],
+      '#prefix'=>        '<td>',
+      '#suffix'=>        '</td>',
+      '#weight' =>       $lweight++,
+    );
+  } // if network administrator
+        
+  // Routing
+  $f['routing'] = array(
+    '#type' =>          'select',
+    '#parents'=>        array_merge($tree,array('links',$link['id'],'routing')),
+    '#title' =>         t("Routing"),
+    '#default_value' => $link['routing'],
+    '#options' =>       guifi_types('routing'),
+    '#prefix'=>         '<td>',
+    '#suffix'=>         '</td>',
+    '#weight' =>        $lweight++,
+  );
+  // Status
+  $f['status'] = array(
+    '#type' =>          'select',
+    '#parents'=>        array_merge($tree,array('links',$link['id'],'flag')),
+    '#title' =>         t("Status"),
+    '#default_value' => $link['flag'],
+    '#options' =>       guifi_types('status'),
+    '#prefix'=>         '<td>',
+    '#suffix'=>         '</td>',
+    '#weight' =>        $lweight++,
+  );
+  // delete link button
+  $f['delete_link'] = array(
+    '#type' => 'button',
+    '#parents'=>array_merge($tree,array('delete_link')),
+    '#value'=>t('Delete'),
+    '#name'=>implode(',',array(
+       '_action',
+       '_guifi_delete_radio_interface_link',
+       $rk,$ki,$ka,$link['id'],
+       $link['nid'],
+       $link['device_id'])),
+    '#prefix'=> '<td>',
+    '#suffix'=> '</td></tr></table>',
+    '#weight' =>  $lweight++,
+  );
 }
 
 function guifi_links_validate(&$edit) {

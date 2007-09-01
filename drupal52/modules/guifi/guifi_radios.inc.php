@@ -84,12 +84,24 @@ function guifi_radio_form(&$edit) {
 //  $form['r']['radios'] = array('#tree'=>TRUE);
   $rc = 0;
   $bridge = false;
+  $cinterfaces = 0;
+  $cipv4 = 0;
+  $clinks = 0;
   if (!empty($edit['radios'])) foreach ($edit['radios'] as $key => $radio) {
     $hotspot = false;
-      if ($radio['deleted']) continue;
+    
+    if ($radio['deleted']) continue;
+    
     _guifi_radio_form($form,$radio,$key,$form_weight);
 
-    $buttons_weight = guifi_radio_interfaces_form($edit, $form, $key, 6);
+    $counters = guifi_radio_interfaces_form($edit, $form, $key, $form_weight);
+    $form['r']['radios'][$key]['#title'] .= ' - '.
+      $counters['interfaces'].' '.t('interface(s)').' - '.
+      $counters['links'].' '.t('link(s)').' - '.
+      $counters['ipv4'].' '.t('ipv4 address(es)');
+    $cinterfaces += $counters['interfaces'];
+    $cipv4 += $counters['ipv4'];
+    $clinks += $counters['links'];
 
     // Going to paint the buttons
 
@@ -102,7 +114,7 @@ function guifi_radio_form(&$edit) {
           '#parents'=>array('radios',$key,'AddwLan'),
           '#value'=>t('Add wLan for clients'),
           '#name'=>'_action,_guifi_add_wlan,'.$key, 
-          '#weight'=>$buttons_weight++);
+          '#weight'=>$form_weight++);
       }
       if (!$hotspot) {
         $form['r']['radios'][$key]['AddHotspot'] = array(
@@ -110,7 +122,7 @@ function guifi_radio_form(&$edit) {
           '#parents'=>array('radios',$key,'AddHotSpot'),
           '#value'=>t('Add Hotspot for guests'), 
           '#name'=>'_action,_guifi_add_hotspot,'.$key,
-          '#weight'=>$buttons_weight++);
+          '#weight'=>$form_weight++);
       }
     } else {
       // Mode Client or client-routed, allow to link to AP
@@ -121,7 +133,7 @@ function guifi_radio_form(&$edit) {
           '#parents'=>array('radios',$key,'AddLink2AP'),
           '#value'=>t('Link to AP'), 
           '#name'=>'_action,_guifi_link_2ap,'.$key,
-          '#weight'=>$buttons_weight++);
+          '#weight'=>$form_weight++);
     }   
 
     // Only allow delete and move functions if the radio has been saved 
@@ -133,12 +145,12 @@ function guifi_radio_form(&$edit) {
         '#parents'=>array('radios',$key,'delete'),
         '#value'=>t('Delete radio'), 
         '#name'=>'_action,_guifi_delete_radio,'.$key,
-        '#weight'=>$buttons_weight++);
+        '#weight'=>$form_weight++);
       $form['r']['radios'][$key]['change'] = array(
         '#type'=>'submit','#value'=>t('Move to another device'), 
         '#parents'=>array('radios',$key,'change'),
         '#name'=>'_action,_guifi_move_radio'.$key,
-        '#weight'=>$buttons_weight++);
+        '#weight'=>$form_weight++);
     }
 
     // if not first, allow to move up  
@@ -147,14 +159,14 @@ function guifi_radio_form(&$edit) {
         '#type'=>'submit','#value'=>t('Up'), 
         '#parents'=>array('radios',$key,'up'),
         '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key-1),
-        '#weight'=>$buttons_weight++);
+        '#weight'=>$form_weight++);
     // if not last, allow to move down
     if (($rc+1) < count($edit['radios'])) 
       $form['r']['radios'][$key]['down'] = array(
         '#type'=>'submit','#value'=>t('Down'), 
         '#parents'=>array('radios',$key,'down'),
         '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key+1),
-        '#weight'=>$buttons_weight++);
+        '#weight'=>$form_weight++);
 
     $rc++;
   } // foreach radio
@@ -218,264 +230,10 @@ function guifi_radio_form(&$edit) {
        );
     }
   }
-    
-
- //   $erow[] = array(
- //              array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', $modes_arr, NULL),'valign'=>'bottom'),
- //              array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
- //                  );
- //   $form .= form_group(t('Add new radio'),theme('table',array(),$erow),t('Usage:<br />Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
-//  } else {  
-//    $edit_form .= form_item(null,t('You can add radios to this device once has been saved into de database'));
-//    $form .= form_group(t('Add new radio'),$edit_form,null);
-
-
-  return $form;
-
-  // End Drupal 4.7 code
-  $rows[] = array(
-                array('data'=>form_select(t('Radio Model'), 'variable][model_id', $edit["variable"]["model_id"], $models_array, t('Radio model')),'valign'=>'top'),
-                array('data'=>form_select(t('Firmware'), 'variable][firmware', $edit["variable"]["firmware"], guifi_types('firmware') , t('Used for automatic configuration.')),'valign'=>'top'),
-                array('data'=>form_textfield(t("Device MAC Address"), "mac", $edit["mac"], 17, 17,  t('Base/Main MAC Address.<br />Some configurations won\'t work if s blank')),'valign'=>'top')
-                 );
-
-  $form = form_group(t('Radio main information'),theme('table',null,$rows));
-
-  unset($edit_form);
-  unset($rows);
-
-  // edit details?
-  if ($edit['edit_details'] != "") {
-    $key_detail = explode(',',$edit['edit_details']);
-//    $form .= guifi_form_hidden('radios]['.$key_detail[0].']',$edit['radios'][$key_detail[0]]);
-
-    if (!is_numeric($key_detail[0]))
-      // not editing radio details
-      return;
-
-    switch (count($key_detail)) {
-    case 1:
-      // Radio details
-      if ($edit[radios][$key_detail[0]][mode] == 'ap') {
-        $ssid=form_textfield(t('SSID'), 'radios]['.$key_detail[0].'][ssid', $edit['radios'][$key_detail[0]]["ssid"],20,80,t('How will appear to the surveys'));
-        $clients_accepted = form_select(t('Clients'), 'radios]['.$key_detail[0].'][clients_accepted', $edit['radios'][$key_detail[0]]["clients_accepted"],
-                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
-                           t('Do this radio accept wiereless connections?'));
-      } else
-        $ssid=form_item(t('SSID'), $edit['radios'][$key_detail[0]]["ssid"]);
-      $form .= t('Editing Radio#').': '.$key_detail[0];
-      // Edit radio details form
-      // Wireless
-      $radiorows[] = array(
-//                      form_select(t('Mode'), 'radios]['.$key_detail[0].'][mode', $edit['radios'][$key_detail[0]]["mode"], guifi_types('mode'), NULL),
-//                      form_item(t('Mode'), $edit['radios'][$key_detail[0]]["mode"]),
-                      form_textfield(t('Wireless MAC'), 'radios]['.$key_detail[0].'][mac', $edit['radios'][$key_detail[0]]["mac"],17,17),
-                      form_select(t('Protocol'), 'radios]['.$key_detail[0].'][protocol', $edit['radios'][$key_detail[0]]["protocol"], guifi_types('protocol'), NULL),
-                      form_select(t('Channel'), 'radios]['.$key_detail[0].'][channel', $edit['radios'][$key_detail[0]]["channel"],
-                           guifi_types('channel',null,null,$edit['radios'][$key_detail[0]]['protocol']), NULL)
-                      );
-      $radiorows[] = array(
-                      array('data'=>form_select(t('Antenna Type'), 'radios]['.$key_detail[0].'][antenna_angle', $edit['radios'][$key_detail[0]]["antenna_angle"], guifi_types('antenna'), t('angle coverage')),'valign'=>'top'),
-                      array('data'=>form_select(t('Gain'), 'radios]['.$key_detail[0].'][antenna_gain', $edit['radios'][$key_detail[0]]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), t('dB')),'valign'=>'top'),
-                      array('data'=>form_textfield(t('Orientation'), 'radios]['.$key_detail[0].'][antenna_azimuth', $edit['radios'][$key_detail[0]]["antenna_azimuth"], 3,3, t('Azimuth in degrees')),'valign'=>'top')
-                     );
-      $radiorows[] = array(array('data'=>$ssid,'colspan'=>1),array('data'=>$clients_accepted,'colspan'=>7));
-//      $radiorows[] = array(array('data'=>$ssid,'colspan'=>1),
-//                     array('data'=>form_select(null, 'radios]['.$key_detail[0].'][clients_accepted', $edit['radios'][$key_detail[0]]["clients_accepted"], 
-//                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
-//                           null),'colspan'=>7));
-      $radiorows[] = array(
-                           form_button(t('Back to list'), 'op')
-                          );
-
-      $form .= form_group(t('Wireless Configuration').'-'.t('Mode').': '.$edit['radios'][$key_detail[0]]["mode"],theme('table',null,$radiorows));
-      break;
-    case 4:
-      $form = guifi_links_form($edit['edit_details'],$edit);
-      break;
-    }
-  } 
-
-  // list radios
-  if (!isset($edit[edit_details]))
-  if (!empty($edit['radios'])) foreach ($edit['radios'] as $key => $radio) {
-      if ($radio['deleted']) continue;
-      unset($rrows);
-      $rrows = array();
-//      print_r($radio);
-//      $form .= guifi_form_hidden('radios]['.$key.']',$radio);
-
-      // Present radio information & radio group
-      $row = array(
-                    array('data'=>'#'.$key.form_radio('', 'edit_details', $key),'rowspan'=>"0",'valign'=>'top','width'=>1),
-                    array('data'=>$radio['mode'],'width'=>1),
-//                    form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,20),
-                    array('data'=>form_select(null, 'radios]['.$key.'][channel', $edit['radios'][$key]["channel"], 
-                           //  drupal_map_assoc(array( 0=>'Auto',1=>1,2,3,4,5,6,7,8,9,10,11,12,13,14))
-                           guifi_types('channel',null,null,$edit['radios'][$key]['protocol']), NULL),'width'=>1),
-                    array('data'=>form_textfield(null, 'radios]['.$key.'][ssid', $edit['radios'][$key]["ssid"],20,80),'width'=>1),
-                    array('data'=>form_textfield(null, 'radios]['.$key.'][mac',  $edit['radios'][$key]["mac"],17,17),'width'=>1),
-                    array('data'=>form_select(null, 'radios]['.$key.'][clients_accepted', $edit['radios'][$key]["clients_accepted"], 
-                           drupal_map_assoc(array( 0=>'Yes',1=>'No')),
-                           null),'width'=>1),
-                    array('data'=>$radio['protocol'],'width'=>1),
-                    array('data'=>form_select(null, 'radios]['.$key.'][antenna_gain', $edit['radios'][$key]["antenna_gain"], drupal_map_assoc(array(2,8,12,14,18,21,24,'more')), null),'width'=>1),
-                    array('data'=>$radio['antenna_angle'].'º','align'=>'right','width'=>1),
-                    array('data'=>$radio['antenna_azimuth'].'º','align'=>'right','width'=>1)
-                   );
-      $rrows[] = $row;
-
-      // radio interfaces
-//      print_r($edit);
-
-      $hotspot = false;
-
-      if (count($radio['interfaces'])>0) 
-      foreach ($radio['interfaces'] as $ki=>$interface) {
-        if ($interface[deleted]) continue;
-
-        unset($wlan_addr);
-
-//     print "type: $interface[interface_type]\n<br />";
-        switch ($interface[interface_type]) {
-        case 'wds/p2p':
-          $iname = $interface[interface_type];
-          $add_link = t('Add WDS/bridge p2p link');
-          break;
-        case 'HotSpot':
-          $iname = form_radio('', 'edit_details', $key.','.$ki).$interface[interface_type];
-          $hotspot = true;
-          break;
-        case 'wLan/Lan':
-        case 'wLan':
-          if ($interface[interface_type] == 'wLan')
-            $iname = form_radio('', 'edit_details', $key.','.$ki).$interface[interface_type];
-          else 
-            $iname = $interface[interface_type];
-          $add_link = t('Add AP/Client link');
-
-		  if (user_access('administer guifi networks')) {
-            $wlan_addr[] = array('data'=>form_textfield(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][ipv4]',
-                                                           $interface[ipv4][$key][ipv4],16,16,null),'width=1');
-            $wlan_addr[] = array('data'=>form_select(null,'radios['.$key.'][interfaces]['.$ki.'][ipv4]['.$key.'][netmask]',
-                                                           $interface[ipv4][$key][netmask],guifi_types('netmask',30,15),null),'colspan'=>1,'width=1');
-
-          } else
-            $wlan_addr = array('data'=>$interface[ipv4][$key][ipv4].'/'.$interface[ipv4][$key][netmask],'width'=>1);;
-
-          break;
-        case 'Wan':
-          $cr = guifi_count_radio_links($radio);
-          if ($cr['ap']==0) 
-            $add_link = t('Link to AP');
-         break;
-        }
-
-//        print_r($interface);
-//        print "\n<br>";
-
-        if ($add_link != '') {
-          if (isset($wlan_addr)) {
-            $rrows[] = array_merge(array(array('data'=>$iname,'width'=>1)),
-                                  $wlan_addr,
-                                  array(array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>'1'))
-                                 );
-          } else
-            $rrows[] = array(array('data'=>$iname,'width'=>1),
-                            array('data'=>form_button($add_link, 'op['.$interface[id].']'),'colspan'=>0));
-        } else
-          $rrows[] = array(array('data'=>$iname,'colspan'=>0));
-
-        if (count($interface['ipv4']))
-        unset($lrows);
-        $lrows = array();
-        if (count($interface[ipv4]) > 0) foreach ($interface['ipv4'] as $ka=>$ipv4) 
-        if (!empty($ipv4[links])) foreach ($ipv4['links'] as $kl=>$link) {
-          if ($link[deleted]) continue;
-
-          // fill routing field
-          if (user_access('administer guifi networks'))
-             $routing = form_select(null,'radios]['.$key.'][interfaces]['.$ki.'][ipv4]['.$ka.'][links]['.$kl.'][routing', $link['routing'], guifi_types('routing'));
-          else
-             $routing = $link[routing];
-
-          $ip = _ipcalc($ipv4['ipv4'],$ipv4['netmask']);
-//          print_r($link);
-          $lrows[] = array(
-                           form_radio('', 'edit_details', $key.','.$ki.','.$ka.','.$kl),
-                           guifi_get_nodename($link['nid']).'-'.
-                           guifi_get_hostname($link['device_id']),
-                           form_select(null,'radios]['.$key.'][interfaces]['.$ki.'][ipv4]['.$ka.'][links]['.$kl.'][flag', $link['flag'], array_diff(guifi_types('status'),array('Dropped'=>t('Dropped')))),
-                           $ipv4['ipv4'].'/'.$ip['maskbits'],
-                           $link['interface']['ipv4']['ipv4'],
-                           $routing
-                          );
-        }
-        $header = array(null,t('node-device'),t('status'),t('local ip'),t('remote ip'),t('routing'));
-        if (count($lrows) > 0)
-          $rrows[] = array(array('data'=>theme('table',$header,$lrows),'colspan'=>0));
-        else
-          $rrows[] = array(array('data'=>theme('table',null,$lrows),'colspan'=>0));
-      } // foreach interface
-
-      // If AP & no wLan interface, allow to create one
-      if (((count($radio[interfaces]) < 2) and ($radio[mode] == 'ap')) or 
-         (user_access('administer guifi networks'))) {
-        $buttons = form_button(t('Add wLan for clients'), 'op['.$key.']');
-      }
-      if ((!$hotspot) and ($radio[mode] == 'ap')) {
-        $buttons .= form_button(t('Add Hotspot for guests'), 'op['.$key.']');
-      }
-      $rrows[] = array(array('data'=>$buttons,'colspan'=>0));
-
-      $rows[] = array(array('data'=>theme('table',null,$rrows),'colspan'=>0));
-      
-  }
-  if (isset($rows)) {
-    
-
-    // if net admin or device/node owner, edit allowed
-    if ((user_access('administer guifi networks')) || 
-        (guifi_get_deviceuser($edit['user_created'] == $user->uid)) || 
-        (guifi_get_nodeuser($edit['nid'] == $user->uid)))
-      $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
-
-
-    $headers = array(null,t('mode'),t('channel'),'ssid',t('wireless mac'),t('clients'),t('protocol'),t('ant. gain'),'<p align="right">'.t('angle').'</p>','<p align="right">'.t('azimuth').'</p>');
-    $form .= form_group(t('device radios'),theme('table', $headers, $rows),t('Use this form section to describe all wireless linked devices.'));
-  }
-
-  // Edit radio form or add new radio
-  $cr = 0; $tr = 0; $firewall=false;
-  $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
-//    print "Max radios: ".$maxradios->radiodev_max." \n<br />";
-  if (isset($edit[radios])) 
-  foreach ($edit[radios] as $k=>$radio) {
-    $tr++;
-    if (!$radio['deleted'])
-      $cr++;
-    if ($radio['mode'] == 'client') 
-      $firewall = true;
-  }
-//  print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall\n<br />";
-  $modes_arr = guifi_types('mode');
-//  print_r($modes_arr);
-  if ($cr>0)
-    if (!$firewall)
-      $modes_arr = array_diff_key($modes_arr,array('client'=>0));
-    else
-      $modes_arr = array_intersect_key($modes_arr,array('client'=>0));
-  if ($cr < $maxradios->radiodev_max)
-  if ( (( $edit['id'] > 0 ) && (!isset($edit[edit_details]))) and ($tr < $maxradios->radiodev_max)) {
-    $erow[] = array(
-               array('data'=>form_select(t('Mode'), 'newradio_mode', 'client', $modes_arr, NULL),'valign'=>'bottom'),
-               array('data'=>form_button(t('Add radio'), 'op'),'valign'=>'bottom')
-                   );
-    $form .= form_group(t('Add new radio'),theme('table',null,$erow),t('Usage:<br />Choose <strong>wireless client</strong>mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'));
-  } else {  
-    $edit_form .= form_item(null,t('You can add radios to this device once has been saved into de database'));
-    $form .= form_group(t('Add new radio'),$edit_form,null);
-  }
+  $form['r']['#title'] .= ' - '.
+    $cinterfaces.' '.t('interface(s)').' - '.
+    $cipv4.' '.t('address(es)').' - '.
+    $clinks.' '.t('link(s)');
 
   return $form;
 }
@@ -656,7 +414,7 @@ function _guifi_radio_form(&$form, $radio, $key, &$form_weight = -200) {
 }
 
 /* guifi_radio_interfaces_form(): Tadio interfaces form */
-function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
+function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
   global $hotspot;
   global $bridge;
 
@@ -666,219 +424,33 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
   if (count($edit['radios'][$rk]['interfaces']) == 0)
     return $weight;
 
+  $interfaces_count = 0;
+  $ipv4_count = 0;
+  $links_count = array();
+
   unset($ilist);
   foreach ($edit['radios'][$rk]['interfaces'] as $ki => $interface) {
 //    guifi_log(GUIFILOG_FULL,'interface',$interface); 
     if ($interface['interface_type'] == null)
       continue;
 
+    $interfaces_count++;
+
     $it = $interface['interface_type'];
     $ilist[$it] = $ki;
-    $links_count[$it] = 0;
 
     if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {
 
-//      print_r($ipv4);
-      if ($interface['interface_type'] == 'wLan/Lan')
-        $bridge = true; 
-      if (($ipv4['netmask'] != '255.255.255.252')  or (count($ipv4['links']) == 0))
-      {
-        // multilink set
-        $multilink = TRUE; 
-        $f[$it][$ki]['ipv4'][$ka] = array(
-          '#type' => 'fieldset',
-          '#title' => $ipv4['ipv4'].' / '.$ipv4['netmask'].' '.(count($ipv4['links'])).' '.t('link(s)'),
-          '#weight' => $weight++,
-          '#collapsible' => TRUE,
-          '#collapsed' => TRUE,
-          '#weight' => $weight++,
-        );
-        $prefix = '<table><tr><td>';
-        if (user_access('administer guifi networks')) {
-          $f[$it][$ki]['ipv4'][$ka]['local']['ipv4'] = array(
-            '#type'=> 'textfield',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'ipv4'),
-            '#size'=> 16,
-            '#maxlength'=>16,
-            '#default_value'=>$interface['ipv4'][$ka]['ipv4'],
-            '#title'=>t('Local IPv4'),
-            '#prefix'=> $prefix,
-            '#suffix'=> '</td>',
-            '#weight'=> 0,
-          );
-          $f[$it][$ki]['ipv4'][$ka]['local']['netmask'] = array(
-            '#type' => 'select',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'netmask'),
-            '#title' => t("Network mask"),
-            '#default_value' => $interface['ipv4'][$ka]['netmask'],
-            '#options' => guifi_types('netmask',30,0),
-            '#prefix'=> '<td>',
-            '#suffix'=> '</td>',
-            '#weight' =>1,
-          );
-        } else {
-          $f[$it][$ki]['ipv4'][$ka]['local']['ipv4'] = array(
-            '#type' => 'item',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'ipv4'),
-            '#title' => t('Local IPv4'),
-            '#value'=>  $interface['ipv4'][$ka]['ipv4'],
-            '#description'=> $interface['ipv4'][$ka]['netmask'],
-            '#prefix'=> $prefix,
-            '#suffix'=> '</td>',
-            '#weight' =>0,
-          );
-        }
-      } else {
-        // singlelink set
-        $multilink = FALSE;
-        $prefix = '<td>';
-      } 
+      $ipv4_count++;
+      
+      $links_count[$it] += guifi_link_ipv4_form(
+        $f[$it][$ki]['ipv4'][$ka],
+        $ipv4,
+        $interface,
+        array('radios',$rk,'interfaces',$ki,'ipv4',$ka),
+        $weight);
 
-      // foreach link
-      $lweight = 25;
-      if (count($ipv4['links'])) foreach($ipv4['links'] as $kl => $link)  {
-
-        // linked node-device
-        if ($link['type'] != 'cable')
-          $descr =  guifi_get_ap_ssid($link['device_id'],$link['radiodev_counter']);
-        else
-          $descr = guifi_get_interface_descr($link['interface_id']);
-        $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['link_name'] = array(
-          '#type' => 'item',
-          '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'links',0,'link_name'),
-          '#title' => guifi_get_nodename($link['nid']),
-          '#value'=>  guifi_get_hostname($link['device_id']),
-          '#description'=>guifi_get_interface_descr($link['interface_id']),
-          '#prefix'=> '<table><tr><td>',
-          '#suffix'=> '</td>',
-          '#weight' => $lweight++,
-        );
-          
-        if (user_access('administer guifi networks')) {
-          if (!$multilink)
-          $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['ipv4'] = array(
-            '#type'=> 'textfield',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'ipv4'),
-            '#size'=> 16,
-            '#maxlength'=>16,
-            '#default_value'=>$interface['ipv4'][$ka]['ipv4'],
-            '#title'=>t('Local IPv4'),
-            '#prefix'=> $prefix,
-            '#suffix'=> '</td>',
-            '#weight'=> $lweight++,
-          );
-          $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['ipv4_remote'] = array(
-            '#type'=> 'textfield',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'links',$kl,'interface','ipv4','ipv4'),
-            '#size'=> 16,
-            '#maxlength'=>16,
-            '#default_value'=>$interface['ipv4'][$ka]['links'][$kl]['interface']['ipv4']['ipv4'],
-            '#title'=>t('Remote IPv4'),
-            '#prefix'=> '<td>',
-            '#suffix'=> '</td>',
-            '#weight'=> $lweight++,
-          );
-
-          if (!$multilink)
-          $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['netmask'] = array(
-            '#type' => 'select',
-            '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'netmask'),
-            '#title' => t("Network mask"),
-            '#default_value' => $interface['ipv4'][$ka]['netmask'],
-            '#options' => guifi_types('netmask',30,0),
-            '#prefix'=> '<td>',
-            '#suffix'=> '</td>',
-            '#weight' =>  $lweight++,
-          );
-
-        } else {
-          $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['ipv4_remote'] = array(
-            '#type' =>         'item',
-            '#parents'=>       array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'links',$kl,'interface','ipv4','ipv4'),
-            '#title'=>         t('Remote IPv4'),
-            '#value'=>         $interface['ipv4'][$ka]['links'][$kl]['interface']['ipv4']['ipv4'],
-            '#description' =>  $interface['ipv4'][$ka]['links'][$kl]['interface']['ipv4']['netmask'], 
-            '#prefix'=>        '<td>',
-            '#suffix'=>        '</td>',
-            '#weight' =>       $lweight++,
-          );
-        } // network administrator
-        
-        // Routing
-        $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['routing'] = array(
-          '#type' =>          'select',
-          '#parents'=>        array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'links',$kl,'routing'),
-          '#title' =>         t("Routing"),
-          '#default_value' => $interface['ipv4'][$ka]['links'][$kl]['routing'],
-          '#options' =>       guifi_types('routing'),
-          '#prefix'=>         '<td>',
-          '#suffix'=>         '</td>',
-          '#weight' =>        $lweight++,
-        );
-
-        // Status
-        $f[$it][$ki]['ipv4'][$ka]['links'][$kl]['status'] = array(
-          '#type' =>          'select',
-          '#parents'=>        array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'links',$kl,'flag'),
-          '#title' =>         t("Status"),
-          '#default_value' => $interface['ipv4'][$ka]['links'][$kl]['flag'],
-          '#options' =>       guifi_types('status'),
-          '#prefix'=>         '<td>',
-          '#suffix'=>         '</td>',
-          '#weight' =>        $lweight++,
-        );
-
-        // delete link button
-        $f[$it][$ki]['ipv4'][$ka]['local']['links'][$kl]['delete_link'] = array(
-          '#type' => 'button',
-          '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'delete_link'),
-          '#value'=>t('Delete'),
-          '#name'=>implode(',',array(
-             '_action',
-             '_guifi_delete_radio_interface_link',
-             $rk,$ki,$ka,$kl,
-             $link['nid'],
-             $link['device_id'])),
-          '#prefix'=> '<td>',
-          '#suffix'=> '</td></tr></table>',
-          '#weight' =>  $lweight++,
-        );
-
-      } // foreach link
-
-      // Deleting the IP address
-      switch ($it) {
-      case 'wLan/Lan':
-      $f[$it][$ki]['ipv4'][$ka]['local']['delete_address'] = array(
-          '#type' => 'item',
-          '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'comment_address'),
-          '#value'=>t('Main public address'),
-          '#description' => t('wLan/Lan public IP address is required. No delete allowed.'),
-          '#prefix'=> '<td>',
-          '#suffix'=> '</td></tr></table>',
-          '#description' => t('Can\'t delete this interface or radio, if you like to delete this radio, create another radio, add a wLan interface to it, set it as the first radio, and then you will be able to delete this one.'),
-          '#weight' =>  3,
-        );
-        break;
-      case 'wds/p2p':
-        break;
-      default:
-        $f[$it][$ki]['ipv4'][$ka]['local']['delete_address'] = array(
-          '#type' => 'button',
-          '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'delete_address'),
-          '#value'=>t('Delete'),
-          '#name'=>implode(',',array(
-             '_action',
-             '_guifi_delete_radio_interface_ipv4',
-             $rk,$ki,$ka,
-             $interface['ipv4'][$ka]['ipv4'],
-             $interface['ipv4'][$ka]['netmask'])),
-          '#prefix'=> '<td>',
-          '#suffix'=> '</td></tr></table>',
-          '#weight' =>  3,
-        );
-      }  // switch ($it)
     }   // foreach ipv4
     switch ($it) {
     case 'HotSpot':
@@ -904,9 +476,22 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
 
   foreach ($f as $it => $value) {
     //    guifi_log(GUIFILOG_FULL,'building form for: ',$value);
+    switch ($it) {
+    case 'wLan/Lan':
+    case 'wds/p2p':
+      $title = $it.' - '.$links_count[$it].' '.t('link(s)');
+      break;
+    case 'wLan':
+      $title = $it.' - '.
+        count($value).' '.t('interface(s)').' - '.
+        $links_count[$it].' '.t('link(s)');
+      break;
+    default:
+      $title = $it;
+    }
     $form['r']['radios'][$rk][$it] = array(
     '#type' => 'fieldset',
-    '#title' => $it.' - '.$links_count[$it].' '.t('interface(s)'),
+    '#title' => $title,
     '#weight' => $weight,
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
@@ -933,7 +518,8 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, $weight = 6) {
         );
     }
  }
- return $weight;
+ 
+ return array('interfaces'=>$interfaces_count,'ipv4'=>$ipv4_count,'links'=>array_sum($links_count));
 }
 
 /* guifi_radio_validate()): Validate radio, called as a hook while validating the form */

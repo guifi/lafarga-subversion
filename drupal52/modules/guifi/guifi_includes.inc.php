@@ -367,28 +367,40 @@ function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
   return explode('|',$model[interfaces]);
 }
 
+/* guifi_get_free_interfaces(): Populates a select list with the available cable interfaces */
 function guifi_get_free_interfaces($id,$edit = array()) {
   if ($edit[type] == 'radio') 
-    $model = db_fetch_array(db_query('SELECT m.interfaces FROM {guifi_model} m WHERE mid=%d',$edit[variable][model_id]));
+    $model = db_fetch_array(db_query('
+      SELECT m.interfaces
+      FROM {guifi_model} m
+      WHERE mid=%d',
+    $edit['variable']['model_id']));
   else 
-    $model[interfaces] = 'Lan';
-  $possible = explode('|',$model[interfaces]);
-  $qi = db_query('SELECT interface_type FROM {guifi_interfaces} WHERE device_id=%d',$id);
+    $model['interfaces'] = 'Lan';
+  $possible = explode('|',$model['interfaces']);
+  $qi = db_query('
+    SELECT interface_type
+    FROM {guifi_interfaces}
+    WHERE device_id=%d',
+    $id);
   $used = array();
   while ($i = db_fetch_object($qi)) {
     $used[] = $i->interface_type;
   }
   if ($edit != null) 
-  if (count($edit['interfaces']) > 0) foreach ($edit[interfaces] as $k=>$value) {
-    if ($value[deleted]) continue;
-    $used[] = $value[interface_type];
-  }
+  if (count($edit['interfaces']) > 0)
+    foreach ($edit['interfaces'] as $k=>$value) {
+      if ($value['deleted']) continue;
+      $used[] = $value['interface_type'];
+    }
 
+   $free = array_diff($possible, $used);
+   
 //  print "Possible: ";
 //  print_r($possible);
 //  print "\n<br />Used: ";
 //  print_r($used);
-  return array_diff($possible, $used);
+  return array_combine($free, $free);
 }
 
 

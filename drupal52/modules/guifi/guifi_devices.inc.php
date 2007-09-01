@@ -418,7 +418,7 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
       $form_weight));
 
   // Cable interfaces/links
-  guifi_interface_form($form['if'],$edit,$form_weight = 2);
+  guifi_interfaces_form($form['if'],$edit,$form_weight = 2);
 
   // Comments & save/validate/reset buttons
   $form_weight = 200;
