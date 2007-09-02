@@ -13,10 +13,11 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
 
   $insert = false;
 
+  guifi_log(GUIFILOG_TRACE,'guifi_sql',$table);
   // delete?
   if ($data['deleted']) {
     $log .= _guifi_db_delete($table,$key,$to_mail);
-    return null;
+    return $log;
   }
 
   // insert?

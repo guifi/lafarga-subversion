@@ -122,7 +122,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
   );
 }
 
-function guifi_links_validate(&$edit) {
+function guifi_links_validate(&$edit,$form) {
 
   guifi_log(GUIFILOG_TRACE,"function: guifi_links_validate()");
   guifi_log(GUIFILOG_FULL,"edit",$edit);
@@ -161,6 +161,7 @@ function guifi_links_validate(&$edit) {
 //              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
               guifi_links_validate_recurse(
                 $edit['interfaces'][$interface_id]['ipv4'][$ipv4_id],$link_id,
+                $form,
                 $interface['interface_type'],
                 array(
                   'interfaces',
@@ -172,7 +173,7 @@ function guifi_links_validate(&$edit) {
   }
 }
 
-function guifi_links_validate_recurse(&$link,$link_id,$interface_type,$parents = array()) {
+function guifi_links_validate_recurse(&$link,$form,$link_id,$interface_type,$parents = array()) {
 
 //    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
 

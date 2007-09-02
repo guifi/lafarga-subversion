@@ -433,6 +433,8 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
 //    guifi_log(GUIFILOG_FULL,'interface',$interface); 
     if ($interface['interface_type'] == null)
       continue;
+    if ($interface['deleted'])
+      continue;
 
     $interfaces_count++;
 
@@ -441,6 +443,8 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
 
     if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {
+      if ($ipv4['deleted'])
+        continue;
 
       $ipv4_count++;
       
@@ -458,8 +462,8 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
         '#type'=>'button',
         '#parents'=>array('radios',$rk,'interfaces',$ki,'deleteHotspot'),
         '#value'=>t('Delete Hotspot'), 
-        '#name'=>'_action,_guifi_delete_radio_interface,'.$rk.','.$ki,
-        '#weight'=>4);
+        '#name'=>'_action,_guifi_delete_interface,'.$rk.','.$ki,
+        '#weight'=>$weight++);
       $hotspot = true;
       break;
     case 'wds/p2p':
@@ -468,7 +472,7 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
         '#parents'=>array('radios',$rk,'interfaces',$ki,'AddWDS'),
         '#value'=>t('Add WDS/bridge p2p link'), 
         '#name'=>'_action,_guifi_add_wds,'.$rk.','.$ki,
-        '#weight'=>4);
+        '#weight'=>$weight++);
       break;
     }
 
@@ -611,16 +615,16 @@ function _guifi_add_wlan(&$form,&$edit,$action) {
     '#title' => t('Are you sure you want to create a new wLan interface for clients at this radio?'),
     '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
     '#description' => t('If you save at this point, this interface will be created and device saved.'),
-    '#weight' => 0,
+    '#weight' => $fw++,
   );
   drupal_set_title(t('Create a wLan interface at %name',array('%name'=>$edit['radios'][$radio]['ssid'])));
-  _guifi_device_buttons($form,$action);
+  _guifi_device_buttons($form,$action,$fw,TRUE);
 
   return FALSE;
 }
 
 /* _guifi_add_wlan_submit(): Action */
-function _guifi_add_wlan_submit(&$edit,$action) {
+function _guifi_add_wlan_submit(&$form,&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan_submit(%d)',$radio));
 
@@ -654,21 +658,19 @@ function _guifi_add_hotspot(&$form,&$edit,$action) {
     '#title' => t('Are you sure you want to create a Hotspot interface for guests at this radio?'),
     '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
     '#description' => t('If you save at this point, this interface will be created and device saved.'),
-    '#weight' => 0,
+    '#weight' => $fw++,
   );
   drupal_set_title(t('Create a Hotspot interface at %name',array('%name'=>$edit['radios'][$radio]['ssid'])));
-  _guifi_device_buttons($form,$action);
+  _guifi_device_buttons($form,$action,$fw,TRUE);
 
   return FALSE;
 }
 
-function _guifi_add_hotspot_submit(&$edit,$action) {
+function _guifi_add_hotspot_submit(&$form,&$edit,$action) {
   $radio = $action[2];
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_hotspot_submit(%d)',$$radio));
 
-  // obtaining a public IP fot the hotspot NAT
-
-  // filling variables
+    // filling variables
   $interface=array();
   $interface['new']=true;
   $interface['interface_type']='HotSpot';
@@ -749,7 +751,7 @@ function _guifi_add_radio(&$form,&$edit,$action) {
 }
 
 function _guifi_add_radio_submit(&$edit,$action) {
-  guifi_log(GUIFILOG_NONE, "function _guifi_add_radio_submit()");
+  guifi_log(GUIFILOG_TRACE, "function _guifi_add_radio_submit()");
 
   $rc = $action[2];
   $tc = $action[3];
@@ -785,31 +787,6 @@ function _guifi_add_radio_submit(&$edit,$action) {
   }
 }
 
-/* Delete interface */
-function _guifi_delete_interface($edit,$op) {
-  $parse=explode(',',$edit[edit_details]);
-
-  switch ($op) {
-  case t('Delete selected'):
-    $output .= '<h2>'.t('Are you sure you want to delete this interface?').'</h2>'.$edit[radios][$parse[0]][ssid].' '.
-									     $edit[radios][$parse[0]][interfaces][$parse[1]][interface_type];
-$output .= '<br />'.form_button(t('Confirm delete'),'op').
-		form_button(t('Back to list'),'op');
-$output .= $message;
-break;
-case t('Confirm delete'):
-if ($edit[radios][$parse[0]][interfaces][$parse[1]]['new'])
-unset($edit[radios][$parse[0]][interfaces][$parse[1]]);
-else
-$output .= form_hidden('radios]['.$parse[0].'][interfaces]['.$parse[1].'][deleted',true);
-$output .= '<h2>'.t('Interface deleted').'</h2>'.$link_text;
-$output .= '<br />'.form_button(t('Back to list'),'op');
-drupal_set_message(t('The interface %name has been deleted. To prevent accidental deletions, the delete will be confirmed only when you submit the changes.',array('%name' => theme('placeholder',$edit['radios'][$parse[0]]['ssid'].' '.$edit[radios][$parse[0]][interfaces][$parse[1]][interface_type]))));
-break;
-}
-$output .= guifi_form_hidden('',$edit);
-print theme('page',form($output));
-}
 
 /* _guifi_device_buttons(): Common function to add confirmation buttons */
 function _guifi_device_buttons(&$form,$action,&$fweight = 100,$continue = FALSE) {
@@ -829,16 +806,19 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100,$continue = FALSE)
     '#value' => t('Reset'),
     '#weight' => $fweight++,
   );
+/* To do, allow continue when it works safely */
   if ($continue) {
     $form['save_continue'] = array(
       '#type' => 'submit',
       '#parents' => array($action_str),
       '#name' => $action_str,
-      '#value' => t('Continue edit'),
+      '#value' => t('Continue edit'),  
       '#weight' => $fweight++,
-    );
+  ); 
+
     return;
   }
+/*  */
   $form['save_continue'] = array(
     '#type' => 'submit',
     '#parents' => array($action_str),
@@ -846,13 +826,6 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100,$continue = FALSE)
     '#value' => t('Save & continue edit'),
     '#weight' => $fweight++,
   );
-  /* $form['accept'] = array(
-    '#type' => 'submit',
-    '#parents' => array($action_str),
-    '#name' => $action_str,
-    '#value' => t('Accept'),
-    '#weight' => $fweight++,
-  ); */
   $form['save_exit'] = array(
     '#type' => 'submit',
     '#parents' => array($action_str),
@@ -860,68 +833,6 @@ function _guifi_device_buttons(&$form,$action,&$fweight = 100,$continue = FALSE)
     '#value' => t('Save & exit'),
     '#weight' => $fweight++,
   );
-}
-
-/* Delete radio interface */
-function _guifi_delete_radio_interface(&$form,&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface(radio: %d, interface: %d)',$radio_id,$interface_id));
-
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to delete this interface?'),
-    '#value' => $edit['radios'][$radio_id]['ssid'].'-'.
-	$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'],
-    '#description' => t('If you save at this point, this interface and links will be deleted, information saved and can\'t be undone.'),
-    '#weight' => 0,
-  );
-  drupal_set_title(t('Delete radio interface (%type)',array('%type'=>$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'])));
-  _guifi_device_buttons($form,$action);
-
-  return FALSE;
-}
-
-function _guifi_delete_radio_interface_submit(&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface_submit(radio: %d, interface: %d)',$radio_id,$interface_id));
-  $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted'] = true;
-}
-
-/* Delete radio interface IPv4 */
-function _guifi_delete_radio_interface_ipv4(&$form,&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  $ipv4=str_replace('_','.',$action[4]);
-  $mask=str_replace('_','.',$action[5]);
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface_ipv4(radio: %d, interface: %d)',$radio_id,$interface_id));
-
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to delete this interface?'),
-    '#value' => $edit['radios'][$radio_id]['ssid'].'-'.
-	$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'].'-'.
-	$ipv4.'/'.$mask,
-    '#description' => t('If you save at this point, this network addres and its links will be deleted, information saved and can\'t be undone.'),
-  '#weight' => 0,
-  );
-  drupal_set_title(t('Delete radio interface (%type)',array('%type'=>$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'])));
-  _guifi_device_buttons($form,$action);
-
-  return FALSE;
-}
-
-function _guifi_delete_radio_interface_ipv4_submit(&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface_ipv4(radio: %d, interface: %d)',$radio_id,$interface_id));
-  $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted'] = true;
 }
 
 /* Delete radio interface link */

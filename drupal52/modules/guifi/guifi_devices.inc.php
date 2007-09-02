@@ -39,17 +39,19 @@ function guifi_edit_device_form_submit($form_id, &$form_values) {
     if ($key) {
       // call to the action _submit hook
       $action = explode(',',$key);
-      if (function_exists($action[1].'_submit')) 
+      $edit = $_POST;
+      if (function_exists($action[1].'_submit'))
         call_user_func_array($action[1].'_submit',
-          array(&$form_values,$action));
+          array(&$edit,$action));
     }
-    // save 
-    $id = guifi_edit_device_save($form_values);
+    // save
+    $id = guifi_edit_device_save($edit);
     if ($form_values['op'] == t('Save & exit'))
       drupal_goto('guifi/device/'.$id);
     drupal_goto('guifi/device/'.$id.'/edit');
     break;
   default:
+//     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
     guifi_log(GUIFILOG_TRACE,
       'exit guifi_edit_device_form_submit without saving...');
     return;
@@ -266,6 +268,7 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form()');
   guifi_log(GUIFILOG_FULL,null,$edit);
 
+  
   // Check permissions
   if ($id)
   if (!guifi_device_access('update',$id))
@@ -353,7 +356,6 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
           return($form);
         }
       }
-      unset($edit[$key]);
     }
   }
 
@@ -562,7 +564,7 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
   if (function_exists('guifi_'.$edit['type'].'_validate'))
     $form .= call_user_func('guifi_'.$edit['type'].'_validate',$edit);
 
-  guifi_links_validate($edit);
+  guifi_links_validate($edit,$form);
 }
 
 /* functions to save interfaces, old code to be removed, for reference {
@@ -896,48 +898,23 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
       $interface['device_id'] = $ndevice['id'];
       $interface['mac'] = $radio['mac'];
       $interface['radiodev_counter'] = $nradio['radiodev_counter'];
-      // force wLan/Lan on radio#0
-      if ($interface['interface_type'] == 'wLan/Lan')
-        $interface['radiodev_counter'] = 0;
-      guifi_log(GUIFILOG_FULL,'going to SQL for interface',$interface);
-      $ninterface = _guifi_db_sql('guifi_interfaces',array('id'=>$interface_id),$interface,$log,$to_mail);
-      if (empty($ninterface))
-        continue;
+        
+    // force wLan/Lan on radio#0
+    if ($interface['interface_type'] == 'wLan/Lan')
+      $interface['radiodev_counter'] = 0;
 
-      // ipv4
-      if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
-        $ipv4['interface_id'] = $ninterface['id'];
-        $nipv4 = _guifi_db_sql('guifi_ipv4',array('id'=>$ipv4['id'],'interface_id'=>$interface['id']),$ipv4,$log,$to_mail);
-        if (empty($nipv4)) 
-          continue;
+      $log .= guifi_edit_device_interface_save($interface,$interface_id,$ndevice['nid'],$to_mail);
 
-        // links (local)
-        if ($ipv4['links']) foreach ($ipv4['links'] as $link_id => $link) {
-          $llink = $link;
-          $llink['nid'] = $ndevice['nid'];
-          $llink['device_id'] = $ndevice['id'];
-          $llink['interface_id'] = $ninterface['id'];
-          $llink['ipv4_id'] = $nipv4['id'];
-          guifi_log(GUIFILOG_FULL,'going to SQL for local link',$llink);
-          $nllink = _guifi_db_sql('guifi_links',array('id'=>$link['id'],'device_id'=>$ndevice['id']),$llink,$log,$to_mail);
-          if (empty($nllink))
-            continue;
-
-          // links (remote)
-          if ($link['interface']) 
-            $rinterface = _guifi_db_sql('guifi_interfaces',array('id'=>$link['interface']['id'],'radiodev_counter'=>$link['interface']['radiodev_counter']),$link['interface'],$log,$to_mail);
-          if ($link['interface']['ipv4']) 
-            $ripv4 = _guifi_db_sql('guifi_ipv4',array('id'=>$link['interface']['ipv4']['id'],'interface_id'=>$link['interface']['ipv4']['interface_id']),$link['interface']['ipv4'],$log,$to_mail);
-          $link['id'] = $nllink['id'];
-          $link['ipv4_id'] = $ripv4['id'];
-          $link['interface_id'] = $rinterface['id'];
-          $nrlink = _guifi_db_sql('guifi_links',array('id'=>$link['id'],'device_id'=>$link['device_id']),$link,$log,$to_mail);
-          guifi_log(GUIFILOG_FULL,'going to SQL for remote link',$link);
-        }
-      } // foreach ipv4
     } // foreach interface
     $rc++;
   } // foreach radio
+
+  if (!empty($edit['interfaces'])) foreach ($edit['interfaces'] as $iid => $interface) {
+    $interface['device_id'] = $ndevice['id'];
+    $interface['mac'] = $radio['mac'];
+
+    $log .= guifi_edit_device_interface_save($interface,$iid,$ndevice['nid'],$to_mail);
+  }
 
   $to_mail = explode(',',$edit['notification']);
   
@@ -950,7 +927,7 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
       array('%name' => $edit['nick'],
         '%user' => $user->name));
   
-  drupal_set_message($subject);
+//   drupal_set_message($subject);
   guifi_notify($to_mail,
     $subject,
     $log,
@@ -959,123 +936,71 @@ function guifi_edit_device_save($edit, $verbose = true, $notify = true) {
     
   return $ndevice['id'];
 
-/** To remove, for reference
-  if (!$edit['id']) {
-    $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_devices}'));
-    if (is_null($next_id['id']))
-      $next_id['id'] = 1;
-    $edit['id'] = $next_id['id'];
-    $prev['user_created'] = $user->uid;
-    $prev['timestamp_created'] = time(); 
-    $subject = t('Created device# %id (%name) by %user\n',array('%id'=>$edit['id'],'%name'=>$edit['nick'],'%user'=>$user->name));
-  } else {
-    $prev = db_fetch_array(db_query("SELECT user_created, timestamp_created FROM {guifi_devices} WHERE id=%d",$edit['id']));
-    $subject = t('Updated device# %id (%name) by %user\n',array('%id'=>$edit['id'],'%name'=>$edit['nick'],'%user'=>$user->name));
-    $log = _guifi_delete_device($edit['id'],false,false);
-  }
-  $log = $subject.'\n'.$log;
-  db_query("INSERT INTO {guifi_devices} ( id, nid, nick, type, graph_server, contact, mac, comment, flag, extra, user_created, timestamp_created, user_changed, timestamp_changed) VALUES (%d, %d, '%s','%s',%d, '%s','%s','%s','%s', '%s', '%d','%d', %d, %d)", $edit['id'], $edit['nid'], $edit['nick'], $edit['type'], $edit['graph_server'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']),  $prev['user_created'], $prev['timestamp_created'], $user->uid, time());
+}
 
-  // processing radios
-  $rc = 0;
-  if (is_array($edit['radios']))
-    ksort($edit['radios']);
-  if (isset($edit['radios'])) foreach ($edit['radios'] as $radiodev_counter=>$radio) {
-    if ($radio['deleted']) {
-      $log .= t('Deleted radio# %rid-%rc (%name) in mode %mode\n',array('%rid'=>$edit['id'],'%rc'=>$radiodev_counter,'%name'=>$radio['ssid'],'%mode'=>$radio['mode']));
+
+function guifi_edit_device_interface_save($interface,$iid,$nid,&$to_mail) {
+  $log = '';
+
+
+  guifi_log(GUIFILOG_TRACE,'going to SQL for interface',$interface);
+  $ninterface = _guifi_db_sql(
+    'guifi_interfaces',
+    array('id'=>$iid),$interface,$log,$to_mail);
+
+  if (empty($ninterface))
+    return $log;
+
+  // ipv4
+  if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
+    $ipv4['interface_id'] = $ninterface['id'];
+    $nipv4 = _guifi_db_sql(
+      'guifi_ipv4',
+      array('id'=>$ipv4['id'],'interface_id'=>$interface['id']),$ipv4,$log,$to_mail);
+    if (empty($nipv4))
       continue;
+
+    // links (local)
+    if ($ipv4['links']) foreach ($ipv4['links'] as $link_id => $link) {
+      $llink = $link;
+      $llink['nid'] = $nid;
+      $llink['device_id'] = $interface['device_id'];
+      $llink['interface_id'] = $interface['id'];
+      $llink['ipv4_id'] = $nipv4['id'];
+      guifi_log(GUIFILOG_FULL,'going to SQL for local link',$llink);
+      $nllink = _guifi_db_sql(
+        'guifi_links',
+        array('id'=>$link['id'],'device_id'=>$interface['device_id']),$llink,$log,$to_mail);
+      if (empty($nllink))
+        continue;
+
+      // links (remote)
+      if ($link['interface'])
+        $rinterface = _guifi_db_sql(
+          'guifi_interfaces',
+          array('id'=>$link['interface']['id'],
+            'radiodev_counter'=>$link['interface']['radiodev_counter']),
+            $link['interface'],$log,$to_mail);
+      if ($link['interface']['ipv4'])
+        $ripv4 = _guifi_db_sql(
+          'guifi_ipv4',
+          array('id'=>$link['interface']['ipv4']['id'],
+            'interface_id'=>$link['interface']['ipv4']['interface_id']),
+            $link['interface']['ipv4'],$log,$to_mail);
+      $link['id'] = $nllink['id'];
+      $link['ipv4_id'] = $ripv4['id'];
+      $link['interface_id'] = $rinterface['id'];
+      $nrlink = _guifi_db_sql(
+        'guifi_links',
+        array('id'=>$link['id'],
+        'device_id'=>$link['device_id']),
+        $link,$log,$to_mail);
+      guifi_log(GUIFILOG_FULL,'going to SQL for remote link',$link);
     }
-    if ($radio['new'])
-      $log .= t('Created radio# %rid-%rc (%name) in mode %mode\n',array('%rid'=>$edit['id'],'%rc'=>$rc,'%name'=>$radio['ssid'],'%mode'=>$radio['mode']));
-    else {
-      $log .= t('Updated radio# %rid-%rc (%name) in mode %mode\n',array('%rid'=>$edit['id'],'%rc'=>$radiodev_counter,'%name'=>$radio['ssid'],'%mode'=>$radio['mode']));
-      if ($radio['radiodev_counter'] != $rc)
-        $log .= t('radio# %rcold changed to # %rcnew\n',array('%rcold'=>$radio['radiodev_counter'],'%rcnew'=>$rc));
-    }
-    db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $rc, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted']);
-
-    // Update/insert interfaces
-    $log .= guifi_save_interfaces($edit,$radio,$radiodev_counter,$rc,$to_mail);
-    $rc++;
-  } // foreach radio
-
-  guifi_notify($to_mail, 
-           t('The device %name has been UPDATED by %user.',array('%name' => $edit['nick'], '%user' => $user->name)),
-           $log,
-           $verbose,
-           $notify);
-
-  return $edit['id'];
-  **/
-}
-
-/* funtions to save devices, old code, to be removed, for reference {
-function guifi_edit_device_save2($edit) {
-
-  global $user;
-
-  $main_itype = guifi_main_interface($edit['mode']);
-
-  if ($edit['id']) {
-    // Checking if nick has changed, so rrd graph files shoud be renamed
-    $pdevice = guifi_get_device($edit['id']);
-    if ($pdevice['nick'] != $edit['nick']) {
-      guifi_rename_graphs($pdevice['nick'],$edit['nick']);
-    }
-
-    db_query("UPDATE {guifi_devices} SET nick = '%s', type = '%s', graph_server=%d, contact = '%s', mac = '%s', comment = '%s', flag = '%s', extra = '%s', user_changed = %d, timestamp_changed = %d WHERE id = %d", $edit['nick'], $edit['type'], $edit['graph_server'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']), $user->uid, time(), $edit['id']);
-    
-
-    $cascade = false;
-    // Updating radios
-    $rc = 0;
-    if (isset($edit[radios])) foreach ($edit[radios] as $radiodev_counter=>$radio) {
-      if ($radio['deleted']) {
-        db_query('DELETE FROM {guifi_radios} WHERE id=%d AND radiodev_counter=%d',$radio[id],$radiodev_counter);
-        $cascade_radio = true;
-        $cascade = true;
-      } else
-      if ($radio['new']) {
-        // Insert a new radio
-//        print "Inserting new radio# $rc \n<br />";
-        $radiodev_counter = $rc;
-        db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $rc, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['0clients_accepted']);
-      } else {
-        db_query("UPDATE {guifi_radios} SET model_id = %d, radiodev_counter=%d, ssid ='%s', mode ='%s', protocol ='%s', channel ='%s', antenna_angle =%d, antenna_gain =%d, antenna_azimuth =%d, clients_accepted='%s' WHERE id = %d AND radiodev_counter=%d", $edit['variable']['model_id'], $rc, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'], $radio['id'],$radiodev_counter );
-      }
-      guifi_save_interfaces2($edit,$radio,$radiodev_counter,$rc,$cascade);
-     $cascade=false;
-    }  // foreach radio
-
-    guifi_save_interfaces2($edit,$edit,null,null,false);
-    
-    guifi_log(GUIFILOG_BASIC,t('device (%type) %id-%name updated.',array('%type'=>$edit['type'],'%id'=>$edit['id'],'%name'=>$edit['nick'])));
-
-    drupal_set_message(t('Updated guifi device %nick.', array('%nick' => $edit['nick'])));
-  } else {
-    $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_devices}'));
-    if (is_null($next_id['id']))
-      $next_id['id'] = 1;
-    $edit['id'] = $next_id['id'];
-    db_query("INSERT INTO {guifi_devices} ( id, nid, nick, type, graph_server, contact, mac, comment, flag, extra, user_created, timestamp_created) VALUES (%d, %d, '%s','%s',%d, '%s','%s','%s','%s', '%s', '%d','%d')", $edit[id], $edit['nid'], $edit['nick'], $edit['type'], $edit['graph_server'], $edit['contact'], $edit['mac'], $edit['comment'], $edit['flag'], serialize($edit['variable']),  $user->uid, time());
-
-
-    guifi_log(GUIFILOG_BASIC,sprintf('device (%s) %d-%s created.',$edit['type'],$edit[id],$edit['nick']));
-    drupal_set_message(t('Created new guifi device %name.', array('%name' => $edit['nick'])));
+  } // foreach ipv4
   
-  } // End foreach radio
-//  print "Save done.";
-//  exit;
-
-  guifi_set_node_flag($edit['nid']);
-//  touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
-  variable_set('guifi_refresh_cnml',time());
-  variable_set('guifi_refresh_maps',time());
-  cache_clear_all();
-
-  return ($edit[id]);
+  return $log;
 }
-* } end of code to be removed */
 
 /* guifi_delete_device(): Delete a device */
 function guifi_confirm_delete_device($name,$id) {

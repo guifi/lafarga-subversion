@@ -2,6 +2,10 @@
 
 /* guifi_interfaces_form(): Main cable interface edit form */
 function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
+
+  global $definedBridgeIpv4;
+
+  $definedBridgeIpv4 = FALSE;
   
   if (empty($edit['interfaces']))
     return;
@@ -25,6 +29,9 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
     if ($interface['interface_type'] == null)
       continue;
 
+    if ($interface['deleted'])
+      continue;
+
     $interfaces_count++;
 
     $it = $interface['interface_type'];
@@ -33,6 +40,9 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
     if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {
 
+      if ($ipv4['deleted'])
+        continue;
+        
       $ipv4_count++;
       
       $links_count[$it] += guifi_link_ipv4_form(
@@ -40,7 +50,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
         $ipv4,
         $interface,
         array('interfaces',$ki,'ipv4',$ka),
-        $weight);
+        $fw);
 
     }   // foreach ipv4
     $f[$it][$ki]['addCableConnection'] = array(
@@ -48,20 +58,20 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
       '#parents'=>array('interfaces',$ki,'addCableConnection'),
       '#value'=>t('Add cable connection'),
       '#name'=>'_action,_guifi_add_cable_link,'.$ki,
-      '#weight'=>4);
+      '#weight'=>$fw++);
     $f[$it][$ki]['addPublicSubnet'] = array(
       '#type'=>'button',
       '#parents'=>array('interfaces',$ki,'addPublicSubnet'),
       '#value'=>t('Add public subnetwork'),
       '#name'=>'_action,_guifi_add_subnet,'.$ki,
-      '#weight'=>5);
+      '#weight'=>$fw++);
     if ($interface['interface_type'] != 'wLan/Lan')
       $f[$it][$ki]['deleteInterface'] = array(
         '#type'=>'button',
         '#parents'=>array('interfaces',$ki,'deleteInterface'),
         '#value'=>t('Delete Interface'),
         '#name'=>'_action,_guifi_delete_interface,,'.$ki,
-        '#weight'=>6);
+        '#weight'=>$fw++);
 
   }    // foreach interface
 
@@ -107,7 +117,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
           '#value'=>t('Delete interface'),
           '#name'=>implode(',',array(
                '_action',
-               '_guifi_delete_radio_interface',
+               '_guifi_delete_interface',
                $rk,$ilist[$it]
                )),
           '#weight' => $weight++,
@@ -157,8 +167,7 @@ function _guifi_add_interface(&$form,&$edit,$action) {
      '#type' => 'item',
      '#title' => t('Are you sure that do you want to create a %name interface on this device?',
        array('%name'=>$edit['NewInterfaceName'])),
-  //     '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
-     '#description' => t('If you save at this point, this interface will be created and device saved.'),
+//      '#description' => t('If you save at this point, this interface will be created and device saved.'),
       '#weight' => $fw++,
     );
   } else {
@@ -219,14 +228,31 @@ function _guifi_add_subnet(&$form,&$edit,$action) {
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_subnet(%d)',$iid));
   $fw = 0;
   guifi_form_hidden($form,$edit,$fw);
-  $form['newSubnetMask'] = array(
-    '#type' => 'select',
-    '#title' => t('Select the network capacity (netmask)'),
-    '#default_value' => '255.255.255.224',
-    '#options'=>guifi_types('netmask',30,23),
-    '#description' => t('To avoid unused addresses, choose a realistic value, you can always add more capacity later.'),
-    '#weight' => $fw++,
-  );
+  
+  if (user_access('administer guifi networks'))
+    $form['newSubnetMask'] = array(
+      '#type' => 'select',
+      '#title' => t('Select the network capacity (netmask)'),
+      '#default_value' => '255.255.255.224',
+      '#options'=>guifi_types('netmask',30,23),
+      '#description' => t('To avoid unused addresses, choose a realistic value, you can always add more capacity later.'),
+      '#weight' => $fw++,
+    );
+  else {
+    $form['help'] = array(
+      '#type' => 'item',
+      '#title' => t('Are you sure that you want to allocate a new public subnetwork at this interface?'),
+      '#value' => $edit['interfaces'][$iid]['interface_type'],
+//       '#description' => t('To avoid unused addresses, choose a realistic value, you can always add more capacity later.'),
+      '#weight' => $fw++,
+    );
+    $form['newSubnetMask'] = array(
+      '#type' => 'hidden',
+      '#value' => '255.255.255.224',
+      '#weight' => $fw++,
+    );
+  }
+  
   drupal_set_title(t(
     'Create a public subnetwork at %name',
     array('%name'=>$edit['interfaces'][$iid]['interface_type'])));
@@ -254,112 +280,53 @@ function _guifi_add_subnet_submit(&$form,&$edit,$action) {
   return TRUE;
 }
 
-/*
-function _guifi_add_interface_submit(&$edit) {
 
- $int = db_fetch_object(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
- $interface_id=$int->id;
+/* Delete interface */
+function _guifi_delete_interface(&$form,&$edit,$action) {
+  $radio_id=$action[2];
+  $interface_id=$action[3];
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_interface(radio: %d, interface: %d)',$radio_id,$interface_id));
 
- $edit[interfaces][$interface_id]=array();
- $edit[interfaces][$interface_id]['new']=true;
- $edit[interfaces][$interface_id][device_id]=$edit[id];
- $edit[interfaces][$interface_id][id]=$interface_id;
- $edit[interfaces][$interface_id][radiodev_counter]=null;
- $edit[interfaces][$interface_id][interface_type]=$edit[newinterface_type];
+  $fw = 0;
 
- return $edit;
+  if ($radio_id == '')
+    $it = $edit['interfaces'][$interface_id]['interface_type'];
+  else
+    $it = $edit['radios'][$radio_id]['ssid'].'-'.
+      $edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'];
+    
+  guifi_form_hidden($form,$edit,$fw);
+  $form['help'] = array(
+    '#type' => 'item',
+    '#title' => t('Are you sure you want to delete this interface?'),
+    '#value' => $it,
+//    '#description' => t('If you save at this point, this interface and links will be deleted, information saved and can\'t be undone.'),
+    '#weight' => $fw++,
+  );
+  drupal_set_title(t('Delete interface (%type)',array('%type'=>$it)));
+  _guifi_device_buttons($form,$action,$fw,TRUE);
+
+  return FALSE;
 }
+
+function _guifi_delete_interface_submit(&$form,&$edit,$action) {
+  $radio_id=$action[2];
+  $interface_id=$action[3];
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_interface_submit(radio: %d, interface: %d)',
+    $radio_id,$interface_id));
+
+  if ($radio_id == '')
+    $edit['interfaces'][$interface_id]['deleted'] = true;
+  else
+    $it = $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted']=true;
+
+/*  if ($it['new'])
+    unset($it);
+  else
+    $it['deleted'] = TRUE;
 */
-
-
-function guifi_delete_interface(&$edit,$op) {
-
-  $parse = explode(',',$edit[edit_details]);
-
-
-  // That should never occur
-  if ($parse[0] != 'interface')
-    return;
- 
-  if ($edit[interfaces][$parse[1]][radiodev_counter] != null) {
-    form_set_error(null,t('You can\'t delete items which are also being used in the wireless interfaces.'));
-    unset($edit[edit_details]);
-    return;
-  }
-
-  switch (count($parse)) {
-  case 2:
-      $msg .= '<h2>'.t('Are you sure you want to delete this interface?').'</h2>'.$edit[interfaces][$parse[1]][interface_type];
-    break;
-  case 3:
-      $msg = '<h2>'.t('Are you sure you want to delete this ip address?').'</h2>'.
-                 $edit[interfaces][$parse[1]][interface_type].'-'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][ipv4].'/'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][netmask];
-    break;
-  case 4:
-      $msg = '<h2>'.t('Are you sure you want to delete this link?').'</h2>'.
-                 $edit[interfaces][$parse[1]][interface_type].' '.
-                 guifi_get_hostname($edit[id]).'-'.
-                 guifi_get_hostname($edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]][device_id]).' ('.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][ipv4].'/'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]]['interface'][ipv4][ipv4].
-                 ')';
-    break;   
-  }
-
-  switch ($op) {
-  case t('Delete selected'):
-      $output .= $msg.'<br />'.form_button(t('Confirm delete'),'op').
-                        form_button(t('Back to list'),'op');
-      $output .= $message;
-    break;
-  case t('Confirm delete'):
-    switch (count($parse)) {
-      case 2:
-        $type = 'Interface';
-        $name = $edit[interfaces][$parse[1]][interface_type];
-        if ($edit[interfaces][$parse[1]]['new'])
-          unset($edit[interfaces][$parse[1]]);
-        else
-          $output .= form_hidden('interfaces]['.$parse[1].'][deleted',true);
-        break;
-      case 3:
-        $type = 'IP Adddress';
-        $name = $edit[interfaces][$parse[1]][interface_type].'-'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][ipv4].'/'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][netmask];
-        if ($edit[interfaces][$parse[1]][ipv4][$parse[2]]['new'])
-          unset($edit[interfaces][$parse[1]][ipv4][$parse[2]]);
-        else
-          $output .= form_hidden('interfaces]['.$parse[1].'][ipv4]['.$parse[2].'][deleted',true);
-        break;
-      case 4:
-        $type = 'Cable link';
-        $name = $edit[interfaces][$parse[1]][interface_type].' '.
-                 guifi_get_hostname($edit[id]).'-'.
-                 guifi_get_hostname($edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]][device_id]).' ('.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][ipv4].'/'.
-                 $edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]]['interface'][ipv4][ipv4].
-                 ')';
-        if ($edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]]['new'])
-          unset($edit[interfaces][$parse[1]][ipv4][$parse[2]][links][$parse[3]]);
-        else
-          $output .= form_hidden('interfaces]['.$parse[1].'][ipv4]['.$parse[2].'][links]['.$parse[3].'][deleted',true);
-        break;
-    }
-    $output .= '<h2>'.t('%name deleted',array('%name' => theme('placeholder',$type))).'</h2>';
-    $output .= '<br />'.form_button(t('Back to list'),'op');
-    drupal_set_message(t('%type% %name% has been deleted. To prevent accidental deletions, the delete will be confirmed only when you submit the changes.',
-            array('%type%' => theme('placeholder',$type),'%name%' => theme('placeholder',$name))
-            ));
-    break;
-  }
-  $output .= guifi_form_hidden('',$edit);
-  print theme('page',form($output));
-  exit;
+  return TRUE;
 }
-
 
 function guifi_interface_validate($edit) {
   if (!empty($edit['mac'])) { 

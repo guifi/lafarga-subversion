@@ -189,6 +189,10 @@ function guifi_edit_ipv4_save($edit) {
 
 /* guifi_link_ipv4_form(): edit an ipv4 within a link */
 function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
+  global $definedBridgeIpv4;
+
+  if ($ipv4['deleted'])
+    return 0;
 
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
@@ -259,6 +263,9 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
 
   // foreach link
   if (count($ipv4['links'])) foreach($ipv4['links'] as $kl => $link)  {
+    if ($link['deleted'])
+      continue;
+      
      // linked node-device
     guifi_link_form(
       $f['links'][$kl],
@@ -271,28 +278,31 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
 
   // Deleting the IP address
   switch ($interface['interface_type']) {
-  case 'wLan/Lan':
-    $f['local']['delete_address'] = array(
-      '#type' => 'item',
-      '#parents'=>array_merge($tree,array('comment_address')),
-      '#value'=>t('Main public address'),
-      '#description' => t('wLan/Lan public IP address is required. No delete allowed.'),
-      '#prefix'=> '<td>',
-      '#suffix'=> '</td></tr></table>',
-      '#description' => t('Can\'t delete this interface or radio, if you like to delete this radio, create another radio, add a wLan interface to it, set it as the first radio, and then you will be able to delete this one.'),
-      '#weight' =>  3,
-    );
-    break;
   case 'wds/p2p':
     break;
+  case 'wLan/Lan':
+    if (!$definedBridgeIpv4) {
+      $f['local']['delete_address'] = array(
+        '#type' => 'item',
+        '#parents'=>array_merge($tree,array('comment_address')),
+        '#value'=>t('Main public address'),
+        '#description' => t('wLan/Lan public IP address is required. No delete allowed.'),
+        '#prefix'=> '<td>',
+        '#suffix'=> '</td></tr></table>',
+        '#description' => t('Can\'t delete this address. The device should have at least one public IP address.'),
+        '#weight' =>  3,
+      );
+      $definedBridgeIpv4 = TRUE;
+      break;
+    }
   default:
     $f['local']['delete_address'] = array(
       '#type' => 'button',
       '#parents'=>array_merge($tree,array('delete_address')),
-      '#value'=>t('Delete'),
+      '#value'=>t('Delete address'),
       '#name'=>implode(',',array(
          '_action',
-         '_guifi_delete_radio_interface_ipv4',
+         '_guifi_delete_ipv4',
          $rk,$ki,$ka,
          $ipv4['ipv4'],
          $ipv4['netmask'])),
@@ -303,6 +313,62 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
   }  // switch $it (interface_type)
 
   return count($ipv4['links']);
+}
+
+/* delete ipv4 */
+/* _guifi_delete_ipv4(): Cofirmation dialog */
+function _guifi_delete_ipv4(&$form,&$edit,$action) {
+  $rk = $action[2]; // radio#
+  $ki = $action[3]; // interface#
+  $ka = $action[4]; // ipv4#
+  guifi_log(GUIFILOG_TRACE,'function _guifi_delete_ipv4()',$action);
+
+  if ($rk == '') {
+    print_r($edit['interfaces'][$ki]['ipv4'][$ka]);
+    $ipv4 = $edit['interfaces'][$ki]['ipv4'][$ka];
+  } else {
+    print "rk es nul $rk???";
+    $ipv4 = $edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka];
+  }
+  
+  $fw = 0;
+  guifi_form_hidden($form,$edit,$fw);
+  
+  $form['help'] = array(
+    '#type' => 'item',
+    '#title' => t('Are you sure that do you want to delete this address?'),
+    '#value' => $ipv4['ipv4'].'/'.$ipv4['netmask'],
+    '#weight' => $fw++,
+  );
+  
+  drupal_set_title(t(
+    'Delete address %ipv4/%mask',
+    array('%ipv4'=>$ipv4['ipv4'],
+      '%mask'=>$ipv4['netmask'])));
+  _guifi_device_buttons($form,$action,$fw,TRUE);
+
+  return FALSE;
+}
+
+/* _guifi_delete_ipv4_submit(): Action */
+function _guifi_delete_ipv4_submit(&$form,&$edit,$action) {
+  $rk = $action[2]; // radio#
+  $ki = $action[3]; // interface#
+  $ka = $action[4]; // ipv4#
+
+  guifi_log(GUIFILOG_TRACE,'function _guifi_delete_ipv4_submit()',$action);
+
+  if ($rk == '')
+    $ipv4 = &$edit['interfaces'][$ki]['ipv4'][$ka]['deleted'];
+  else
+    $ipv4 = &$edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka]['deleted'];
+
+  if ($ipv4['new'])
+    unset($ipv4);
+  else
+    $ipv4['deleted'] = TRUE;
+
+  return TRUE;
 }
 
 ?>
