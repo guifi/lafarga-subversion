@@ -471,12 +471,14 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
 /* guifi_edit_device_form_validate(): Confirm that an edited device has fields properly filled. */
 function guifi_edit_device_form_validate($form_id,$edit,$form) {
 //  print "Hola validate!!\n<br>";
-//  print_r($edit);
+//   print_r($edit);
 
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_validate()',$form_id);
-
+  
+//   guifi_log(GUIFILOG_NONE,'function guifi_edit_device_form_validate()',$form);
+  
   if ($form_id == null)
   {
     drupal_set_message(t('Error: Trying to validate an unknown form.'),'error');

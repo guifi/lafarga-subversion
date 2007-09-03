@@ -122,7 +122,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
   );
 }
 
-function guifi_links_validate(&$edit,$form) {
+function guifi_links_validate(&$edit,&$form) {
 
   guifi_log(GUIFILOG_TRACE,"function: guifi_links_validate()");
   guifi_log(GUIFILOG_FULL,"edit",$edit);
@@ -139,15 +139,12 @@ function guifi_links_validate(&$edit,$form) {
 //              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
               guifi_links_validate_recurse(
                 $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id],
-                $link_id,
+                $form,
                 $interface['interface_type'],
                 array(
-                  'radios',
                   $radio_id,
-                  'interfaces',
-                  $interface_id,'ipv4',
+                  $interface_id,
                   $ipv4_id,
-                  'links',
                   $link_id));
   }
   
@@ -160,31 +157,31 @@ function guifi_links_validate(&$edit,$form) {
             foreach ($ipv4['links'] as $link_id=>$link) {
 //              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
               guifi_links_validate_recurse(
-                $edit['interfaces'][$interface_id]['ipv4'][$ipv4_id],$link_id,
+                $edit['interfaces'][$interface_id]['ipv4'][$ipv4_id],
                 $form,
                 $interface['interface_type'],
                 array(
-                  'interfaces',
+                  null,
                   $interface_id,
-                  'ipv4',
                   $ipv4_id,
-                  'links',
                   $link_id));
   }
 }
 
-function guifi_links_validate_recurse(&$link,$form,$link_id,$interface_type,$parents = array()) {
+function guifi_links_validate_recurse(&$link,&$form,$interface_type,$parents = array()) {
 
-//    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
-
+    list($radio_id,$interface_id,$ipv4_id,$link_id) = $parents;
+    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
+    
     if ($link[links][$link_id]['new']==true) 
-    if (isset($link[links][$link_id][linked])) {
+    if (isset($link[links][$link_id]['linked'])) {
 
       // passat a guifi_device_save
 //      print "New Linked: \n<br />"; print_r($link);
 //      print "\n<br />";
       list($nid,$device_id,$radiodev_counter) = explode(',',$link[links][$link_id][linked]);
-      form_set_value(array('#parents'=>array_merge($parents,array('nid'))));
+
+//       form_set_value(array('#parents'=>array_merge($parents,array('nid'))));
       $link[links][$link_id][nid]=$nid;
       $link[links][$link_id][device_id]=$device_id;
       if ($link[links][$link_id][link_type] == 'wds') {
@@ -260,9 +257,11 @@ function guifi_links_validate_recurse(&$link,$form,$link_id,$interface_type,$par
       if (($item1[netstart] != $item2[netstart]) or ($item1[netend] != $item2[netend])) {
         if (($link[links][$link_id][link_type] == 'ap/client') or
            ($link[links][$link_id][link_type] == 'wds')) {
-          form_set_error(
-             array('#parents'=>array_merge($parents,array('netmask'))),
-             $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
+              form_set_error($form['links'][$link_id]['interface']['ipv4']['ipv4'],
+                $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
+//           form_set_error(
+//              array('#parents'=>array_merge($parents,array('netmask'))),
+//              $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
         }
       }
     }
