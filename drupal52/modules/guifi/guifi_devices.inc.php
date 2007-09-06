@@ -564,7 +564,7 @@ function guifi_edit_device_form_validate($form_id,$edit,$form) {
 
   // callback to device specific validation routines if there are
   if (function_exists('guifi_'.$edit['type'].'_validate'))
-    $form .= call_user_func('guifi_'.$edit['type'].'_validate',$edit);
+    call_user_func('guifi_'.$edit['type'].'_validate',$edit,$form);
 
   guifi_links_validate($edit,$form);
 }
@@ -983,12 +983,20 @@ function guifi_edit_device_interface_save($interface,$iid,$nid,&$to_mail) {
           array('id'=>$link['interface']['id'],
             'radiodev_counter'=>$link['interface']['radiodev_counter']),
             $link['interface'],$log,$to_mail);
-      if ($link['interface']['ipv4'])
+      if ($link['interface']['ipv4']) {
+        if ($ipv4['netmask'] != $link['interface']['ipv4']['netmask']) {
+          $log .= t('Netmask on remote link %nname - %type was adjusted to %mask',
+            array('%nname'=>guifi_get_hostname($llink['device_id']),
+              '%type'=>$interface['interface_type'],
+              '%mask'=>$ipv4['netmask']));
+          $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
+        }
         $ripv4 = _guifi_db_sql(
           'guifi_ipv4',
           array('id'=>$link['interface']['ipv4']['id'],
             'interface_id'=>$link['interface']['ipv4']['interface_id']),
             $link['interface']['ipv4'],$log,$to_mail);
+      }
       $link['id'] = $nllink['id'];
       $link['ipv4_id'] = $ripv4['id'];
       $link['interface_id'] = $rinterface['id'];

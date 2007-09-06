@@ -324,11 +324,9 @@ function _guifi_delete_ipv4(&$form,&$edit,$action) {
   guifi_log(GUIFILOG_TRACE,'function _guifi_delete_ipv4()',$action);
 
   if ($rk == '') {
-    print_r($edit['interfaces'][$ki]['ipv4'][$ka]);
     $ipv4 = $edit['interfaces'][$ki]['ipv4'][$ka];
   } else {
-    print "rk es nul $rk???";
-    $ipv4 = $edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka];
+//     $ipv4 = $edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka];
   }
   
   $fw = 0;

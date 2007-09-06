@@ -264,12 +264,16 @@ function _guifi_add_subnet(&$form,&$edit,$action) {
 /* _guifi_add_subnet_submit(): Action */
 function _guifi_add_subnet_submit(&$form,&$edit,$action) {
   $iid = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_subnet_submit(%d)',$iid));
+  if (empty($edit['newSubnetMask']))
+    return TRUE;
+  guifi_log(GUIFILOG_NONE,sprintf('function _guifi_add_subnet_submit(%d)',$iid));
+
+
 
 
   $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
   $net = guifi_get_subnet_by_nid($edit['nid'],$edit['newSubnetMask'],'public',$ips_allocated);
-  guifi_log(GUIFULOG_TRACE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['mewSubnetMask']);
+  guifi_log(GUIFULOG_NONE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['mewSubnetMask']);
   $ipv4['new']=true;
   $ipv4['ipv4']=guifi_ip_op($net);
   guifi_log(GUIFILOG_TRACE,"assigned IPv4: ".$ipv4['ipv4']);

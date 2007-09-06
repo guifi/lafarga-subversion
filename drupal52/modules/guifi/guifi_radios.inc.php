@@ -527,7 +527,7 @@ function guifi_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
 }
 
 /* guifi_radio_validate()): Validate radio, called as a hook while validating the form */
-function guifi_radio_validate($edit) {
+function guifi_radio_validate($edit,$form) {
   guifi_log(GUIFILOG_TRACE,"function _guifi_radio_validate()");
 
   if (!(empty($edit['mac']))) { 

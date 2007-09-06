@@ -125,7 +125,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
 function guifi_links_validate(&$edit,&$form) {
 
   guifi_log(GUIFILOG_TRACE,"function: guifi_links_validate()");
-  guifi_log(GUIFILOG_FULL,"edit",$edit);
+  guifi_log(GUIFILOG_FULL,"edit",$form);
 
   // Validating radio links
   if (isset($edit['radios']))
@@ -139,7 +139,7 @@ function guifi_links_validate(&$edit,&$form) {
 //              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
               guifi_links_validate_recurse(
                 $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id],
-                $form,
+                $form['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id],
                 $interface['interface_type'],
                 array(
                   $radio_id,
@@ -155,10 +155,9 @@ function guifi_links_validate(&$edit,&$form) {
         foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
           if (isset($ipv4['links']))
             foreach ($ipv4['links'] as $link_id=>$link) {
-//              print "Link: ".$key."\n<br />"; print_r($link); print "\n<br />";
               guifi_links_validate_recurse(
                 $edit['interfaces'][$interface_id]['ipv4'][$ipv4_id],
-                $form,
+                $form['interfaces'][$interface_id]['ipv4'][$ipv4_id],
                 $interface['interface_type'],
                 array(
                   null,
@@ -171,8 +170,16 @@ function guifi_links_validate(&$edit,&$form) {
 function guifi_links_validate_recurse(&$link,&$form,$interface_type,$parents = array()) {
 
     list($radio_id,$interface_id,$ipv4_id,$link_id) = $parents;
-    print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
-    
+//     drupal_set_message('Radio id: '.$radio_id);
+    if (is_null($radio_id))
+      $str_err = 'interfaces]['.$interface_id.'][ipv4][';
+    else
+      $str_err = 'radios]['.$radio_id.'][interfaces]['.$interface_id.'][ipv4][';
+
+
+      
+//     print "Link id: $link_id Interface_type: $interface_type $id_field\n<br />";
+
     if ($link[links][$link_id]['new']==true) 
     if (isset($link[links][$link_id]['linked'])) {
 
@@ -224,7 +231,7 @@ function guifi_links_validate_recurse(&$link,&$form,$interface_type,$parents = a
           }
 
           // if network was full, delete link
-          if ($link[ipv4] == null) {
+          if ($link[ipv4] == null) {                print_r($form);
             drupal_set_message(t('No networks where available for this node, link was not created, contact your network administrator.'),'error');
             unset($link[links][$link_id]);
             return;
@@ -245,20 +252,32 @@ function guifi_links_validate_recurse(&$link,&$form,$interface_type,$parents = a
     // validating same netmask
 //    print_r($link);
     if (($link[ipv4] != '' ) and ($link[links][$link_id]['interface'][ipv4][ipv4] != '') and (!$link[links][$link_id][deleted])) {
-      if ($link[netmask]  != $link[links][$link_id]['interface'][ipv4][netmask])
-      {
-        drupal_set_message(t('There was a distinct netmask at the link, netmask was adjusted (%mask1 -> %mask2)',
-          array('%mask1' => $link[links][$link_id]['interface'][ipv4][netmask],
-                '%mask2' => $link[netmask])));
-        $link[links][$link_id]['interface'][ipv4][netmask] = $link[netmask];
-      }
-      $item1 = _ipcalc($link[ipv4],$link[netmask]);
-      $item2 = _ipcalc($link[links][$link_id]['interface'][ipv4][ipv4],$link[links][$link_id]['interface'][ipv4][netmask]);
+      $item1 = _ipcalc($link['ipv4'],$link['netmask']);
+      $item2 = _ipcalc($link['links'][$link_id]['interface']['ipv4']['ipv4'],$link['netmask']);
       if (($item1[netstart] != $item2[netstart]) or ($item1[netend] != $item2[netend])) {
         if (($link[links][$link_id][link_type] == 'ap/client') or
            ($link[links][$link_id][link_type] == 'wds')) {
-              form_set_error($form['links'][$link_id]['interface']['ipv4']['ipv4'],
-                $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
+//               print_r($form['links'][$link_id]['interface']['ipv4']['ipv4']);
+//               drupal_set_message(t('Link ip addresses are not in the same subnet: '.$str_err));
+              form_set_error($str_err.$ipv4_id.'][links]['.$link_id.'][interface][ipv4][ipv4',
+                t('%ip1/%mask1 in %type link is not at the same subnet as %ip2/%mask2',
+                  array('%ip1'=>$link['ipv4'],
+                    '%mask1'=>$link['netmask'],
+                    '%type'=>$interface_type,
+                    '%ip2'=>$link['links'][$link_id]['interface']['ipv4']['ipv4'],
+                    '%mask2'=>$link['links'][$link_id]['interface']['ipv4']['netmask']))
+                );
+              form_set_error($str_err.$ipv4_id.'][ipv4',
+                t('%ip1/%mask1 in %type link is not at the same subnet as %ip2/%mask2',
+                  array('%ip2'=>$link['ipv4'],
+                    '%mask2'=>$link['netmask'],
+                    '%type'=>$interface_type,
+                    '%ip1'=>$link['links'][$link_id]['interface']['ipv4']['ipv4'],
+                    '%mask1'=>$link['links'][$link_id]['interface']['ipv4']['netmask']))
+                );
+//                 $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
+//               form_set_error($str_err.$ipv4_id.'][ipv4',
+//                  $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
 //           form_set_error(
 //              array('#parents'=>array_merge($parents,array('netmask'))),
 //              $link[ipv4].'/'.$link[netmask].'-'.$link[links][$link_id]['interface'][ipv4][ipv4].'/'.$link[links][$link_id]['interface'][ipv4][netmask].': '.t('Link ip addresses are not in the same subnet'));
