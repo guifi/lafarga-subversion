@@ -21,7 +21,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
   
   $f = array();           // Variable to store temporary form
   $interfaces_count = 0;  // Interfaces counter
-  $ipv4_count = 0;        // ipv4 addresses counter
+  $ipv4_count = array();  // ipv4 addresses counter
   $links_count = array(); // links counter
   $ilist = array();       // Per interface_type, stores the interface id's
   
@@ -43,7 +43,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
       if ($ipv4['deleted'])
         continue;
         
-      $ipv4_count++;
+      $ipv4_count[$it] ++;
       
       $links_count[$it] += guifi_link_ipv4_form(
         $f[$it][$ki]['ipv4'][$ka],
@@ -93,6 +93,10 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
       $title = $it;
     }
     
+    if ($ipv4_count[$it])
+       $title .= ' - '.$ipv4_count[$it].' '.t('address(es)');
+    
+        
     $form['interfaces'][$ilist[$it]] = array(
       '#type' => 'fieldset',
       '#title' => $title,
@@ -127,7 +131,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
   $form['interfaces']['#title'] .= ' - '.
     $interfaces_count.' '.t('interface(s)').' - '.
     array_sum($links_count).' '.t('link(s)').' - '.
-    $ipv4_count.' '.t('address(es)');
+    array_sum($ipv4_count).' '.t('address(es)');
     
   $form['interfaces']['NewInterfaceName'] = array(
     '#type'=>'select',
@@ -266,14 +270,17 @@ function _guifi_add_subnet_submit(&$form,&$edit,$action) {
   $iid = $action[2];
   if (empty($edit['newSubnetMask']))
     return TRUE;
-  guifi_log(GUIFILOG_NONE,sprintf('function _guifi_add_subnet_submit(%d)',$iid));
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_subnet_submit(%d)',$iid));
 
 
 
 
   $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
   $net = guifi_get_subnet_by_nid($edit['nid'],$edit['newSubnetMask'],'public',$ips_allocated);
-  guifi_log(GUIFULOG_NONE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['mewSubnetMask']);
+  guifi_log(GUIFULOG_TRACE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['newSubnetMask']);
+  drupal_set_message(t('New subnetwork %net/%mask will be allocated.',
+    array('%net'=>$net,
+      '%mask'=>$edit['newSubnetMask'])));
   $ipv4['new']=true;
   $ipv4['ipv4']=guifi_ip_op($net);
   guifi_log(GUIFILOG_TRACE,"assigned IPv4: ".$ipv4['ipv4']);
