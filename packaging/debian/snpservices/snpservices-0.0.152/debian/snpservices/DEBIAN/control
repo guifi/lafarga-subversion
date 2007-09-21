@@ -1,0 +1,15 @@
+Package: snpservices
+Version: 0.0.152-3
+Section: web
+Priority: optional
+Architecture: all
+Depends: debconf (>= 0.5) | debconf-2.0, httpd | apache2, php5, php5-cli, php5-gd, rrdtool, librrdp-perl, librrds-perl, mrtg, mrtg-rrd
+Installed-Size: 244
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Description: This software provides graph services in the context of the
+ Spontaneous Networkink Platform.
+ .
+ Uses nodexchange as a input format, and provides traffic and
+ latency/availability graphs in image format by using mrtg/rrdtool
+ collected history by simple HTTP URLs, therefore is easily
+ plugable to any web application.

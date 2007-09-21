@@ -1,0 +1,20 @@
+Format: 1.7
+Date: Tue, 18 Sep 2007 20:46:54 +0200
+Source: snpservices
+Binary: snpservices
+Architecture: source all
+Version: 0.0.152-3
+Distribution: unstable
+Urgency: low
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Changed-By: Carles Guadall Blancafort <carles@viladelpingui.net>
+Description: 
+ snpservices - This software provides graph services in the context of the
+Changes: 
+ snpservices (0.0.152-3) unstable; urgency=low
+ .
+   * Fixed bug in logrotate, first rotation forced during post installation
+Files: 
+ 77b5de96da012b2b01d65353669194d0 366 web optional snpservices_0.0.152-3.dsc
+ b41440d104d8729868e7d03b2e1c808a 6427 web optional snpservices_0.0.152-3.diff.gz
+ a97b4c0d7d2b667bb82305c76513f1a8 24284 web optional snpservices_0.0.152-3_all.deb

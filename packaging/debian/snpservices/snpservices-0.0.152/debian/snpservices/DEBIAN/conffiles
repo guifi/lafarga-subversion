@@ -1,0 +1,3 @@
+/etc/cron.d/snpservices
+/etc/logrotate.d/snpservices
+/etc/snpservices/config.php.template

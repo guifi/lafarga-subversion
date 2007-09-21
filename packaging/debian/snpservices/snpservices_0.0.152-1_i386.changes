@@ -1,0 +1,21 @@
+Format: 1.7
+Date: Fri, 17 Aug 2007 00:12:29 +0200
+Source: snpservices
+Binary: snpservices
+Architecture: source all
+Version: 0.0.152-1
+Distribution: unstable
+Urgency: low
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Changed-By: Carles Guadall Blancafort <carles@viladelpingui.net>
+Description: 
+ snpservices - This software provides graph services in the context of the
+Changes: 
+ snpservices (0.0.152-1) unstable; urgency=low
+ .
+   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+Files: 
+ eab16aba5923ee559605860d9fd7a157 366 web optional snpservices_0.0.152-1.dsc
+ 35f9dd5f553e3c4323110e1cec5fcd8a 31590 web optional snpservices_0.0.152.orig.tar.gz
+ 810262628d72a26a8a8f5dcf787411e9 6331 web optional snpservices_0.0.152-1.diff.gz
+ 04477c0fa1e55a2a60aef996a952b212 24164 web optional snpservices_0.0.152-1_all.deb
