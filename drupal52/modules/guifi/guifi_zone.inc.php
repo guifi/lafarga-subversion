@@ -1,6 +1,6 @@
 <?php
 // $Id: guifi.module x$
-
+//comentari **Eduard**
 /**
  * @file
  * Manage guifi_zone and guifi_networks
