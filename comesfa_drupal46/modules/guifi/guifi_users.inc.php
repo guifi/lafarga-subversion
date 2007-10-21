@@ -216,18 +216,38 @@ function guifi_edit_user_validate(&$edit) {
     form_set_error('old_pwd', t('Unable to submit changes: Password failure.'));
   }
 
+  if (empty($edit['firstname'])) {
+   form_set_error('firstname', t('Firstname field cannot be blank .'));
+  }
+  if (empty($edit['lastname'])) {
+   form_set_error('lastname', t('Lastname field cannot be blank .'));
+  }
+    
   if (!empty($edit['pwd1'])) 
   if ($edit['pwd1'] != $edit['pwd2']) {
     form_set_error('pwd1', t('Unable to set the password: Does not match.'));
   } 
 
-  if (!empty($edit['email']))
-  if (!valid_email_address($edit['email'])) {
+  if (!empty($edit['email'])) {
+  if (!valid_email_address($edit['email']))
     form_set_error('email', t('This is not a valid email address.'));
+  } else {
+    form_set_error('email', t('Email address field cannot be blank.'));
   }
  
   $edit['username'] = str_replace(" ",".",strtolower(guifi_to_7bits($edit['firstname'].'.'.$edit['lastname'])));
   
+  if (!empty($edit['username'])) {
+    $query = db_query("SELECT username, services FROM {guifi_users} WHERE username ='%s' AND id <> %d",$edit['username'], $edit['id']);
+    $proxy_id = db_fetch_object($query);
+    $services = unserialize($proxy_id->services);
+      if (db_num_rows($query)) {
+      $result = db_query("SELECT nick FROM {guifi_services} WHERE id = %d",$services['proxy']);
+      $proxy_name = db_fetch_object($result);
+    
+    form_set_error('username', t('The user ').$edit['username'].t(' is already taken on proxy: <a href="/node/'.$services['proxy'].'/">').$proxy_name->nick.' (http://www.guifi.net/node/' .$services['proxy']. ').</a>'. t(' If the user is a different person, please write the name in this format: In the field "Firstname" type proxy_name.user_name and in the field "Lastname", just type the the lastname. Example: Firstname: ausa.pol , Lastname: sucarrats. The result will be the username: ausa.pol.sucarrats'));
+      }
+  }
 }
 
 /**
