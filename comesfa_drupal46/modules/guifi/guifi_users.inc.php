@@ -383,7 +383,7 @@ function guifi_dump_passwd_return($node) {
   exit;
 }
 
-function guifi_dump_federated($node) {
+function _guifi_dump_federated($node) {
      
 // Llistem sempre els usuaris del proxy sobre el que treballem
     
@@ -421,8 +421,23 @@ if (is_array($node->var[fed]))
 	
      }
    
-  print $head;   // Resum dels proxys federats  
+/*  print $head;   // Resum dels proxys federats  
   print $dump;   // LLista de usuaris i passwords
+*/  
+  $output .= $head;// Resum dels proxys federats  
+  $output .= $dump;// LLista de usuaris i passwords
+  return $output;
+}
+
+function guifi_dump_federated($node) {
+  $output = _guifi_dump_federated($node);   
+  print $output;
+  exit;
+}
+
+function guifi_dump_federated_md5($node) {
+  $dump = _guifi_dump_federated($node);
+  print md5($dump);
   exit;
 }
 
