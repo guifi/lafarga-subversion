@@ -1,0 +1,10 @@
+Package: guifi-server
+Version: 0.0.1-1
+Architecture: all
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Installed-Size: 44
+Depends: webmin, snpservices, guifi-proxy, bind9, munin, munin-node, phpsysinfo
+Section: web
+Priority: optional
+Description: Guifi.net server virtual package
+ Virtual package for a Guifi.net server

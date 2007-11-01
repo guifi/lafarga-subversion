@@ -1,0 +1,12 @@
+Source: guifi-server
+Section: web
+Priority: optional
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Build-Depends: cdbs, debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: guifi-server
+Architecture: all
+Depends: ${misc:Depends},webmin, snpservices, guifi-proxy, bind9, munin, munin-node, phpsysinfo
+Description: Guifi.net server virtual package
+ Virtual package for a Guifi.net server

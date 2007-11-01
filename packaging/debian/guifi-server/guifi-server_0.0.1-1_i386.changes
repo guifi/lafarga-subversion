@@ -1,0 +1,32 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Format: 1.7
+Date: Wed, 31 Oct 2007 19:40:42 +0100
+Source: guifi-server
+Binary: guifi-server
+Architecture: source all
+Version: 0.0.1-1
+Distribution: unstable
+Urgency: low
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Changed-By: Carles Guadall Blancafort <carles@viladelpingui.net>
+Description: 
+ guifi-server - Guifi.net server virtual package
+Changes: 
+ guifi-server (0.0.1-1) unstable; urgency=low
+ .
+   * Initial release
+Files: 
+ 15f692231749cce09f11dfc3e3e8905c 599 web optional guifi-server_0.0.1-1.dsc
+ 5eb379bf34eee1addb01919518f402b0 122 web optional guifi-server_0.0.1.orig.tar.gz
+ a735477906cc8f2e4b5dc0f768433de8 6999 web optional guifi-server_0.0.1-1.diff.gz
+ e1282f82c9cd61b0061368007f64ee01 1678 web optional guifi-server_0.0.1-1_all.deb
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHKgaUvSQMXUGC0kgRAszMAJ92UHVQbAsX6Ug8n7e88/lt8M6wYwCfYXkg
+bMTby++u5khUbiYpsbvD10A=
+=iPtD
+-----END PGP SIGNATURE-----
