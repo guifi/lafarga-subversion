@@ -9,9 +9,16 @@
 
 /* main node (locations) hooks */
 /** guifi_node_access(): construct node permissions
- */
+ 
+  guifi_node_access($op:string,$node:Obj-node):boolean
+  globals
+    $user:Obj-user
+  functions
+    ???->user_access(p1:string):boolean
+*/
 function guifi_node_access($op, $node) {
   global $user; 
+  
   if ($op == 'create') {
     return user_access('create guifi nodes');
   }
@@ -20,15 +27,18 @@ function guifi_node_access($op, $node) {
     if ((user_access('administer guifi zones')) ||
      ($node->uid == $user->uid)) {
       return TRUE;
-    }
-    else {
+    } else {
       return FALSE;
     }
   }
 }
 
 /** guifi_node_add(): creates a new node
-**/
+
+  guifi_node_add($id:int):Void
+  functions
+    guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
+*/
 function guifi_node_add($id) {
   $zone = guifi_zone_load($id);
   // Set the defaults for a node of this zone
@@ -38,6 +48,8 @@ function guifi_node_add($id) {
 
 
 /** guifi_node_load(): load and constructs node array from the database
+
+  guifi_node_load($node:obj-node):obj-location
 **/
 function guifi_node_load($node) {
       return db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
@@ -47,8 +59,14 @@ function guifi_node_load($node) {
 **/
 
 /** guifi_node_form(): Present the node editing form.
- */
-function guifi_node_form(&$node, &$param) {
+ 
+  guifi_node_form($node:obj-node,$param:Not_use):form
+  globals
+    $user:Obj-user
+  functions
+    guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
+*/
+function guifi_node_form(&$node, &$param) {   //$node pasat per referencia a partir versio 5 de php tot es pasa per referencia no necesita &
   global $user;
 
   // A partir d'ara l'ordre el definirem per aquesta variable.
@@ -373,7 +391,11 @@ function guifi_node_form(&$node, &$param) {
 }
 
 /** _guifi_line_edit_device_form(): creates an url for editing the form
- */
+ 
+  _guifi_line_edit_device_form($id:int):form
+  globals
+    $form
+*/
 function _guifi_line_edit_device_form($id) {
   unset($form);
   $form['id'] = array('#type' => 'hidden', '#value' => $id);
@@ -382,6 +404,10 @@ function _guifi_line_edit_device_form($id) {
   return $form;
 }
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
+ 
+  guifi_node_validate($node:obj-node,$form:obj-form):void
+  functions
+    ???->guifi_validate_nick($nick:string):????
  */
 function guifi_node_validate($node,$form) {
   guifi_validate_nick($node->nick);
@@ -460,8 +486,13 @@ function guifi_node_validate($node,$form) {
   }
 
 }
-
+ 
 /** guifi_node_insert(): Create a new node in the database
+ 
+  guifi_node_insert($node:Obj-node):void
+  functions
+    ???->_guifi_db_sql(???):????
+    ???->guifi_notify(???):void
  */
 function guifi_node_insert($node) {
 
@@ -485,7 +516,13 @@ function guifi_node_insert($node) {
   cache_clear_all();
 }
 
-/** guifi_node_update(): Update a node in the database */
+/** guifi_node_update(): Update a node in the database
+ 
+  guifi_node_update($node:Obj-node):void
+  functions
+    ???->_guifi_db_sql(???):????
+    ???->guifi_notify(???):void
+*/
 function guifi_node_update($node) {
   
   $to_mail = explode(',',$node->notification);
@@ -521,6 +558,11 @@ function guifi_node_update($node) {
 
 
 /** guifi_node_delete(): deletes a given node
+ 
+  guifi_node_delete($node:Obj-node):void
+  functions
+    ???->_guifi_db_delete(???):????
+    ???->guifi_notify(???):void
 **/
 function guifi_node_delete(&$node) {
   
@@ -540,6 +582,10 @@ function guifi_node_delete(&$node) {
 /** node visualization (view) function calls */
 
 /** guifi_node_print_data(): outputs the node information (d)ata
+ 
+  guifi_node_print_data($node:Obj-node):array
+  functions
+    ???->user_access(p1:string):boolean
 **/
 function guifi_node_print_data($node) {
   
@@ -597,6 +643,11 @@ function guifi_node_print_data($node) {
 }
 
 /** guifi_node_view(): outputs the node information
+ 
+  guifi_node_view($node:obj-node*,$teaser:boolean,$page:boolean):obj-node*
+  functions
+    ???->node_load($node:obj-node):obj-node
+    ???->node_prepare($node:obj-node):obj-node
 **/
 function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
 
@@ -690,6 +741,14 @@ function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
 }
 
 /** guifi_node_radio_list(): list of node devices
+ 
+  guifi_node_radio_list($id:int):form
+  functions
+    ???->guifi_get_device(???):????
+    ???->guifi_availabilitystr(???):????
+    ???->guifi_device_access(???):????
+    ???->guifi_main_ip(???):????
+    ???->guifi_node_get_url_mrtg(???):????
 **/
 function guifi_node_radio_list($id = 0) {
   
@@ -733,6 +792,12 @@ function guifi_node_radio_list($id = 0) {
 }
 
 /** guifi_node_print_distances(): list of neighbors
+ 
+  guifi_node_distances($id:int,$edit:???):form
+  functions
+    ???->guifi_log(???):????
+    ???->node_load(???):????
+    ???->guifi_devices_select_filter(???):????
 **/
 function guifi_node_distances($id,$edit = NULL) {
   global $base_url;
@@ -979,6 +1044,9 @@ function guifi_node_distances($id,$edit = NULL) {
 }
 
 /** guifi_node_link_list(): list of node links
+ 
+  guifi_node_link_list($id:int,$ltype:???):form
+  functions
 **/
 function guifi_node_link_list($id = 0, $ltype = '%') {
   $oGC = new GeoCalc();
