@@ -262,7 +262,7 @@ function guifi_get_device($id,$ret = 'array') {
 }
 
 /* guifi_edit_device_form(): Present the guifi device main editing form. */
-function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = null) {
+function guifi_edit_device_form($id = null, $nid = null, $type = null, $edit = null) {
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form()');
@@ -270,17 +270,12 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
 
   
   // Check permissions
-  if ($id)
-  if (!guifi_device_access('update',$id))
-  {
-    drupal_set_message(t('You are not authorized to edit this device','error'));
-    return;
+  if ($id){
+    if (!guifi_device_access('update',$id)){
+      drupal_set_message(t('You are not authorized to edit this device','error'));
+      return;
+    }
   }
-
-  // Initializing the form
-  $form['#multistep'] = TRUE;
-  if ($id != null)
-    $form['#redirect'] = FALSE;
 
 
 //  if (is_null($edit))
@@ -296,10 +291,12 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
 
 
   // Loading the device if is not yet (is not a callback, just begining the edit flow)
-  if ($id != null) 
-  if ($edit == null)  
-    $edit = guifi_get_device($id);
-
+  if ($id != null){ 
+    if ($edit == null){  
+      $edit = guifi_get_device($id);
+    }
+  }
+  
   // if new device, initializing variables
   if (($edit['nid'] == null) && ($nid != null)) {
     $edit['nid'] = $nid;
@@ -340,9 +337,11 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
     $edit['nick'] = $node->nick.ucfirst(guifi_trim_vowels($edit['type'])).($devs->count + 1);
   }
 
+  // Initializing the form
   $form['#multistep'] = TRUE;
-  if ($id != null)
+  if ($id != null){
     $form['#redirect'] = FALSE;
+  }
 
   // Set the title of the form page
   // Look if there is any action to take
@@ -362,11 +361,11 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
   $form_weight = -20;
   guifi_form_hidden($form,$edit);
 
-  if ($nid != null)
+  if ($nid != null){
     drupal_set_title(t('adding a new device at %node',array('%node' => $node->nick)));
-  else
+  } else {
     drupal_set_title(t('edit device %dname',array('%dname' => $edit['nick'])));
-   
+  } 
 
   // All preprocess is complete, now going to execute the form
   // Now going to construct the form
@@ -419,11 +418,12 @@ function guifi_edit_device_form($id = null, $nid = null, $type = null,&$edit = n
     );
   }
 
-  if (function_exists('guifi_'.$edit['type'].'_form'))
+  if (function_exists('guifi_'.$edit['type'].'_form')){
     $form = array_merge($form,
       call_user_func('guifi_'.$edit['type'].'_form',
       $edit,
       $form_weight));
+  }
 
   // Cable interfaces/links
   guifi_interfaces_form($form['if'],$edit,$form_weight = 2);

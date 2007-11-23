@@ -1516,5 +1516,30 @@ function guifi_notify_send() {
      db_query("DELETE FROM {guifi_notify}
        WHERE id in (".implode(',',array_keys($messages)).")");
 }
+/** converteix les coordenades de graus,minuts i segons a graus amb decimals
+ *  guifi_coord_dmstod($deg:int,$min:int,$seg:min):float or NULL
+*/
+function guifi_coord_dmstod($deg,$min,$seg){
+  $res=NULL;
+  if ($deg != NULL){$res = $deg;}
+  if ($min != NULL){$res = $res + ($min / 60);}
+  if ($seg != NULL){$res = $res + ($seg / 3600);}
+  return $res;
+}
+/** converteix les coordenades de graus amb decimals a graus,minuts i segons
+ *  guifi_coord_dmstod($deg:float):array($deg:int,$min:int,$seg:int) or NULL
+*/
+function guifi_coord_dtodms($coord){
+  if($coord!=NULL){
+    $deg = floor($coord);
+    $min = (($coord - floor($coord)) * 60);
+    $seg = round(($min - floor($min)) * 60,4);
+    $min = floor($min);
+    $res=array($deg,$min,$seg);
+  } else {
+    $res=NULL;
+  }
+  return $res;
+}
 
 ?>
