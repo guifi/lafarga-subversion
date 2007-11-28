@@ -316,7 +316,7 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT-whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
-
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
 --
 -- antenna types
 --

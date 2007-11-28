@@ -1,4 +1,4 @@
-<?
+<?php
 // $Id: field_table.inc,v 1.3 2004/07/23 07:51:27 chx Exp $
 function flexinode_field_table_name($field) {
   return t('table');

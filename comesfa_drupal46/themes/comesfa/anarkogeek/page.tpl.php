@@ -7,10 +7,19 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <?php print $head ?>
   <?php print $styles ?>
+  
+  <!--[if IE]>
+    <style type="text/css">
+      @import "<?php print drupal_get_path('theme', 'anarkogeek' ); ?>/ie7-fixes.css";</style>
+  <![endif]-->
+
+  
   <script type="text/javascript"> </script>
 </head>
 <body>
-<br<?php print theme("onload_attribute"); ?>><div class="bw1"><div class="bw2"><div id="body-wrap">
+<br>
+<?php print theme("onload_attribute"); ?>
+<div class="bw1"><div class="bw2"><div id="body-wrap">
 
 <div id="header"><div class="hw1"><div class="hw2">
   <?php if ($logo): ?>

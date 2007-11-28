@@ -1,4 +1,4 @@
-<?
+<?php
 function form_colorpicker($title, $name, $value, $description = NULL, $required = FALSE) {
 	static $colorpickerjs = NULL;
 	
