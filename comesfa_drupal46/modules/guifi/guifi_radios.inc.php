@@ -215,8 +215,8 @@ function guifi_radio_form(&$edit) {
 
     // if net admin or device/node owner, edit allowed
     if ((user_access('administer guifi networks')) || 
-        (guifi_get_deviceuser($edit['user_created'] == $user->uid)) || 
-        (guifi_get_nodeuser($edit['nid'] == $user->uid)))
+        (guifi_get_deviceuser($edit['id'] == $user->uid)) || 
+        (guifi_get_nodeuser($edit['nid'] == $user->uid)));
       $rows[] = array(array('data'=>form_button(t('Edit selected'), 'op').form_button(t('Delete selected'), 'op'),'colspan'=>8));
 
 
