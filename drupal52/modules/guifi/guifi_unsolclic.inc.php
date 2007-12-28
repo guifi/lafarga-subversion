@@ -265,7 +265,7 @@ function guifi_unsolclic_if($id, $itype) {
   return db_fetch_object(db_query("SELECT i.id, a.ipv4, a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=0 WHERE device_id = %d AND interface_type = '%s' LIMIT 1",$id,$itype));
 }
 
-function guifi_get_alchemy_ifs($dev) {
+function guifi_get_alchemy_ifs( $dev ) {
   $ifs = array (
            'wLan/Lan' => 'br0',
            'wLan' => 'br0',
