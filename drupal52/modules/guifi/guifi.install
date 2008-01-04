@@ -332,11 +332,13 @@ function guifi_install() {
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'DD-WRT',   'DD-WRT from BrainSlayer','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2');");
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'DD-guifi', 'DD-guifi from Miquel Martos','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'RouterOSv2.9', 'RouterOS 2.9 from Mikrotik','Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
+
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'RouterOSv3.0', 'RouterOS 3.0 from Mikrotik','Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
+
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT-whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
      db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
-     db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');";
-     db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');";
+     db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
+     db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
 
      // --
      // -- antenna types
