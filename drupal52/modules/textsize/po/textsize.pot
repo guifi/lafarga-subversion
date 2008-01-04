@@ -1,0 +1,150 @@
+#: $Id: textsize.pot,v 1.1.1.3 2007/12/03 22:26:50 christianzwahlen Exp $
+msgid ""
+msgstr ""
+"Project-Id-Version: textsize\n"
+"POT-Creation-Date: 2007-09-15 18:15+0200\n"
+"Last-Translator: Zwahlen\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Poedit-Language: German\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: textsize.info:3
+msgid "Display a text size changer on the page for better web accessibility."
+msgstr ""
+
+#: textsize.module:16
+msgid "This module display a text size changer in a block for better web accessibility. The module is a complete <abbr title=\"PHP: Hypertext Preprocessor\">PHP</abbr> module and use no JavaScript or <abbr title=\"MySQL\">MySQL</abbr>. Cookies are required, for saving the style in old browsers."
+msgstr ""
+
+#: textsize.module:17
+msgid "Features"
+msgstr ""
+
+#: textsize.module:18
+msgid "<li>No Javascript required.</li><li>No <abbr xml:lang=\"en\" title=\"Cascading Style Sheet\"  lang=\"en\">CSS</abbr> required.</li><li>No images in the code (<abbr xml:lang=\"en\" title=\"Cascading Style Sheet\" lang=\"en\">CSS</abbr> generated), only one link text (for example \"Increase\").</li><li>Uniform markin of menu, based on the open source browser <a href=\"http://www.mozilla.com/en-US/firefox/\">Firefox 2.0</a>.</li><li><abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> images for new browsers and <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> images for old browsers (Internet Explorer 6).</li>"
+msgstr ""
+
+#: textsize.module:20
+msgid "The <abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> and <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> images are in the directory \"/modules/textsize/images/\" and the source file in \"/modules/textsize/images/source/\"."
+msgstr ""
+
+#: textsize.module:20
+msgid "Screen readers can anymore read the text link."
+msgstr ""
+
+#: textsize.module:22
+msgid "Advanced settings"
+msgstr ""
+
+#: textsize.module:23
+msgid "Percentage by which each click increases/decreases the text size. The default increases/decreases step is 10&#037; and the value have to be between 1-50&#037; and a number."
+msgstr ""
+
+#: textsize.module:23
+msgid "The default normal text size is 100&#037;. The value have to be between 10-200&#037; and a number."
+msgstr ""
+
+#: textsize.module:23
+msgid "Important information"
+msgstr ""
+
+#: textsize.module:23
+msgid "If you are using a theme with \"font-size 0.9em\" in the CSS (like the garland theme), set the text size normal to 90%."
+msgstr ""
+
+#: textsize.module:33
+msgid "administer textsize"
+msgstr ""
+
+#: textsize.module:33
+msgid "access textsize content"
+msgstr ""
+
+#: textsize.module:44
+msgid "Text Size"
+msgstr ""
+
+#: textsize.module:45
+msgid "Settings for display and values."
+msgstr ""
+
+#: textsize.module:59
+msgid "Increase"
+msgstr ""
+
+#: textsize.module:60
+msgid "Decrease"
+msgstr ""
+
+#: textsize.module:61
+msgid "Normal"
+msgstr ""
+
+#: textsize.module:65
+msgid "Global settings"
+msgstr ""
+
+#: textsize.module:71
+msgid "Show or hide description in the links"
+msgstr ""
+
+#: textsize.module:72
+msgid "By hide text in the links, it shows only the logos in a line."
+msgstr ""
+
+#: textsize.module:74
+msgid "Show text in the links"
+msgstr ""
+
+#: textsize.module:75
+msgid "Hide text in the links"
+msgstr ""
+
+#: textsize.module:81
+msgid "Show or hide current text size"
+msgstr ""
+
+#: textsize.module:82
+msgid "By hide current text size, it shows no text and code."
+msgstr ""
+
+#: textsize.module:84
+msgid "Show current text size"
+msgstr ""
+
+#: textsize.module:85
+msgid "Hide current text size"
+msgstr ""
+
+#: textsize.module:97
+msgid "Increases/decreases step"
+msgstr ""
+
+#: textsize.module:106
+msgid "Text Size Normal"
+msgstr ""
+
+#: textsize.module:125
+msgid "Please enter a number in \"Text Size Normal\"."
+msgstr ""
+
+#: textsize.module:129
+msgid "Default font size setting should between 10-200&#037;."
+msgstr ""
+
+#: textsize.module:133
+msgid "Please enter a number in \"Increases/decreases step\"."
+msgstr ""
+
+#: textsize.module:136
+msgid "Increase/decreases steps value setting should between 1-50&#037;."
+msgstr ""
+
+#: textsize.module:153
+msgid "Current Size"
+msgstr ""

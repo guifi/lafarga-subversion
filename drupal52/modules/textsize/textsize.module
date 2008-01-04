@@ -1,0 +1,304 @@
+<?php
+// $Id: textsize.module,v 1.1.1.2 2007/12/03 22:06:35 christianzwahlen Exp $
+
+/**
+ * @file
+ * Display a text size changer on the page for better web accessibility.
+ */
+
+/**
+ * Implementation of hook_help().
+ */ 
+function textsize_help($section='') {
+  $output = '';
+  switch ($section) {
+    case 'admin/help#textsize':
+      $output='<p>'. t('This module display a text size changer in a block for better web accessibility. The module is a complete <abbr title="PHP: Hypertext Preprocessor">PHP</abbr> module and use no JavaScript or <abbr title="MySQL">MySQL</abbr>. Cookies are required, for saving the style in old browsers.') .'</p>';
+      $output .='<h3>'. t('Features') .'</h3>';
+      $output .='<ul>'. t('<li>No Javascript required.</li><li>No <abbr xml:lang="en" title="Cascading Style Sheet"  lang="en">CSS</abbr> required.</li><li>No images in the code (<abbr xml:lang="en" title="Cascading Style Sheet" lang="en">CSS</abbr> generated), only one link text (for example "Increase").</li><li>Uniform markin of menu, based on the open source browser <a href="http://www.mozilla.com/en-US/firefox/">Firefox 2.0</a>.</li><li><abbr lang="en" xml:lang="en" title="Portable Network Graphics">PNG</abbr> images for new browsers and <abbr lang="en" xml:lang="en" title="Graphic Interchange Format">GIF</abbr> images for old browsers (Internet Explorer 6).</li>') .'</ul>';
+      $output .='<h3>'. t('Global settings') .'</h3>';
+      $output .='<p>'. t('Show or hide description in the links') .': '. t('By hide text in the links, it shows only the logos in a line.') .' '. t('Screen readers can anymore read the text link.') .'</p><p>'. t('The <abbr lang="en" xml:lang="en" title="Portable Network Graphics">PNG</abbr> and <abbr lang="en" xml:lang="en" title="Graphic Interchange Format">GIF</abbr> images are in the directory "/modules/textsize/images/" and the source file in "/modules/textsize/images/source/".') .'</p>';
+      $output .='<p>'. t('Show or hide current text size') .': '. t('By hide current text size, it shows no text and code.') .'</p>';
+      $output .='<h3>'. t('Advanced settings') .'</h3>';
+      $output .='<p>'. t('Increases/decreases step') .': '. t('Percentage by which each click increases/decreases the text size. The value have to be between 1-50&#037; and a number.') .'</p><p>'. t('Text Size Normal') .': '. t('The default normal text size is 100&#037;. The value have to be between 10-200&#037; and a number.') .' <strong>'. t('Important information') .':</strong> '. t('If you are using a theme with "font-size 0.9em" in the CSS (like the garland theme), set the text size normal to 90%.') .'</p>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function textsize_perm() {
+  return array('administer textsize', 'access textsize content');
+}
+
+/**
+ *  Implementation of hook_menu()
+ */
+function textsize_menu($may_cache) {
+  $items = array();
+  if ($may_cache) {
+    $items[] = array(
+      'path' => 'admin/settings/textsize',
+      'title' => t('Text Size'),
+      'description' => t('Settings for display and values.'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('textsize_admin_settings'),
+      'access' => user_access('administer textsize')
+    );
+  }
+  return $items;
+}
+
+/**
+ *  Administration page (menu callback)
+ */
+function textsize_admin_settings() {
+  $textsize = array( 
+    'increase' => t('Increase'),
+    'decrease' => t('Decrease'),
+    'normal' => t('Normal')
+  );
+  $form['textsize'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Global settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['textsize']['textsize_list'] = array(
+    '#type' => 'radios',
+    '#title' => t('Show or hide description in the links'),
+    '#description' => t('By hide text in the links, it shows only the logos in a line.'),
+    '#options' => array(
+      t('Show text in the links'),
+      t('Hide text in the links')
+    ),
+    '#default_value' => variable_get('textsize_list', 0) // default to show text links.
+  );
+  $form['textsize']['textsize_current'] = array(
+    '#type' => 'radios',
+    '#title' => t('Show or hide current text size'),
+    '#description' => t('By hide current text size, it shows no text and code.'),
+    '#options' => array(
+      t('Show current text size'),
+      t('Hide current text size')
+  ),
+    '#default_value' => variable_get('textsize_current', 0) // default to show current text size.
+  );
+  $form['textsize_adv'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced settings'),
+    '#collapsible' => true,
+    '#collapsed' => true,
+  );
+  $form['textsize_adv']['textsize_increment'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Increases/decreases step'),
+    '#default_value' => variable_get('textsize_increment', 10),
+    '#size' => 2,
+    '#field_suffix' => t('%'),
+    '#maxlength' => 2,
+    '#description' => t("Percentage by which each click increases/decreases the text size. The default increases/decreases step is 10&#037; and the value have to be between 1-50&#037; and a number.")
+  );
+  $form['textsize_adv']['textsize_normal'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text Size Normal'),
+    '#default_value' => variable_get('textsize_normal', 100),
+    '#size' => 3,
+    '#field_suffix' => t('%'),
+    '#maxlength' => 3,
+    '#description' => t("The default normal text size is 100&#037;. The value have to be between 10-200&#037; and a number.")
+  );
+
+  $form['#validate'] = array(
+    'textsize_admin_settings_validate' => array()
+  );
+  return system_settings_form($form);
+}
+
+/**
+ *  Validate the administration form with drupal_validate_form
+ */
+function textsize_admin_settings_validate($form, &$form_state) {
+  if (!is_numeric($form_state['textsize_normal'])) {
+    form_set_error('textsize_normal', t('Please enter a number in "Text Size Normal".'));
+  }
+  // 'values'
+  if ($form_state['textsize_normal'] < 10 || $form_state['textsize_normal'] > 200) {
+    form_set_error($prefix .'_default', t('Default font size setting should between 10-200&#037;.'));
+  }
+
+  if (!is_numeric($form_state['textsize_increment'])) {
+    form_set_error('textsize_increment', t('Please enter a number in "Increases/decreases step".'));
+  }
+  if ($form_state['textsize_increment'] <= 0 || $form_state['textsize_increment'] > 50) {
+    form_set_error('textsize_increment', t('Increase/decreases steps value setting should between 1-50&#037;.'));
+  }
+}
+
+/**
+ * Generate HTML for the block
+ */
+function textsize_block($op='list', $delta=0) {
+$textsize_list = variable_get('textsize_list', 0);
+$textsize_current = variable_get('textsize_current', 0);
+$textsize_normal = variable_get('textsize_normal', 100);
+$textsize_increment = variable_get('textsize_increment', 10);
+$textsize = array( 
+    'increase' => t('Increase'),
+    'decrease' => t('Decrease'),
+    'normal' => t('Normal')
+);
+$current = array( 'text' => t('Current Size'));
+$prefix = array( 'title' => t('Text Size'));
+
+switch($textsize_list) {
+case 0:
+    $textsize_hidden = "";
+    $textsize_inline = "";
+    break;
+    case 1:
+    $textsize_hidden = "display_hidden";
+    $textsize_inline = "_inline";
+    break;
+    case 2:
+    $textsize_hidden = "display_hidden";
+    $textsize_inline = "_inline";
+    break;
+    default:
+    $textsize_hidden = "";
+    $textsize_inline = "";
+    break;
+}
+  if ($op == "list") {
+    $block[0]["info"] = t("Text Size");
+    return $block;
+
+  } 
+  else if ($op == 'view') {
+    if (user_access('access textsize content')) {
+$textsize_link1 = '<a title="'. $prefix['title'] .': '. $textsize['increase'] .'" class="icon textsize_increase" href="'. $_SERVER['PHP_SELF'] .'?textsize=+'. $textsize_increment .'" ><span class="'. $textsize_hidden .'">'. $textsize['increase'] .'</span></a>';
+$textsize_link2 = '<a title="'. $prefix['title'] .': '. $textsize['decrease'] .'" class="icon textsize_decrease" href="'. $_SERVER['PHP_SELF'] .'?textsize=-'. $textsize_increment .'" ><span class="'. $textsize_hidden .'">'. $textsize['decrease'] .'</span></a>';
+$textsize_link3 = '<a title="'. $prefix['title'] .': '. $textsize['normal'] .'" class="icon textsize_normal" href="'. $_SERVER['PHP_SELF'] .'?textsize_normal='. $textsize_normal .'" ><span class="'. $textsize_hidden .'">'. $textsize['normal'] .'</span></a>';
+
+if(isset($_COOKIE['textsize'])) { $textsize = $_COOKIE['textsize'];
+} 
+else {$textsize = $textsize_normal;
+}
+switch($textsize_current) {
+    case 0:
+    $textsize_current_content = '<p class="ts_clearleft">'. $current['text'] .': '. $textsize .'%</p>';
+    break;
+    case 1:
+    $textsize_current_content = '';
+    break;
+    default:
+    $textsize_current_content = '<p class="ts_clearleft">'. $current['text'] .': '. $textsize .'%</p>';
+    break;
+}
+$textsize_html = '<ul class="textsize'. $textsize_inline .'">
+<li>'. $textsize_link1 .'</li>
+<li>'. $textsize_link2 .'</li>
+<li>'. $textsize_link3 .'</li>
+</ul>'. $textsize_current_content .'<div class="ts_clearleft"></div>';
+
+$block_content = $textsize_html;
+    // set up the block
+    $block['subject'] = t('Text Size');
+    $block['content'] = $block_content;
+    return $block;
+    }
+  }
+}
+
+/**
+ * Set the cookie
+ */
+function textsize_setcookie($ps1) {
+$referer = $_SERVER['HTTP_REFERER'];
+setcookie("textsize", $ps1, time()+31536000, "/", "");
+}
+
+/**
+ * Check if is set a cookie
+ */
+function textsize_ifcookie() {
+$referer = $_SERVER['HTTP_REFERER'];
+$textsize_normal = variable_get('textsize_normal', 100);
+  if (isset($_COOKIE['textsize'])) {
+  } 
+  else {
+    textsize_setcookie($textsize_normal);
+  }
+}
+textsize_ifcookie();
+
+/**
+ * Handle the user specific settings.
+ */
+function textsize_user() {
+$textsize = $_COOKIE['textsize'];
+$textsize_normal = variable_get('textsize_normal', 100);
+$textsize_increment = variable_get('textsize_increment', 10);
+$referer = $_SERVER['HTTP_REFERER'];
+// $textsize_array = array($textsize_normal, $textsize_increment, "+10", "-10");
+$set = $_GET["textsize"];
+
+  if ($_GET["textsize"]) {
+    $set = $textsize + $_GET["textsize"] ;
+    textsize_setcookie($set);
+    header("Location: $referer");
+  }
+  else if ($_GET["textsize_normal"]) {
+    $set = $textsize_normal ;
+    textsize_setcookie($set);
+    header("Location: $referer");
+  }
+}
+textsize_user();
+
+/** 
+ * Print HTMl code in the head
+ */
+function textsize_printhtml() {
+$host  = $_SERVER['HTTP_HOST'];
+$uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+//global $textsize;
+$textsize_normal = variable_get('textsize_normal', 100);
+$pagestyle = array( 
+    'ablack_white' => t("aBlack/White"),
+    'white_black' => t('White/Black'),
+    'yellow_blue' => t('Yellow/Blue'),
+    'standard' => t('Standard')
+);
+if (isset($_COOKIE['textsize'])) {
+$textsize = $_COOKIE['textsize'];
+$textsize_head = '<style type="text/css" media="screen, projection, tty, tv, print">
+<!--
+/* <![CDATA[ */
+body { 
+  font-size: '. $textsize .'% !important;
+}
+/* ]]>*/
+-->
+</style>';
+
+drupal_set_html_head($textsize_head);
+} 
+else {
+$textsize = $textsize_normal;
+$textsize_head = '<style type="text/css" media="screen, projection, tty, tv, print">
+<!--
+/* <![CDATA[ */
+body {
+  font-size: '. $textsize .'% !important;
+}
+/* ]]>*/
+-->
+</style>';
+drupal_set_html_head($textsize_head);
+}
+drupal_add_css(drupal_get_path('module', 'textsize') .'/textsize.css');
+}
+textsize_printhtml();

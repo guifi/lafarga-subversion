@@ -1,0 +1,118 @@
+/* $Id: textsize.css,v 1.1.1.2 2007/12/03 22:04:42 christianzwahlen Exp $ */
+
+.icon,
+a.icon,
+a.icon:link,
+a.icon:visited,
+a.icon:hover,
+a.icon:active {
+  padding: 3px 4px 3px 23px;
+  margin: 0px;
+}
+
+ul.textsize_inline li a:link,
+ul.textsize_inline li a:visited,
+ul.textsize_inline li a:hover,
+ul.textsize_inline li a:active {
+  display: block;
+  float: left;
+  height: 16px;
+}
+
+ul.textsize li a:link,
+ul.textsize li a:visited,
+ul.textsize li a:hover,
+ul.textsize li a:active {
+  display: block;
+  float: none;
+  height: 16px;
+}
+/* list */
+ul.textsize_inline li {
+  display: inline;
+  list-style-type: none;
+  list-style-image: none !important; /* fix for zen theme */
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  clear: right;
+}
+
+ul.textsize li {
+  list-style-type: none;
+  list-style-image: none !important; /* fix for zen theme */
+  background: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+/* images */
+ul.textsize_inline li img {
+  height: 1em;
+}
+a.textsize_increase,
+a.textsize_increase:visited {
+  background: transparent url("images/increase.gif") no-repeat 0 0 !important;  
+}
+a.textsize_decrease,
+a.textsize_decrease:visited {
+  background: transparent url("images/decrease.gif") no-repeat 0 0 !important;
+}
+a.textsize_normal,
+a.textsize_normal:visited {
+  background: transparent url("images/normal.gif") no-repeat 0 0 !important;
+}
+
+a.textsize_increase:hover {
+  background: transparent url("images/increase.gif") no-repeat 0 -100px !important;
+}
+a.textsize_decrease:hover {
+  background: transparent url("images/decrease.gif") no-repeat 0 -100px !important;
+}
+a.icon.textsize_normal:hover {
+  background: transparent url("images/normal.gif") no-repeat 0 -100px !important;
+}
+
+.display_hidden {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
+  display: none;
+}
+
+/* Hacks. Images not for IE 5.5 and Opera 6 */
+head:first-child+body a.textsize_increase,
+head:first-child+body a.textsize_increase:visited {
+  voice-family:"\"}\"";
+  voice-family:inherit;
+  background: transparent url("images/increase.png") no-repeat 0 0 !important;
+}
+head:first-child+body a.textsize_decrease,
+head:first-child+body a.textsize_decrease:visited {
+  voice-family:"\"}\"";
+  voice-family:inherit;
+  background: transparent url("images/decrease.png") no-repeat 0 0 !important;
+}
+head:first-child+body a.textsize_normal,
+head:first-child+body a.textsize_normal:visited {
+  voice-family:"\"}\"";
+  voice-family:inherit;
+  background: transparent url("images/normal.png") no-repeat 0 0 !important;
+}
+
+head:first-child+body a.textsize_increase:hover  {
+  background: transparent url("images/increase.png") no-repeat 0 -100px !important;
+}
+head:first-child+body a.textsize_decrease:hover {
+  background: transparent url("images/decrease.png") no-repeat 0 -100px !important;
+}
+head:first-child+body a.icon.textsize_normal:hover {
+  background: transparent url("images/normal.png") no-repeat 0 -100px !important;
+}
+
+.ts_clearleft {
+  clear: left;
+}

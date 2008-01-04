@@ -1,0 +1,13 @@
+
+Subscriptions Module Road Map
+------------------------------------------------
+
+This is a tentative list where I'm thinking of taking this module in the future
+
+Drupal 5+
+  * depreciate non-cron sending
+  * teaser handling
+  * catch node updates 
+  * permisions to control what kinds of things can be subscribed to
+  * probably depreciate blog subscriptions in favor of content types
+  * improve variable naming

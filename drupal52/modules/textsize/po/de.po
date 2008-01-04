@@ -1,0 +1,150 @@
+#: $Id: de.po,v 1.1.1.3 2007/12/03 22:28:35 christianzwahlen Exp $
+msgid ""
+msgstr ""
+"Project-Id-Version: de\n"
+"POT-Creation-Date: 2007-09-14 18:15+0200\n"
+"Last-Translator: Zwahlen\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Poedit-Language: German\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: textsize.info:3
+msgid "Display a text size changer on the page for better web accessibility."
+msgstr "Zeigt für die bessere Web-Zugänglichkeit einen Schriftgrad Wechsler auf der Seite an."
+
+#: textsize.module:16
+msgid "This module display a text size changer in a block for better web accessibility. The module is a complete <abbr title=\"PHP: Hypertext Preprocessor\">PHP</abbr> module and use no JavaScript or <abbr title=\"MySQL\">MySQL</abbr>. Cookies are required, for saving the style in old browsers."
+msgstr "Dieses Modul stellt für eine bessere Web-Zugänglichkeit einen Schriftgrad Wechsler in einem Block dar. Das Modul ist ein komplettes <abbr xml:lang=\"en\" lang=\"en\" title=\"PHP: Hypertext Preprocessor\">PHP</abbr> Modul und verwendet kein <span xml:lang=\"en\" lang=\"en\">JavaScript</span> oder <abbr xml:lang=\"en\" lang=\"en\" title=\"MySQL\">MySQL</abbr>. Cookies sind erforderlich, um die Stile in alten Browsern zu speichern."
+
+#: textsize.module:17
+msgid "Features"
+msgstr "Eigenschaften"
+
+#: textsize.module:18
+msgid "<li>No Javascript required.</li><li>No <abbr xml:lang=\"en\" title=\"Cascading Style Sheet\"  lang=\"en\">CSS</abbr> required.</li><li>No images in the code (<abbr xml:lang=\"en\" title=\"Cascading Style Sheet\" lang=\"en\">CSS</abbr> generated), only one link text (for example \"Increase\").</li><li>Uniform markin of menu, based on the open source browser <a href=\"http://www.mozilla.com/en-US/firefox/\">Firefox 2.0</a>.</li><li><abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> images for new browsers and <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> images for old browsers (Internet Explorer 6).</li>"
+msgstr "<li>Kein Javascript erforderlich.</li><li>Kein <abbr xml:lang=\"en\" title=\"Cascading Style Sheet\" lang=\"en\">CSS</abbr> erforderlich.</li><li>Keine Bilder im Quellcode (<abbr xml:lang=\"en\" title=\"Cascading Style Sheet\" lang=\"en\">CSS</abbr> generiert), nur ein Linktext (beispielsweise \"Vergrössern\").</li><li> Einheitliche Menü Beschriftung, basierend auf dem quelloffenem <span lang=\"en\" xml:lang=\"en\">Browser</span> <a href=\"http://www.mozilla.com/en-US/firefox/\">Firefox 2.0</a>.</li><li><abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> Bilder für neue <span lang=\"en\" xml:lang=\"en\">Browser</span> und <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> Bilder für alte <span lang=\"en\" xml:lang=\"en\">Browser</span> (Internet Explorer 6).</li>"
+
+#: textsize.module:20
+msgid "The <abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> and <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> images are in the directory \"/modules/textsize/images/\" and the source file in \"/modules/textsize/images/source/\"."
+msgstr "Die <abbr lang=\"en\" xml:lang=\"en\" title=\"Portable Network Graphics\">PNG</abbr> und <abbr lang=\"en\" xml:lang=\"en\" title=\"Graphic Interchange Format\">GIF</abbr> Bilder sind im Verzeichnis \"/modules/pagestyle/images/\" und die Quelldatei in \"/modules/textsize/images/source/\"."
+
+#: textsize.module:20
+msgid "Screen readers can anymore read the text link."
+msgstr "<span xml:lang=\"en\" lang=\"en\">Screen readers</span> können den Text weiterhin lesen."
+
+#: textsize.module:22
+msgid "Advanced settings"
+msgstr "Erweiterte Einstellungen"
+
+#: textsize.module:23
+msgid "Percentage by which each click increases/decreases the text size. The default increases/decreases step is 10&#037; and the value have to be between 1-50&#037; and a number."
+msgstr "Prozentwert um den die Schriften pro Klick vergrössert/verkleinert werden. Der standard Vergrösserungs-/Verkleinerungsschritt  ist 10&#037;. und der Wert muss zwischen 1-50&#037; und eine Zahl sein."
+
+#: textsize.module:23
+msgid "The default normal text size is 100&#037;. The value have to be between 10-200&#037; and a number."
+msgstr "Der standard normale Schriftgrad  ist 100&#037;. Der Wert muss zwischen 1-200&#037; und eine Zahl sein."
+
+#: textsize.module:23
+msgid "Important information"
+msgstr "Wichtiger Hinweis"
+
+#: textsize.module:23
+msgid "If you are using a theme with \"font-size 0.9em\" in the CSS (like the garland theme), set the text size normal to 90%."
+msgstr "Wenn Sie ein Theme mit \"font-size 0.9em\" im CSS verwenden (wie das Garland Theme), stellen Sie den normalen Schriftgrad auf 90% ein."
+
+#: textsize.module:33
+msgid "administer textsize"
+msgstr "Schriftgrad verwalten"
+
+#: textsize.module:33
+msgid "access textsize content"
+msgstr "Schriftgrad Inhalt zugreiffen"
+
+#: textsize.module:44
+msgid "Text Size"
+msgstr "Schriftgrad"
+
+#: textsize.module:45
+msgid "Settings for display and values."
+msgstr "Einstellungen für die Darstellung und Werte."
+
+#: textsize.module:59
+msgid "Increase"
+msgstr "Vergrössern"
+
+#: textsize.module:60
+msgid "Decrease"
+msgstr "Verkleinern"
+
+#: textsize.module:61
+msgid "Normal"
+msgstr "Normal"
+
+#: textsize.module:65
+msgid "Global settings"
+msgstr "Allgemeine Einstellungen"
+
+#: textsize.module:71
+msgid "Show or hide description in the links"
+msgstr "Zeigen oder verbergen der Beschreibungen in den Links"
+
+#: textsize.module:72
+msgid "By hide text in the links, it shows only the logos in a line."
+msgstr "Wenn der Text in den Links verborgen wird, zeigt es nur die Logos in einer Linie an."
+
+#: textsize.module:74
+msgid "Show text in the links"
+msgstr "Zeige Text in den Links"
+
+#: textsize.module:75
+msgid "Hide text in the links"
+msgstr "Verberge Text in den Links"
+
+#: textsize.module:81
+msgid "Show or hide current text size"
+msgstr "Zeige oder verberg aktuelle Text Grösse"
+
+#: textsize.module:82
+msgid "By hide current text size, it shows no text and code."
+msgstr "Wenn die aktuelle Text Grösse verborgen wird, zeigt es keinen Text und Code an."
+
+#: textsize.module:84
+msgid "Show current text size"
+msgstr "Zeige aktuelle Text Grösse"
+
+#: textsize.module:85
+msgid "Hide current text size"
+msgstr "Verberge aktuelle Text Grösse"
+
+#: textsize.module:97
+msgid "Increases/decreases step"
+msgstr "Vergrösserungs-/Verkleinerungsschritt"
+
+#: textsize.module:106
+msgid "Text Size Normal"
+msgstr "Schriftgrad Normal"
+
+#: textsize.module:125
+msgid "Please enter a number in \"Text Size Normal\"."
+msgstr "Bitte geben Sie eine Zahl in \"Schriftgrad Normal\" ein."
+
+#: textsize.module:129
+msgid "Default font size setting should between 10-200&#037;."
+msgstr "Standard Schriftgrad sollte zwischen 10-200&#037; sein."
+
+#: textsize.module:133
+msgid "Please enter a number in \"Increases/decreases step\"."
+msgstr "Bitte geben Sie eine Zahl in \"Vergrösserungs-/Verkleinerungsschritt\" ein."
+
+#: textsize.module:136
+msgid "Increase/decreases steps value setting should between 1-50&#037;."
+msgstr "Vergrösserungs-/Verkleinerungsschritt sollte zwischen 1-50&#037;."
+
+#: textsize.module:153
+msgid "Current Size"
+msgstr "Aktuelle Grösse"

@@ -1388,7 +1388,7 @@ function guifi_device_links_print($device,$ltype = '%') {
 
       $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$link['device_id']));
       if ($cr->count > 1) {
-        $rn = db_fetch_object(db_query("SELECT ssid FROM {guifi_radios} r WHERE r.id=%d AND r.radiodev_counter=%d",$link['interface']['device_id'],$link['interface']['radiodev_counter']));
+        $rn = db_fetch_object(db_query("SELECT ssid FROM {guifi_radios} r WHERE r.id=%d AND r.radiodev_counter=%d",$link['device_id'],$link['interface']['radiodev_counter']));
         $dname = guifi_get_hostname($link['device_id']).'-'.$rn->ssid;
       }
       else

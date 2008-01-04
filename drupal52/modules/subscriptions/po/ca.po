@@ -1,0 +1,223 @@
+# Traducció al català del mòdul subscriptions.
+# Aquesta traducció ha estat finançada per interactors. <http://interactors.coop/>.
+# Gerard Farràs <gerard.farras@km103.com>, 2005.
+# Interactors <info@interactors.coop>, 2005.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal 4.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-04-10 15:29+0200\n"
+"PO-Revision-Date: 2005-08-24 21:52+0200\n"
+"Last-Translator: Gerard Farràs <gerard.farras@km103.com>\n"
+"Language-Team: Catalan <info@interactors.coop>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n == 1)"
+
+#: subscriptions.module:11
+msgid "\n        <p>This module enables users to subscribe to be notified of changes to threads or categories.\n        Once enabled, all nodes will have an additional link that allows the user to change their subscriptions.\n        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n        No configuration is required for this module, although roles must be given permission to\n        use it.</p>\n\n        <p>Note that because this module causes the comment insert to pause while all\n        subscribers are notified, it may not be practical for large sites.</p>"
+msgstr "\n        <p>Aquest mòdul permet als usuaris una subscripció per ser notificats dels canvis en fils de discussió o en categories.\n        Una vegada habilitat, tots els nodes tindran un enllaç addicional que permetrà als usuaris canviar les seves subscripcions.\n        A més, tots els usuaris tindran una opció en el compte per a autosubscriure's en qualsevol fil de discussió en el que participin.\n        No es requereix cap configuració per aquest mòdul, encara que s'han de donar permisos als rols per a\n        la seva utilització.</p>\n\n        <p>Noteu que, a causa del fet que el mòdul atura momentàniament tot el sistema en la inserció dels comentaris\n        per a la notificació dels subscriptors, pot no ser massa pràctic en grans llocs web.</p>"
+
+#: subscriptions.module:22
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Permet als usuaris la subscripció a nodes i termes taxonòmics."
+
+#: subscriptions.module:60
+msgid "Subscription settings"
+msgstr "Paràmetres de subscripció"
+
+#: subscriptions.module:60
+msgid "Automatically subscribe to threads in which you post."
+msgstr "Subscriu automàticament als fils de discussió en els que participi."
+
+#: subscriptions.module:60
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "L'activació d'aquest quadre permetrà ser subscrit de forma automàtica a qualsevol fil de discussió que hagueu creat o afegit un comentari."
+
+#: subscriptions.module:70
+msgid "none"
+msgstr "cap"
+
+#: subscriptions.module:74
+msgid "Omitted vocabularies"
+msgstr "Vocabularis omesos"
+
+#: subscriptions.module:74
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Selecciona els vocabularis que serien <strong>omesos</strong> dels llistats de subscripció."
+
+#: subscriptions.module:170
+msgid "subscription notification for "
+msgstr "notificació de subscripció per a"
+
+#: subscriptions.module:173
+msgid "error mailing subscription notification: "
+msgstr "error enviant la notificació de subscripció:"
+
+#: subscriptions.module:211
+msgid "new blog for "
+msgstr "nou bloc per"
+
+#: subscriptions.module:229
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] %type actualització de subscripció per %name : %subject"
+
+#: subscriptions.module:230
+msgid "Greetings, %name.\n\nA %type to which you have subscribed has been updated.  To view the thread,\nnavigate to %url\n\n--\nThis is an automatic mail from %site.\nTo manage your subscriptions, browse to %manage-url"
+msgstr "Felicitats, %name.\n\nUn %type en el qual us heu subscrit ha estat actualitzat.  Per a visualitzar el fil,\nnavegueu a %url\n\n--\nAquest és un correu electrònic automàtic enviat des de %site.\nPer a gestionar les vostres subscripcions, navegueu a %manage-url"
+
+#: subscriptions.module:315
+msgid "Subscribe"
+msgstr "Subscriure"
+
+#: subscriptions.module:315
+msgid "Receive notification of replies to this %name."
+msgstr "Rep notificació de les respostes a aquest %name."
+
+#: subscriptions.module:328
+msgid "my subscriptions"
+msgstr "les meves subscripcions"
+
+#: subscriptions.module:331;0
+msgid "subscriptions"
+msgstr "subscripcions"
+
+#: subscriptions.module:347
+msgid "unsubscribe blog"
+msgstr "donar de baixa el bloc"
+
+#: subscriptions.module:347
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Atura la recepció de correu electrònic sempre que s'hagi fet una nova entrada en el bloc d'aquesta persona."
+
+#: subscriptions.module:350
+msgid "subscribe blog"
+msgstr "subscriure al bloc"
+
+#: subscriptions.module:350
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Rebre un correu electrònic sempre que s'hagi fet una nova entrada en el bloc d'aquesta persona."
+
+#: subscriptions.module:354
+msgid "unsubscribe post"
+msgstr "donar de baixa l'enviament"
+
+#: subscriptions.module:354
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Atura l'opció de rebre un correu electrònic sempre que s'enviï un nou comentari a aquest @type."
+
+#: subscriptions.module:357
+msgid "subscribe post"
+msgstr "subscriu l'enviament"
+
+#: subscriptions.module:357
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Rep un correu electrònic sempre que un nou comentari s'enviï a aquest @type."
+
+#: subscriptions.module:381;492;496
+msgid "unsubscribe"
+msgstr "donar de baixa"
+
+#: subscriptions.module:381
+msgid "Unsubscribe from this category."
+msgstr "Donar-se de baixa en aquesta categoria."
+
+#: subscriptions.module:384
+msgid "subscribe"
+msgstr "subscriure"
+
+#: subscriptions.module:384
+msgid "Subscribe to this category."
+msgstr "Subscriu a aquesta categoria."
+
+#: subscriptions.module:420
+msgid "<p>Your subscription was activated.</p>"
+msgstr "<p>S'ha activat la seva subscripció.</p>"
+
+#: subscriptions.module:423
+msgid "Return to the blog"
+msgstr "Retorna al bloc"
+
+#: subscriptions.module:426;439
+msgid "Return to the thread"
+msgstr "Retorneu al fil de discussió"
+
+#: subscriptions.module:429;441
+msgid "Return to the subscriptions"
+msgstr "Retorneu a les subscripcions"
+
+#: subscriptions.module:430
+msgid "Subscription Activated"
+msgstr "Subscripció Activada"
+
+#: subscriptions.module:437
+msgid "<p>Your subscription was deactivated.</p>"
+msgstr "<p>S'ha desactivat la seva subscripció.</p>"
+
+#: subscriptions.module:442
+msgid "Subscription Deactivated"
+msgstr "Subscripció Desactivada"
+
+#: subscriptions.module:452;492
+msgid "thread"
+msgstr "fil de discussió"
+
+#: subscriptions.module:456;496
+msgid "blog"
+msgstr "bloc"
+
+#: subscriptions.module:469;509
+msgid "category"
+msgstr "categoria"
+
+#: subscriptions.module:473;514
+msgid "type"
+msgstr "tipus"
+
+#: subscriptions.module:473;514
+msgid "title"
+msgstr "títol"
+
+#: subscriptions.module:473
+msgid "subscribers"
+msgstr "subscriptors"
+
+#: subscriptions.module:477
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Actualment no esteu subscrit a cap fil de discussió o categoria.</p>"
+
+#: subscriptions.module:482
+msgid "Subscriptions Summary"
+msgstr "Sumari de subscripcions"
+
+#: subscriptions.module:492
+msgid "Unsubscribe from this thread."
+msgstr "Donar-se de baixa d'aquest fil de discussió."
+
+#: subscriptions.module:496
+msgid "Unsubscribe from this user's blog."
+msgstr "Donar-se de baixa en el bloc d'aquest usuari."
+
+#: subscriptions.module:514
+msgid "operations"
+msgstr "operacions"
+
+#: subscriptions.module:517
+msgid "<p>You are not currently subscribed to any active threads or categories.</p>"
+msgstr "<p>Actualment no esteu subscrit a cap fil de discussió o categoria activa.</p>"
+
+#: subscriptions.module:170
+msgid "regular"
+msgstr "regular"
+
+#: subscriptions.module:173
+msgid "error"
+msgstr "error"
+
+#: subscriptions.module:30
+msgid "maintain subscriptions"
+msgstr "mantingues subscripcions"
+

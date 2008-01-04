@@ -1,0 +1,10 @@
+; $Id: textsize.info,v 1.1.1.1 2007/11/19 17:28:05 christianzwahlen Exp $
+name = Text Size
+description = Display a text size changer on the page for better web accessibility. No Javascript required.
+version = "5.x-1.3"
+project = "textsize"
+; Information added by drupal.org packaging script on 2007-12-04
+version = "5.x-1.3.x-dev"
+project = "textsize"
+datestamp = "1196727008"
+

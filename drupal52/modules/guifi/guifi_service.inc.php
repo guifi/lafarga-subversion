@@ -355,6 +355,7 @@ function guifi_service_view(&$node) {
     case 'users': 
     case 'passwd': 
     case 'federated':
+    case 'federated_md5':
     case 'ldif':
       $op = arg(3);
       break;
@@ -376,6 +377,9 @@ function guifi_service_view(&$node) {
       break;
     case 'federated': 
       $output .= theme('box', NULL, guifi_dump_federated($node));
+      break;
+    case 'federated_md5': 
+      $output .= theme('box', NULL, guifi_dump_federated_md5($node));
       break;
     case 'ldif': 
       $output .= theme('box', NULL, guifi_dump_ldif($node));
