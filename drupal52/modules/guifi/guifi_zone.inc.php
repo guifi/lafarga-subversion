@@ -518,6 +518,7 @@ function guifi_zone_ariadna($id = 0, $link = 'node/') {
   $t = db_num_rows($query);
   $c = 1;
   if ($t) 
+  $ret[] = '<div class="breadcumb">';
     while ($zone = db_fetch_array($query)) {
       if ($c == 1)
         $prefix = '(';
@@ -527,9 +528,10 @@ function guifi_zone_ariadna($id = 0, $link = 'node/') {
         $suffix = ')';
       else 
         $suffix = '';
-      $ret[] = l($prefix.$zone['title'].$suffix,$link.$zone['id']);
+      $ret[] = l($zone['title'],$link.$zone['id']);
       $c++;
     }
+    $ret[] = '</div><hr />';
   return $ret;
 }
 
@@ -672,7 +674,7 @@ function guifi_zone_nodes($node) {
     }
 //     $output .= theme('table', $header, array_merge($rows));
     $output .= theme('table', $header, $rows);
-    $output .= theme_pager($rows,50);
+    $output .= theme_pager(null, 50);
 
   }
 

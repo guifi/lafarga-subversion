@@ -15,7 +15,7 @@
 	      @import "<?php print base_path(). path_to_theme(); ?>/ie7-fixes.css";</style>
 	  <![endif]-->
 	
-<?php print $scripts ?>
+  <?php print $scripts ?>
   <script type="text/javascript"> </script>
 </head>
 <body><div class="bw1"><div class="bw2"><div id="body-wrap">
@@ -32,41 +32,34 @@
   <?php endif; ?>
   <?php print $search_box ?>
 
- <div id="top-nav">
- 
-<?php if (isset($primary_links)) : ?>
-	<ul id="primary">
-	<?php
-print theme('links', $primary_links);
-?>
-	</ul>
-	<?php endif; ?>
-    <?php if (isset($secondary_links)):
-     print '<ul id="secondary">'; ?>
-	
-     <li><a href="http://lafarga.guifi.net/index.php?textsize=+20" style="font-size: 120%; vertical-align: text-top;" class="larger">A</a></li>
-     <li><a href="http://lafarga.guifi.net/index.php?textsize_normal=100" style="font-size: 100%; vertical-align: text-bottom;" class="normal">A</a></li>
-     <li><a href="http://lafarga.guifi.net/index.php?textsize=-20" style="font-size: 80%; vertical-align: text-bottom;" class="smaller">A</a></li>
-  
-<?php
-$query = drupal_query_string_encode($_GET, array('q'));
-print '<li>';
-print theme('item_list', i18n_get_flags($_GET['q'], empty($query) ? NULL : $query));
-print '</li>';
-?>
-<?php
-print '<li>';
-print theme('links', $secondary_links);
-print '</li>';    
-print '</ul>';
-    endif; ?>
+  <div id="top-nav">
+    <?php if (is_array($primary_links) && !empty($primary_links)): ?>
+      <ul id="primary">
+      <?php foreach ($primary_links as $link): ?>
+        <li><?php print phptemplate_wrap_links($link, 2); ?></li>
+      <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
 
+    <?php if (is_array($secondary_links) && !empty($secondary_links)): ?>
+      <ul id="secondary">
+     <li>
+     <a href="ca"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/ca.png"  class="i18n-flag" width="16" height="12" alt="Catalan" /> </a> 
+     <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/en.png"  class="i18n-flag" width="16" height="12" alt="English" /> </a>
+     <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/es.png"  class="i18n-flag" width="16" height="12" alt="Spanish" /> </a>
+     </li>
+     <li><script type="text/javascript">if (efa_fontSize) { efa_fontSize.efaInit();} else { var efa_fontSize=new Efa_Fontsize(); efa_fontSize.efaInit(); }if (efa_fontSize) document.write(efa_fontSize.allLinks);</script><noscript>Please enable JavaScript</noscript></li>
 
+    <?php foreach (array_reverse($secondary_links) as $link): ?>
+      <li><?php print phptemplate_wrap_links($link, 2); ?></li>
+      <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
   </div>
 </div></div></div>
 
 <div id="content" class="content-<?php print $layout; ?>">
-	<div class="cw1"><div class="cw2"><div class="cw3"><div class="cw4"><div class="cw5"><div class="cw6"><div class="cw7"><div class="cw8">
+    <div class="cw1"><div class="cw2"><div class="cw3"><div class="cw4"><div class="cw5"><div class="cw7">
  <div id="content-wrap" class="content-wrap-<?php print $layout; ?>">
   <?php if ($sidebar_left != ""): ?>
     <div class="sidebar" id="sidebar-left">
@@ -112,6 +105,7 @@ print '</ul>';
 </div>
  <?php if ($sidebar_right): ?>
  <div class="sidebar" id="sidebar-right">
+   <span id="sidebar-right-top"></span>
    <?php
      // Mark first block title
      list($a, $b) = explode('<h2>', $sidebar_right, 2);
@@ -120,7 +114,7 @@ print '</ul>';
  </div>
  <?php endif; ?>    
  <span class="clear"></span>
-</div></div></div></div></div></div></div></div></div>
+</div></div></div></div></div></div></div>
 
 <?php print $closure;?>
 </div></div></div><div id="end" class="end-<?php print $layout; ?>"><div class="ew1"><div class="ew2"></div></div></div></body>

@@ -380,20 +380,20 @@ li {
 tr {
   border-bottom: 1px solid #bfd0d9;
 }
-tr.light {
-  background: #e4edf2;
+tr.odd {
+  background: #eee;
   border-bottom: 0px;
 }
-tr.dark {
-  background: #f8fbfc;
+tr.even {
+  background: #fff;
   border-bottom: 0px;
 }
-tr.light td.active {
-  background: #c5d6df;
+tr.odd td.active {
+  background: #eee
   border-bottom: 0px;
 }
-tr.dark td.active {
-  background: #d6e4ea;
+tr.even td.active {
+  background: #fff
   border-bottom: 0px;
 }
 th {

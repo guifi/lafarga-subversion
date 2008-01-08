@@ -12,10 +12,16 @@ function phptemplate_wrap_links($link, $n) {
     $before .= '<span class="'. $c .'">';
     $after .= '</span>';
   }
-  $link = preg_replace('!<a[^>]*>!i', '\0'. $before, $link);
+  
+  $link = preg_replace('!<a[^>]*>!i', '\0'. $before, l($link['title'], $link['href'],
+               $link['attributes'], $link['query'],
+            $link['fragment'], FALSE, $link['html']));
+            
   $link = preg_replace('!</a[^>]*>!i', $after . '\0', $link);
-  return $link;
+  
+    return $link;
 }
+
 
 function phptemplate_menu_item_link($item, $link_item) {
   /* Wrapper span */
@@ -29,7 +35,7 @@ function phptemplate_comment_thread_collapsed($comment) {
     $output .= "</div>\n";
   }
   else {
-    $output .= theme('comment_view', $comment, '', 0);    
+    $output .= theme('comment_view', $comment, '', 0);   
   }
   return $output;
 }

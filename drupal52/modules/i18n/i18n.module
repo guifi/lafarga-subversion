@@ -57,12 +57,11 @@ function i18n_block($op = 'list', $delta = 0) {
   elseif($op == 'view') {
     $blocks['subject'] = t('Languages');
     $query = drupal_query_string_encode($_GET, array('q'));
-    $blocks['content'] = theme('item_list', i18n_get_flags($_GET['q'], empty($query) ? NULL : $query));
-
-}
+    $blocks['content'] = theme('item_list', i18n_get_links($_GET['q'], empty($query) ? NULL : $query));
+  }
   return $blocks;
 }
-    
+
 /**
  * Implementation of hook_init()
  * 
@@ -138,7 +137,7 @@ function i18n_menu($may_cache) {
       'path' => 'admin/settings/i18n',
       'title' => t('Multilingual system'),
       'description' => t('Configure multilingual content and translation.'),
-'callback' => 'drupal_get_form',
+      'callback' => 'drupal_get_form',
       'callback arguments' => array('i18n_admin_settings'),
       'access' => user_access('administer site configuration'),
       );
@@ -569,21 +568,11 @@ function i18n_get_links($path = '', $query = NULL, $names = NULL) {
   }
   $names = $names ? $names : i18n_languages('native');
   foreach (array_keys(i18n_supported_languages()) as $lang){
-    $links[$lang]= theme('i18n_links', $names[$lang], i18n_path($path, $lang), $lang, $query);
+    $links[$lang]= theme('i18n_link', $names[$lang], i18n_path($path, $lang), $lang, $query);
   }
   return $links;  
 }
-function i18n_get_flags($path = '', $query = NULL, $names = NULL) {
-  if($path == i18n_frontpage()) {
-    $path = '';
-   }
-   $names = $names ? $names : i18n_languages('native');
-   foreach (array_keys(i18n_supported_languages()) as $lang){
-     $links[$lang]= theme('i18n_flag', i18n_path($path, $lang), $lang, $query);
-   }
-    return $links;
-}
-    
+
 /**
  * Returns list of enabled languages from locale module
  *
@@ -683,14 +672,6 @@ function theme_i18n_link($text, $target, $lang, $query= NULL, $fragment = NULL){
   return $output;
 }
 
-function theme_i18n_flag($target, $lang, $query= NULL, $fragment = NULL){
-  $output = '<span class="i18n-link">';
-  $attributes = ($lang == i18n_get_lang()) ? array('class' => 'active') : NULL;
-  $output .= l(theme('i18n_language_icon', $lang), $target, $attributes, $query, $fragment, FALSE, TRUE);
-  $output .= '</span>';
-  return $output;
-}
-	
 /**
  * Theme language icon
  * 
@@ -1197,15 +1178,3 @@ function _i18n_set_db_prefix($lang) {
 function _i18n_get_original_path() {
   return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
 }
-function i18n_display($vertical=0){
-  $content= '<table><tr><td>';
-    if ($vertical) {
-    $content .= theme('i18n_links',1,0, '','</td></tr><tr><td>');
-      }
-        else {
-	    $content .= theme('i18n_links',1,0, '','</td><td>');
-	      }
-	        $content .= '</td></tr></table>';
-		  return $content;
-		  }
-		  

@@ -466,7 +466,7 @@ function guifi_menu($may_cache) {
 
 /* guifi_init(): Initialization hook: Load stylesheet */
 function guifi_init() {
-  drupal_set_html_head('<style type="text/css" media="all">@import "modules/guifi/guifi.css";</style>');
+  drupal_add_css(drupal_get_path('module', 'guifi') .'/guifi.css');
 }
 /** info hook.
  */
