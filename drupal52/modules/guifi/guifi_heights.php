@@ -10,7 +10,7 @@
 
 function height($x,$y)
   {
-    $grid = fopen('../../files/guifi/cata.grd','r');
+    $grid = fopen('../../../../files/guifi/cata.grd','r');
     $pos = ((($y-1)*9235)+$x-1)*4;
     fseek($grid,$pos);
     $z = fread($grid,4);
@@ -310,7 +310,7 @@ if (array_key_exists("height",$_GET))
   
   // capçalera de l'script pel GNUPLot
   
-        $script_header =  $script_header."set terminal png picsize ".$width." ".$height."\n";       // imatge en format PNG
+        $script_header =  $script_header."set terminal png size ".$width." ".$height."\n";       // imatge en format PNG
   $script_header =  $script_header."set output\n";    // Sortida per STDOUT  
   // $script_header =  $script_header."set mxtics 40\n"; // interval de les sub ralletes [eix x]
   // $script_header =  $script_header."set mytics 40\n"; // interval de les sub ralletes [eix y]  

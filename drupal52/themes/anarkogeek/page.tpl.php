@@ -18,7 +18,9 @@
   <?php print $scripts ?>
   <script type="text/javascript"> </script>
 </head>
-<body><div class="bw1"><div class="bw2"><div id="body-wrap">
+<body>
+<?php print $fontsize_init ?>
+<div class="bw1"><div class="bw2"><div id="body-wrap">
 
 <div id="header"><div class="hw1"><div class="hw2">
   <?php if ($logo): ?>
@@ -48,7 +50,7 @@
      <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/en.png"  class="i18n-flag" width="16" height="12" alt="English" /> </a>
      <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/es.png"  class="i18n-flag" width="16" height="12" alt="Spanish" /> </a>
      </li>
-     <li><script type="text/javascript">if (efa_fontSize) { efa_fontSize.efaInit();} else { var efa_fontSize=new Efa_Fontsize(); efa_fontSize.efaInit(); }if (efa_fontSize) document.write(efa_fontSize.allLinks);</script><noscript>Please enable JavaScript</noscript></li>
+     <li><?php print $fontsize_links ?></li>
 
     <?php foreach (array_reverse($secondary_links) as $link): ?>
       <li><?php print phptemplate_wrap_links($link, 2); ?></li>

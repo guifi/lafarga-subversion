@@ -967,10 +967,10 @@ function guifi_node_distances($id,$edit = NULL) {
     
     // genero URL del Perfil
     
-    $height_url = $base_url. "/modules/guifi/guifi_heights.php?x1=".$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
+    $height_url = base_path(). drupal_get_path('module', 'guifi') .'/guifi_heights.php?x1='
+.$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
     $height_url_small = $height_url."&width=200&height=100";
-
     $zone = node_load(array('nid'=>$node['zone_id']));
 
     if ($filters['search'])

@@ -54,3 +54,18 @@ function phptemplate_comment_thread_expanded($comment) {
   return $output;
 }
 
+function _phptemplate_variables($hook, $vars = array()) {
+  switch ($hook) {
+    case 'page':
+      // Load region content assigned via drupal_set_content().
+      if (module_exists('fontsize')) {
+        foreach (array('fontsize_init', 'fontsize_links') as $region) {
+          $vars[$region] = drupal_get_content($region);
+        }
+      }
+      break;
+  }
+
+  return $vars;
+}
+?>

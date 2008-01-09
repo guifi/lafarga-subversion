@@ -57,10 +57,10 @@ function guifi_graph_detail() {
   }
 
   $secs_day = 60*60*24;
+  drupal_set_breadcrumb(guifi_zone_ariadna($zid)); 
   $output = '<div id="guifi">';
 
-//  $rows[] = array(t('enter a timeframe to graph a customized period'));
-  $output .= guifi_zone_ariadna($zid,'node/');
+//  $rows[] = array(t('enter a timeframe to graph a customized period')); 
   $output .= '<h3>'.$type.'</h3>'.$help;
   switch ($type) {
   }
@@ -73,9 +73,10 @@ function guifi_graph_detail() {
   else
     $date2 = date('d-m-Y H:i',time()-300);
   $str = '<form name="form_timespan_selector" method="post"><strong>&nbsp;'.t('From:');
-  $str .= '&nbsp;</strong><input type="text" name="date1" id=\'date1\' size=\'14\' value="'.$date1.'">&nbsp;<input type="image" src="modules/guifi/calendar.gif" alt="Start date selector" onclick="return showCalendar(\'date1\');">&nbsp;';
+  $str .= '&nbsp;</strong><input type="text" name="date1" id=\'date1\' size=\'14\' value="'.$date1.'">&nbsp;<input type="image" 
+src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar.gif" alt="Start date selector" onclick="return showCalendar(\'date1\');">&nbsp;';
   $str .= '<strong>'.t('To:').'&nbsp;</strong> <input type="text" name="date2" id=\'date2\' size="14" value="'.$date2.'"> &nbsp;';
-  $str .= '<input type="image" src="modules/guifi/calendar.gif" alt="End date selector" align="absmiddle" onclick="return showCalendar(\'date2\');"> &nbsp;&nbsp;';
+  $str .= '<input type="image" src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar.gif" alt="End date selector" align="absmiddle" onclick="return showCalendar(\'date2\');"> &nbsp;&nbsp;';
   $str .= '<input type="submit" name="button_refresh" action="submit" value="refresh">';
   $rows[] = array($str);
   if (isset($_POST['date1'])) {
@@ -97,7 +98,7 @@ function guifi_graph_detail() {
   $output .= theme('table', NULL, array_merge($rows));
   $output .= "</div>"._guifi_script_calendar();
  
-  drupal_set_html_head('<script type="text/javascript" src="modules/guifi/includes/calendar.js"></script> <script type="text/javascript" src="modules/guifi/includes/lang/calendar-ca.js"></script> <script type="text/javascript" src="modules/guifi/includes/lang/calendar-en.js"><</script> <script type="text/javascript" src="modules/guifi/includes/calendar-setup.js"></script>'); 
+  drupal_set_html_head('<script type="text/javascript" src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar.js"></script> <script type="text/javascript" src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/lang/calendar-ca.js"></script></script> <script type="text/javascript" src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar-setup.js"></script>'); 
   drupal_set_title(t('graph details for').' '.$title);
   return print theme('page', $output, t('graph details for').' '.$title);
 }
