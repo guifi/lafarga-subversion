@@ -10,7 +10,7 @@ function unsolclic_todo($dev) {
   _outln_comment(t("If you want to collaborate and contribute code to make it work,"));
   _outln_comment(t("please contact our roster of research and development"));
   _outln_comment(t("(guifi-rdes@llistes.projectes.lafarga.org) and visit our website and learn"));
-  _outln_comment(t("how to use the module subversion. (http://guifi.net/ca/svn). "));
+  _outln_comment(t("how to use the module subversion. (http://guifi.net/ca/svn)."));
   _outln_comment();
 
 }
