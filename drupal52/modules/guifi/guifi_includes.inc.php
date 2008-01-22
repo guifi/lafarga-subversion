@@ -1517,7 +1517,7 @@ function guifi_notify_send() {
        WHERE id in (".implode(',',array_keys($messages)).")");
 }
 /** converteix les coordenades de graus,minuts i segons a graus amb decimals
- *  guifi_coord_dmstod($deg:int,$min:int,$seg:min):float or NULL
+ *  guifi_coord_dmstod($deg:int,$min:int,$seg:min):float or NULL..
 */
 function guifi_coord_dmstod($deg,$min,$seg){
   $res=NULL;
