@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "POT-Creation-Date: 2005-07-31 14:00+0200\n"
-"PO-Revision-Date: 2005-07-31 14:00+0200\n"
-"Last-Translator: SuNbiT <carles.bruguera@guifi.net>\n"
+"PO-Revision-Date: 2008-01-28 23:00+0200\n"
+"Last-Translator: ldalmau <lluis.dalmau@guifi.net>\n"
 "Language-Team: Catalan <carles.bruguera@guifi.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -48,11 +48,11 @@ msgstr "esborrar xarxes guifi"
 
 #:  /ca/admin/modules
 msgid "geo-reference a zone"
-msgstr "geo-referenciar una zona"
+msgstr "georeferenciar una zona"
 
 #:  /ca/admin/modules
 msgid "draw zone limits"
-msgstr "dibuixar limits de la zona"
+msgstr "dibuixar límits de la zona"
 
 #:  /ca/admin/modules
 msgid "add device"
@@ -72,7 +72,7 @@ msgstr "generar l'arxiu de configuració pel mrtg"
 
 #:  /ca/admin/modules
 msgid "upgrade from previous versions"
-msgstr "actualitzar desde una versió anterior"
+msgstr "actualitzar des d'una versió anterior"
 
 #:  /ca/admin/modules
 msgid "guifi mesh database"
@@ -92,7 +92,7 @@ msgstr "gràfiques"
 
 #:  /ca/admin/modules
 msgid "interfaces"
-msgstr "conectors"
+msgstr "connectors"
 
 #:  /ca/admin/modules
 msgid "edit device"
@@ -111,7 +111,7 @@ msgid ""
 "An email will be submitted to this address when no contact address is "
 "present."
 msgstr ""
-"Un email serà enviat a aquesta adreça quan no hi hagi cap adreça "
+"S'enviarà un correu a aquesta adreça quan no hi hagi cap adreça "
 "definida."
 
 #:  /ca/admin/settings/guifi
@@ -120,7 +120,7 @@ msgstr "Distància Màxima"
 
 #:  /ca/admin/settings/guifi
 msgid "At which distance the report of neighbours ends. In Kms."
-msgstr "Fins a quina distània es llisten veïns. En Qms."
+msgstr "Fins a quina distània es llisten veïns. En Km."
 
 #:  /ca/admin/settings/guifi
 msgid "/usr/bin/rrdtool"
@@ -172,13 +172,13 @@ msgstr ""
 "<p>Crea una comunitat, àrea o zona. Una jerarquia habitual podria ser "
 "relacionada amb el territori (País/regió/ciutat...) però no té "
 "perquè: p.e. una sola ciutat pot tenir molts grups o comunitats amb "
-"diferents critèris d'assignació d'IPs.<br> Cada zona tindra la seva "
+"diferents criteris d'assignació d'IPs.<br> Cada zona tindrà la seva "
 "pròpia pàgina per tant es pot fer servir com la pàgina principal de "
 "cada comunitat.<br>Les zones han de pertànyer com a mínim a una zona "
-"arrel, pero també poden pertanyer a altres zones, de manera que es "
+"arrel, però també poden pertànyer a altres zones, de manera que es "
 "crea una jerarquia.<br>Cada zona té les seves pròpies propietats "
 "com ara mapes o rangs d'IPs i cada node haurà d'estar assignat a una "
-"zona existent, i heretarà les propietat de la zona com ara la seva "
+"zona existent i heretarà les propietat de la zona com ara la seva "
 "adreça IP i serà dibuixat al mapa que li correspongui.<br>Si les "
 "propietats de la zona es deixen en blanc, s'heretaran les propietats "
 "de la zona pare./p>"
@@ -190,9 +190,9 @@ msgid ""
 "devices, servers, etc.<br>Every node have to assigned to a guifi "
 "zone.</p>"
 msgstr ""
-"<p>Crea un node. Un node es una ubicació física (serà dibuixat "
+"<p>Crea un node. Un node és una ubicació física (serà dibuixat "
 "dinàmicament als mapes fent servir les coordenades lat/lon) a la "
-"xarxa on hi han trastos servidors, etc.<br>Cada node ha d'estar assignat "
+"xarxa on hi ha trastos servidors, etc.<br>Cada node ha d'estar assignat "
 "a una zona guifi.</p>"
 
 #:  /ca/admin/node
@@ -202,9 +202,9 @@ msgid ""
 "like a web server, internet proxy,ntp, instant messaging, voip "
 "gateway, etc... .</p>"
 msgstr ""
-"<p>Crea un servei. Un servei es qualsevol recurs disponible a la xarxa "
+"<p>Crea un servei. Un servei és qualsevol recurs disponible a la xarxa "
 "que hauria de sortir llistat al directori de continguts de la pàgina, "
-"com ara un servidor web, un proxy d'internet proxy, NTP, missatgeria "
+"com ara un servidor web, una porta d'Internet proxy, NTP, missatgeria "
 "instantània, veuip gateway, etc... .</p>"
 
 #:  /ca/guifi_zones
@@ -229,7 +229,7 @@ msgstr "coord"
 
 #:  /ca/guifi_zones
 msgid "limits"
-msgstr "limits"
+msgstr "límits"
 
 #:  /ca/guifi_zones
 msgid "add node"
@@ -317,7 +317,7 @@ msgstr "assignació de xarxa(es) per la zona i pare(s)"
 
 #:  /ca/node/2466
 msgid "Pixel:"
-msgstr "Pixel:"
+msgstr "Píxel:"
 
 #:  /ca/node/2466
 msgid ">>"
@@ -349,15 +349,15 @@ msgstr "Generat per a:"
 
 #:  /ca/guifi/device/115/view/unsolclic
 msgid "open a telnet/ssh session on your device and run the script below."
-msgstr "obre una sessio telnet/ssh en el teu trasto i executa aquestscript."
+msgstr "obre una sessió telnet/ssh en el teu trasto i executa aquest script."
 
 #:  /ca/guifi/device/115/view/unsolclic
 msgid "Global network parameters"
-msgstr "Parametres globals de la xarxa"
+msgstr "Paràmetres globals de la xarxa"
 
 #:  /ca/guifi/device/115/view/unsolclic
 msgid "Management"
-msgstr "Gestio"
+msgstr "Gestió"
 
 #:  /ca/guifi/device/115/view/unsolclic
 msgid "AP mode"
@@ -397,7 +397,7 @@ msgstr "Trasto:"
 
 #:  /guifi/device/113
 msgid "radio"
-msgstr "radio"
+msgstr "ràdio"
 
 #:  /guifi/device/113
 msgid "status & availability"
@@ -417,7 +417,7 @@ msgstr "actualitzat per"
 
 #:  /guifi/device/113
 msgid "traffic overview"
-msgstr "vista del tràfic"
+msgstr "vista del trànsit"
 
 #:  /guifi/device/113
 msgid "device graphs"
@@ -433,7 +433,7 @@ msgstr "ip"
 
 #:  /guifi/device/113
 msgid "kms."
-msgstr "qms."
+msgstr "Km."
 
 #:  /guifi/device/113
 msgid "Total:"
@@ -441,7 +441,7 @@ msgstr "Total:"
 
 #:  /guifi/device/113
 msgid "ip address"
-msgstr "adreça ip"
+msgstr "adreça IP"
 
 #:  /guifi/device/113
 msgid "netmask"
@@ -453,7 +453,7 @@ msgstr "mac"
 
 #:  /guifi/device/113
 msgid "interfaces information"
-msgstr "informació dels conectors"
+msgstr "informació dels connectors"
 
 #:  /guifi/device/113
 msgid "device"
@@ -497,15 +497,15 @@ msgstr "últim"
 
 #:  /ca/node/1570
 msgid "Wireless device, like a router, bridge, AP..."
-msgstr "Trasto sensefils, com ara un router, bridge, AP..."
+msgstr "Trasto sensefils, com ara un router, bridge, AP, ..."
 
 #:  /ca/node/1570
 msgid "Voip handset, telephone"
-msgstr "Telèfon Voip, telèfon"
+msgstr "Telèfon VeuIP, telèfon"
 
 #:  /ca/node/1570
 msgid "Mobile device. like a laptop or pda"
-msgstr "Trasto mòbil, com ara un portàtil o una pda"
+msgstr "Trasto mòbil, com ara un portàtil o una PDA"
 
 #:  /ca/node/1570
 msgid "Server computer"
@@ -517,7 +517,7 @@ msgstr "Tallafocs, xarxa privada darrera d'un NAT"
 
 #:  /ca/node/1570
 msgid "ADSL router or device providing internet access"
-msgstr "Router ADSL o trasto que proporciona accés a internet"
+msgstr "Router ADSL o trasto que proporciona accés a Internet"
 
 #:  /ca/node/1570
 msgid "Add a new device. Type: "
@@ -556,7 +556,7 @@ msgid ""
 "Mailid where changes on the device will be notified, used for network "
 "administration."
 msgstr ""
-"Mailid  on es notificaran els canvis al trasto, utilitzat per a "
+"Bústia on es notificaran els canvis al trasto, utilitzat per a "
 "l'administració de la xarxa."
 
 #:  /ca/guifi/device/10/edit
@@ -581,11 +581,11 @@ msgstr "no disponible"
 
 #:  /ca/guifi/device/10/edit
 msgid "Alchemy from sveasoft"
-msgstr "Alchemy de sveasoft"
+msgstr "Alchemy de Sveasoft"
 
 #:  /ca/guifi/device/10/edit
 msgid "Talisman from sveasoft"
-msgstr "Talisman de sveasoft"
+msgstr "Talisman de Sveasoft"
 
 #:  /ca/guifi/device/10/edit
 msgid "Used for automatic configuration."
@@ -612,36 +612,36 @@ msgid "NAT Client"
 msgstr "Client NAT"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11a (1-54Mbps - 5Ghz)"
-msgstr "802.11a (1-54Mbps - 5Ghz)"
+msgid "802.11a (1-54Mbps - 5GHz)"
+msgstr "802.11a (1-54Mbps - 5GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11b (1-11Mbps - 2.4Ghz)"
-msgstr "802.11b (1-11Mbps - 2.4Ghz)"
+msgid "802.11b (1-11Mbps - 2.4GHz)"
+msgstr "802.11b (1-11Mbps - 2.4GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11g (2-54Mbps - 2.4Ghz)"
-msgstr "802.11g (2-54Mbps - 2.4Ghz)"
+msgid "802.11g (2-54Mbps - 2.4GHz)"
+msgstr "802.11g (2-54Mbps - 2.4GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11g+ (1-54Mbps - 2.4Ghz)"
-msgstr "802.11g+ (1-54Mbps - 2.4Ghz)"
+msgid "802.11g+ (1-54Mbps - 2.4GHz)"
+msgstr "802.11g+ (1-54Mbps - 2.4GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11g+ (2-125Mbps - 2.4Ghz)"
-msgstr "802.11g+ (2-125Mbps - 2.4Ghz)"
+msgid "802.11g+ (2-125Mbps - 2.4GHz)"
+msgstr "802.11g+ (2-125Mbps - 2.4GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11abg (1-54Mbps - 2.4/5Ghz)"
-msgstr "802.11abg (1-54Mbps - 2.4/5Ghz)"
+msgid "802.11abg (1-54Mbps - 2.4/5GHz)"
+msgstr "802.11abg (1-54Mbps - 2.4/5GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.11n - MIMO (1-125Mbps - 2.4/5Ghz)"
-msgstr "802.11n - MIMO (1-125Mbps - 2.4/5Ghz)"
+msgid "802.11n - MIMO (1-125Mbps - 2.4/5GHz)"
+msgstr "802.11n - MIMO (1-125Mbps - 2.4/5GHz)"
 
 #:  /ca/guifi/device/10/edit
-msgid "802.16a - WiMAX (1-125Mbps - 2-8Ghz)"
-msgstr "802.16a - WiMAX (1-125Mbps - 2-8Ghz)"
+msgid "802.16a - WiMAX (1-125Mbps - 2-8GHz)"
+msgstr "802.16a - WiMAX (1-125Mbps - 2-8GHz)"
 
 #:  /ca/guifi/device/10/edit
 msgid "legacy/proprietary protocol"
@@ -701,7 +701,7 @@ msgstr "enllaços dels trastos"
 
 #:  /ca/guifi/device/10/edit
 msgid "interface type"
-msgstr "tipus de conector"
+msgstr "tipus de connector"
 
 #:  /ca/guifi/device/10/edit
 msgid "Cable"
@@ -737,14 +737,14 @@ msgid ""
 "of what you are doing.<br>IP hints:<br><ul><li>AP, AP/WDS: Router main "
 "IP. Public address i.e. 10.138.0.1/255.255.255.224</li><li>Client, "
 "AP/Client Link: Leave blank or assign a private network i.e. "
-"192.18.1.1/255.255.255.0</li></ul>"
+"192.168.1.1/255.255.255.0</li></ul>"
 msgstr ""
 "IP Principal (Lan). No omplis cap dada a no ser que estiguis segur del "
-"que estàs fent.<br>Pistes per assignar l'IP:<br><ul><li>AP, AP/WDS: IP "
+"que estàs fent.<br>Pistes per assignar la IP:<br><ul><li>AP, AP/WDS: IP "
 "principal del router. Adreça pública i.e. "
 "10.138.0.1/255.255.255.224</li><li>Client, Enllaç AP/Client: Deixa-ho "
 "en blanc o assigna-hi una xarxa privada i.e. "
-"192.18.1.1/255.255.255.0</li></ul>"
+"192.168.1.1/255.255.255.0</li></ul>"
 
 #:  /ca/guifi/device/10/edit
 msgid "This text will be displayed as an information of the device."
@@ -756,7 +756,7 @@ msgid ""
 "address."
 msgstr ""
 "L'adreça de correu %mail no és vàlida. S'ha canviat per l'adreça "
-"del drupal."
+"del Drupal."
 
 #:  /ca/guifi/device/10/edit
 msgid "Updated guifi device %nick."
@@ -780,9 +780,9 @@ msgid ""
 "reports, etc."
 msgstr ""
 "Identificador únic per aquest node. Evita noms genèrics com "
-"'ELMeuNode', fes-ne servir algun que indentifiqui significativament el "
+"'ElMeuNode', fes-ne servir algun que indentifiqui significativament el "
 "teu node.<br>Nom curt, una sola paraula sense espais, només "
-"caràcters de 7-bit, es farà servir pel nom d'hoste, informes, etc."
+"caràcters de 7 bit, es farà servir pel nom d'hoste, informes, etc."
 
 #:  /ca/node/1570/edit
 msgid "Contact"
@@ -793,8 +793,8 @@ msgid ""
 "Who did possible this node or who to contact with regarding this node "
 "if it is distinct of the owner of this page."
 msgstr ""
-"Qui va fer possible aquest node, o persona de contacte relacionada amb "
-"el node si es diferent del propietari d'aquesta pàgina."
+"Qui va fer possible aquest node o persona de contacte relacionada amb "
+"el node si és diferent del propietari d'aquesta pàgina."
 
 #:  /ca/node/1570/edit
 msgid "root zone"
@@ -814,7 +814,7 @@ msgstr "node-guifi"
 
 #:  /guifi/graph_detail?type=radio&radio=390
 msgid "enter a timeframe to graph a customized period"
-msgstr "periode personalitzat de temps a graficar"
+msgstr "període personalitzat de temps a graficar"
 
 #:  /guifi/graph_detail?type=radio&radio=390
 msgid "From:"
@@ -857,7 +857,7 @@ msgid ""
 "Single word, 7-bits characters. Used while default values as hostname, "
 "SSID, etc..."
 msgstr ""
-"Una sola paraula,amb caràcters de 7-bits. Utilitzat com a nom per "
+"Una sola paraula, amb caràcters de 7 bits. Utilitzat com a nom per "
 "defecte en els noms dels hostes, SSID, etc..."
 
 #:  /ca/node/2465/edit
@@ -945,8 +945,8 @@ msgid "(GMT+01:00) Tunisia"
 msgstr "(GMT+01:00) Tuníssia"
 
 #:  /ca/node/2465/edit
-msgid "(GMT+01:00) Gurb, France, Germany, Italy"
-msgstr "(GMT+01:00) Gurb, França, Alemanya, Itàlia"
+msgid "(GMT+01:00) Catalunya, France, Germany, Italy"
+msgstr "(GMT+01:00) Catalunya, França, Alemanya, Itàlia"
 
 #:  /ca/node/2465/edit
 msgid "(GMT+02:00) South Africa"
@@ -1035,7 +1035,7 @@ msgid ""
 "Mailid where changes on the zone will be notified. Usefull for "
 "decentralized administration."
 msgstr ""
-"Mailid on es notificaran els canvis en la zona. Útil per "
+"Bústia on es notificaran els canvis en la zona. Útil per "
 "administració descentralitzada."
 
 #:  /ca/node/2465/edit
@@ -1068,7 +1068,7 @@ msgid ""
 "OSPF routing protocol so all the routhers within the zone will share a "
 "dynamic routing table."
 msgstr ""
-"L'identificador que s'utilitzara quan es generin arxius de "
+"L'identificador que s'utilitzarà quan es generin arxius de "
 "configuració pel protocol OSPF d'encaminament, de tal manera que tots "
 "els routers de la zona compartiran una taula d'enrutament dinàmic."
 
@@ -1089,8 +1089,8 @@ msgid ""
 "Optional. In the zones, the heavier items will sink and the lighter "
 "items will be positioned nearer the top."
 msgstr ""
-"Opcional. En les zones, els elements de més pes aniran avall, i els "
-"de menys es posicionaran vora el primer."
+"Opcional. En les zones, els elements de més pes aniran aval, i els "
+"de menys es posicionaran prop del primer."
 
 #:  /ca/node/2465/edit
 msgid "guifi-zone"
@@ -1106,7 +1106,7 @@ msgid ""
 "the changes."
 msgstr ""
 "Ep!! Això només és una previsualització, has d'enviar perquè "
-" els canvis es fagin efectius."
+" els canvis es facin efectius."
 
 #:  /ca/guifi/device/389/view/unsolclic
 msgid "Client mode"
@@ -1160,7 +1160,7 @@ msgstr ""
 "estiguis segur del que estàs fent.<br>Pistes per assignar la IP:<br><ul><li>AP, AP/WDS: "
 "subxarxa backbone amb 2 hostes, i.e. "
 "172.25.0.1/255.255.255.252/172.25.0.2</li><li>Client, enllaç AP/Client: "
-"En blanc per DHCP, o bé una IP del lang de l'AP per ip fixa.</li></ul>"
+"En blanc per DHCP o bé una IP del rang de l'AP per IP fixa.</li></ul>"
 
 #:  /ca/guifi/device/393/edit
 msgid "Edit link"
@@ -1178,7 +1178,7 @@ msgstr "Aquests trastos ja estan enllaçats. Esborra primer l'enllaç existent"
 msgid "ERROR: I do need a firmware selected at the radio web interface."
 msgstr ""
 "ERROR: Es necessita un firmware seleccionat en les dades de la secció "
-"radio"
+"ràdio"
 
 #:  /ca/guifi/device/394/delete
 msgid "Confirm delete"
@@ -1196,11 +1196,11 @@ msgid ""
 "links where this device is present</li></ul>If you are really sure "
 "that you want to delete this information, press \"Confirm delete\"."
 msgstr ""
-"\tATENCIÓ: Aquesta acció no es pot desfer. El trasto i tot la seva "
+"\tATENCIÓ: Aquesta acció no es pot desfer. El trasto i tota la seva "
 "informació relacionada seran <strong>esborrades permanentment</strong>, "
-"això inclou:<ul><li>El trasto</li><li>Els conectors "
+"això inclou:<ul><li>El trasto</li><li>Els connectors "
 "associats</li><li>Els enllaços on aquest trasto era "
-"present.</li></ul>Si estas segur que vols esborrar aquesta informació, "
+"present.</li></ul>Si estàs segur que vols esborrar aquesta informació, "
 "prem \"Confirmar l'esborrada\"."
 
 #:  /ca/guifi/device/394/delete
@@ -1217,11 +1217,11 @@ msgstr "En/Na %user ha esborrat el trasto %name"
 
 #:  includes/locale.inc:319;337;349;357;371;380
 msgid " Translation file broken: syntax error in line %line."
-msgstr "L'arxiu de traduccció %filename esta trencat: Error de sintaxis en la linia %line."
+msgstr "L'arxiu de traduccció %filename està trencat: Error de sintaxis en la línia %line."
 
 #:  includes/locale.inc:135
 msgid "Translation file %filename broken: Could not be read."
-msgstr "L'arxiu de traduccció %filename esta trencat: No s'ha pogut llegir"
+msgstr "L'arxiu de traduccció %filename està trencat: No s'ha pogut llegir"
 
 #:  modules/locale.module:392
 msgid "Translation import of %filename failed."
@@ -1254,13 +1254,13 @@ msgid ""
 "The node has not a valid email address as a contact. Using your email "
 "as a default. Change the contact mail address if necessary."
 msgstr ""
-"El node no te una adreça vàlida de contacte. Es fara servir el teu email "
+"El node no té una adreça vàlida de contacte. Es farà servir el teu email "
 "per defecte. Canvia l'adreça de contacte si s'escau."
 
 
 #: /ca/node/2466/edit/coord
 msgid "Geo-references coordinates of Zone are updated."
-msgstr "Les coordenades de Geo-referencia de la zona s'han actualitzat."
+msgstr "Les coordenades de Georeferència de la zona s'han actualitzat."
 
 #: /ca/guifi/device/408/edit
 msgid "Device base address (Lan)"
@@ -1340,7 +1340,7 @@ msgstr "Tens que posar-li un nom curt."
 
 #: /ca/node/add/guifi-zone
 msgid "You must specify a name for the zone."
-msgstr "Tens que posar-li un nom a la zona"
+msgstr "Has de posar-li un nom a la zona"
 
 #: /ca/guifi/device/83/edit
 msgid ""
@@ -1419,7 +1419,7 @@ msgstr "guifi: Xarxa definida per a "
 msgid ""
 "A new network (%base / 255.255.255.0) has been allocated for zone "
 "%name."
-msgstr "Nova sunxarxa (%base /255.255.255.0) reservada per a la zona"
+msgstr "Nova subxarxa (%base /255.255.255.0) reservada per a la zona"
 "%name."
 
 #: /ca/guifi_zones
@@ -1496,7 +1496,7 @@ msgstr "Servidor de disc o FTP"
 
 #: /ca/node/add/guifi-service
 msgid "Peer 2 Peer server"
-msgstr "Servidor de P2P"
+msgstr "Servidor P2P"
 
 #: /ca/node/add/guifi-service
 msgid "Asterisk VoIP PBX server"
@@ -1504,11 +1504,11 @@ msgstr "Centraleta telefònica"
 
 #: /ca/node/add/guifi-service
 msgid "Radio broadcast"
-msgstr "Emisora de ràdio"
+msgstr "Emissora de ràdio"
 
 #: /ca/node/add/guifi-service
 msgid "TV broadcast"
-msgstr "Emisora de TV"
+msgstr "Emissora de TV"
 
 #: /ca/node/add/guifi-service
 msgid "IRC (chat) server"
@@ -1528,7 +1528,7 @@ msgstr "Paràmetres generals"
 
 #: /ca/node/add/guifi-service
 msgid "guifi-service"
-msgstr ""
+msgstr "servei guifi"
 
 #: /ca/node/2543
 msgid "service"
@@ -1568,7 +1568,7 @@ msgstr "Ample de banda de pujada"
 
 #: /ca/node/2543/edit
 msgid "Port"
-msgstr ""
+msgstr "Port"
 
 #: /ca/node/2543/edit
 msgid "Specific %type parameters"
@@ -1584,27 +1584,28 @@ msgstr ""
 msgid ""
 "Fatal Error: This device (%id %name) has no radio. Report this error "
 "to your network administrator."
-msgstr ""
+msgstr "Error Fatal: Aquest dispositiu (%id %name) no té ràdios. Comunica l'error"
+"a l'administrador de la teva xarxa."
 
 #: /ca/node/2426/ipv4
 msgid "Created new guifi network %base."
-msgstr ""
+msgstr "Creada una nova xarxa guifi %base."
 
 #: /ca/guifi/device/429/edit
 msgid "Must be in ap mode for accepting WDS links."
-msgstr "Ha d'e4star en mode AP per acceptar enllaços WDS."
+msgstr "Ha d'estar en mode AP per acceptar enllaços WDS."
 
 #: /ca/guifi/device/450/view/unsolclic
 msgid "Note: Use Status/Wireless survey to verify that you have the"
-msgstr "Nota: Fes servir l'Status/Wireless survey per verificar que"
+msgstr "Nota: Fes servir l'Status/Wireless/Survey per verificar que"
 
 #: /ca/guifi/device/450/view/unsolclic
 msgid "antenna plugged in the right connector. The right antena is probably"
-msgstr "tens l'antena ben endollada i configurada. La dreta es probablement"
+msgstr "tens l'antena ben endollada i configurada. La dreta és probablement"
 
 #: /ca/guifi/device/450/view/unsolclic
 msgid "the one which is at the right, looking the WRT54G from the front"
-msgstr "la que tens a la dreta si el mires des del davant (on hi han els"
+msgstr "la que tens a la dreta si el mires des del davant (on hi ha els"
 
 #: /ca/guifi/device/450/view/unsolclic
 msgid "(where it have the leds). If needed, change the antenna connector"
@@ -1612,7 +1613,7 @@ msgstr "leds). Si et cal, canvia el connector des de la configuracio via"
 
 #: /ca/guifi/device/450/view/unsolclic
 msgid "at Wireless->Advanced Settings."
-msgstr "wev anant a Wireless->Advanced Settings."
+msgstr "web anant a Wireless->Advanced Settings."
 
 #: /ca/guifi/device/465/edit
 msgid "Type of link not supported yet by the application."
@@ -1628,7 +1629,7 @@ msgstr ""
 
 #: /ca/guifi/device/312/edit
 msgid "IP address (%ip1 and %ip2) are not in the same subnetwork."
-msgstr "Les adreces (%ip2 i %ip2) no són a la mateixa subxarxa.""
+msgstr "Les adreces (%ip2 i %ip2) no són a la mateixa subxarxa."
 
 #: /ca/guifi/device/312/edit
 msgid ""
@@ -1686,7 +1687,7 @@ msgstr "servidors d'entrada i de sortida"
 
 #:
 msgid "webmail and admin url"
-msgstr "url del webmail i d'administració"
+msgstr "URL del webmail i d'administració"
 
 #:
 msgid "Subversion/CVS repository."
@@ -1702,7 +1703,7 @@ msgstr "Còpia de repositori de distribució Linux"
 
 #:
 msgid "Node Zone Limit"
-msgstr "Node L&#237;mit de Zona"
+msgstr "Node Límit de Zona"
 
 #:
 msgid "Online Node"
@@ -1714,7 +1715,7 @@ msgstr "Node en Proves"
 
 #:
 msgid "Building Node"
-msgstr "Node en Construcci&#243;"
+msgstr "Node en Construcció"
 
 #:
 msgid "Planned Node"
@@ -1726,29 +1727,29 @@ msgstr "Node Aturat"
 
 #:
 msgid "Online Link"
-msgstr "Enlla&#231; Actiu"
+msgstr "Enllaç Actiu"
 
 #:
 msgid "Planned Link"
-msgstr "Enlla&#231; Projectat"
+msgstr "Enllaç Projectat"
 
 #:
 msgid "Building Link"
-msgstr "Enlla&#231; en Construcci&#243"
+msgstr "Enllaç en Construcció"
 
 #:
 msgid "Reserved Link"
-msgstr "Enlla&#231; Reservat"
+msgstr "Enllaç Reservat"
 
 #:
 msgid "Zone Limits"
-msgstr "L&#237;mit de la Zona"
+msgstr "Límit de la Zona"
 
 #:
 msgid "Other Zone/SubZone Limits"
-msgstr "L&#237;mit d'Altres Zones/SubZones"
+msgstr "Límit d'Altres Zones/SubZones"
 
 #:
 msgid "Testing Link"
-msgstr "Enlla&#231; en Proves"
+msgstr "Enllaç en Proves"
 
