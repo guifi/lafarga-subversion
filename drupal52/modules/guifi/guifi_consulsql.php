@@ -1,7 +1,7 @@
 <?php
 /** funcions de consulta directa
  */
-function guifi_consulsql() {
+function guifi_consulta() {
 	$v = '<html><body>hola hola</body></html>';
 	echo $v;
 	return;
