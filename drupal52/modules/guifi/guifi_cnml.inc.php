@@ -65,7 +65,13 @@ function guifi_cnml($cnmlid,$action = 'help') {
      $sql_interfaces = sprintf('SELECT i.*,a.ipv4,a.id ipv4_id, a.netmask FROM {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE d.nid in (%s) AND d.id=i.device_id AND i.id=a.interface_id',$cnmlid);
      $sql_links = sprintf('SELECT l1.id, l1.device_id, l1.interface_id, l1.ipv4_id, l2.device_id linked_device_id, l2.nid linked_node_id, l2.interface_id linked_interface_id, l2.ipv4_id linked_radiodev_counter, l1.link_type, l1.flag status FROM {guifi_links} l1, {guifi_links} l2 WHERE l1.nid in (%s) AND l1.id=l2.id AND l1.device_id != l2.device_id',$cnmlid);
      $sql_services = sprintf('SELECT s.* FROM {guifi_devices} d, {guifi_services} s WHERE d.nid=%d AND d.id=s.device_id AND n.nid=s.id',$cnmlid);
+   case 'nodecount':
+   	 $CNML=fnodecount();
+     drupal_set_header('Content-Type: application/xml; charset=utf-8');
+     echo $CNML->asXML();
+     return;
   }   
+  
 
   // load devices in memory for faster execution
   global $devices;
@@ -490,6 +496,25 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
   return;
   
+}
+
+function fnodecount(){
+  $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
+  $CNML = new SimpleXMLElement('<cnml></cnml>');
+  $CNML->addAttribute('version','0.1');
+  $CNML->addAttribute('server_id','1');
+  $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
+  $classXML = $CNML->addChild('nodesxyear');
+  $nreg=0;
+  while ($record=db_fetch_object($result)){
+    $nreg++;
+    $reg = $classXML->addChild('reg');
+    $reg->addAttribute('year',$record->ano);
+    $reg->addAttribute('nodes',$record->num);
+  };
+  $classXML->addAttribute('numyears',$nreg);
+  return $CNML;
 }
 
 ?>
