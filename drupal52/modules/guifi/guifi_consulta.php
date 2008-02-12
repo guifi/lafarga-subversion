@@ -3,13 +3,6 @@
  */
 function guifi_consulta() {
 echo hola;
-    $tnodes = db_query('
-      SELECT 
-        status_flag, count(*) c 
-      FROM {guifi_location} 
-      GROUP BY status_flag');
-$summary = db_fetch_object($tnodes);
-echo t($summary->status_flag);
 }
 
 
