@@ -2,20 +2,9 @@
 /** funcions de consulta directa
  */
 function guifi_consulsql() {
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo hola;
-echo adeu;
-return;
+	$v = '<html><body>hola hola</body></html>';
+	echo $v;
+	return;
 }
 
 
