@@ -21,7 +21,7 @@ include_once("guifi_includes.inc.php");  // misc. routines
 include_once("guifi_networkutils.inc.php");  // network calc routines
 include_once("guifi_sql.inc.php");       // database changes 
 include_once("GeoCalc.class.php");       // geographic routines
-include_once("guifi_consulta.php");      // consultes rapides
+include_once("guifi_consulsql.php");      // consultes rapides
 
 /** Implementation of drupal main hooks.
  *
