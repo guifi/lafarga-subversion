@@ -3,6 +3,19 @@
  */
 function guifi_consulsql() {
 echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo hola;
+echo adeu;
+return;
 }
 
 
