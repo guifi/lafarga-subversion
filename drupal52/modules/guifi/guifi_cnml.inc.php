@@ -65,11 +65,13 @@ function guifi_cnml($cnmlid,$action = 'help') {
      $sql_interfaces = sprintf('SELECT i.*,a.ipv4,a.id ipv4_id, a.netmask FROM {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE d.nid in (%s) AND d.id=i.device_id AND i.id=a.interface_id',$cnmlid);
      $sql_links = sprintf('SELECT l1.id, l1.device_id, l1.interface_id, l1.ipv4_id, l2.device_id linked_device_id, l2.nid linked_node_id, l2.interface_id linked_interface_id, l2.ipv4_id linked_radiodev_counter, l1.link_type, l1.flag status FROM {guifi_links} l1, {guifi_links} l2 WHERE l1.nid in (%s) AND l1.id=l2.id AND l1.device_id != l2.device_id',$cnmlid);
      $sql_services = sprintf('SELECT s.* FROM {guifi_devices} d, {guifi_services} s WHERE d.nid=%d AND d.id=s.device_id AND n.nid=s.id',$cnmlid);
+     break;
    case 'nodecount':
-   	 $CNML=fnodecount();
+   	 $CNML=fnodecount($cnmlid);
      drupal_set_header('Content-Type: application/xml; charset=utf-8');
      echo $CNML->asXML();
      return;
+     break;
   }   
   
 
@@ -498,22 +500,75 @@ function guifi_cnml($cnmlid,$action = 'help') {
   
 }
 
-function fnodecount(){
-  $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
+function fnodecount($cnmlid){
+  if($cnmlid<0 or $cnmlid>9){
+    $vid=0;
+  }else{
+    $vid=$cnmlid;
+  }
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   $CNML->addAttribute('version','0.1');
   $CNML->addAttribute('server_id','1');
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
-  $classXML = $CNML->addChild('nodesxyear');
-  $nreg=0;
-  while ($record=db_fetch_object($result)){
-    $nreg++;
-    $reg = $classXML->addChild('reg');
-    $reg->addAttribute('year',$record->ano);
-    $reg->addAttribute('nodes',$record->num);
-  };
-  $classXML->addAttribute('numyears',$nreg);
+  switch ($vid){
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 0: //compte els nodes per any
+  	$result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
+	$classXML = $CNML->addChild('nodesxyear');
+	$nreg=0;
+	while ($record=db_fetch_object($result)){
+	  $nreg++;
+	  $reg = $classXML->addChild('rec');
+	  $reg->addAttribute('year',$record->ano);
+	  $reg->addAttribute('nodes',$record->num);
+	};
+	$classXML->addAttribute('numyears',$nreg);
+	break;
+  case 1:  //compte els nodes per any i estat
+  	$result=db_query("select COUNT(*) as num,status_flag, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),status_flag ");
+	$classXML = $CNML->addChild('nodesxyearxstatus');
+	$nreg=0;
+	$nyear=0;
+	$vyear='';
+	while ($record=db_fetch_object($result)){
+	  $nreg++;
+	  if($record->ano!=$vyear){
+	    $vyear=$record->ano;
+	    $nyear++;
+	  }
+	  $reg = $classXML->addChild('rec');
+	  $reg->addAttribute('year',$record->ano);
+	  $reg->addAttribute('nodes',$record->num);
+	  $reg->addAttribute('status',$record->status_flag);
+	};
+	$classXML->addAttribute('numrecs',$nreg);
+	$classXML->addAttribute('numyears',$nyear);
+	break;
+  case 9:  //torna els nodes actius totals i els del ultim minut
+	$afecha=getdate();
+	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mday],$afecha[mon],$afecha[year]);  
+	$tiempomax=$tiempomin+60;
+  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Runing'");
+  	$result2=db_query("select COUNT(*) as num from {guifi_location} where timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax."");
+	$classXML = $CNML->addChild('totalnodes');
+	$nreg=0;
+	if ($record=db_fetch_object($result)){
+		if ($record2=db_fetch_object($result2)){
+	  		$nreg++;
+	  		$classXML->addAttribute('nodes',$record->num);
+	  		$classXML->addAttribute('nodeslastmin',$record2->num);
+		}
+	};
+	$classXML->addAttribute('result',$nreg);
+	break;
+  }	
   return $CNML;
 }
 
