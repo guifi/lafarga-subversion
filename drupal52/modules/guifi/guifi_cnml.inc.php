@@ -561,7 +561,7 @@ function fnodecount($cnmlid){
 	$classXML->addAttribute('numstatus',$nreg);
 	break;
   case 3:  //torna els nodes actius totals
-  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Runing'");
+  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
 	$classXML = $CNML->addChild('totalactivenodes');
 	$nreg=0;
 	if ($record=db_fetch_object($result)){
@@ -618,7 +618,7 @@ function fnodecount($cnmlid){
 	$afecha=getdate();
 	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mday],$afecha[mon],$afecha[year]);  
 	$tiempomax=$tiempomin+60;
-  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Runing'");
+  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
   	$result2=db_query("select COUNT(*) as num from {guifi_location} where timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax."");
 	$classXML = $CNML->addChild('totalnodes');
 	$nreg=0;
