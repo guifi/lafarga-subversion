@@ -512,9 +512,6 @@ function fnodecount($cnmlid){
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
   switch ($vid){
-  case 2:
-  case 3:
-  case 4:
   case 5:
   case 6:
   case 7:
@@ -550,6 +547,72 @@ function fnodecount($cnmlid){
 	};
 	$classXML->addAttribute('numrecs',$nreg);
 	$classXML->addAttribute('numyears',$nyear);
+	break;
+  case 2:  //compte els nodes per estat
+  	$result=db_query("select COUNT(*) as num, status_flag from {guifi_location} GROUP BY status_flag ");
+	$classXML = $CNML->addChild('nodesxstatus');
+	$nreg=0;
+	while ($record=db_fetch_object($result)){
+	  $nreg++;
+	  $reg = $classXML->addChild('rec');
+	  $reg->addAttribute('nodes',$record->num);
+	  $reg->addAttribute('status',$record->status_flag);
+	};
+	$classXML->addAttribute('numstatus',$nreg);
+	break;
+  case 3:  //torna els nodes actius totals
+  	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Runing'");
+	$classXML = $CNML->addChild('totalactivenodes');
+	$nreg=0;
+	if ($record=db_fetch_object($result)){
+		$nreg++;
+		$classXML->addAttribute('nodes',$record->num);
+	};
+	$classXML->addAttribute('result',$nreg);
+	break;
+  case 4:  //torna els nombre i distancies dels enllaços per tipo denllaç'
+    $oGC = new GeoCalc();
+    $dTotals = array();
+    $qlinks = db_query('
+      SELECT 
+        l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1, 
+        n1.lon lon1, n2.lat lat2, n2.lon lon2 
+      FROM guifi_links l1 
+        LEFT JOIN guifi_links l2 ON l1.id=l2.id 
+        LEFT JOIN guifi_location n1 ON l1.nid=n1.id 
+        LEFT JOIN guifi_location n2 ON l2.nid=n2.id 
+      WHERE l1.nid != l2.nid AND l1.device_id != l2.device_id');
+    unset($listed);
+    while ($link = db_fetch_object($qlinks)) {
+      if (!isset($listed[$link->id]) ){
+		$listed[$link->id] = $link;
+	    $d = round($oGC->EllipsoidDistance($link->lat1,$link->lon1,$link->lat2,$link->lon2),1);
+	    switch ($link->link_type) {
+	      case 'wds': $type=t('PtP link'); break;
+	      case 'ap/client': $type=t('ap/client'); break;
+	      default: $type=t('unknown'); 
+	    }
+	    if ($d < 100) {
+	      $dTotals[$type]['dTotal'] += $d; 
+	      $dTotals[$type]['count'] ++;
+	    }else{
+	      guifi_log(GUIFILOG_BASIC,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
+	        $link->nid1, $link->nid2, $d));
+	    }
+      }
+    }
+	$classXML = $CNML->addChild('linksxtype');
+	$nreg=0;
+    if (count($dTotals)) foreach ($dTotals as $key=>$dTotal){ 
+	    if ($dTotal['dTotal']) {
+	  	  $nreg++;
+	  	  $reg = $classXML->addChild('rec');
+		  $reg->addAttribute('type',$key);
+		  $reg->addAttribute('links',$dTotal['count']);
+		  $reg->addAttribute('km',$dTotal['dTotal']);
+	    }
+    }
+	$classXML->addAttribute('numtypes',$nreg);
 	break;
   case 9:  //torna els nodes actius totals i els del ultim minut
 	$afecha=getdate();
