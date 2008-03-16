@@ -97,11 +97,6 @@ function guifi_unsolclic_startup($dev, $version, $rc_startup) {
 }
 }
 
-
-function guifi_unsolclic_if($id, $itype) {
-  return db_fetch_object(db_query("SELECT i.id, a.ipv4, a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=0 WHERE device_id = %d AND interface_type = '%s' LIMIT 1",$id,$itype));
-}
-
 function guifi_get_alchemy_ifs($dev) {
   $ifs = array (
            'wLan/Lan' => 'br0',
@@ -340,7 +335,6 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      else {
        _outln_nvram('wan_proto','static');
        _outln_nvram('wan_ipaddr',$wan->ipv4);
-//       _outln_nvram('wan_gateway',$item['netstart']);
        _outln_nvram('wan_netmask',$wan->netmask);
        if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')){
 	  _outln_nvram('fullswitch','1');

@@ -313,10 +313,12 @@ INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'DD-WRT',   'DD-WRT from BrainSlayer','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'DD-guifi', 'DD-guifi from Miquel Martos','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'RouterOSv2.9', 'RouterOS 2.9 from Mikrotik','Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'RouterOSv3.x', 'RouterOS 3.x from Mikrotik','Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB333 guifi.net');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT-whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
 INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');
+INSERT INTO `guifi_types` (type, text, description, relations) VALUES ('firmware', 'NanoStation', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5');
 --
 -- antenna types
 --
@@ -465,6 +467,7 @@ INSERT INTO `guifi_manufacturer` VALUES (6, 'Zyxel', 'http://www.zyxel.com');
 INSERT INTO `guifi_manufacturer` VALUES (7, 'Conceptronic', NULL);
 INSERT INTO `guifi_manufacturer` VALUES (8, 'Mikrotik', 'http://mikrotik.com');
 INSERT INTO `guifi_manufacturer` VALUES (9, 'Buffalo', 'http://www.buffalotech.com');
+INSERT INTO `guifi_manufacturer` VALUES (10, 'Ubiquiti', 'http://www.ubnt.com');
 -- phpMyAdmin SQL Dump
 -- version 2.7.0-pl2
 -- http://www.phpmyadmin.net
@@ -538,7 +541,11 @@ INSERT INTO `guifi_model` VALUES (21, 8, 'Supertrasto RB133 guifi.net', NULL, 3,
 INSERT INTO `guifi_model` VALUES (22, 8, 'Supertrasto RB112 guifi.net', NULL, 2, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
 INSERT INTO `guifi_model` VALUES (23, 8, 'Supertrasto RB153 guifi.net', NULL, 3, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
 INSERT INTO `guifi_model` VALUES (24, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');
-
+INSERT INTO `guifi_model` VALUES (25, 10, 'NanoStation2', 'Extern', 1, 400, '802.11b/g', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'Wan', 'http://ubnt.com/products/ns2.php', 'Permet Firmwares de tercers', 'Yes');
+INSERT INTO `guifi_model` VALUES (26, 10, 'NanoStation5', 'Extern', 1, 400, '802.11a', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'Wan', 'http://ubnt.com/products/ns5.php', 'Permet Firmwares de tercers', 'Yes');
+INSERT INTO `guifi_model` VALUES (27, 8, 'Supertrasto RB600 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (28, 8, 'Supertrasto RB333 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (29, 8, 'Supertrasto RB411 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
 
 CREATE TABLE `guifi_ipv4` (
   `id` int(11) NOT NULL,
