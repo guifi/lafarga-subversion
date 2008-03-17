@@ -229,7 +229,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
               }
                 else if  (in_array($model_name,
                      array('NanoStation2' , 'NanoStation5'))) {
-                $radioXML->addAttribute('snmp_index',4);
+                $radioXML->addAttribute('snmp_index',5);
               }
             }
             switch ($radio->mode) {
