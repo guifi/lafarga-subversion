@@ -1,7 +1,7 @@
 <?php
 
 function unsolclic_nano($dev) {
-  $version = "1.0.0";
+  $version = "1.0.1";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
   $wan = guifi_unsolclic_if($dev->id,'Wan');
@@ -27,11 +27,15 @@ function unsolclic_nano($dev) {
       case "25":
       $net_mode= 'b';
       $lnet_mode= 'B Only (2,4Ghz 11MB)';
+      $rate_max= '11M';
+      $txpower= '16';
       $ack= '45';
     break;
     case "26":
       $net_mode= 'a';
       $lnet_mode= 'A (5Ghz)';
+      $rate_max= '54M';
+      $txpower= '19';
       $ack= '25';
            }
 
@@ -98,7 +102,6 @@ radio.1.frag=off
 radio.1.mcastrate=11M
 radio.1.mode=managed
 radio.1.rate.auto=enabled
-radio.1.rate.max=11M
 radio.1.rts=off
 radio.1.rx_antenna=2
 radio.1.rx_antenna_diversity=disabled
@@ -108,7 +111,6 @@ radio.1.thresh62b=28
 radio.1.thresh62g=28
 radio.1.tx_antenna=2
 radio.1.tx_antenna_diversity=disabled
-radio.1.txpower=16
 radio.countrycode=724
 radio.ratemodule=ath_rate_onoe
 radio.status=enabled
@@ -160,6 +162,8 @@ route.1.gateway=$gateway
 resolv.host.1.name=$dev->nick
 snmp.location=$loc->nick
 radio.1.ieee_mode=$net_mode
+radio.1.rate.max=$rate_max
+radio.1.txpower=$txpower
 ";
 
   fwrite($Handle, $Data);

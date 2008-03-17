@@ -213,7 +213,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
               }
               if (isset($device->variable['model_id']))
               if (in_array($model_name,
-                     array('WRT54Gv1-4','WHR-HP-G54, WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
+                     array('WRT54Gv1-4','WHR-HP-G54', 'WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
                switch ($device->variable['firmware']) {
                case 'whiterussian': 
                case 'kamikaze': 
@@ -223,8 +223,13 @@ function guifi_cnml($cnmlid,$action = 'help') {
                  $radioXML->addAttribute('snmp_index',6);
                }
               } else if  (in_array($model_name,
-                     array('Supertrasto RB532 guifi.net' , 'Supertrasto RB133C guifi.net' , 'Supertrasto RB133 guifi.net' , 'Supertrasto RB112 guifi.net' , 'Supertrasto RB153 guifi.net'))) {
+                     array('Supertrasto RB532 guifi.net' , 'Supertrasto RB133C guifi.net' , 'Supertrasto RB133 guifi.net' , 'Supertrasto RB112 guifi.net' , 'Supertrasto RB153 guifi.net' ,
+                     'Supertrasto RB600 guifi.net' , 'Supertrasto RB333 guifi.net' , 'Supertrasto RB412 guifi.net'))) {
                 $radioXML->addAttribute('snmp_name','wlan'.(string)$id);
+              }
+                else if  (in_array($model_name,
+                     array('NanoStation2' , 'NanoStation5'))) {
+                $radioXML->addAttribute('snmp_index',4);
               }
             }
             switch ($radio->mode) {
