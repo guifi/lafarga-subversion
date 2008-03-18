@@ -54,7 +54,7 @@ function unsolclic_routeros($dev) {
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
-  _outln_comment(t('Configuration for RouterOS > 2.9.40'));
+  _outln_comment(t('Configuration for RouterOS > 2.9.50 or 3.4'));
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
   _outln_comment(t('WARNING: Beta version'));
@@ -116,11 +116,11 @@ function unsolclic_routeros($dev) {
   _outln_comment('NTP (client &#038; server cache) zone: '.$node->zone_id);
   list($primary_ntp,$secondary_ntp) = explode(' ',guifi_get_ntp($zone));
   if ($secondary_ntp != null)
-    _outln(sprintf('/system ntp client set enabled=yes primary-ntp=%s secondary-ntp=%s',$primary_ntp,$secondary_ntp));
+    _outln(sprintf('/system ntp client set enabled=yes mode=unicast primary-ntp=%s secondary-ntp=%s',$primary_ntp,$secondary_ntp));
   else if ($primary_ntp != null)
-    _outln(sprintf('/system ntp client set enabled=yes primary-ntp=%s',$primary_ntp));
-  _outln('/system ntp server set manycast=no enabled=yes');
-
+    _outln(sprintf('/system ntp client set enabled=yes mode=unicast primary-ntp=%s',$primary_ntp));
+  if ($dev->variable[firmware] == 'RouterOSv2.9')
+  _outln(sprintf('/system ntp server set manycast=no enabled=yes'));
   _outln(':delay 1');
 
   // Bandwidth-server
@@ -267,7 +267,7 @@ function unsolclic_routeros($dev) {
            _outln('/ip address');
            if ($interface[interface_type]=='Wan')
              _outln(sprintf(':foreach i in [find interface=%s] do={remove $i}',$iname));
-           _outln(sprintf(':foreach i in [find address=%s/%d] do={remove $i}',$ipv4[ipv4],$item[maskbits]));
+           _outln(sprintf(':foreach i in [find address="%s/%d"] do={remove $i}',$ipv4[ipv4],$item[maskbits]));
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=no',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$iname));
            $defined_ips[$ipv4[ipv4]] = $item;
            $ospf_routerid=$ipv4[ipv4];
@@ -284,7 +284,7 @@ function unsolclic_routeros($dev) {
            _outln(sprintf(':foreach i in [find name=hotspot%d] do={remove $i}',$radio_id+1));
            _outln(sprintf('add name="hotspot%d" arp=enabled master-interface=wlan%d ssid="guifi.net-%s" disabled="no"',$radio_id+1,$radio_id+1,variable_get("hotspot_ssid","HotSpot")));
            _outln('/ip address');
-           _outln(sprintf(':foreach i in [find address=192.168.%d.1/24] do={remove $i}',$radio_id+100));
+           _outln(sprintf(':foreach i in [find address="192.168.%d.1/24"] do={remove $i}',$radio_id+100));
            _outln(sprintf('/ip address add address=192.168.%d.1/24 interface=hotspot%d disabled=no',$radio_id+100,$radio_id+1));
            _outln('/ip pool');
            _outln(sprintf(':foreach i in [find name=hs-pool-%d] do={remove $i}',$radio_id+100));
@@ -293,7 +293,7 @@ function unsolclic_routeros($dev) {
            _outln(sprintf(':foreach i in [find name=hs-dhcp-%d] do={remove $i}',$radio_id+100));
            _outln(sprintf('add name="hs-dhcp-%d" interface=hotspot%d lease-time=1h address-pool=hs-pool-%d bootp-support=static authoritative=after-2sec-delay disabled=no',$radio_id+100,$radio_id+1,$radio_id+100));
            _outln('/ip dhcp-server network');
-           _outln(sprintf(':foreach i in [find address=192.168.%d.0/24] do={remove $i}',$radio_id+100));
+           _outln(sprintf(':foreach i in [find address="192.168.%d.0/24"] do={remove $i}',$radio_id+100));
            _outln(sprintf('add address=192.168.%d.0/24 gateway=192.168.%d.1 domain=guifi.net comment=dhcp-%s',$radio_id+100,$radio_id+100,$radio_id));
            _outln('/ip hotspot profile');
            _outln(sprintf(':foreach i in [find name=hsprof%d] do={remove $i}',$radio_id+1));
@@ -338,7 +338,7 @@ function unsolclic_routeros($dev) {
            _outln_comment('DHCP');
            foreach ($dhcp as $outln) 
             _outln($outln);
-           _outln(sprintf(':foreach i in [/ip dhcp-server network find address=%s/%d] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
+           _outln(sprintf(':foreach i in [/ip dhcp-server network find address="%s/%d"] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
            //_outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net dns-server=%s ntp-server=%s comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],implode(',',array_merge(array($ipv4[ipv4]),explode(' ',guifi_get_dns($zone)))),guifi_get_ntp($zone),$iname));
            _outln(sprintf(':foreach i in [/ip pool find name=dhcp-%s] do={/ip pool remove $i;}',$iname));
            _outln(sprintf('/ip pool add name=dhcp-%s ranges=%s-%s',$iname,_dec_to_ip($maxip),$item[netend]));
@@ -367,7 +367,7 @@ function unsolclic_routeros($dev) {
     _outln('/ip address');
 
     // Setting private network and DHCP
-    _outln(':foreach i in [find address=192.168.1.1/24] do={remove $i}');
+    _outln(':foreach i in [find address="192.168.1.1/24"] do={remove $i}');
     _outln('/ip address add address=192.168.1.1/24 network=192.168.1.0 broadcast=192.168.1.255 interface=ether1 comment="" disabled=no');
     _outln(':delay 1');
     _outln('/ip pool');
@@ -399,14 +399,14 @@ function unsolclic_routeros($dev) {
     _outln(':foreach i in [find] do={remove $i}');
     _outln('add chain=input connection-state=established action=accept comment="Allow Established connections" disabled=no');
     _outln('add chain=input protocol=udp action=accept comment="Allow UDP" disabled=no');
-    _outln('add chain=input src-address=192.168.1.0/24 action=accept comment="Allow access to router from known network" disabled=no');
+    _outln('add chain=input src-address="192.168.1.0/24" action=accept comment="Allow access to router from known network" disabled=no');
     _outln('add chain=input protocol=tcp dst-port=22 action=accept comment="Allow remote ssh" disabled=no');
     _outln('add chain=input protocol=udp dst-port=161 action=accept comment="Allow snmp" disabled=no');
     _outln('add chain=input protocol=tcp dst-port=8291 action=accept comment="Allow remote winbox" disabled=no');
     _outln('add chain=input protocol=icmp action=accept comment="Allow ping" disabled=no');
     _outln('add chain=forward connection-state=established action=accept comment="Allow already established connections" disabled=no');
     _outln('add chain=forward connection-state=related action=accept comment="Allow related connections" disabled=no');
-    _outln('add chain=forward src-address=192.168.1.0/24 action=accept comment="Allow access to router from known network" disabled=no');
+    _outln('add chain=forward src-address="192.168.1.0/24" action=accept comment="Allow access to router from known network" disabled=no');
     _outln('add chain=input protocol=tcp connection-state=invalid action=drop comment="" disabled=no');
     _outln('add chain=forward protocol=tcp connection-state=invalid action=drop comment="Drop invalid connections" disabled=no');
     _outln('add chain=forward action=drop comment="Drop anything else" disabled=no');
@@ -461,7 +461,7 @@ function unsolclic_routeros($dev) {
         } else
           $disabled='no';
         $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
-        _outln(sprintf(':foreach i in [/ip address find address=%s/%d] do={/ip address remove $i;}',$ipv4[ipv4],$item[maskbits]));
+        _outln(sprintf(':foreach i in [/ip address find address="%s/%d"] do={/ip address remove $i;}',$ipv4[ipv4],$item[maskbits]));
         _outln(':delay 1');
         _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=%s comment="%s"',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$iname,$disabled,implode(',',$comments)));
         $defined_ips[$ipv4[ipv4]] = $item;
@@ -473,11 +473,11 @@ function unsolclic_routeros($dev) {
   
   _outln_comment();
   _outln_comment(t('Internal addresses NAT'));
-  _outln(':foreach i in [/ip firewall nat find src-address=172.25.0.0/16] do={/ip firewall nat remove $i;}');
-  _outln(':foreach i in [/ip firewall nat find src-address=192.168.0.0/16] do={/ip firewall nat remove $i;}');
+  _outln(':foreach i in [/ip firewall nat find src-address="172.25.0.0/16"] do={/ip firewall nat remove $i;}');
+  _outln(':foreach i in [/ip firewall nat find src-address="192.168.0.0/16"] do={/ip firewall nat remove $i;}');
   _outln('/ip firewall nat');
-  _outln(sprintf('add chain=srcnat src-address=192.168.0.0/16 dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
-  _outln(sprintf('add chain=srcnat src-address=172.25.0.0/16 dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
 
   // BGP
   _outln_comment();
