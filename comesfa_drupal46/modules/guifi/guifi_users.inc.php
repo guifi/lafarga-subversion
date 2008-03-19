@@ -290,6 +290,7 @@ function guifi_list_users($node) {
     } 
     $output = '<h2>' .t('Users of') .' ' .$node->title.'</h2>';
     $output .= theme('table', array(null,t('real name'),t('username')), array_merge($rows),null);
+  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
     $output .= form_button(t('Edit selected'), 'op');
   } else {
     $output = '<h2>'.t('There is no users to list at').' '.$node->title.'</h2>';
