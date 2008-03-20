@@ -210,7 +210,7 @@ function guifi_edit_device($id = 0) {
       break;
     case t('Delete selected'):
     case t('Confirm delete'):
-      print_r($edit[edit_details]);
+      // print_r($edit[edit_details]);
       $parse = explode(',',$edit[edit_details]);
       if (!isset($edit[edit_details])) {
         form_set_error(null,t('Nothing selected.'));
@@ -449,6 +449,8 @@ function guifi_edit_device_form($edit, $node = null) {
     $form .= form_button(t('Save & continue edit'),'op');
     $form .= form_button(t('Save & exit'),'op');
   }
+
+  drupal_set_title($edit['nick']);
 
   return form($form);
 }
@@ -887,6 +889,8 @@ function guifi_device_print($id) {
   $output .= '</div>';
 
   $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
+  
+  drupal_set_title($device['nick']);
 
   return print theme('page',$output,t('device').': '.$device[nick]);
 }
