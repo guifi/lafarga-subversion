@@ -756,11 +756,19 @@ function guifi_device_print_data($device) {
 
   // If radio, going to list all device radios
   if (count($device['radios'])) {
+     
     unset($rowsr);
+    
+    $querymid = db_query("SELECT mid, model, f.nom manufacturer FROM guifi_model m, guifi_manufacturer f WHERE f.fid = m.fid AND supported='Yes'");
+    while ($model = db_fetch_array($querymid)) {
+      $models_array[$model["mid"]] = $model["manufacturer"] .", " .$model["model"];
+    }
+    
     foreach ($device['radios'] as $radio_id=>$radio) {
       $rowsr[] = array($radio['ssid'],$radio['mode'],$radio['protocol'],$radio['channel'],$radio['mac'],$radio['clients_accepted']);
     }
     $rows[] =  array(array('data'=>theme('table',array(t('ssid'),t('mode'),t('protocol'),t('ch'),t('wireless mac'),t('clients')),$rowsr),'colspan'=>2));
+    $rows[] =  array($models_array[$device["variable"]["model_id"]],$device['variable']['firmware']);
   }
 
   // If ADSL, print characteristics
