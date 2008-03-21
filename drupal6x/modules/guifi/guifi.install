@@ -1,214 +1,294 @@
 <?php
 
 function guifi_uninstall() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-       db_query("DROP TABLE {guifi_location}");
-       db_query("DROP TABLE {guifi_networks}");
-       db_query("DROP TABLE {guifi_zone}");
-       db_query("DROP TABLE {guifi_devices}");
-       db_query("DROP TABLE {guifi_links}");
-       db_query("DROP TABLE {guifi_interfaces}");
-       db_query("DROP TABLE {guifi_radios}");
-       db_query("DROP TABLE {guifi_types}");
-       db_query("DROP TABLE {guifi_services}");
-       db_query("DROP TABLE {guifi_users}");
-       db_query("DROP TABLE {guifi_manufacturer}");
-       db_query("DROP TABLE {guifi_model}");
-       db_query("DROP TABLE {guifi_ipv4}");
-       variable_del('guifi_license');
-       variable_del('guifi_title');
-       variable_del('guifi_root');
-       variable_del('guifi_contact');
-       variable_del('hotspot_ssid');
-       variable_del('guifi_loglevel');
-       variable_del('guifi_maps');
-       variable_del('guifi_decimal');
-       variable_del('guifi_thousand');
-       break;
-    case 'pgsql':
-      break;
-  }
+  
+  drupal_uninstall_schema('guifi');
+
+  variable_del('guifi_license');
+  variable_del('guifi_title');
+  variable_del('guifi_root');
+  variable_del('guifi_contact');
+  variable_del('hotspot_ssid');
+  variable_del('guifi_loglevel');
+  variable_del('guifi_maps');
+  variable_del('guifi_decimal');
+  variable_del('guifi_thousand');
 } 
 
+function guifi_schema() {
+  $schema['guifi_notify'] = array(
+    'fields' => array(
+         'id' =>        array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11'),
+         'timestamp' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11'),
+         'who_id' =>    array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11'),
+         'who_name' =>  array('type' => 'varchar', 'length' => '255', 'not null' => TRUE),
+         'to_array' =>  array('type' => 'varchar', 'length' => '1024', 'not null' => TRUE),
+         'subject' =>   array('type' => 'varchar', 'length' => '255', 'not null' => TRUE),
+         'body' =>      array('type' => 'text', 'size' => 'big', 'not null' => TRUE)
+         ),
+    'primary key' => array('id'),
+  );
+
+  $schema['guifi_location'] = array(
+    'fields' => array(
+         'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'nick' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'zone_id' => array('COMMENT' => 'foreign key to guifi_zone(id)', 'type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'zone_description' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'lat' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not null' => FALSE),
+         'lon' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not null' => FALSE),
+         'elevation' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'notification' => array('type' => 'varchar', 'length' => '1024', 'not null' => TRUE),
+         'status_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned'),
+         'stable' => array('comment' => 'Yes,No', 'type' => 'varchar', 'length' => '25', 'not null' => TRUE, 'default' => 'Yes'),
+         'graph_server' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11')),
+    'primary key' => array('id'),
+  );
+  
+  $schema['guifi_networks'] = array(
+    'comment' => 'allocates ipv4 adddress ranges to zones',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '10'),
+         'base' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
+         'mask' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => '255.255.255.0'),
+         'zone' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '10'),
+         'network_type' => array('comment' => 'public, backbone', 'type' => 'varchar', 'length' => '10', 'not null' => TRUE, 'default' => 'public'),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'valid' => array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 1, 'disp-width' => '4')),
+    'primary key' => array('id'),
+    'unique keys' => array(
+         'networks' => array(array('base', 16), array('mask', 16))),
+    'indexes' => array(
+         'net_zone' => array('zone')),
+  );
+  
+  $schema['guifi_zone'] = array(
+    'comment' => 'zone information, zones have a self hierarchy and group node locations',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '5'),
+         'title' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
+         'nick' => array('type' => 'varchar', 'length' => '10', 'not null' => FALSE),
+         'body' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'master' => array('COMMENT' => 'references parent zone guifi_zone(id)', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '5'),
+         'time_zone' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+         'dns_servers' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'ntp_servers' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'mrtg_servers' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'graph_server' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'image' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
+         'map_coord' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
+         'map_poly' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
+         'homepage' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'notification' => array('type' => 'varchar', 'length' => '1024', 'not null' => TRUE),
+         'ospf_zone' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'minx' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
+         'miny' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
+         'maxx' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
+         'maxy' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
+         'local' => array('comment'=>'Res, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
+         'nodexchange_url' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'refresh' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'remote_server_id' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'weight' => array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
+         'valid' => array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0, 'disp-width' => '1'),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
+    'primary key' => array('id'),
+    'indexes' => array(
+         'name' => array(array('title', 10))),
+  );
+  
+  $schema['guifi_devices'] = array(
+    'fields' => array(
+         'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'nid' => array('COMMENT' => 'foreign key to guifi_location(id)', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'nick' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
+         'type' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
+         'notification' => array('type' => 'varchar', 'length' => '1024', 'not null' => TRUE),
+         'mac' => array('type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => '00:00:00:00:00:00'),
+         'comment' => array('type' => 'text', 'size' => 'big', 'not null' => FALSE),
+         'flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned'),
+         'extra' => array('COMMENT' => 'store variable data depending on guifi_devices(type)', 'type' => 'text', 'size' => 'big', 'not null' => FALSE),
+         'url_mrtg_server' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'graph_server' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
+    'primary key' => array('id'),
+    'unique keys' => array(
+         'nick' => array('nick')),
+  );
+  
+  $schema['guifi_links'] = array(
+    'COMMENT' => 'devices/interfaces linked, one row per peer joined by guifi_links(id)',
+    'fields' => array(
+         'id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'nid' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'device_id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'interface_id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'ipv4_id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'link_type' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
+         'routing' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned')),
+    'primary key' => array('device_id', 'id'),
+    'indexes' => array(
+         'id' => array('id')),
+  );
+  
+  $schema['guifi_interfaces'] = array(
+    'COMMENT' => 'describes interfaces (network connectors) at the devices',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'device_id' => array('COMMENT' => 'foreign key to guifi_devices(id)', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'radiodev_counter' => array('COMMENT' => 'if not null, foreign key to guifi_radios(radiodev_counter)', 'type' => 'int', 'size' => 'tiny', 'not null' => FALSE, 'disp-width' => '4'),
+         'interface_type' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
+         'mac' => array('type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => '00:00:00:00:00:00')),
+    'primary key' => array('device_id', 'id'),
+  );
+
+  $schema['guifi_radios'] = array(
+    'COMMENT' => 'describes wireless radios available on the guifi_devices',
+    'fields' => array(
+         'id' => array('COMMENT' => 'primary key 1st column and foreign key to guifi_devices(id)', 'type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'radiodev_counter' => array('COMMENT' => 'primary key 2nd column', 'type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0, 'disp-width' => '2'),
+         'nid' => array('COMMENT' => 'foreign key to guifi_location(id)', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'model_id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '10'),
+         'ssid' => array('type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => ''),
+         'mode' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
+         'protocol' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => '802.11bg'),
+         'channel' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '3'),
+         'antenna_angle' => array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'disp-width' => '4'),
+         'antenna_gain' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '4'),
+         'antenna_azimuth' => array('type' => 'int', 'not null' => FALSE, 'default' => 360, 'disp-width' => '4'),
+         'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes')),
+    'primary key' => array('id', 'radiodev_counter'),
+    'indexes' => array(
+         'nid' => array('nid')),
+  );
+
+  $schema['guifi_types'] = array(
+    'COMMENT' => 'used on web dialogs to decode values or validate values',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'type' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+         'text' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+         'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'relations' => array('type' => 'text', 'size' => 'big', 'not null' => FALSE)),
+    'primary key' => array('type', 'id'),
+    'indexes' => array(
+         'text' => array('text')),
+  );
+  
+  $schema['guifi_services'] = array(
+    'COMMENT' => 'store guifi services',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
+         'nick' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'service_type' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'zone_id' => array('COMMENT' => 'foreign key to guifi_zone(id)', 'type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'device_id' => array('COMMENT' => 'foreign key to guifi_device(id)', 'type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'contact' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'status_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned'),
+         'extra' => array('type' => 'text', 'size' => 'big', 'not null' => FALSE),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11')),
+    'primary key' => array('id'),
+  );
+  
+  $schema['guifi_users'] = array(
+    'COMMENT' => 'stores user credentials assigned to nodes for proxy servers',
+    'fields' => array(
+         'id' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11'),
+         'nid' => array('COMMENT' => 'foreign key to guifi_location(id)', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'services' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'firstname' => array('type' => 'varchar', 'length' => '60', 'not null' => TRUE, 'default' => ''),
+         'lastname' => array('type' => 'varchar', 'length' => '60', 'not null' => TRUE, 'default' => ''),
+         'username' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'password' => array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'default' => ''),
+         'email' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
+         'extra' => array('type' => 'text', 'size' => 'big', 'not null' => FALSE),
+         'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10')),
+    'primary key' => array('id'),
+    'unique keys' => array(
+         'username' => array('username')),
+  );
+  
+  $schema['guifi_ipv4'] = array(
+    'fields' => array(
+         'id' => array('COMMENT' => 'primary key 1st column, numbers the sequential order of each address into the same interface', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'interface_id' => array('COMMENT' => 'primary key 2nd column and foreign key to guifi_interfaces(id)', 'type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'ipv4' => array('type' => 'varchar', 'length' => '16', 'not null' => FALSE),
+         'netmask' => array('type' => 'varchar', 'length' => '16', 'not null' => TRUE, 'default' => '255.255.255.0')),
+    'primary key' => array('interface_id', 'id'),
+    'unique keys' => array(
+         'ipv4' => array('ipv4')),
+  );
+  
+  $schema['guifi_manufacturer'] = array(
+    'COMMENT' => 'device manufacturers',
+    'fields' => array(
+         'fid' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'nom' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'url' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE)),
+    'primary key' => array('fid'),
+  );
+
+  $schema['guifi_model'] = array(
+    'COMMENT' => 'device models',
+    'fields' => array(
+         'mid' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'fid' => array('COMMENT' => 'foreign key to guifi_manufacturer(fid)', 'type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'model' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => ''),
+         'tipus' => array('comment' => 'Extern, PCI, PCMCIA', 'type' => 'varchar', 'length' => '10', 'not null' => FALSE),
+         'radiodev_max' => array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 1, 'disp-width' => '2'),
+         'potencia_max' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
+         'modes' => array('comment' => '802.11b/g,802.11b,802.11a,802.11a/b/g,WiMax,802.11n', 'type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => '802.11b/g'),
+         'AP' => array('comment'=>'Si, No', 'type' => 'varchar', 'length'=>'5', 'not null' => FALSE),
+         'virtualAP' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'No'),
+         'WDS' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'bridge' => array('comment' => 'Si, No, Hack', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'client' => array('comment' => 'Si, No, Hack', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'connector' => array('type' => 'varchar', 'length' => '20', 'not null' => FALSE),
+         'antenes' => array('comment' => '2, 1, 0', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE, 'default' => '2'),
+         'router' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'firewall' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'QoS' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'snmp' => array('comment' => 'Si, No, Hack', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'hack' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not null' => FALSE),
+         'interfaces' => array('type' => 'varchar', 'length' => '240', 'not null' => FALSE),
+         'url' => array('type' => 'varchar', 'length' => '240', 'not null' => FALSE),
+         'comentaris' => array('type' => 'varchar', 'length' => '240', 'not null' => FALSE),
+         'supported' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '25', 'not null' => TRUE, 'default' => 'Yes')),
+    'primary key' => array('mid'),
+);
+
+  
+  return $schema;
+}
+
 function guifi_install() {
+  
+  drupal_install_schema('guifi');
+  
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      db_query("CREATE TABLE {guifi_location} (
-       id int(11) NOT NULL auto_increment COMMENT 'primary key and foreign key to node(id)',
-       nick varchar(40) NOT NULL default '',
-       zone_id int(11) default NULL COMMENT 'foreign key to guifi_zone(id)',
-       zone_description varchar(255) default NULL,
-       lat decimal(10,6) default NULL,
-       lon decimal(10,6) default NULL,
-       elevation int(11) default NULL,
-       notification varchar(1024) NOT NULL,
-       status_flag varchar(40) NOT NULL default 'Planned',
-       stable enum('Yes','No') NOT NULL default 'Yes',
-       graph_server varchar(40) default NULL,
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) default NULL,
-       timestamp_created int(11) NOT NULL default '0',
-       timestamp_changed int(11) default NULL,
-       PRIMARY KEY  (id))
-       COMMENT 'node network (location) information'"
-      );
-      db_query("CREATE TABLE {guifi_networks} (
-       id int(10) unsigned NOT NULL auto_increment,
-       base varchar(255) NOT NULL default '',
-       mask varchar(255) NOT NULL default '255.255.255.0',
-       zone int(10) unsigned NOT NULL COMMENT 'foreign key to guifi_zone(id)',
-       network_type enum('backbone','public') NOT NULL default 'public',
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) NOT NULL default '0',
-       timestamp_created int(11) NOT NULL default '0',
-       timestamp_changed int(11) NOT NULL default '0',
-       valid tinyint(4) NOT NULL default '1',
-       PRIMARY KEY  (id),
-       UNIQUE KEY networks (base(16),mask(16)),
-       KEY net_zone (zone))
-       COMMENT 'allocates ipv4 adddress ranges to zones'"
-     );
-     db_query("CREATE TABLE {guifi_zone} (
-       id int(5) unsigned NOT NULL auto_increment,
-       title varchar(255) NOT NULL default '',
-       nick varchar(10) NULL,
-       body longtext NOT NULL,
-       master int(5) unsigned NOT NULL COMMENT 'refarences parent zone guifi_zone(id)',
-       time_zone varchar(15) NOT NULL,
-       dns_servers varchar(255) default NULL,
-       ntp_servers varchar(255) default NULL,
-       mrtg_servers varchar(255) default NULL,
-       graph_server varchar(40) default NULL,
-       image varchar(255) NOT NULL default '',
-       map_coord mediumtext NOT NULL,
-       map_poly mediumtext NOT NULL,
-       homepage varchar(255) default NULL,
-       notification varchar(1024) NOT NULL,
-       ospf_zone varchar(255) default NULL,
-       minx decimal(10,6) default NULL,
-       miny decimal(10,6) default NULL,
-       maxx decimal(10,6) default NULL,
-       maxy decimal(10,6) default NULL,
-       local enum('Yes','No') NOT NULL default 'Yes',
-       nodexchange_url varchar(255) default NULL,
-       refresh int(11) default NULL,
-       remote_server_id varchar(255) default NULL,
-       weight tinyint(4) NOT NULL default '0',
-       valid tinyint(1) NOT NULL default '0',
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) NOT NULL default '0',
-       timestamp_created int(11) NOT NULL default '0',
-       timestamp_changed int(11) NOT NULL default '0',
-       PRIMARY KEY  (id),
-       KEY name (title(10)))
-       COMMENT 'zone information, zones have a self hierarchy and group node locations'"
-     );
-     db_query("CREATE TABLE {guifi_devices} (
-       id int(11) NOT NULL auto_increment,
-       nid int(11) NOT NULL COMMENT 'foreign key to guifi_location(id)',
-       nick varchar(40) NOT NULL,
-       type varchar(40) NOT NULL,
-       notification varchar(1024) NOT NULL,
-       mac varchar(20) NOT NULL default '00:00:00:00:00:00',
-       comment longtext default NULL,
-       flag varchar(40) NOT NULL default 'Planned',
-       extra longtext DEFAULT NULL COMMENT 'store variable data depending on guifi_devices(type)',
-       url_mrtg_server varchar(255) default NULL,
-       graph_server varchar(40) default NULL,
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) NOT NULL default '0',
-       timestamp_created int(11) NOT NULL default '0',
-       timestamp_changed int(11) NOT NULL default '0',
-       PRIMARY KEY  (id),
-       UNIQUE KEY nick (nick))
-       "
-     );
-     db_query("CREATE TABLE {guifi_links} (
-       id int(11) NOT NULL ,       
-       nid int(11) NOT NULL COMMENT 'foreign key to guifi_location(id)',
-       device_id int(11) NOT NULL COMMENT 'foreign key to guifi_devices(id)',       
-       interface_id int(11) NOT NULL COMMENT 'foreign key to guifi_interfaces(id)',
-       ipv4_id int(11) NOT NULL COMMENT 'foreign key to guifi_ipv4(id)',
-       link_type varchar(40) NOT NULL ,
-       routing varchar(40),
-       flag varchar(40) NOT NULL default 'Planned',
-       PRIMARY KEY (device_id,id), 
-       KEY (id))
-       COMMENT 'devices/interfaces linked, one row per peer joined by guifi_links(id)'"
-     );
-     db_query("CREATE TABLE {guifi_interfaces} (
-       id int(11) NOT NULL auto_increment,       
-       device_id int(11) NOT NULL COMMENT 'foreign key to guifi_devices(id)',       
-       radiodev_counter tinyint(4) default NULL COMMENT 'if not null, foreign key to guifi_radios(radiodev_counter)',
-       interface_type varchar(40) NOT NULL,
-       mac varchar(20) NOT NULL default '00:00:00:00:00:00',
-       PRIMARY KEY (device_id,id))
-       COMMENT 'describe interfaces (network connectors) at the devices'"
-     );
-     db_query("CREATE TABLE {guifi_radios} (
-       id int(11) NOT NULL auto_increment COMMENT 'primary key 1st column and foreign key to guifi_devices(id)',
-       radiodev_counter tinyint(2) NOT NULL default '0' COMMENT 'primary key 2nd column',
-       nid int(11) NOT NULL COMMENT 'foreign key to guifi_location(id)',
-       model_id int(10) NOT NULL,
-       ssid varchar(20) NOT NULL default '',
-       mode varchar(40) NOT NULL,
-       protocol varchar(40) NOT NULL default '802.11bg',
-       channel int(3) default NULL,
-       antenna_angle int(4) default 0,
-       antenna_gain int(4) default NULL,
-       antenna_azimuth int(4) default '360',
-       clients_accepted enum('Yes','No') NOT NULL default 'Yes',
-       PRIMARY KEY  (id,radiodev_counter),
-       KEY  (nid))
-       COMMENT 'describes wireless radios available on the guifi_devices'"
-     );
-     db_query("CREATE TABLE {guifi_types} (
-       id int(11) NOT NULL auto_increment,
-       type varchar(15) NOT NULL,
-       text varchar(15) NOT NULL,
-       description longtext NOT NULL,
-       relations longtext NULL,
-       PRIMARY KEY  (type,id),
-       KEY text (text))
-       COMMENT 'used on web dialogs to decode values or validate values'"
-     );
-     db_query("CREATE TABLE {guifi_services} (
-       id int(11) NOT NULL auto_increment,
-       nick varchar(40) NOT NULL default '',
-       service_type varchar(40) NOT NULL default '',
-       zone_id int(11) default NULL COMMENT 'foreign key to guifi_zone(id)',
-       device_id int(11) default NULL COMMENT 'foreign key to guifi_device(id)',
-       contact varchar(40) default NULL,
-       status_flag varchar(40) NOT NULL default 'Planned',
-       extra longtext NULL default NULL,
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) default NULL,
-       timestamp_created int(11) NOT NULL default '0',
-       timestamp_changed int(11) default NULL,
-       PRIMARY KEY  (id))
-       COMMENT 'store guifi services'"
-     );
-     db_query("CREATE TABLE {guifi_users} (
-       id int(11) unsigned NOT NULL auto_increment,
-       nid int(11) unsigned NOT NULL default '0' COMMENT 'foreign key to guifi_location(id)',
-       services longtext NOT NULL,
-       firstname varchar(60) NOT NULL default '',
-       lastname varchar(60) NOT NULL default '',
-       username varchar(40) NOT NULL default '',
-       password varchar(128) NOT NULL default '',
-       email varchar(64) default NULL,
-       extra longtext,
-       user_created int(10) NOT NULL default '0',
-       user_changed int(10) NOT NULL default '0',
-       timestamp_created int(10) NOT NULL default '0',
-       timestamp_changed int(10) NOT NULL default '0',
-       PRIMARY KEY  (id),
-       UNIQUE KEY username (username))
-       COMMENT 'stores user credentials assigned to nodes for proxy servers'"
-     );
+
 
      // -- 
      // -- interface types
@@ -468,14 +548,6 @@ function guifi_install() {
      // -- radio manufacturers
      // --
 
-     db_query("CREATE TABLE {guifi_manufacturer} (
-       fid int(11) NOT NULL,
-       nom varchar(40) NOT NULL default '',
-       url varchar(40) default NULL,
-       PRIMARY KEY  (fid))
-       COMMENT 'device manufacturers'"
-     );
-
      // -- 
      // -- Volcant dades de la taula guifi_manufacturer
      // -- 
@@ -495,33 +567,6 @@ function guifi_install() {
      // -- Estructura de la taula guifi_model
      // -- 
 
-     db_query("CREATE TABLE {guifi_model} (
-       mid int(11) NOT NULL,
-       fid int(11) NOT NULL default '0' COMMENT 'foreign key to guifi_manufacturer(fid)',
-       model varchar(40) NOT NULL default '',
-       tipus enum('Extern','PCI','PCMCIA') default NULL,
-       radiodev_max tinyint(2) NOT NULL default '1',
-       potencia_max int(11) default NULL,
-       modes enum('802.11b/g','802.11b','802.11a','802.11a/b/g','WiMax','802.11n') NOT NULL default '802.11b/g',
-       AP enum('Si','No') default NULL,
-       virtualAP enum('Yes','No') NOT NULL default 'No',
-       WDS enum('Si','No','Hack') default NULL,
-       bridge enum('Si','No','Hack') default NULL,
-       client enum('Si','No','Hack') default NULL,
-       connector varchar(20) default NULL,
-       antenes enum('2','1','0') default '2',
-       router enum('Si','No') default NULL,
-       firewall enum('Si','No') default NULL,
-       QoS enum('Si','No','Hack') default NULL,
-       snmp enum('Si','No','Hack') default NULL,
-       hack enum('Si','No') default NULL,
-       interfaces varchar(240) default NULL,
-       url varchar(240) default NULL,
-       comentaris varchar(240) default NULL,
-       supported enum('Yes','No','Deprecated') NOT NULL default 'Yes',
-       PRIMARY KEY  (mid))
-       COMMENT 'device models'"
-     );
 
      // -- 
      // -- guifi_model
@@ -553,48 +598,15 @@ function guifi_install() {
      db_query("INSERT INTO guifi_model VALUES (24, 8, 'Supertrasto guifiBUS guifi.net', NULL, 24, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5', 'http://www.routerboard.com', NULL,'Yes');");
 
 
-     db_query("CREATE TABLE {guifi_ipv4} (
-       id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',
-       interface_id int(11) NOT NULL default '0' COMMENT 'primary key 2nd column and foreign key to guifi_interfaces(id)',
-       ipv4 varchar(16) default NULL,
-       netmask varchar(16) NOT NULL default '255.255.255.0',
-       PRIMARY KEY  (interface_id,id),
-       UNIQUE KEY ipv4 (ipv4))
-       COMMENT 'provide ipv4 tp interfaces'"
-     );
-      db_query("CREATE TABLE `guifi_notify` (
-        `id` int(11) NOT NULL auto_increment,
-        `timestamp` int(11) NOT NULL,
-        `who_id` int(11) NOT NULL,
-        `who_name` varchar(255) NOT NULL,
-        `to_array` varchar(1024) NOT NULL,
-        `subject` varchar(255) NOT NULL,
-        `body` longtext NOT NULL,
-        PRIMARY KEY  (`id`)
-        )"
-      );
+
      break;
     case 'pgsql':
       break;
   }
 } 
 
+
 function guifi_update_1() {
-  $items = array();
-  $items[] = update_sql("
-    CREATE TABLE {guifi_notify} (
-        `id` int(11) NOT NULL auto_increment,
-        `timestamp` int(11) NOT NULL,
-        `who_id` int(11) NOT NULL,
-        `who_name` varchar(255) NOT NULL,
-        `to_array` varchar(1024) NOT NULL,
-        `subject` varchar(255) NOT NULL,
-        `body` longtext NOT NULL,
-        PRIMARY KEY  (`id`)
-        )");
-  return $items;
-}
-function guifi_update_2() {
   $items = array();
   
   $items[] = update_sql("
