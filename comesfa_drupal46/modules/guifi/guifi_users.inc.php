@@ -359,27 +359,32 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
   $query = db_query("SELECT * FROM {guifi_users}");
   $users = array();
   while ($item = db_fetch_object($query)) {
-    $user = $item;
-    $user->services = unserialize($item->services);
-    $user->vars = unserialize($item->extra);
-    $users[$user->services['proxy']][] = $user;
+    unset($user);
+    $user->username = $item->username;
+    $user->password = $item->password;
+    $user->nid = $item->nid;
+    $services = unserialize($item->services);
+    $user->prId = $services['proxy'];
+    $user->zId = $node_zones[$item->nid];
+    $users[$user->prId][] = $user;
   }
   
   $passwd = array();
    
   // dumping requested proxy users, starting by the users from the same zone
   foreach ($users[$node->id] as $user) 
-    $passwd[$node_zones[$user->nid]][] = $user->username.':'.$user->password;
+    $passwd[$user->zId][] = $user->username.':'.$user->password;
       
   $dump .=  "#\n";
   $dump .=  "# passwd file for proxy: ".$node->nick." at zone ".$zones[$node->zone_id]."\n";
+  $dump .=  "# users: ".count($passwd[$node->zone_id])."\n";
   $dump .=  "#\n";
-  if (count($passwd[$node_zones[$node->zone_id]])) 
-    foreach ($passwd[$node_zones[$node->zone_id]] as $p) 
+  if (count($passwd[$node->zone_id])) 
+    foreach ($passwd[$node->zone_id] as $p) 
       $dump .= $p."\n";
   else
       $dump .= '# '.t('there are no users at this proxy')."\n";
-  unset($passwd[$node_zones[$node->id]]); 
+  unset($passwd[$node->zone_id]); 
   
   // now dumping all other zones from the principal proxy
   foreach ($passwd as $zid=>$zp) {
