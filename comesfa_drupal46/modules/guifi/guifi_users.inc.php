@@ -327,106 +327,124 @@ function guifi_dump_passwd($node) {
     
 // Aquesta funcio volca a pantalla la llista d'usuaris i passwd que genera guifi_dump_passwd_return 
 
-  $dump = guifi_dump_passwd_return($node);
-  print $dump;
+  print guifi_dump_passwd_return($node);
   exit;
 } 
 
-  function _get_zonename($id) {
-    $zone = node_load(array('nid'=>$id));
-    return $zone->title;
-  }
+function _get_zonename($id) {
+  $zone = node_load(array('nid'=>$id));
+  return $zone->title;
+}
 
 
-function guifi_dump_passwd_return($node) {
+function guifi_dump_passwd_return($node,$federated = FALSE) {
 
-    /* Aquesta funcio retorna en una variable la llista d'usuaris i passwd dun proxy */
-    
-
-  $query = db_query("SELECT id FROM {guifi_users} ORDER BY lastname, firstname");
+  /* Aquesta funcio retorna en una variable la llista d'usuaris i passwd dun proxy */
 
   $passwd = array();
-  $zones = array();
-  while ($item = db_fetch_object($query)) {
-    $user = guifi_get_user($item->id);
-    if ($user->services['proxy'] != $node->nid)
-      continue;
-    $usernode = db_fetch_object(db_query("SELECT zone_id FROM {guifi_location} WHERE id=%d",$user->nid));
-    $passwd[$usernode->zone_id][] = $user->username.':'.$user->password;
-    $zones[$usernode->zone_id] = true;
-  }
 
-  // Dumping passwd
-  // Starts with users in the same zone as the service
+  // query ALL zones, kept in memory zones array
+  $zones = array();
+  $query = db_query("SELECT id, title FROM {guifi_zone}");
+  while ($item = db_fetch_object($query)) 
+    $zones[$item->id] = $item->title;
+    
+  // query ALL node zones, kept in memory node_zones array
+  $node_zones = array();
+  $query = db_query("SELECT id, zone_id FROM {guifi_location}");
+  while ($item = db_fetch_object($query)) 
+    $node_zones[$item->id] = $item->zone_id;
+       
+  // query ALL users, kept in memory users array
+  $query = db_query("SELECT * FROM {guifi_users}");
+  $users = array();
+  while ($item = db_fetch_object($query)) {
+    $user = $item;
+    $user->services = unserialize($item->services);
+    $user->vars = unserialize($item->extra);
+    $users[$user->services['proxy']][] = $user;
+  }
+  
+  $passwd = array();
+   
+  // dumping requested proxy users, starting by the users from the same zone
+  foreach ($users[$node->id] as $user) 
+    $passwd[$node_zones[$user->nid]][] = $user->username.':'.$user->password;
+      
   $dump .=  "#\n";
-  $dump .=  "# passwd file for proxy: ".$node->nick." at zone "._get_zonename($node->zone_id)."\n";
-  $dump .= "#\n";
-  if (!empty($passwd[$node->zone_id])) 
-    foreach ($passwd[$node->zone_id] as $p) 
+  $dump .=  "# passwd file for proxy: ".$node->nick." at zone ".$zones[$node->zone_id]."\n";
+  $dump .=  "#\n";
+  if (!empty($passwd[$node_zones[$node->zone_id]])) 
+    foreach ($passwd[$node_zones[$node->zone_id]] as $p) 
       $dump .= $p."\n";
   else
-      $dump .= '# '.t('there are no users at this proxy')."\n"; 
-
-  // Now dumping other zones
-  foreach ($zones as $z=>$dummy) {
-    if ($z == $node->zone_id)
-      continue;
-    $dump .= "#\n";
-    $dump .= "# At zone "._get_zonename($z)."\n";
-    $dump .= "#\n";
-    foreach ($passwd[$z] as $p) {
-       $dump .= $p."\n";
-    }
-  }
-
+      $dump .= '# '.t('there are no users at this proxy')."\n";
+  unset($passwd[$node_zones[$node->id]]); 
   
-  return $dump;
-  exit;
+  // now dumping all other zones from the principal proxy
+  foreach ($passwd as $zid=>$zp) {
+    $dump .= "# At zone ".$zones[$zid]."\n";
+    foreach ($zp as $p) 
+       $dump .= $p."\n";
+  }  
+
+  if ($federated == FALSE)
+    return $dump;
+
+  unset($users[$node->id]);
+  unset($passwd);
+  foreach ($users as $prId=>$prUsers) 
+    if (in_array($prId,$federated))
+      foreach ($prUsers as $user) 
+        $passwd[$node_zones[$user->nid]][] = $user->username.':'.$user->password;
+  $dump .=  "#\n";
+  $dump .=  "# passwd file for ALL OTHER proxys\n";
+  $dump .=  "#\n";
+  foreach ($passwd as $zid=>$zp) {
+    $dump .= "#\n";
+    $dump .= "# At zone ".$zones[$zid]."\n";
+    $dump .= "#\n"; 
+    foreach ($zp as $p) 
+       $dump .= $p."\n";
+  }
+  
+  return $dump;    
 }
 
 function _guifi_dump_federated($node) {
-     
-// Llistem sempre els usuaris del proxy sobre el que treballem
-    
-$dump .= guifi_dump_passwd_return($node);    
-   
+       
     
 // Si el proxy esta federat IN, afegim tots els usuaris dels proxys que estan federats OUT
 
 
 if (is_array($node->var[fed]))
- if (in_array('IN',$node->var[fed]))    
-    {
-     unset($head);	
-     $head .= "#\n";	
-     $head .= '# Federated User &#038; password list for Proxy : "'.$node->title.'"'."\n";
-     $head .= "#\n";
-     $head .= "#  Includes users from the following proxys :\n";
-     $head .= "#\n";	
-     $head .= '#   ' .$node->nid." - ".$node->title."\n";
-     $query = db_query("SELECT id,extra FROM {guifi_services} WHERE service_type='Proxy'");
-     while ($item = db_fetch_object($query))
-       {	
-	$extra = unserialize($item->extra);
-	if (($item->id!=$node->nid) & (is_array($extra[fed])))
-	    {   		
-	     $p_node = node_load(array('nid' => $item->id));
-	     if ( in_array('OUT',$extra[fed]))
-	        {
-		 $head .= '#   ' .$p_node->nid." - ".$p_node->title."\n";  
-		 $dump .= guifi_dump_passwd_return($p_node);
-		}
+  if (in_array('IN',$node->var[fed])) {
+    unset($head);	
+    $head .= "#\n";	
+    $head .= '# Federated User &#038; password list for Proxy : "'.$node->title.'"'."\n";
+    $head .= "#\n";
+    $head .= "#  Includes users from the following proxys :\n";
+    $head .= "#\n";	
+    $head .= '#   ' .$node->nid." - ".$node->title."\n";
+    $query = db_query("SELECT id,extra FROM {guifi_services} WHERE service_type='Proxy'");
+    while ($item = db_fetch_object($query))
+    {	
+      $extra = unserialize($item->extra);
+	  if (($item->id!=$node->nid) & (is_array($extra[fed]))) {   		
+        $p_node = node_load(array('nid' => $item->id));
+	    if ( in_array('OUT',$extra[fed])) {
+	      $head .= '#   ' .$p_node->nid." - ".$p_node->title."\n";
+          $federated_out[] = $item->id;  
 	    }
-       }
-     $head .="#\n";
-	
-     }
-   
-/*  print $head;   // Resum dels proxys federats  
-  print $dump;   // LLista de usuaris i passwords
-*/  
-  $output .= $head;// Resum dels proxys federats  
-  $output .= $dump;// LLista de usuaris i passwords
+	  }
+    }
+    $head .="#\n";
+  }
+ 
+  // Resum dels proxys federats 
+  $output .= $head;  
+  // LLista de usuaris i passwords
+  $output .= guifi_dump_passwd_return($node,$federated_out);
   return $output;
 }
 
