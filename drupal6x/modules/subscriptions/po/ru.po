@@ -1,0 +1,416 @@
+# RUSSIAN translation of Drupal (subscriptions.module)
+# Copyright vadbars <vadbars@mail.ru>
+# Generated from file: subscriptions.module,v 1.38.2.3.2.16 2006/09/09 18:25:16 c0c0c0
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Russian translation of Drupal 5.x.\n"
+"POT-Creation-Date: 2006-10-19 04:57-0400\n"
+"PO-Revision-Date: 2007-02-24 01:49+0500\n"
+"Last-Translator: vadbars <vadbars@mail.ru>\n"
+"Language-Team: Russian Drupal Translation Team (RDTT) <translators@drupal.ru>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+#: subscriptions.module:10
+msgid ""
+"\n"
+"        <p>This module enables users to subscribe to be notified of changes to threads, categories and content types.\n"
+"        Once enabled, all nodes will have an additional link that allows the user to subscribe to them.\n"
+"        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n"
+"        No configuration is required for this module, although roles must be given permission to\n"
+"        use it.</p>\n"
+"        <p>While no configuration is required, administrators are offered a few configurable options:</p>\n"
+"        <p>\"<b>Omitted vocabularies</b>\" allows the admin to exclude certain node categories from this list of those\n"
+"        available for subscription.</p>\n"
+"        <p>\"<b>Omitted content types</b>\" allows the admin to exclude certain content types from this list of those\n"
+"        available for subscription.</p>\n"
+"        <p>\"<b>Notify poster of own posts</b>\" sends a notification to a node poster about their own posts. Useful principally during testing. Default is OFF.</p>\n"
+"        <p>\"<b>Use cron for notifications</b>\" allows you to postpone subscription\n"
+"        notifications until the next cron job is run.  Default behavior is to notify all subscribers immediately\n"
+"        upon content change.  This behavior is probably best for low volume sites, but high volume sites could\n"
+"        observe appreciable pauses upon node or comment insert, and should probably use the cron option.\n"
+"        <p>\"<b>Display watchdog entries for successful mailings</b>\" should also probably be disabled for high volume sites,\n"
+"        as a large number of mailings could completely fill the log.</p>\n"
+"        <p>\"<b>Test held posts prior to sending</b>\" tells Subscriptions to test if a node or comment\n"
+"        is still active\\published prior toi sending a notification.  This is mainly to avoid sending\n"
+"        notifications for for posts that have been deleted.  This will result in a small performance\n"
+"        hit, and only makes sense if you are delaying the notifications with \"Use cron for notifications\".</p>\n"
+"        <p>\"<b>Show Subscriptions users menu on main menu</b>\" tells Subscriptions to display the\n"
+"        Subscriptions user menu, used to manage one's own subscriptions, on the main menu.  The default\n"
+"        setting is OFF.</p>\n"
+"        <p>\"<b>Show Subscriptions users menu under 'my account'</b>\" tells Subscriptions to display the\n"
+"        Subscriptions user menu, used to manage one's own subscriptions, under the 'My Account' menu.  The default\n"
+"        setting is ON.</p>\n"
+"        <p>\"<b>Set all users to 'autosubscribe' by default</b>\" set's the default value of the 'autosubscribe'\n"
+"        option in each user's account to ON.  This value will not be set, however, until the user saves their\n"
+"        account preferences.  This, essentially, pre-checks the option associated with 'autosubscribe'. The\n"
+"        default value is OFF.</p>\n"
+"\n"
+"        "
+msgstr ""
+"\n"
+"        <p>Этот модуль позволяет пользователям подписываться на извещения об изменениях форумных обсуждений, категорий и типом материалов.\n"
+"        Если включено, у всех материалов появляется дополнительная ссылка, которая позволяет пользователю подписаться на извещения.\n"
+"        Также все пользователи могут воспользоваться опцией в своей учетной записи для автоподписки на извещения о любых ответах в обсуждениях, где они публиковали свои сообщения.\n"
+"        Конфигурация для модуля не требуется, для некоторых ролей может понадобиться установка прав доступа\n"
+"        для использования возможностей данного модуля.</p>\n"
+"        <p>Хотя конфигурация не требуется, администраторы могут воспользоваться несколькими опциями настройки:</p>\n"
+"        <p>\"<b>Исключаемые словари</b>\" позволяют администратору исключить некторые типы категорий из\n"
+"        списка доступных для подписки.</p>\n"
+"        <p>\"<b>Исключаемые типы материалов</b>\" позволяют администратору исключить некторые типы материалов из\n"
+"        списка доступных для подписки.</p>\n"
+"        <p>\"<b>Присылать извещения о собственных сообщениях</b>\" разрешает отправку извещений автору о его собственных сообщениях. Обычно нужно для тестирования. По умолчанию ВЫКЛ.</p>\n"
+"        <p>\"<b>Использовать cron для извещений</b>\" позволяет вам накапливать извещения\n"
+"        до следующего запуска cron.  По умолчанию установлена немедленная рассылка\n"
+"        после изменения содержания.  Эта возможность, вероятно, будет лучшей для небольших сайтов, но сайты большого объема\n"
+"        могут подразумевать значительные паузы между добавлением материалов или комментариев, и тогда, скорее всего, лучше использовать опцию запуска по cron.\n"
+"        <p>\"<b>Показывать сообщения о выполненных рассылках в системном журнале</b>\" также, вероятно, следует выключить для сайтов большого объема,\n"
+"        поскольку иначе логи будут быстро наполняться сообщениями об удачных рассылках.</p>\n"
+"        <p>\"<b>Протестировать перед отправкой</b>\" позволяет протестировать подписки, чтобы убедиться, что материал или комментарий\n"
+"        активен\\опубликован перед рассылкой извещений.  Это помогает предотвратить рассылку\n"
+"        извещений о сообщениях, которые были удалены.  Это несколько увеличивает производительность\n"
+"        и имеет смысл, если вы откладываете рассылки опцией \"Использовать cron для  извещений\".</p>\n"
+"        <p>\"<b>Показывать меню Подписки в пользовательском или основном меню</b>\" позволяет показывать меню Подписки\n"
+"       в пользовательском или основном меню, чтобы управлять собственными подписками.  По умолчанию\n"
+"        установлено ВЫКЛ.</p>\n"
+"        <p>\"<b>Показывать меню Подписки как вкладку на странице  'моя учетная запись'</b>\" позволяет показывать меню Подписки в\n"
+"       пользовательском меню как вкладку на странице  'моя учетная запись'.  По умолчанию\n"
+"       установлено ВКЛ.</p>\n"
+"        <p>\"<b>Установить для всех пользователей 'автоподписку' по умолчанию</b>\" устанавливает значение по умолчанию 'автоподписка'\n"
+"        в каждой пользовательской учетной записи.  Это значение не устанавливается, тем не менее, до тех пор, пока пользоватль не сохранит\n"
+"        свои настройки учетной записи.  Это, короче говоря, предварительное включение опции, связанной с 'автоподпиской'. Значение\n"
+"        по умолчанию ВЫКЛ.</p>\n"
+"\n"
+"        "
+
+#: subscriptions.module:46
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Позволяет пользователям подписываться на извещения о материалах и категориях таксономии."
+
+#: subscriptions.module:64
+msgid "Subscription settings"
+msgstr "Настройки подписки."
+
+#: subscriptions.module:70
+msgid "Autosubscribe"
+msgstr "Автоподписка"
+
+#: subscriptions.module:72
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "Отметив этот пункт, вы будете автоматически получать извещения на все созданные вами обсуждения и комментарии на них."
+
+#: subscriptions.module:90
+msgid "none"
+msgstr "нет"
+
+#: subscriptions.module:97
+msgid "Omitted vocabularies"
+msgstr "Исключаемые словари"
+
+#: subscriptions.module:100
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Выберите словари, которые должны быть <strong>исключены</strong> из списков извещений."
+
+#: subscriptions.module:111
+msgid "Omitted content types"
+msgstr "Исключаемые типы материалов"
+
+#: subscriptions.module:114
+msgid "Select content types which should be <strong>omitted</strong> from subscription listings."
+msgstr "Выберите типы материалов, которые должны быть <strong>исключены</strong> из списков извещений."
+
+#: subscriptions.module:119
+msgid "Notify poster of own posts"
+msgstr "Отправлять извещения о ваших собственных сообщениях"
+
+#: subscriptions.module:121
+msgid "Notifies a node poster about their own posts.  Useful principally during testing.  Default is OFF."
+msgstr "Отправлять извещения о ваших собственных сообщениях. Применяется в основном для тестирования. По умолчанию - ВЫКЛ."
+
+#: subscriptions.module:125
+msgid "Use cron for notifications"
+msgstr "Использовать cron для рассылки извещений"
+
+#: subscriptions.module:127
+msgid "Sends subscription notification when cron module runs.  Default is to send upon node update.  <br /><em>Note:  Currently only tested with MySQL.</em>"
+msgstr "Рассылать извещения тогда, когда работает модуль cron.  По умолчанию рассылка происходит сразу при обновлении материала.  <br /><em>Обратите внимание:  Проверялось только на MySQL.</em>"
+
+#: subscriptions.module:131
+msgid "Display watchdog entries for successful mailings"
+msgstr "Показывать сообщения об отправленных извещениях в системном журнале"
+
+#: subscriptions.module:133
+msgid "Inserts notification of successful mailings in the watchdog log.  Default is ON."
+msgstr "Добавляет сообщения об отправленных извещениях в системный журнал. По умолчанию - ВКЛ."
+
+#: subscriptions.module:137
+msgid "Test held posts prior to sending"
+msgstr "Протестировать отправку извещений перед рассылкой"
+
+#: subscriptions.module:139
+msgid "Tests to see if a post about to be sent by cron is still active.  Adds a small amount of overhead.  Default is OFF."
+msgstr "Протестировать, чтобы убедиться, что сообщение, о котором планируется разослать извещение по cron, действительно активно.  По умолчанию ВЫКЛ."
+
+#: subscriptions.module:143
+msgid "Show Subscriptions users menu on main menu"
+msgstr "Показывать меню Мои подписки в главном меню"
+
+#: subscriptions.module:145
+msgid "Displays the Subscriptions users menu on the main menu. Default is OFF."
+msgstr "Показывать меню Подписки в основном меню. По умолчанию ВЫКЛ."
+
+#: subscriptions.module:149
+msgid "Show Subscriptions users menu under \"My account\""
+msgstr "Показывать подменю Подписки в меню \"моя учетная запись\""
+
+#: subscriptions.module:151
+msgid "Displays the Subscriptions users menu as a tab under \"My account\". Default is ON."
+msgstr "Показывать меню Подписки как вкладку на странице  \"моя учетная запись\". По умолчанию ВКЛ."
+
+#: subscriptions.module:155
+msgid "Set all users to \"autosubscribe\" by default"
+msgstr "Установить для всех пользователей режим \"автоподписки\" по умолчанию"
+
+#: subscriptions.module:157
+msgid "Sets each users \"autosubscribe\" profile option. Default is OFF."
+msgstr "Включить для каждого пользователя опцию профиля \"автоподписка\". По умолчанию ВЫКЛ."
+
+#: subscriptions.module:170;196;223
+msgid "my subscriptions"
+msgstr "Мои подписки"
+
+#: subscriptions.module:175;201
+msgid "blogs"
+msgstr "блоги"
+
+#: subscriptions.module:179;205
+msgid "threads"
+msgstr "обсуждения"
+
+#: subscriptions.module:183;212
+msgid "categories"
+msgstr "категории"
+
+#: subscriptions.module:187;216
+msgid "content types"
+msgstr "типы материалов"
+
+#: subscriptions.module:190;219
+msgid "rss feed"
+msgstr "поток rss"
+
+#: subscriptions.module:208
+msgid "my content types"
+msgstr "мои типы материалов"
+
+#: subscriptions.module:331
+msgid "subscription notification for "
+msgstr "подписка на извещения для"
+
+#: subscriptions.module:335
+msgid "error mailing subscription notification: "
+msgstr "ошибка отправки извещения:"
+
+#: subscriptions.module:379
+msgid "new blog for "
+msgstr "новый блог для"
+
+#: subscriptions.module:414
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "Подписка [%site] %type обновлена для %name : %subject"
+
+#: subscriptions.module:415
+msgid ""
+"Greetings, %name.\n"
+"\n"
+"A %type to which you have subscribed has been updated.\n"
+"%title\n"
+"%teaser\n"
+"To view the thread, navigate to %url \n"
+"\n"
+"--\n"
+"This is an automatic message from %site.\n"
+"To manage your subscriptions, browse to %manage-url"
+msgstr ""
+"Здравствуйте, %name.\n"
+"\n"
+"Материал %type, на который вы подписаны, был изменен.\n"
+"%title\n"
+"%teaser\n"
+"Чтобы просмотреть обсуждение, перейдите по ссылке %url \n"
+"\n"
+"--\n"
+"Это автоматическое сообщение с сайта %site.\n"
+"Для управления своими подписками, перейдите по ссылке %manage-url"
+
+#: subscriptions.module:620
+msgid "Subscriptions"
+msgstr "Подписки"
+
+#: subscriptions.module:626
+msgid "Subscribe"
+msgstr "Подписаться"
+
+#: subscriptions.module:627
+msgid "Receive notification of replies or comments to this node."
+msgstr "Получать извещения на ответы или комментарии к этому материалу."
+
+#: subscriptions.module:654
+msgid "unsubscribe blog"
+msgstr "отказаться от подписки на блог"
+
+#: subscriptions.module:654
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Приостановить получение извещений по электронной почте до появления нового сообщения в этом персональном блоге."
+
+#: subscriptions.module:657
+msgid "subscribe blog"
+msgstr "подписаться на блог"
+
+#: subscriptions.module:657
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Получать извещения по электронной почте о появлении нового сообщения в этом персональном блоге."
+
+#: subscriptions.module:661
+msgid "unsubscribe post"
+msgstr "отказаться от подписки на сообщение"
+
+#: subscriptions.module:661
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Остановить получение извещений по электронной почте о новых комментариях на @type."
+
+#: subscriptions.module:664
+msgid "subscribe post"
+msgstr "подписаться на сообщение"
+
+#: subscriptions.module:664
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Получать извещение по электронной почте о комментариях на @type."
+
+#: subscriptions.module:702;712
+msgid "unsubscribe"
+msgstr "отказаться от подписки"
+
+#: subscriptions.module:702
+msgid "Unsubscribe from this category."
+msgstr "Отказаться от подписки на эту категорию."
+
+#: subscriptions.module:705;715
+msgid "subscribe"
+msgstr "подписаться"
+
+#: subscriptions.module:705
+msgid "Subscribe to this category."
+msgstr "Подписаться на эту категорию."
+
+#: subscriptions.module:712
+msgid "Unsubscribe from this node type."
+msgstr "Отказаться от подписки на этот тип материалов."
+
+#: subscriptions.module:715
+msgid "Subscribe to this node type."
+msgstr "Подписаться на этот тип материалов."
+
+#: subscriptions.module:750;785;830;877
+msgid "Save"
+msgstr "Сохранить"
+
+#: subscriptions.module:762;797;845;892;958
+msgid "Your subscription was deactivated."
+msgstr "Ваша подписка деактивирована."
+
+#: subscriptions.module:849;896;951
+msgid "Your subscription was activated."
+msgstr "Ваша подписка активирована."
+
+#: subscriptions.module:968
+msgid "thread"
+msgstr "обсуждение"
+
+#: subscriptions.module:972
+msgid "blog"
+msgstr "блог"
+
+#: subscriptions.module:985
+msgid "category"
+msgstr "категория"
+
+#: subscriptions.module:995
+msgid "content type"
+msgstr "тип материала"
+
+#: subscriptions.module:998
+msgid "type"
+msgstr "тип"
+
+#: subscriptions.module:998
+msgid "title"
+msgstr "заголовок"
+
+#: subscriptions.module:998
+msgid "subscribers"
+msgstr "подписчики"
+
+#: subscriptions.module:1002
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Нет обсуждений или категорий, на которые вы подписаны.</p>"
+
+#: subscriptions.module:1007
+msgid "Subscriptions Summary"
+msgstr "Подписки"
+
+#: subscriptions.module:1030
+msgid "You are not currently subscribed to any active blogs"
+msgstr "Сейчас вы не подписаны ни на один блог"
+
+#: subscriptions.module:1038;1040
+msgid "There are no active categories."
+msgstr "Нет активных категорий."
+
+#: subscriptions.module:1047
+msgid "You are not currently subscribed to any active threads"
+msgstr "Сейчас вы не подписаны ни на одно обсуждение"
+
+#: subscriptions.module:1055
+msgid "There are no active content types."
+msgstr "Нет активных типов материалов."
+
+#: subscriptions.module:1063;1096
+msgid "%name Subscriptions"
+msgstr "Подписки %name"
+
+#: subscriptions.module:331
+msgid "regular"
+msgstr "регулярно"
+
+#: subscriptions.module:335
+msgid "error"
+msgstr "ошибка"
+
+#: subscriptions.module:53
+msgid "maintain subscriptions"
+msgstr "получать подписки"
+
+#: subscriptions.module:0
+msgid "subscriptions"
+msgstr "подписки"
+
+#: subscriptions.install:19;34
+msgid "subscriptions database tables have been installed."
+msgstr "таблица базы данных подписок установлена."
+
+#: subscriptions.install:1390
+msgid "You are currently subscribed to the following:"
+msgstr "Сейчас вы подписаны на извещения о:"
+
+#: subscriptions.install:272
+msgid "My subscriptions"
+msgstr "Мои подписки"
+
+#: subscriptions.install:190
+msgid "Enables site settings for user subscriptions."
+msgstr "Настройки подписок пользователей на извещения о новых или изменившихся материалах сайта."
+

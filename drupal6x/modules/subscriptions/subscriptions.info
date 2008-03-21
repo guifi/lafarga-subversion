@@ -1,0 +1,9 @@
+; $Id: subscriptions.info,v 1.1 2006/11/14 00:33:20 c0c0c0 Exp $
+name = Subscriptions
+description = Allows users to subscribe to nodes and taxonomy terms.
+package = "Mail"
+
+; Information added by drupal.org packaging script on 2007-03-09
+version = "5.x-1.9"
+project = "subscriptions"
+

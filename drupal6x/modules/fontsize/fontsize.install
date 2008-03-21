@@ -1,0 +1,96 @@
+<?php
+// $Id: fontsize.install, 5.x-1.3 2007/05/11 21:00:00 hass Exp $
+
+/*
+ * Install some default fontsize settings
+ * 
+ */
+
+function fontsize_install() {
+  
+  $prefix = 'fontsize';
+  
+  variable_set($prefix.'_min', 62);
+  variable_set($prefix.'_max', 142);
+  variable_set($prefix.'_default', 82);
+  variable_set($prefix.'_increment', 10);
+
+  $bigger = array (
+    'beforeHTML' => '',
+    'insideHTML' => '<img src="'. base_path() . drupal_get_path('module','fontsize') .'/img/bigger.gif" alt="font size bigger" />',
+    'afterHTML' => '',
+    'title' => 'font size bigger',
+    'id' => '',
+    'name' => '',
+    'class' => '',
+    'accesskey' => '+',
+    'onmouseover' => '',
+    'onmouseout' => '',
+    'onfocus' => '',
+  );
+
+  $reset = array (
+    'beforeHTML' => '',
+    'insideHTML' => '<img src="'. base_path() . drupal_get_path('module','fontsize') .'/img/reset.gif" alt="reset font size" />',
+    'afterHTML' => '',
+    'title' => 'reset font size',
+    'id' => '',
+    'name' => '',
+    'class' => '',
+    'accesskey' => '+',
+    'onmouseover' => '',
+    'onmouseout' => '',
+    'onfocus' => '',
+  );
+
+  $smaller = array (
+    'beforeHTML' => '',
+    'insideHTML' => '<img src="'. base_path() . drupal_get_path('module','fontsize') .'/img/smaller.gif" alt="font size smaller" />',
+    'afterHTML' => '',
+    'title' => 'font size smaller',
+    'id' => '',
+    'name' => '',
+    'class' => '',
+    'accesskey' => '-',
+    'onmouseover' => '',
+    'onmouseout' => '',
+    'onfocus' => '',
+  );
+  
+  variable_set($prefix.'_bigger', $bigger);
+  variable_set($prefix.'_reset', $reset);
+  variable_set($prefix.'_smaller', $smaller);
+  
+}
+
+function fontsize_update_1() {
+
+  $prefix='fontsize';
+  
+  $cookie_properties = variable_get($prefix.'_cookie', array());
+  $cookie_default = array(
+    'name' => $prefix,
+    'expires' => 365,
+    'path' => '/',
+    'domain' => '',
+  );
+  $cookie_properties = array_merge($cookie_default, $cookie_properties);
+  variable_set($prefix.'_cookie', $cookie_properties);
+  
+  return array();
+}
+
+function fontsize_uninstall() {
+  
+  $prefix='fontsize';
+  
+  variable_del($prefix.'_min');
+  variable_del($prefix.'_max');
+  variable_del($prefix.'_default');
+  variable_del($prefix.'_increment');
+  variable_del($prefix.'_bigger');
+  variable_del($prefix.'_reset');
+  variable_del($prefix.'_smaller');
+  variable_del($prefix.'_cookie');
+  
+}

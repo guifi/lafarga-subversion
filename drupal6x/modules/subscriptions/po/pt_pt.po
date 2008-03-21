@@ -1,0 +1,250 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal 4.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-08-04 11:48+0200\n"
+"PO-Revision-Date: 2006-05-04 23:28-0000\n"
+"Last-Translator: introfini <introfini@gmail.com>\n"
+"Language-Team: introfini <introfini@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: subscriptions.module:11
+msgid ""
+"\n"
+"        <p>This module enables users to subscribe to be notified of changes to threads or categories.\n"
+"        Once enabled, all nodes will have an additional link that allows the user to change their subscriptions.\n"
+"        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n"
+"        No configuration is required for this module, although roles must be given permission to\n"
+"        use it.</p>\n"
+"\n"
+"        <p>Note that because this module causes the comment insert to pause while all\n"
+"        subscribers are notified, it may not be practical for large sites.</p>"
+msgstr ""
+"\n"
+"        <p>Este módulo permite a utilizadores activos a subscrição de serem notificados de alterações a threads ou categorias.\n"
+"        Uma vez activos, todos os nós terão uma ligação adicional que permite que o utilizador mude as suas subscrições.\n"
+"        Adicionalmente, será facultado a todos os utilizadores uma opção na conta para auto-subscrever a qualquer thread ao qual tenham participado.\n"
+"        Nenhuma configuração é necessária para este módulo, embora devam ser dadas permissões a perfis para\n"
+"        poder ser utilizado.</p>\n"
+"\n"
+"        <p>Note que, porque este módulo causa a pausa momentânea na colocação de comentário enquanto todos\n"
+"       os subscritores são notificados, pode não ser prático para grandes sites.</p>"
+
+#: subscriptions.module:22
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Permitir aos utilizadores a subscrição a nós e termos taxinomia"
+
+#: subscriptions.module:60
+msgid "Subscription settings"
+msgstr "Opções de subscrição"
+
+#: subscriptions.module:60
+msgid "Automatically subscribe to threads in which you post."
+msgstr "Subscrever automaticamente a threads nos quais participe"
+
+#: subscriptions.module:60
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "A activação desta caixa de selecção permite-lhe suscrever automaticamente a qualquer thread que crie ou a que coloque um comentário."
+
+#: subscriptions.module:70
+msgid "none"
+msgstr "nenhum"
+
+#: subscriptions.module:74
+msgid "Omitted vocabularies"
+msgstr "Vocabulários omitidos"
+
+#: subscriptions.module:74
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Seleccionar vocabulários que seriam <strong>omitidos</strong> das listas de subscrição."
+
+#: subscriptions.module:170
+msgid "subscription notification for "
+msgstr "notificação de subscrição para"
+
+#: subscriptions.module:173
+msgid "error mailing subscription notification: "
+msgstr "notificação de subscrição de erro de envio:"
+
+#: subscriptions.module:211
+msgid "new blog for "
+msgstr "novo blog para"
+
+#: subscriptions.module:229
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] %type actualização de subscrição para %name : %subject"
+
+#: subscriptions.module:230
+msgid ""
+"Greetings, %name.\n"
+"\n"
+"A %type to which you have subscribed has been updated.  To view the thread,\n"
+"navigate to %url\n"
+"\n"
+"--\n"
+"This is an automatic mail from %site.\n"
+"To manage your subscriptions, browse to %manage-url"
+msgstr ""
+"Saudações, %name.\n"
+"\n"
+"Um %type ao qual subscreveu foi actualizado. Para visualizar o thread,\n"
+"navegue a %url\n"
+"\n"
+"--\n"
+"Este é um email automático de %site.\n"
+"Para gerir as suas subscrições, navegue a %manage-url"
+
+#: subscriptions.module:315
+msgid "Subscribe"
+msgstr "Subscrição"
+
+#: subscriptions.module:315
+msgid "Receive notification of replies to this %name."
+msgstr "Receber notificação de respostas a este %name."
+
+#: subscriptions.module:328
+msgid "my subscriptions"
+msgstr "as minhas subscrições"
+
+#: subscriptions.module:331;0
+msgid "subscriptions"
+msgstr "subscrições"
+
+#: subscriptions.module:347
+msgid "unsubscribe blog"
+msgstr "anular subscrição de blog"
+
+#: subscriptions.module:347
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Parar de receber um email sempre que uma nova entrada seja feita ao blog desta pessoa."
+
+#: subscriptions.module:350
+msgid "subscribe blog"
+msgstr "subscrever blog"
+
+#: subscriptions.module:350
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Receber um email sempre que uma nova entrada seja feita ao blog desta pessoa."
+
+#: subscriptions.module:354
+msgid "unsubscribe post"
+msgstr "Anular subscrição de tópico"
+
+#: subscriptions.module:354
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Parar de receber um email sempre que um novo comentário seja colocado neste @type."
+
+#: subscriptions.module:357
+msgid "subscribe post"
+msgstr "subscrever tópico"
+
+#: subscriptions.module:357
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Receber um email sempre que um comentário seja colocado neste @type."
+
+#: subscriptions.module:381;492;496
+msgid "unsubscribe"
+msgstr "anular subscrição"
+
+#: subscriptions.module:381
+msgid "Unsubscribe from this category."
+msgstr "Anular subscrição desta categoria."
+
+#: subscriptions.module:384
+msgid "subscribe"
+msgstr "subscrever"
+
+#: subscriptions.module:384
+msgid "Subscribe to this category."
+msgstr "Subscrever esta categoria."
+
+#: subscriptions.module:420
+msgid "<p>Your subscription was activated.</p>"
+msgstr "<p>A sua subscrição foi activada.</p>"
+
+#: subscriptions.module:423
+msgid "Return to the blog"
+msgstr "Voltar ao blog"
+
+#: subscriptions.module:426;439
+msgid "Return to the thread"
+msgstr "Voltar ao thread"
+
+#: subscriptions.module:429;441
+msgid "Return to the subscriptions"
+msgstr "Voltar às subscrições"
+
+#: subscriptions.module:430
+msgid "Subscription Activated"
+msgstr "Subscrição Activada"
+
+#: subscriptions.module:437
+msgid "<p>Your subscription was deactivated.</p>"
+msgstr "<p>A sua subscrição foi desactivada.</p>"
+
+#: subscriptions.module:442
+msgid "Subscription Deactivated"
+msgstr "Subscrição Desactivada"
+
+#: subscriptions.module:452;492
+msgid "thread"
+msgstr "thread"
+
+#: subscriptions.module:456;496
+msgid "blog"
+msgstr "blog"
+
+#: subscriptions.module:469;509
+msgid "category"
+msgstr "categoria"
+
+#: subscriptions.module:473;514
+msgid "type"
+msgstr "tipo"
+
+#: subscriptions.module:473;514
+msgid "title"
+msgstr "título"
+
+#: subscriptions.module:473
+msgid "subscribers"
+msgstr "subscritores"
+
+#: subscriptions.module:477
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Nenhuns threads ou categorias estão atualmente subscritas.</p>"
+
+#: subscriptions.module:482
+msgid "Subscriptions Summary"
+msgstr "Sumário de subscrições"
+
+#: subscriptions.module:492
+msgid "Unsubscribe from this thread."
+msgstr "Anular subscrição deste thread."
+
+#: subscriptions.module:496
+msgid "Unsubscribe from this user's blog."
+msgstr "Anular subscrição do blog deste utilizador."
+
+#: subscriptions.module:514
+msgid "operations"
+msgstr "operações"
+
+#: subscriptions.module:517
+msgid "<p>You are not currently subscribed to any active threads or categories.</p>"
+msgstr "<p>Não está actualmente subscrito a nenhuns threads activos ou categorias.</p>"
+
+#: subscriptions.module:170
+msgid "regular"
+msgstr "regular"
+
+#: subscriptions.module:173
+msgid "error"
+msgstr "erro"
+
+#: subscriptions.module:30
+msgid "maintain subscriptions"
+msgstr "manter subscrições"
+

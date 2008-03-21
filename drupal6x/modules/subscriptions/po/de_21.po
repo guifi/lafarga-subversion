@@ -1,0 +1,222 @@
+# translation of de.po to
+# Jakob Petsovits <jpetso@gmx.at>, 2006.
+# translation of it.po to
+msgid ""
+msgstr ""
+"Project-Id-Version: de\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2006-05-08 11:33+0200\n"
+"Last-Translator: Jakob Petsovits <jpetso@gmx.at>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Italian\n"
+"X-Poedit-Country: ITALY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: KBabel 1.11.2\n"
+
+msgid ""
+"\n"
+"        <p>This module enables users to subscribe to be notified of changes to threads or categories.\n"
+"        Once enabled, all nodes will have an additional link that allows the user to change their subscriptions.\n"
+"        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n"
+"        No configuration is required for this module, although roles must be given permission to\n"
+"        use it.</p>\n"
+"\n"
+"        <p>Note that because this module causes the comment insert to pause while all\n"
+"        subscribers are notified, it may not be practical for large sites.</p>"
+msgstr ""
+"\n"
+"        <p>Dieses Modul erlaubt Benutzern, über Änderungen in einzelnen Seiten oder ganzen Kategorien benachrichtigt zu werden. Wenn es aktiviert wird, gibt es auf jedem Knoten einen zusätzlichen Link, mit dem der Benutzer Abonnements einrichten oder kündigen kann. Zusätzlich findet sich in den Benutzereinstellungen eine Option zum automatischen Abonnieren von Diskussionen, in denen selbst gepostet wurde. Für dieses Modul ist keine Konfiguration notwendig, einzig die Zugriffsrechte zum Benutzen des Moduls müssen für die entsprechenden Rollen gesetzt werden.</p>\n"
+"\n"
+"        <p>Für große Websites ist das Modul vielleicht nicht praktikabel, weil damit das Einfügen eines Kommentars so lange pausiert, bis alle Abonnenten benachrichtigt wurden.</p>"
+
+# Permette che gli utenti si registrino ai nodi ed ai termini d
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Erlaubt Benutzern, Änderungen an Knoten und Kategorien zu abonnieren."
+
+msgid "Subscription settings"
+msgstr "Abonnement-Einstellungen"
+
+# Registrati automaticamente alle discussioni che tu invii
+msgid "Automatically subscribe to threads in which you post."
+msgstr "Diskussionen mit eigenen Beiträgen automatisch abonnieren"
+
+# Il controllo di questa casella permette che siate automaticament
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "Falls diese Option ausgewählt ist, wird beim Verfassen eines Beitrags gleichzeitig auch ein Abonnement für die entsprechende Diskussion eingerichtet."
+
+msgid "none"
+msgstr "keine"
+
+# Maiuscola errata
+msgid "Omitted vocabularies"
+msgstr "Ausgelassene Kategorien"
+
+# Selezioni i vocabolari che dovrebbero essere <strong>omess
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Diese Kategorien werden in den Auswahllisten für Abonnements <strong>nicht angezeigt</strong>."
+
+# notification ? conferma
+msgid "subscription notification for "
+msgstr "Bestätigung des Abonnements für"
+
+# errore nell'inviare la notifica per la registrazione
+msgid "error mailing subscription notification: "
+msgstr "Fehler beim Versenden der Abonnement-Bestätigung:"
+
+msgid "new blog for "
+msgstr "Neues Blog für"
+
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] %type Aktualisierung des Abonnements für %name : %subject"
+
+# era incompleto
+msgid ""
+"Greetings, %name.\n"
+"\n"
+"A %type to which you have subscribed has been updated.  To view the thread,\n"
+"navigate to %url\n"
+"\n"
+"--\n"
+"This is an automatic mail from %site.\n"
+"To manage your subscriptions, browse to %manage-url"
+msgstr ""
+"Hallo, %name.\n"
+"\n"
+"Ein abonniertes Element vom Typ %type wurde aktualisiert. "
+"Die Diskussion findet sich unter %url\n"
+"\n"
+"--\n"
+"Dies ist ein automatisches Mail der %site Website.\n"
+"Die dort eingerichteten Abonnements lassen sich unter %manage-url verwalten."
+
+msgid "Subscribe"
+msgstr "Abonnieren"
+
+msgid "Receive notification of replies to this %name."
+msgstr "Benachrichtigungen für Antworten auf %name erhalten."
+
+msgid "my subscriptions"
+msgstr "Meine Abonnements"
+
+msgid "subscriptions"
+msgstr "Abonnements"
+
+msgid "unsubscribe blog"
+msgstr "Abonnement für Blog kündigen"
+
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Für neue Blog-Einträge werden keine weiteren Benachrichtigungs-Emails mehr ausgeschickt."
+
+msgid "subscribe blog"
+msgstr "Blog abonnieren"
+
+# Ricevi una e-mail quando il blog è aggiornato
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Für jeden neuen Blog-Eintrag wird eine Benachrichtigungs-Email ausgeschickt."
+
+# elimina sottoscrizione contenuto
+msgid "unsubscribe post"
+msgstr "Abonnement für Kommentare kündigen"
+
+# Non ricevere una e-mail quando un commento è inserito a questo %n
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Für neue Kommentare werden keine weiteren Benachrichtigungs-Emails mehr ausgeschickt."
+
+# registra contenuto
+msgid "subscribe post"
+msgstr "Kommentare abonnieren"
+
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Für jeden neuen Kommentar wird eine Benachrichtigungs-Email ausgeschickt."
+
+msgid "unsubscribe"
+msgstr "Abonnement kündigen"
+
+msgid "Unsubscribe from this category."
+msgstr "Abonnement für diese Kategorie kündigen."
+
+msgid "subscribe"
+msgstr "abonnieren"
+
+# punto finale
+msgid "Subscribe to this category."
+msgstr "Diese Kategorie abonnieren."
+
+# <p>La tua registrazione è stata disattivata.</p>
+msgid "<p>Your subscription was activated.</p>"
+msgstr "<p>Das Abonnenement wurde eingerichtet.</p>"
+
+msgid "Return to the blog"
+msgstr "Zurück zum Blog"
+
+msgid "Return to the thread"
+msgstr "Zurück zur Diskussion"
+
+msgid "Return to the subscriptions"
+msgstr "Zurück zu den Abonnements"
+
+# c:\subscriptions.module:430
+msgid "Subscription Activated"
+msgstr "Abonnement eingerichtet"
+
+msgid "<p>Your subscription was deactivated.</p>"
+msgstr "<p>Das Abonnement wurde gekündigt.</p>"
+
+# maiuscole
+msgid "Subscription Deactivated"
+msgstr "Abonnement gekündigt"
+
+msgid "thread"
+msgstr "Diskussion"
+
+msgid "blog"
+msgstr "Blog"
+
+msgid "category"
+msgstr "Kategorie"
+
+msgid "type"
+msgstr "Typ"
+
+msgid "title"
+msgstr "Titel"
+
+msgid "subscribers"
+msgstr "Abonnenten"
+
+# <p>Nessuna discussione o categorie sono attualmente registrate.</p>
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Es sind zurzeit keine Diskussionen oder Kategorien abonniert.</p>"
+
+msgid "Subscriptions Summary"
+msgstr "Abonnement-Zusammenfassung"
+
+# elimina registrazione da questa discussione
+msgid "Unsubscribe from this thread."
+msgstr "Abonnement für diese Diskussion kündigen."
+
+# elimina registrazione dal blog di quest'utente
+msgid "Unsubscribe from this user's blog."
+msgstr "Abonnement für das Blog dieses Benutzers kündigen."
+
+msgid "operations"
+msgstr "Aktionen"
+
+# <p>Non sei attualmente registrato a nessun discussione o categori
+msgid "<p>You are not currently subscribed to any active threads or categories.</p>"
+msgstr "<p>Es sind zurzeit keine aktiven Diskussionen oder Kategorien abonniert.</p>"
+
+msgid "regular"
+msgstr "normal"
+
+msgid "error"
+msgstr "Fehler"
+
+# mantieni registrazione
+msgid "maintain subscriptions"
+msgstr "Abonnements verwalten"
+

@@ -1,0 +1,316 @@
+# translation of Drupal's privatemsg-module.po to Hebrew
+# Copyright 2006 <amnon@levavie.com>
+# Generated from file: privatemsg.module,v 1.52.2.1 2006/06/11 16:36:05 
+#
+# Amnon Levav<amnon@levavie.com>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: he\n"
+"POT-Creation-Date: 2006-06-12 16:03+0200\n"
+"PO-Revision-Date: 2006-10-19 16:28+0200\n"
+"Last-Translator: Amnon Levav <amnon@levavie.com>\n"
+"Language-Team:  <amnon@levavie.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: subscriptions.module:10
+msgid "\n        <p>This module enables users to subscribe to be notified of changes to threads, categories and content types.\n        Once enabled, all nodes will have an additional link that allows the user to subscribe to them.\n        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n        No configuration is required for this module, although roles must be given permission to\n        use it.</p>\n        <p>While no configuration is required, administrators are offered a few configurable options:</p>\n        <p>\"<b>Omitted vocabularies</b>\" allows the admin to exclude certain node categories from this list of those\n        available for subscription.</p>\n        <p>\"<b>Omitted content types</b>\" allows the admin to exclude certain content types from this list of those\n        available for subscription.</p>\n        <p>\"<b>Notify poster of own posts</b>\" sends a notification to a node poster about their own posts. Useful principally during testing. Default is OFF.</p>\n        <p>\"<b>Use cron for notifications</b>\" allows you to postpone subscription\n        notifications until the next cron job is run.  Default behavior is to notify all subscribers immediately\n        upon content change.  This behavior is probably best for low volume sites, but high volume sites could\n        observe appreciable pauses upon node or comment insert, and should probably use the cron option.\n        <p>\"<b>Display watchdog entries for successful mailings</b>\" should also probably be disabled for high volume sites,\n        as a large number of mailings could completely fill the log.</p>\n        <p>\"<b>Test held posts prior to sending</b>\" tells Subscriptions to test if a node or comment\n        is still active\\published prior toi sending a notification.  This is mainly to avoid sending\n        notifications for for posts that have been deleted.  This will result in a small performance\n        hit, and only makes sense if you are delaying the notifications with \"Use cron for notifications\".</p>\n        <p>\"<b>Show Subscriptions users menu on main menu</b>\" tells Subscriptions to display the\n        Subscriptions user menu, used to manage one's own subscriptions, on the main menu.  The default\n        setting is OFF.</p>\n        <p>\"<b>Show Subscriptions users menu under 'my account'</b>\" tells Subscriptions to display the\n        Subscriptions user menu, used to manage one's own subscriptions, under the 'My Account' menu.  The default\n        setting is ON.</p>\n        <p>\"<b>Set all users to 'autosubscribe' by default</b>\" set's the default value of the 'autosubscribe'\n        option in each user's account to ON.  This value will not be set, however, until the user saves their\n        account preferences.  This, essentially, pre-checks the option associated with 'autosubscribe'. The\n        default value is OFF.</p>\n\n        "
+msgstr ""
+
+#: subscriptions.module:46
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "מאפשר לחברי האתר לקבל התרעות על עדכון של פריטי תוכן \ תגובות \ סיווגים."
+
+#: subscriptions.module:64
+msgid "Subscription settings"
+msgstr "הגדרות מנוי לעדכונים"
+
+#: subscriptions.module:70
+msgid "Autosubscribe"
+msgstr "מנוי אוטומטי לעדכונים"
+
+#: subscriptions.module:72
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "סימון תיבה זו מאפשר לך לעשות מנוי אוטומטי לכל שרשור הודעות שיצרת או שהגבת עליו."
+
+#: subscriptions.module:90
+msgid "none"
+msgstr "ללא"
+
+#: subscriptions.module:97
+msgid "Omitted vocabularies"
+msgstr "מילונים שיושמטו"
+
+#: subscriptions.module:100
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "בחור מילונים שברצונך <strong>להשמיט</strong> מרשימת הסיווגים שבהם ניתן להתעדכן."
+
+#: subscriptions.module:111
+msgid "Omitted content types"
+msgstr "סוגי תוכן שיושמטו"
+
+#: subscriptions.module:114
+msgid "Select content types which should be <strong>omitted</strong> from subscription listings."
+msgstr "סוגי תוכן שברצונך <strong>להשמיט</strong> מרשימת התכנים שבהם ניתן להתעדכן."
+
+#: subscriptions.module:119
+msgid "Notify poster of own posts"
+msgstr "שלח התרעה לשולח על הפרסומים של עצמו"
+
+#: subscriptions.module:121
+msgid "Notifies a node poster about their own posts.  Useful principally during testing.  Default is OFF."
+msgstr "מתריע בפני מפרסם תוכן על הפרסומים של עצמו. שימושי בעיקר בבדיקות. כבוי כברירת מחדל."
+
+#: subscriptions.module:125
+msgid "Use cron for notifications"
+msgstr "השתמש ב-cron לצורך התרעות"
+
+#: subscriptions.module:127
+msgid "Sends subscription notification when cron module runs.  Default is to send upon node update.  <br /><em>Note:  Currently only tested with MySQL.</em>"
+msgstr "שולח התרעות בזמן הרצות cron. ברירת המחדל היא לשלוח בזמן עדכון פריט התוכן. <br /><em>הערה: נבדק כרגע רק עם MySQL.</em>"
+
+#: subscriptions.module:131
+msgid "Display watchdog entries for successful mailings"
+msgstr "רשום הודעות ביומן הפעילות עבור משלוח מוצלח של התרעות"
+
+#: subscriptions.module:133
+msgid "Inserts notification of successful mailings in the watchdog log.  Default is ON."
+msgstr "מוסיף התרעה על משלוח התרעות מוצלח ליומן הפעילות של המערכת. דלוק כברירת מחדל."
+
+#: subscriptions.module:137
+msgid "Test held posts prior to sending"
+msgstr "בדוק פרסומים בתהליך לפני המשלוח"
+
+#: subscriptions.module:139
+msgid "Tests to see if a post about to be sent by cron is still active.  Adds a small amount of overhead.  Default is OFF."
+msgstr "בודק אם פרסום שעומד להישלח על ידי cron הוא עדיין פעיל. מוסיף קצת תקורה. כבוי כברירת מחדל."
+
+#: subscriptions.module:143
+msgid "Show Subscriptions users menu on main menu"
+msgstr "הצג את תפריט 'העדכונים שלי' כחלק מהתפריט הראשי"
+
+#: subscriptions.module:145
+msgid "Displays the Subscriptions users menu on the main menu. Default is OFF."
+msgstr "מציג את תפריט 'העדכונים שלי' כחלק מהתפריט הראשי. כבוי כברירת מחדל."
+
+#: subscriptions.module:149
+msgid "Show Subscriptions users menu under \"My account\""
+msgstr "הצג את תפריט 'העדכונים שלי' תחת 'החשבון שלי'"
+
+#: subscriptions.module:151
+msgid "Displays the Subscriptions users menu as a tab under \"My account\". Default is ON."
+msgstr "מציג את תפריט 'העדכונים שלי' כלשונית מתחת ל'החשבון שלי'. דלוק כברירת מחדל."
+
+#: subscriptions.module:155
+msgid "Set all users to \"autosubscribe\" by default"
+msgstr "סמן מנוי אוטומטי לכל המשתמשים החדשים כברירת מחדל."
+
+#: subscriptions.module:157
+msgid "Sets each users \"autosubscribe\" profile option. Default is OFF."
+msgstr "עבור משתמשים חדשים, הדלק את הסימון של 'מנוי אוטומטי לעדכונים' . ברירת המחדל היא כבוי."
+
+#: subscriptions.module:170;196;223
+msgid "my subscriptions"
+msgstr "העדכונים שלי"
+
+#: subscriptions.module:175;201
+msgid "blogs"
+msgstr "יומנים אישיים"
+
+#: subscriptions.module:179;205
+msgid "threads"
+msgstr "שרשורי הודעות"
+
+#: subscriptions.module:183;212
+msgid "categories"
+msgstr "סיווגים"
+
+#: subscriptions.module:187;216
+msgid "content types"
+msgstr "סוגי תוכן"
+
+#: subscriptions.module:190;219
+msgid "rss feed"
+msgstr "הזנות RSS"
+
+#: subscriptions.module:208
+msgid "my content types"
+msgstr "סוגי התוכן שלי"
+
+#: subscriptions.module:331
+msgid "subscription notification for "
+msgstr "התרעת מנוי לגבי "
+
+#: subscriptions.module:335
+msgid "error mailing subscription notification: "
+msgstr "שגיאה במשלוח התרעת מנוי: "
+
+#: subscriptions.module:379
+msgid "new blog for "
+msgstr "יומן אישי חדש עבור "
+
+#: subscriptions.module:414
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] עדכון עבור %name בנושא %subject"
+
+#: subscriptions.module:415
+msgid "Greetings, %name.\n\nA %type to which you have subscribed has been updated.\n%title\n%teaser\nTo view the thread, navigate to %url \n\n--\nThis is an automatic message from %site.\nTo manage your subscriptions, browse to %manage-url"
+msgstr "שלום, %name. התעדכן %type שביקשת להתעדכן לגביו. \n%title\n%teaser\nלהצגת העמוד, גש אל: %url.\n\nהודעה זו הינה הודעה אוטומטית מ%site. \nכדי לנהל את העידכונים שלך, גש אל %manage-url."
+
+#: subscriptions.module:620
+msgid "Subscriptions"
+msgstr "שלחו לי עדכונים בנושא זה."
+
+#: subscriptions.module:626
+msgid "Subscribe"
+msgstr "מנוי לעדכונים"
+
+#: subscriptions.module:627
+msgid "Receive notification of replies or comments to this node."
+msgstr "קבלת עדכונים על תגובות לפרסום זה."
+
+#: subscriptions.module:654
+msgid "unsubscribe blog"
+msgstr "ביטול הרשמה ליומן אישי"
+
+#: subscriptions.module:654
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "הפסק לשלוח דואר אלקטרוני כל פעם שיש הודעה חדשה ביומן האישי של חבר זה באתר."
+
+#: subscriptions.module:657
+msgid "subscribe blog"
+msgstr "מנוי ליומן"
+
+#: subscriptions.module:657
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "קבל דואר אלקטרוני בכל פעם שיש הודעה חדשה ביומן של חבר זה."
+
+#: subscriptions.module:661
+msgid "unsubscribe post"
+msgstr "ביטול הרשמה לעדכונים"
+
+#: subscriptions.module:661
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "הפסק לשלוח דואר אלקטרוני בכל פעם שיש תגובה חדשה ל@type."
+
+#: subscriptions.module:664
+msgid "subscribe post"
+msgstr "הודע לי כשהעמוד מתעדכן"
+
+#: subscriptions.module:664
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "שלח לי דואר אלקטרוני כשנשלחת תגובה "ל@type."
+
+#: subscriptions.module:702;712
+msgid "unsubscribe"
+msgstr "בטל מנוי לעדכונים"
+
+#: subscriptions.module:702
+msgid "Unsubscribe from this category."
+msgstr "ביטול מנוי לסיווג זה."
+
+#: subscriptions.module:705;715
+msgid "subscribe"
+msgstr "מנוי לעדכונים"
+
+#: subscriptions.module:705
+msgid "Subscribe to this category."
+msgstr "שלחו לי עדכונים בסיווג זה."
+
+#: subscriptions.module:712
+msgid "Unsubscribe from this node type."
+msgstr "בטל מנוי לעדכונים מסוג זה."
+
+#: subscriptions.module:715
+msgid "Subscribe to this node type."
+msgstr "מנוי לעדכונים מסוג זה."
+
+#: subscriptions.module:750;785;830;877
+msgid "Save"
+msgstr "שמור"
+
+#: subscriptions.module:762;797;845;892;958
+msgid "Your subscription was deactivated."
+msgstr "המנוי שלך בוטל."
+
+#: subscriptions.module:849;896;951
+msgid "Your subscription was activated."
+msgstr "המנוי שלך הופעל."
+
+#: subscriptions.module:968
+msgid "thread"
+msgstr "שרשור הודעות"
+
+#: subscriptions.module:972
+msgid "blog"
+msgstr "יומן אישי"
+
+#: subscriptions.module:985
+msgid "category"
+msgstr "סיווג"
+
+#: subscriptions.module:995
+msgid "content type"
+msgstr "סוג תוכן"
+
+#: subscriptions.module:998
+msgid "type"
+msgstr "סוג"
+
+#: subscriptions.module:998
+msgid "title"
+msgstr "כותרת"
+
+#: subscriptions.module:998
+msgid "subscribers"
+msgstr "מנויים"
+
+#: subscriptions.module:1002
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>אין כעת מנוי לשרשורי הודעות או לסיווגים.</p>"
+
+#: subscriptions.module:1007
+msgid "Subscriptions Summary"
+msgstr "סיכום מנוי לעדכונים"
+
+#: subscriptions.module:1030
+msgid "You are not currently subscribed to any active blogs"
+msgstr "אין לך כעת מנויים ליומנים אישיים פעילים"
+
+#: subscriptions.module:1038;1040
+msgid "There are no active categories."
+msgstr "אין סיווגים פעילים."
+
+#: subscriptions.module:1047
+msgid "You are not currently subscribed to any active threads"
+msgstr "אין לך כעת מנוי לאף שרשור פעיל."
+
+#: subscriptions.module:1055
+msgid "There are no active content types."
+msgstr "אין סוגי תוכן פעילים."
+
+#: subscriptions.module:1063;1096
+msgid "%name Subscriptions"
+msgstr "המנויים של %name"
+
+#: subscriptions.module:331
+msgid "regular"
+msgstr "רגיל"
+
+#: subscriptions.module:335
+msgid "error"
+msgstr "שגיאה"
+
+#: subscriptions.module:53
+msgid "maintain subscriptions"
+msgstr "אפשרות לעשות מנוי לעדכונים"
+
+#: subscriptions.module:0
+msgid "subscriptions"
+msgstr "מנויים לעדכונים"
+
+#: subscriptions.install:19;34
+msgid "subscriptions database tables have been installed."
+msgstr "טבלאות בסיס הנתונים של רכיב המנויים לעדכונים הותקנו."
+

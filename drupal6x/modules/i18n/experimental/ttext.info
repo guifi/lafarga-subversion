@@ -1,0 +1,13 @@
+; $Id: ttext.info,v 1.1.2.2 2007/06/18 23:06:46 dww Exp $
+name = Translatable Text
+description = CCK translatable text field
+dependencies = i18n i18nstrings
+package = Multilanguage - i18n - experimental
+
+
+
+; Information added by drupal.org packaging script on 2007-12-05
+version = "5.x-2.x-dev"
+project = "i18n"
+datestamp = "1196813151"
+

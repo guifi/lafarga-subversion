@@ -1,0 +1,5 @@
+; $Id: fontsize.install, 5.x-1.3 2007/05/11 21:00:00 hass Exp $
+name = Font size
+description = Display a font resizer on the page for better Web Accessibility.
+version = "5.x-1.3"
+project = "fontsize"
