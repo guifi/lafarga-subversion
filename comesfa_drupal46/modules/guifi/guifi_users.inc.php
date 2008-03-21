@@ -374,7 +374,7 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
   $dump .=  "#\n";
   $dump .=  "# passwd file for proxy: ".$node->nick." at zone ".$zones[$node->zone_id]."\n";
   $dump .=  "#\n";
-  if (!empty($passwd[$node_zones[$node->zone_id]])) 
+  if (count($passwd[$node_zones[$node->zone_id]])) 
     foreach ($passwd[$node_zones[$node->zone_id]] as $p) 
       $dump .= $p."\n";
   else
