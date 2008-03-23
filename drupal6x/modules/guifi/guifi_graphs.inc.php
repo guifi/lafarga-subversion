@@ -144,11 +144,11 @@ function guifi_node_get_url_mrtg($node,$old_mrtg = TRUE) {
 
   // if node has ap, inherits from zone, if not, inherits from his ap
   $queryRadios = db_query("SELECT 'x' FROM {guifi_radios} WHERE nid=%d AND mode='ap'",$node);
-  if (db_num_rows($queryRadios)>0)
+  if (db_result($queryRadios)>0)
     return guifi_get_parent_mrtg($Zone->zone_id,$old_mrtg);
 
   $queryRadios = db_query("SELECT id FROM {guifi_radios} WHERE nid=%d AND mode='client'",$node);
-  if (db_num_rows($queryRadios)>0) {
+  if (db_result($queryRadios)>0) {
     $Radio = db_fetch_object($queryRadios);
     return guifi_radio_get_url_mrtg($Radio->id, $old_mrtg);
   }
@@ -168,14 +168,14 @@ function guifi_radio_get_url_mrtg($radio, $old_mrtg = TRUE ) {
   $queryNode = db_query("SELECT d.nid FROM {guifi_devices} d WHERE d.id=%d",$radio);
   $Node = db_fetch_object($queryNode);
   $queryRadios = db_query("SELECT 'x' FROM {guifi_radios} WHERE nid=%d AND mode='ap'",$Node->nid);
-  if (db_num_rows($queryRadios)>0) {
+  if (db_result($queryRadios)>0) {
     // node has APs, inherits node graph server
     return guifi_node_get_url_mrtg($Node->nid,$old_mrtg);
   }
 
   // finding an ap/client link for this node, inherits from remote node
   $queryLinks = db_query("SELECT d.graph_server dg, n.graph_server ng, n.zone_id FROM {guifi_links} l1, {guifi_links} l2, {guifi_devices} d, {guifi_location} n WHERE l1.id=l2.id AND l1.nid != l2.nid AND l1.link_type='ap/client' AND l1.nid=%d AND d.id=l2.device_id AND n.id=l2.nid",$Node->nid);
-  if (db_num_rows($queryLinks)>0) {
+  if (db_result($queryLinks)>0) {
     $Link = db_fetch_object($queryLinks);
     if ($Link->dg == -1)
       return NULL;
@@ -211,7 +211,7 @@ function guifi_node_graph_overview($node) {
    $server_mrtg = guifi_get_graph_url($node->graph_server);
  
  $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
-  if (db_num_rows($query) > 1) { // Supernode, Totals In & Out
+  if (db_result($query) > 1) { // Supernode, Totals In & Out
     if (substr($server_mrtg,0,3)=="fot"){	
 	//  graph all devices.about a node. Ferran Ot
       while ($radio = db_fetch_object($query)){
@@ -268,7 +268,7 @@ function guifi_device_graph_overview($radio) {
         return array_merge($rows);
       }
       $query = db_query("SELECT c.id FROM {guifi_links} c WHERE c.device_id=%d AND c.link_type in ('wds','ap/client','bridge')",$radio['id']);
-      if (db_num_rows($query) > 1)  // several clients, Totals In & Out	
+      if (db_result($query) > 1)  // several clients, Totals In & Out	
       { 
         $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
         $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
@@ -403,10 +403,10 @@ function guifi_mrtg() {
    print $nl.'# '.$row['title'].' - '.$row['ip'];
    $rrdfile = guifi_rrdfile($row['title']);
    $query_linksys_buffalo = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('WRT54Gv1-4','WRT54GSv1-2','WRT54GSv4','WRT54GL','WHR-HP-G54, WHR-G54S')",$row['id']);
-   if (db_num_rows($query_linksys_buffalo) > 0)  
+   if (db_result($query_linksys_buffalo) > 0)  
       print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
    $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
-   if (db_num_rows($query_routeros) > 0)   {
+   if (db_result($query_routeros) > 0)   {
      $dev = guifi_get_device($row[id]);
      if (isset($dev[radios])) foreach ($dev[radios] as $radio_id=>$radio) {
        print wlan_routeros_traffic(guifi_rrdfile($radio[ssid]),$row,$radio_id+1,$nl);
@@ -523,7 +523,7 @@ function guifi_graph_node($node, $start = NULL, $end = NULL) {
     print $radio->id."-".$radio->nick."<br />\n";
     print_r(guifi_get_traffic($radio->nick,null,null));
   }
-  return db_num_rows($query_radios);
+  return db_result($query_radios);
 }
 
 function guifi_graph() {

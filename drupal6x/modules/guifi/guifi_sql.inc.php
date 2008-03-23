@@ -10,6 +10,8 @@
  **/
 function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
   global $user;
+  
+  print_r($key);
 
   $insert = false;
 
@@ -111,7 +113,7 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
      $where_data[$k] = $k.'='.$value;
    // check what's being changed
    $qc = db_query('SELECT '.implode(',',array_keys($data)).' FROM {'.$table.' WHERE '.implode(' AND ',$where_data));
-   if (db_num_rows($qc) != 1) 
+   if (($qc) != 1) 
    {
      drupal_set_message(t('Can\'t update %table while primary key (%where) doesn\'t give 1 row',array('%table'=>$table,'%where'=>$where)));
      return;

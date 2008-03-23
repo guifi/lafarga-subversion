@@ -27,28 +27,85 @@ include_once("GeoCalc.class.php");       // geographic routines
  *
  
 /** menu hooks
-  
-// D51 end
+*/  
 
-//  if 
-//  $installed_version = variable_get("guifi_version","1.0");
-//  if ($installed_version < 2) {
-//    $output = l("upgrade to guifi module version 2.0","admin/settings/guifi/upgrade");
-//  } */
  
-function guifi_menu($may_cache) {
+function guifi_menu() {
   $items = array();
 
-  if ($may_cache) {
+  // administration settings
+  $items['admin/settings/guifi'] = array(
+    'title' => 'guifi.net configuration',
+    'description' => 'Configure guifi.net module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('guifi_admin_settings'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+   
+   // zone menus & tabs
+   $items['node/%node/view/nodes'] = array(
+     'title' => 'nodes',
+     'page callback' => 'guifi_zone_nodes',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access_content'),
+     'type' => MENU_LOCAL_TASK,
+     'weight' => 2,
+   );
+   $items['node/%node/view/map'] = array( 
+     'title' => 'map',
+     'page callback' => 'guifi_zone_map',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['node/%node/view/data'] = array( 
+     'title' => 'data',
+     'page callback' => 'guifi_zone_print',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 4,
+     'type' => MENU_LOCAL_TASK);
+   $items['node/%node/view/availability'] = array( 
+     'title' => 'availability',
+     'page callback' => 'guifi_zone_availability',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 5,
+     'type' => MENU_LOCAL_TASK);
+   $items['node/%node/view/availability'] = array( 
+     'title' => 'availability',
+     'page callback' => 'guifi_zone_availability',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 5,
+     'type' => MENU_LOCAL_TASK);
+   $items['node/%node/view/services'] = array( 
+     'title' => 'services',
+     'page callback' => 'guifi_list_services',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 6,
+     'type' => MENU_LOCAL_TASK);   
+   $items['node/%node/view/ipv4'] = array( 
+     'title' => 'networks',
+     'page callback' => 'guifi_zone_ipv4',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'weight' => 7,
+     'type' => MENU_LOCAL_TASK);
+     
+    return $items;
+/*  
 
-    $items[] = array('path' => 'node/add/guifi-zone', 
-      'title' => t('guifi zone'),
-      'access' => user_access('create guifi zones'));
-    $items[] = array('path' => 'node/add/guifi', 'title' => t('guifi node'),
-      'access' => user_access('create guifi nodes'));
-    $items[] = array('path' => 'node/add/guifi-service', 
-                      'title' => t('guifi service'),
-      'access' => user_access('create guifi nodes'));
     $items[] = array('path' => 'admin/guifi/list', 'title' => t('list'),
       'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
     $items[] = array('path' => 'admin/guifi/ipv4/add', 
@@ -67,16 +124,7 @@ function guifi_menu($may_cache) {
       'access' => user_access('administer guifi networks'),
       'type' => MENU_CALLBACK);
 
-  } else {
-    $items[] = array(
-      'path' => 'admin/settings/guifi',
-      'title' => t('guifi.net'),
-      'description' => t('Provisioning system for wireless networks and communities.'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('guifi_admin_settings'),
-      'access' => user_access('administer site configuration'),
-      'type' => MENU_NORMAL_ITEM, // optional
-     );
+
      $items[] = array('path' => 'guifi/add/device', 
       'title' => t('add device'),	 
       'callback' => 'guifi_add_device', 	 
@@ -217,41 +265,6 @@ function guifi_menu($may_cache) {
 
       // zone menus
       if (($node->nid) && ($node->type == 'guifi_zone')) {
-        $items[] = array('path' => 'node/'. arg(1) .'view', 
-          'title' => t('view'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 
-          'title' => t('all'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/view', 
-          'title' => t('page'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 1,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/nodes', 
-          'title' => t('nodes'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 2,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/map', 
-          'title' => t('map'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 3,
-          'type' => MENU_LOCAL_TASK);
         $items[] = array('path' => 'node/'. arg(1) .'/view/data', 
           'title' => t('data'),
           'callback' => 'guifi_zone_view',
@@ -459,9 +472,9 @@ function guifi_menu($may_cache) {
         }
       }
     }
-  }
+  
 
-  return $items;
+  return $items;*/
 }
 
 /* guifi_init(): Initialization hook: Load stylesheet */
@@ -775,7 +788,6 @@ function guifi_block($op = "list", $delta = 0) {
   }
 }
 
-
 function guifi_access($op, $node) {
   global $user;
 
@@ -825,7 +837,6 @@ function guifi_device_access($op, $id) {
   }
 }
 
-
 function guifi_link($type, $node = 0){
   $links = array();
 
@@ -871,7 +882,7 @@ function guifi_page() {
 }
 
 function guifi_view(&$node, $teaser = 0, $page = 0) {
-
+  
   if (!is_object($node))  {
     $nid = $node;
     unset($node);
@@ -880,7 +891,7 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
 
   switch ($node->type) {
     case 'guifi_zone':
-      guifi_zone_view($node);
+//      guifi_zone_view($node);
       break;
     case 'guifi_node':
       guifi_node_view($node);

@@ -284,7 +284,7 @@ function guifi_zone_simple_map($node) {
 
 /** * guifi_zone_map(): Print de page show de zone map and nodes.
  */
-function guifi_zone_map($node) {
+function guifi_zone_map($nid) {
   $output = guifi_zone_map_help($node->id); 
   $output .= '<IFRAME FRAMEBORDER="0" SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=600,450&REGION_ID='.$node->id.'" ALIGN="CENTER" WIDTH="670" HEIGHT="500" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
   $output .= t('Sorry, your browser can\'t display the embedded map');
@@ -398,6 +398,7 @@ function guifi_zone_insert($node) {
 /** guifi_zone_update(): Save zone changes into the database.
  */
 function guifi_zone_update($node) {
+
   global $user;
 
   // if box changed, maps should be rebuilt
@@ -417,7 +418,7 @@ function guifi_zone_update($node) {
   $to_mail = explode(',',$node->notification);
   $nzone = _guifi_db_sql(
     'guifi_zone',
-    array('id'=>$node->id),
+    array('id'=>$node->nid),
     (array)$node,
     $log,
     $to_mail);
@@ -426,6 +427,7 @@ function guifi_zone_update($node) {
     t('Zone %nick-%name has been updated',
       array('%nick'=>$node->nick,'%name'=>$node->title)),
     $log);
+
 
 }
 
@@ -515,7 +517,7 @@ function guifi_zone_ariadna($id = 0, $link = 'node/') {
     $ret[] = l($result['title'],$link.$result['id']);
   }
   $query = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$id);
-  $t = db_num_rows($query);
+  $t = db_result($query);
   $c = 1;
   if ($t) 
   $ret[] = '<div class="breadcumb">';
@@ -544,7 +546,7 @@ function guifi_zone_print_data($zone) {
 
   $rows[] = array(t('zone name'),$zone->nick.' - <b>' .$zone->title .'</b>'); 
   if ($zone->homepage)
-    $rows[] = array(t('homepage'),'<a href="'.$zone->homepage.'>'.$zone->homepage.'"</a>'); 
+    $rows[] = array(t('homepage'),'<a href="'.$zone->homepage.'">'.$zone->homepage.'</a>'); 
   if (($zone->notification) and (user_access('administer guifi zones')))
     $rows[] = array(t('changes notified to (visible only if you are privileged):'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>'); 
   $rows[] = array(t('network global information').':',null);
@@ -604,13 +606,13 @@ function guifi_zone_totals($zones) {
 
 /** guifi_zone_nodes(): list nodes of a given zone and its childs
 */
-function guifi_zone_nodes($node) {
+function guifi_zone_nodes($nid) {
 
   $output = '<h2>' .t('Nodes listed at') .' ' .$node->title .'</h2>';
 
   // Going to list child zones totals
-  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->nid);
-  if (db_num_rows($result) > 0) {
+  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$nnid);
+  if (db_result($result) > 0) {
     $header = array(
       array('data' => t('Zone name')),
       array('data' => t('Online'),'class' => 'Online'),
@@ -656,8 +658,8 @@ function guifi_zone_nodes($node) {
     'SELECT count(*)
     FROM {guifi_location}
     WHERE zone_id = %d',
-    $node->nid);
-  if (db_num_rows($result) > 0) {
+    $nid);
+  if (db_result($result) > 0) {
     $header = array(
       array('data' => t('nick (shortname)')),
       array('data' => t('supernode')),
@@ -701,7 +703,7 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
   $rows = array(); 
   $depth ++;
   $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->nid);
-  if (db_num_rows($result) > 0) 
+  if (db_result($result) > 0) 
     while ($zone = db_fetch_object($result)) {
       $rows[] = array(
                       array('data' => '<a href="node/'.$zone->id.'/view/availability">'.$zone->title,'class' => 'fullwidth'));
@@ -711,11 +713,11 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
       
   if ($depth < $maxdepth)  {
     $result = db_query('SELECT l.id,l.nick, l.notification, l.zone_description, l.status_flag, count(*) radios FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid WHERE l.zone_id = %d GROUP BY 1,2,3,4,5 ORDER BY radios DESC, l.nick',$node->nid);
-    if (db_num_rows($result) > 0) 
+    if (db_result($result) > 0) 
       while ($loc = db_fetch_object($result)) {
         $qdevices = db_query("SELECT d.id, d.nick, d.flag FROM {guifi_devices} d WHERE nid=%d",$loc->id);
         $i = 0;
-        if (db_num_rows($qdevices) > 0) 
+        if (db_result($qdevices) > 0) 
           while ($radio = db_fetch_object($qdevices)) {
             if ($i == 0) 
               $nnick = '<a href="node/'.$loc->id.'">'.$loc->nick.'</a>';
@@ -750,7 +752,8 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
   return;
 }
 
-function guifi_zone_availability($node) {
+function guifi_zone_availability($nid) {
+  $node = node_load(array('nid'=>$nid));
   $output = '<h2>' .t('Availability of ') .' ' .$node->title .'</h2>';
   $rows[] = array(guifi_zone_availability_recurse($node));
   $output .= theme('table', null, array_merge($rows),array('width'=>'100%'));
@@ -759,12 +762,40 @@ function guifi_zone_availability($node) {
 
 /**  guifi_zone_view(): zone view page
 **/
-function guifi_zone_view(&$node, $teaser = FALSE, $page = FALSE) {
-
-  if (is_numeric($node)) {
-    $zone = node_load($node);
-    $node = $zone;
+function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
+  
+  node_prepare($node);
+  if ($teaser)
+    return $node;
+  if ($block)
+    return $node;
+  
+  if ($page) {
+    $node->content['body']['#value'] = 
+      theme_table(null,array(
+          array(theme_table(null,array(array($node->body,
+                                             guifi_zone_simple_map($node))))),
+          array(guifi_zone_print($node->nid)),
+          array(guifi_zone_nodes($node))
+//        array(theme('table',null,array($node->body.guifi_zone_print($node->nid),'mapa')),
+//             array('paràmetres de la zona'),
+//              array('data'=>guifi_zone_nodes($node))
+//          array('data'=>theme('table',null,
+//            array(array('data'=>$node->body.guifi_zone_print($node->nid)),
+//                  array('data'=>guifi_zone_simple_map($node)))
+//            ),
+//          array('data'=>guifi_zone_nodes($node))
+//          )
+        )
+      );
+        
+    return $node;
   }
+  
+//  if (is_numeric($node)) {
+//    $zone = node_load($node);
+//    $node = $zone;
+//  }
 
   switch (arg(3)) {
     case 'data':
@@ -780,9 +811,9 @@ function guifi_zone_view(&$node, $teaser = FALSE, $page = FALSE) {
       $op = "default";
       break;
   }
-  $output = '<div id="guifi">';
+//  $output = '<div id="guifi">';
 
-  $node = node_prepare($node);
+//  $node = node_prepare($node);
   switch ($op) {
     case 'all': case 'view': case 'default':
       // if no data, print a default text
@@ -844,8 +875,10 @@ function guifi_zone_view(&$node, $teaser = FALSE, $page = FALSE) {
     return $node;
   }
 
-  
-  drupal_set_title($node->title.' ('.t($op).')');
+  if ($page)
+    drupal_set_title($node->title.' ('.t($op).')');
+    
+  return $node;
   print theme('page',$output,false);
   exit(0);
 }

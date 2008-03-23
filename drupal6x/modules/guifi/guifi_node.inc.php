@@ -431,7 +431,7 @@ function guifi_node_validate($node,$form) {
   if (!empty($node->nick)) { 
     $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",
       strtolower($node->nick),$node->nid);
-    if (db_num_rows($query)){
+    if (db_result($query)){
       form_set_error('nick', t('Nick already in use.'));
     }
   }
@@ -781,7 +781,7 @@ function guifi_node_radio_list($id = 0) {
   $form = drupal_get_form('guifi_device_create_form',$id);
 
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
-  if (db_num_rows($query))
+  if (db_result($query))
   while ($d = db_fetch_object($query)) {
      $device = guifi_get_device($d->id);
      $status_str = guifi_availabilitystr($device);
@@ -1083,7 +1083,7 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
   
   $listed = array('0');
   $queryloc1 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, c.flag, l.lat, l.lon, r.ssid FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE d.nid = %d AND link_type like '%s' ORDER BY c.device_id, i.id",$id,$ltype);
-  if (db_num_rows($queryloc1)) {
+  if (db_result($queryloc1)) {
     $devant = ' ';
     while ($loc1 = db_fetch_object($queryloc1)) {
       $queryloc2 = db_query("SELECT c.id, l.id nid, l.nick, r.ssid, c.device_id, d.nick device_nick, a.ipv4 ip, l.lat, l.lon FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id = c.ipv4_id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE c.id = %d AND c.device_id <> %d AND c.id NOT IN (%s)",$loc1->id,$loc1->device_id,implode(",",$listed));
