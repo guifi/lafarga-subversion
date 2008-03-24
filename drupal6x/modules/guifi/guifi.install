@@ -580,7 +580,6 @@ function guifi_install() {
 
 } 
 
-
 function guifi_update_1() {
    
   $items = array();
