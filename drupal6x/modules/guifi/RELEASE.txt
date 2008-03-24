@@ -1,4 +1,4 @@
-NEW FEATURES in guifi.net module v3.0
+NEW FEATURES in guifi.net module v4.0
 
 New Features:
 - Notification engine, every zone/node/device contact address will be contacted
@@ -34,10 +34,16 @@ Database:
 BUG FIXES:
 
 TODO: 
-  -Edit Cable interfaces at devices
-  -Migrate node user creation forms to drupal 5.2
+  -Integration of zone & node location
+  	-Enable Google Maps for images
+  	-Enable OpenGIS overlays for network display
+  	-KML export for GoogleEarth
+  -Revisit node & device management for drupal 6.x
+  -Edit devices with FAPI 6.x in multiple page and jaba enabled forms
+  -Javascript selector for zones
+  -Migrate node user creation forms to drupal 6.x
   -Define ap/client links
-  -Migrate budgets module to drupal 5.2
+  -Migrate budgets module to drupal 6.x
     -Include the feature of define templates for budget items
   
   
