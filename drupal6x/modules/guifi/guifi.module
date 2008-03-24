@@ -32,8 +32,10 @@ include_once("GeoCalc.class.php");       // geographic routines
  
 function guifi_menu() {
   $items = array();
-
-  // administration settings
+  
+  //
+  // ADMINISTRATION settings
+  //
   $items['admin/settings/guifi'] = array(
     'title' => 'guifi.net configuration',
     'description' => 'Configure guifi.net module',
@@ -43,7 +45,9 @@ function guifi_menu() {
     'type' => MENU_NORMAL_ITEM,
    );
    
-   // zone menus & tabs
+   //
+   // ZONE menus & tabs
+   //
    $items['node/%node/view/nodes'] = array(
      'title' => 'nodes',
      'page callback' => 'guifi_zone_nodes',
@@ -51,7 +55,7 @@ function guifi_menu() {
      'access callback' => 'user_access',
      'access arguments' => array('access_content'),
      'type' => MENU_LOCAL_TASK,
-     'weight' => 2,
+//     'weight' => 2,
    );
    $items['node/%node/view/map'] = array( 
      'title' => 'map',
@@ -59,7 +63,7 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 3,
+//     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
    $items['node/%node/view/data'] = array( 
@@ -68,7 +72,7 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 4,
+//     'weight' => 4,
      'type' => MENU_LOCAL_TASK);
    $items['node/%node/view/availability'] = array( 
      'title' => 'availability',
@@ -76,7 +80,7 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 5,
+//     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
    $items['node/%node/view/availability'] = array( 
      'title' => 'availability',
@@ -84,7 +88,7 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 5,
+//     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
    $items['node/%node/view/services'] = array( 
      'title' => 'services',
@@ -92,7 +96,7 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 6,
+//     'weight' => 6,
      'type' => MENU_LOCAL_TASK);   
    $items['node/%node/view/ipv4'] = array( 
      'title' => 'networks',
@@ -100,7 +104,29 @@ function guifi_menu() {
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-     'weight' => 7,
+//     'weight' => 7,
+     'type' => MENU_LOCAL_TASK);
+   $items['node/%node/view/ipv4/add'] = array( 
+     'title' => 'add ipv4 network',
+     'page callback' => 'guifi_add_ipv4',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('administer guifi networks'),
+//     'weight' => 7,
+     'type' => MENU_LOCAL_TASK);
+   $items['guifi/ipv4/%/edit'] = array( 
+     'title' => 'edit ipv4 network',
+     'page callback' => 'guifi_edit_ipv4',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('administer guifi networks'),
+     'type' => MENU_LOCAL_TASK);
+   $items['guifi/ipv4/%/delete'] = array( 
+     'title' => 'delete ipv4 network',
+     'page callback' => 'guifi_delete_ipv4',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('administer guifi networks'),
      'type' => MENU_LOCAL_TASK);
      
     return $items;

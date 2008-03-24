@@ -546,7 +546,7 @@ function guifi_zone_print_data($zone) {
 
   $rows[] = array(t('zone name'),$zone->nick.' - <b>' .$zone->title .'</b>'); 
   if ($zone->homepage)
-    $rows[] = array(t('homepage'),'<a href="'.$zone->homepage.'">'.$zone->homepage.'</a>'); 
+    $rows[] = array(t('homepage'),l($zone->homepage,$zone->homepage)); 
   if (($zone->notification) and (user_access('administer guifi zones')))
     $rows[] = array(t('changes notified to (visible only if you are privileged):'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>'); 
   $rows[] = array(t('network global information').':',null);
@@ -582,9 +582,15 @@ function guifi_zone_print($id) {
 function guifi_zone_ipv4($id) {
 
   $zone = guifi_zone_load($id);
+  $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));
+  
+  $rows = guifi_ipv4_print_data($zone);
+  if (user_access('administer guifi networks')) { 
+    $rows[] = array(l('add network','node/'.$zone->id.'/view/ipv4/add'));
+    $header = array_merge($header,array(t('operations')));
+  }
 
-  $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'),t('operations'));
-  $table = theme('table', $header, guifi_ipv4_print_data($zone));
+  $table = theme('table', $header, $rows);
   $output .= theme('box', t('zone &#038; parent(s) network allocation(s)'), $table);
 
   return $output;
@@ -777,110 +783,12 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
                                              guifi_zone_simple_map($node))))),
           array(guifi_zone_print($node->nid)),
           array(guifi_zone_nodes($node))
-//        array(theme('table',null,array($node->body.guifi_zone_print($node->nid),'mapa')),
-//             array('paràmetres de la zona'),
-//              array('data'=>guifi_zone_nodes($node))
-//          array('data'=>theme('table',null,
-//            array(array('data'=>$node->body.guifi_zone_print($node->nid)),
-//                  array('data'=>guifi_zone_simple_map($node)))
-//            ),
-//          array('data'=>guifi_zone_nodes($node))
-//          )
         )
       );
         
     return $node;
   }
   
-//  if (is_numeric($node)) {
-//    $zone = node_load($node);
-//    $node = $zone;
-//  }
-
-  switch (arg(3)) {
-    case 'data':
-    case 'nodes':
-    case 'map':
-    case 'view':
-    case 'availability':
-    case 'services':
-    case 'ipv4':
-      $op = arg(3);
-      break;
-    default:
-      $op = "default";
-      break;
-  }
-//  $output = '<div id="guifi">';
-
-//  $node = node_prepare($node);
-  switch ($op) {
-    case 'all': case 'view': case 'default':
-      // if no data, print a default text
-      if ($node->body == "") {
-        $node->body = t("<small>This zone still does not have a description, it has a page where you can create or edit the zone information and is accessible to registered users. By creating a zone all the site functionality (mapping, managing, monitoring...) will be available for the network described there</small>");
-      } 
-      if ($page)
-        $node->content['body']['#value'] =  '<table><tr><td>'.$node->body.guifi_zone_print($node->nid).
-                                            '</td><td>'.guifi_zone_simple_map($node).
-                                            '</td></tr></table';
-      if ($teaser)
-        $node->content['body']['#value'] =  $node->body;
-      if ($op == 'view') {
-        $output .= $node->body;
-        break;
-      }
-    case 'all': case 'default':
-      if ($op == 'map') break;
-    case 'nodes':
-      $output .= guifi_zone_nodes($node);
-      
-      // Starting here, not displayed in the overview page
-      break;
-    case 'map': 
-      $output .= guifi_zone_map($node);
-      break;
-    case 'data': 
-      $output .= guifi_zone_print($node->nid);
-      break;
-    case 'ipv4': 
-      $output .= guifi_zone_ipv4($node->nid);
-      break;
-    case 'availability': 
-      $output .= guifi_zone_availability($node);
-      break;
-    case 'services':
-      $output .= guifi_list_services($node);
-      break;
-  }
-  $output .= "</div>";
-  
-
-//  print $node->body;
-//  $node->content['body']['#value'] = $node->body;
-//
-//  $node->body .= theme('box',t('zone information'), $output);
-
-//  if (($op != 'default') and ($op != 'view')) 
-
-//  drupal_set_breadcrumb(guifi_zone_ariadna($node->nid));
-  if (($op == 'default')) {
-    if ($page) {
-      $breadcrumb = guifi_zone_ariadna($node->nid);
-      drupal_set_breadcrumb($breadcrumb);
-//      print theme('page',$node->content['body']['#value'].$output,false);
-//      exit;
-    }
-    $node->content['body']['#value'] .= $output;
-    return $node;
-  }
-
-  if ($page)
-    drupal_set_title($node->title.' ('.t($op).')');
-    
-  return $node;
-  print theme('page',$output,false);
-  exit(0);
 }
 
 /** Miscellaneous utilities related to zones
