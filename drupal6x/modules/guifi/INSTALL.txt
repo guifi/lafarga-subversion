@@ -4,25 +4,20 @@
 Install & configuration of guifi.net module:
 --------------------------------------------
 
-- Install & configure your site with a supported drupal engine (5.2)
+- Install & configure your site with a supported drupal engine (6.x)
 
 - Enable your site  with clean url's 
   (Administer->Site configuration->Clean URLs)
   Apache's mod_rewrite has to be enabled
-
-- (Optional) Install GMap module for the current drupal version if you like to 
-  enjoy google maps API support within guifi.net module.
 
 - Place the guifi.net module files in the standard drupal subdirectory tree 
   for modules (modules/guifi).
   Take the files from the SVN latest release, ex. of anonymous get:
     Being at the modules directory:
     # svn co --username anonymous 
-      https://svn.projectes.lafarga.cat/svn/guifi/drupal52/modules .
+      https://svn.projectes.lafarga.cat/svn/guifi/drupal6x/modules .
     Being at the themes directory (once it gets available, in the meantime, 
     the most tested theme is garland):
-    # svn co --username anonymous 
-      https://svn.projectes.lafarga.cat/svn/guifi/drupal52/themes .
     
 - Enable guifi.net module by checking the check box and save the changes
   (Administer->Site building->Modules->guifi.net)
