@@ -1,5 +1,5 @@
 
-(under development!!)
+( under development !! )
 
 Install & configuration of guifi.net module:
 --------------------------------------------
