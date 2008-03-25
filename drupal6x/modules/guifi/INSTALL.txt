@@ -1,5 +1,5 @@
 
-( under development !! )
+(under development!!)
 
 Install & configuration of guifi.net module:
 --------------------------------------------
@@ -28,10 +28,10 @@ Install & configuration of guifi.net module:
   "network contributors", you can do so at:
   (Administer->User Management->Roles)
   Grant the permissions at each role at:
-  (Administer->User Management->Access control)
+  (Administer->User Management->Roles / edit permissions)
 
 - Configure the guifi.net general parameters
-  (Administer->Site configuration->guifi.net)
+  (Administer->Site configuration->guifi.net configuration)
     
 - Create you first geographic zones tree to be able to host your nodes:
   (create content->guifi.net zone)
