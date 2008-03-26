@@ -135,6 +135,7 @@ CREATE TABLE guifi_radios (
   antenna_gain int(4) default NULL,
   antenna_azimuth int(4) default '360',
   clients_accepted enum('Yes','No') NOT NULL default 'Yes',
+  antmode enum('Main','Aux') NOT NULL default 'Main',
   PRIMARY KEY  (id,radiodev_counter),
   KEY  (nid)
 );

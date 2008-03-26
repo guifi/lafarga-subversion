@@ -1,7 +1,7 @@
 <?php
 
 function unsolclic_nano($dev) {
-  $version = "1.0.1";
+  $version = "1.0.2";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
   $wan = guifi_unsolclic_if($dev->id,'Wan');
@@ -22,6 +22,14 @@ function unsolclic_nano($dev) {
   }
 
   $apssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+    if (empty($dev->radios[0][antmode]))
+         $dev->radios[0][antmode]= 'Main';
+        if ($dev->radios[0][antmode] != 'Main') 
+          $dev->radios[0][antmode]= '1';
+        else
+          $dev->radios[0][antmode]= '2';
+  $radiorx = $dev->radios[0][antmode];
+  $radiotx = $dev->radios[0][antmode];
 
   switch ($dev->variable['model_id']) {
       case "25":
@@ -93,7 +101,6 @@ ppp.1.password=
 ppp.1.status=disabled
 ppp.status=disabled
 radio.1.ack.auto=disabled
-radio.1.acktimeout=$ack
 radio.1.clksel=0
 radio.1.countrycode=724
 radio.1.devname=ath0
@@ -103,13 +110,11 @@ radio.1.mcastrate=11M
 radio.1.mode=managed
 radio.1.rate.auto=enabled
 radio.1.rts=off
-radio.1.rx_antenna=2
 radio.1.rx_antenna_diversity=disabled
 radio.1.status=enabled
 radio.1.thresh62a=28
 radio.1.thresh62b=28
 radio.1.thresh62g=28
-radio.1.tx_antenna=2
 radio.1.tx_antenna_diversity=disabled
 radio.countrycode=724
 radio.ratemodule=ath_rate_onoe
@@ -156,14 +161,17 @@ wpasupplicant.status=disabled
 wireless.1.ssid=guifi.net-$apssid
 netconf.2.ip=$wan->ipv4
 netconf.2.netmask=$wan->netmask
+route.1.gateway=$gateway
 resolv.nameserver.1.ip=$primary_dns
 resolv.nameserver.2.ip=$secondary_dns
-route.1.gateway=$gateway
 resolv.host.1.name=$dev->nick
 snmp.location=$loc->nick
 radio.1.ieee_mode=$net_mode
 radio.1.rate.max=$rate_max
 radio.1.txpower=$txpower
+radio.1.acktimeout=$ack
+radio.1.rx_antenna=$radiorx
+radio.1.tx_antenna=$radiotx
 ";
 
   fwrite($Handle, $Data);

@@ -217,7 +217,14 @@ function unsolclic_routeros($dev) {
     else
       _outln('    dfs-mode=none \ ');
 
-    _outln('    antenna-mode=ant-b wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ');
+    if (empty($radio[antmode]))
+         $radio[antmode]= 'Main';
+        if ($radio[antmode] != 'Main') 
+          $radio[antmode]= 'ant-b';
+        else
+          $radio[antmode]= 'ant-a';
+
+    _outln(sprintf('    antenna-mode=%s wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ',$radio[antmode]));
     _outln('    wds-cost-range=50-150 wds-ignore-ssid=yes hide-ssid=no');
 
     if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {

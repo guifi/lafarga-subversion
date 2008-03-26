@@ -362,7 +362,13 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('wl_frameburst','on');
    // Setting outpur power (mW)
    _outln_nvram('txpwr','28');
-   _outln_nvram('txant','0');
+    if (empty($dev->radios[0][antmode]))
+         $dev->radios[0][antmode]= 'Main';
+        if ($dev->radios[0][antmode] != 'Main') 
+          $dev->radios[0][antmode]= '1';
+        else
+          $dev->radios[0][antmode]= '0';
+   _outln_nvram('txant',$dev->radios[0][antmode]);
    _outln_nvram('wl0_antdiv','0');
    _outln_nvram('wl_antdiv','0');
    _outln_nvram('block_wan','0');
