@@ -48,6 +48,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
   case 'zones':
   case 'nodes':
   case 'detail':
+  case 'basic':
      $tree = guifi_cnml_tree($cnmlid);
      $sql_devices = 'SELECT * FROM {guifi_devices} d';
      $sql_radios = 'SELECT * FROM {guifi_radios} r';
