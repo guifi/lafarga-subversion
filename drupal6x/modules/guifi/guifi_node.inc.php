@@ -380,7 +380,7 @@ function guifi_node_form_supernode($node, $param) {
     '#cols' => 60, 
     '#rows' => 20, 
     '#required' => FALSE,
-    '#description' => t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''),
+    '#description' => t("Textual description of the wifi node") . ($error['body'] ? $error['body'] : ''),
     '#weight' => $form_weight++,
   );
   
