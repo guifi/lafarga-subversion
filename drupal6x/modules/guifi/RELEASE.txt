@@ -45,6 +45,7 @@ TODO:
   -Define ap/client links
   -Migrate budgets module to drupal 6.x
     -Include the feature of define templates for budget items
+  -Generate a simple cnml (xml) for export/import nodes
   
   
 ... and much more! :)
