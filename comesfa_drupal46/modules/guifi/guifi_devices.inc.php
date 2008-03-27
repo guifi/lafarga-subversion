@@ -706,7 +706,7 @@ function guifi_edit_device_save($edit) {
       if ($radio['new']) {
         // Insert a new radio
 //        print "Inserting new radio # $radiodev_counter\n<br />";
-        db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted, antmode) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'],$radio['antmode']);
+        db_query("INSERT INTO {guifi_radios} (id, nid, model_id, radiodev_counter, ssid, mode, protocol, channel, antenna_angle, antenna_gain, antenna_azimuth,clients_accepted, antmode) VALUES (%d, %d, %d, %d, '%s','%s','%s','%s', %d, %d, %d,'%s','%s')", $edit[id], $edit['nid'], $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'],$radio['antmode']);
       } else {
         db_query("UPDATE {guifi_radios} SET model_id = %d, radiodev_counter=%d, ssid ='%s', mode ='%s', protocol ='%s', channel ='%s', antenna_angle =%d, antenna_gain =%d, antenna_azimuth =%d, clients_accepted='%s', antmode='%s' WHERE id = %d AND radiodev_counter=%d", $edit['variable']['model_id'], $radiodev_counter, $radio['ssid'], $radio['mode'], $radio['protocol'], $radio['channel'],$radio['antenna_angle'],$radio['antenna_gain'],$radio['antenna_azimuth'],$radio['clients_accepted'], $radio['antmode'], $radio['id'],$radiodev_counter );
       }
