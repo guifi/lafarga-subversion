@@ -213,7 +213,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
               }
               if (isset($device->variable['model_id']))
               if (in_array($model_name,
-                     array('WRT54Gv1-4','WHR-HP-G54 , WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
+                     array('WRT54Gv1-4','WHR-HP-G54, WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
                switch ($device->variable['firmware']) {
                case 'whiterussian': 
                case 'kamikaze': 
