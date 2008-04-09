@@ -636,6 +636,18 @@ function guifi_admin_settings() {
     '#description' => t('Trace log level to screen:<ol><li><em>None</em>, normal operation</li><li><em>Basic</em>, general messages</li><li><em>Trace</em> provides follow-up of functions being executed, for developers</li><li><em>Full</em> dumps variable values, very long, for fine debug</li></ol>Change the log level to figure out whats happening.'),
     '#weight' => $form_weight++,
   );
+  $form['guifi_gmap_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Key for Google Maps API'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_gmap_key", ''),
+    '#size' => 80,
+    '#maxlength' => 1024,
+    '#description' => t("If not present, Google Maps API will be disabled.<br>Get it at: ").
+       '<a href="http://code.google.com/apis/maps/signup.html">'.
+          'http://code.google.com/apis/maps/signup.html'.'</a>',
+    '#weight' => $form_weight++,
+  );
   $form['guifi_maps'] = array(
     '#type' => 'textfield',
     '#title' => t('URL for maps module'),
