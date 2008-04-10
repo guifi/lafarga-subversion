@@ -223,8 +223,9 @@ function unsolclic_routeros($dev) {
           $radio[antmode]= 'ant-b';
         else
           $radio[antmode]= 'ant-a';
-
-    _outln(sprintf('    antenna-mode=%s wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ',$radio[antmode]));
+// Antena mode is not being used for mikrotiks.... in the meantime, let's take whatever it have'
+//    _outln(sprintf('    antenna-mode=%s wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ',$radio[antmode]));
+    _outln('    wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ');
     _outln('    wds-cost-range=50-150 wds-ignore-ssid=yes hide-ssid=no');
 
     if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {
