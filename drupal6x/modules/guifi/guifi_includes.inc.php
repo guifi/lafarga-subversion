@@ -1542,4 +1542,17 @@ function guifi_coord_dtodms($coord){
   return $res;
 }
 
+function guifi_gmap_key() {
+  $gmap_key = variable_get('guifi_gmap_key','');
+  if ($gmap_key != '') {
+//    drupal_add_js(sprintf("http://maps.google.com/?file=api&amp;v=2.x&amp;key=%s",
+//      $gmap_key),'external');
+    drupal_add_js('http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAAK9chFGyeT3aw-EZsnitkhTOpB_6qbDsPPqYFxm6_mHFkiVPqRRNEfPTmTWUIs5VCXRmUdEbsqJFjQ', 
+     'external');
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
 ?>

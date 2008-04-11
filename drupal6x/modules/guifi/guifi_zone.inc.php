@@ -35,7 +35,7 @@ function guifi_zone_load($node) {
 /** guifi_zone_form(): Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node, &$param) {
-  $form_weight = -20;
+  $form_weight = -20; 
   
   $form['title'] = array(
     '#type' => 'textfield',
@@ -175,19 +175,33 @@ function guifi_zone_form(&$node, &$param) {
       '#weight' => $form_weight++,
     );
   
-  
+    
+  // if gmap key defined, prepare scripts
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zonelimits.js','module');
+    $form['GMAP'] = array(
+      '#type' => 'item',
+      '#title' => t('Map'),
+      '#description' => t('Click the limits over the map.'),
+      '#prefix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
+      '#weight' => $form_weight++,
+    );
+  }
   // Separació Paràmetres dels mapes
   $form['zone_mapping'] = array(
     '#type' => 'fieldset',
     '#title' => t('Zone mapping parameters'),
     '#weight' => $form_weight++,
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
   );
+ 
   $form['zone_mapping']['sep-maps-param'] = array(
     '#value' => '<hr /><h2>'.t('zone mapping parameters').'</h2>',
     '#weight' => $form_weight++,
   );
+
+
   $form['zone_mapping']['MIN_help'] = array(
     '#type' => 'item',
     '#title' => t('Bottom left corner'),
