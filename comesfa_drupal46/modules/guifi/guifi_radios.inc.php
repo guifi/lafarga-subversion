@@ -35,7 +35,7 @@ function guifi_radio_form(&$edit) {
     switch (count($key_detail)) {
     case 1:
       // Radio details
-	$antmode=form_select(t('Antenna Connector'), 'radios]['.$key_detail[0].'][antmode', $edit['radios'][$key_detail[0]]["antmode"], drupal_map_assoc(array( 0=>'Main',1=>'Aux')), t('MiniPci/Linksys/Nanostation<br>Main/Right/Integrated -  Aux/Left/Extern'));
+	$antmode=form_select(t('Antenna Connector'), 'radios]['.$key_detail[0].'][antmode', $edit['radios'][$key_detail[0]]["antmode"], drupal_map_assoc(array( 0=>'', 1=>'Main',2=>'Aux')), t('Leave blank to skip changes<br>MiniPci/Linksys/Nanostation<br>Main/Right/Integrated -  Aux/Left/Extern'));
       if ($edit[radios][$key_detail[0]][mode] == 'ap') {
         $ssid=form_textfield(t('SSID'), 'radios]['.$key_detail[0].'][ssid', $edit['radios'][$key_detail[0]]["ssid"],20,80,t('How will appear to the surveys'));
         $clients_accepted = form_select(t('Clients'), 'radios]['.$key_detail[0].'][clients_accepted', $edit['radios'][$key_detail[0]]["clients_accepted"],
