@@ -3,10 +3,11 @@ var zm = 0;
 var latsgn = 1;
 var lgsgn = 1;
 
-if (isJsEnabled()) {
-  addLoadEvent(xz);
-} 
-
+if(Drupal.jsEnabled) {
+	  $(document).ready(function(){
+		xz();
+	    }); 
+	}
 
 function xz() 
 {
