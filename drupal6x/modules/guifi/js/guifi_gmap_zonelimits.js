@@ -7,9 +7,9 @@ if (isJsEnabled()) {
   addLoadEvent(xz);
 } 
 
+
 function xz() 
 {
-  alert("Hola");
   if (GBrowserIsCompatible()) {
     map=new GMap2(document.getElementById("map"));
     map.addControl(new GLargeMapControl());
