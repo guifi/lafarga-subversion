@@ -413,7 +413,7 @@ function guifi_mrtg() {
    }
    
    // ADSL
-   if (($row['type'] == 'ADSL'))  {
+   if (($row['type'] == 'ADSL') || ($row['type'] == 'generic'))  {
      $adsl = unserialize($row['extra']);
      if (isset($adsl['mrtg_index']))
        print wlan_traffic($rrdfile,$adsl['mrtg_index'],$adsl['download'],t('ADSL traffic'),$row,$nl);
@@ -684,7 +684,7 @@ function guifi_graph_device($device, $type='radio',$start=-86400, $end=-300, $wi
     case 'in':  $ds = 'ds0'; $otherdir = 'out'; $otherds = 'ds1'; break;
     case 'out': $ds = 'ds1'; $otherdir = 'in';  $otherds = 'ds0'; break;
   }
-  if ($device['type'] == 'ADSL')
+  if (($device['type'] == 'ADSL') || ($device['type'] == 'generic'))
     $mrtg_index='_'.$device['variable']['mrtg_index'].'.rrd';
   else
     $mrtg_index='_6.rrd';

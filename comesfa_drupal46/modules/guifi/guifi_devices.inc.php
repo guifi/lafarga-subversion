@@ -777,7 +777,9 @@ function guifi_device_print_data($device) {
     $rows[] = array(t('bandwidth'),$bandwidth[$device['variable']['download']].'/'.$bandwidth[$device['variable']['upload']]);
     $rows[] = array(t('SNMP index to graph'),$device['variable']['mrtg_index']);
   }
-
+  if (($device['type'] == 'generic') and ($device['variable'] != '')) {
+    $rows[] = array(t('SNMP index to graph'),$device['variable']['mrtg_index']);
+  }
   switch ($device['graph_server']) {
   case -1:
     $graphtxt = t('Graphs disabled.');
@@ -1128,6 +1130,11 @@ function guifi_ADSL_form($edit) {
   $output .= form_select(t('Upload'),'variable][upload',$edit['variable']['upload'],guifi_bandwidth_types(),
                               t('Upload bandwidth'));
         
+  $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
+  return $output;
+}
+
+function guifi_generic_form($edit) {
   $output .= form_textfield(t('MRTG config'), 'variable][mrtg_index', $edit['variable']['mrtg_index'], 2,5, t('SNMP interface index for getting traffic information of this device. User tools like cacti or snmpwalk to determine the index. Example:').'<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 interface</pre>');
   return $output;
 }

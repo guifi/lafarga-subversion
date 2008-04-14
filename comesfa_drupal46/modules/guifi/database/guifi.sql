@@ -241,6 +241,7 @@ INSERT INTO `guifi_types` (type, text, description) VALUES ('device', 'server', 
 INSERT INTO `guifi_types` (type, text, description) VALUES ('device', 'nat',    'Firewall, private Network behind a NAT');
 INSERT INTO `guifi_types` (type, text, description) VALUES ('device', 'ADSL',   'ADSL router or device providing internet access');
 INSERT INTO `guifi_types` (type, text, description) VALUES ('device', 'cam',    'Network camera. Live view.');
+INSERT INTO `guifi_types` (type, text, description) VALUES ('device', 'generic',    'Any device that uses a public IP (PC, game console, laptop, pda..)');
         
 -- 
 -- service types
