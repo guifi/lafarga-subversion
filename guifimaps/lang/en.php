@@ -25,6 +25,7 @@ $text['JavaOFF'] = 'Mode Java OFF<br>Click for activate it';
 $text['Information'] = 'Information';
 $text['Scale'] = 'Scale';
 $text['AddNodeLink'] = 'Add a node at the marker position';
+$text['AddNodeLinkPr'] = 'Add a node at the marker position on a TESTING SITE';
 $text['MoreZoom'] = 'Click and zoom in to be able to add nodes';
 $text['Reference'] = 'Reference';
 $text['MapSize'] = 'Map Size';

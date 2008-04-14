@@ -17,6 +17,8 @@ define('NodeURL',"http://guifi.net/node/%d");
 
 // URL for adding nodes, %f $f will be replaced by Lon & Lat
 define('NodeAddURL',"http://guifi.net/node/add/guifi-node?Lon=%f&Lat=%f"); 
+// URL for adding nodes, %f $f will be replaced by Lon & Lat on TESTING SITE
+define('NodeAddURLPr',"http://proves.guifi.net/node/add/guifi-node?Lon=%f&Lat=%f");
 
 // Scale up tp Add node link appears
 define('AddNode',15000);

@@ -25,6 +25,7 @@ $text['JavaOFF'] = 'Mode Java desactivat<br>Clica per activar-lo';
 $text['Information'] = 'Informació';
 $text['Scale'] = 'Escala';
 $text['AddNodeLink'] = 'Afegir un node on hi ha l\'estrella';
+$text['AddNodeLinkPr'] = 'Afegir un node on hi ha l\'estrella a la WEB DE PROVES';
 $text['MoreZoom'] = 'Clica un punt i amplia la imatge per a poder afegir nodes';
 $text['Reference'] = 'Referència';
 $text['MapSize'] = 'Tamany';

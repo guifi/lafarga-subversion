@@ -980,8 +980,10 @@ function addNode() {
                $gLon,$gLat);
   if ((($gLat) && ($gLon))  and 
      ($gpoMap->scale < AddNode)) {
-    $output .= sprintf("<img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\"><a href=\"%s\" target=\"_top\"><FONT FACE=\"Arial, Helvetica, sans-serif\" SIZE=\"1\">%s</FONT></a><img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\">",
+    $output .= sprintf("<img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\"><a href=\"%s\" target=\"_top\"><FONT FACE=\"Arial, Helvetica, sans-serif\" SIZE=\"1\">%s</FONT></a><img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\"><br />",
     sprintf(NodeAddURL,$gLon,$gLat),$text['AddNodeLink']);
+    $output .= sprintf("<img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\"><a href=\"%s\" target=\"_top\"><FONT FACE=\"Arial, Helvetica, sans-serif\" SIZE=\"1\">%s</FONT></a><img src=\"images/leg_pointer.gif\" width=\"20\" height=\"15\">",
+    sprintf(NodeAddURLPr,$gLon,$gLat),$text['AddNodeLinkPr']);
   } else
     $output .= sprintf("<FONT FACE=\"Arial, Helvetica, sans-serif\" SIZE=\"1\">%s</FONT></a>",
                          $text['MoreZoom']);

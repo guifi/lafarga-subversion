@@ -25,6 +25,7 @@ $text['JavaOFF'] = 'Modo Java desactivado<br>Clica para activarlo';
 $text['Information'] = 'Información';
 $text['Scale'] = 'Escala';
 $text['AddNodeLink'] = 'Añadir un nodo en la posición de la estrella';
+$text['AddNodeLinkPr'] = 'Añadir un nodo en la posición de la estrella en la WEB DE PRUEBAS';
 $text['MoreZoom'] = 'Marca un punto y amplia la imagen para añadir nodos';
 $text['Reference'] = 'Referencia';
 $text['MapSize'] = 'Tamaño';
