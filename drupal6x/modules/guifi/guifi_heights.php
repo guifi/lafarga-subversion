@@ -1,11 +1,11 @@
 <?php
 
 /*
-  Busca una dada d'elevaciÛ dins el cata.grd
+  Busca una dada d'elevaci√≥ dins el cata.grd
   --------------------------------------------------------------
-  Es calcula la posiciÛ $pos a partir dels indexs del array,
+  Es calcula la posici√≥ $pos a partir dels indexs del array,
   partint de que cada nombre ocupa 4 bytes ASCII, i es retorna
-  el valor de l'alÁda real del punt
+  el valor de l'al√ßada real del punt
   */
 
 function height($x,$y)
@@ -21,8 +21,8 @@ function height($x,$y)
 /*
   Ubica una cordenada UTM dins la graella d'elevacions
   -------------------------------------------------------------
-  Fa la traducciÛ de UTM a la psiciÛ corresponent dins la graella
-  agafant com a par‡metres la posicio que volem trobar, les coordenades
+  Fa la traducci√≥ de UTM a la psici√≥ corresponent dins la graella
+  agafant com a par√†metres la posicio que volem trobar, les coordenades
   de l'extrem i la resolucio de la graella
   */
   
@@ -33,11 +33,11 @@ function utm2grid(&$ux,&$uy)
   }
 
 /* 
-  Escala els eixos en funciÛ de la distancia/alcada
+  Escala els eixos en funci√≥ de la dist√†ncia/alcada
   ----------------------------------------------------------------
-  En funciÛ de la llargada de les dades a representar determina a quins
+  En funci√≥ de la llargada de les dades a representar determina a quins
   intervals s'han de dibuixar les marques dels eixos per que siguin 
-  lÚgiques i llegibles, sempre conservant una proporcio m˙ltiple de 1, 5
+  l√≤giques i llegibles, sempre conservant una proporcio m√∫ltiple de 1, 5
   o 10 en funcio de la mida.
   */
 
@@ -68,10 +68,10 @@ function set_tics($th)
   }  
 
 /* 
-  Inerpola una alÁada correponent a un punt de la graella
+  Inerpola una al√ßada correponent a un punt de la graella
   -----------------------------------------------------------------------
-  Calcula a partir de 4 punts coneguts, l'alÁada paroximada d'un punt qualsevol
-  entre els 4, a partir de l'equaciÛ d'un pla ajsutad als 4 punts
+  Calcula a partir de 4 punts coneguts, l'al√ßada paroximada d'un punt qualsevol
+  entre els 4, a partir de l'equaci√≥ d'un pla ajsutad als 4 punts
   */
   
   
@@ -79,30 +79,30 @@ function interpole_height($x,$y)
   {
   $basex=floor($x); // component x en la graella
   $basey=floor($y); // component y en la graella
-  $dx=$x-$basex;    // desplaÁament x dins la cel.la
-  $dy=$y-$basey;    // desplaÁament y dins la cel.la  
+  $dx=$x-$basex;    // despla√ßament x dins la cel.la
+  $dy=$y-$basey;    // despla√ßament y dins la cel.la  
   $p1=height($basex,$basey);                        
   $p2=height($basex+1,$basey);
   $p3=height($basex,$basey-1);
-  $p4=height($basex+1,$basey-1);    // alÁcades dels 4 punts + propers
+  $p4=height($basex+1,$basey-1);    // al√ßades dels 4 punts + propers
   $a = ($p1 +$p2 +$p3 +$p4) /4;
   $b = (($p1*-1) +$p2 +($p3*-1) +$p4) /4;
-  $c = (($p1*-1) +($p2*-1) +$p3 +$p4) /4;  // c‡lcul de par‡metres per l'equacio del pla
+  $c = (($p1*-1) +($p2*-1) +$p3 +$p4) /4;  // c√†lcul de par√†metres per l'equaci√≥ del pl√†
   $dx=($dx*2) -1;
   $dy=($dy*2) -1;
-  $z=$a + ($b*$dx) + ($c*$dy);      // substitucio i calcul de l'alÁada
+  $z=$a + ($b*$dx) + ($c*$dy);      // substitucio i calcul de l'al√ßada
   return($z);
   }  
   
 /*
-   Format del pas de par‡metres 
+   Format del pas de par√†metres 
 
    guifi_heights.php?
    x1=&y1=&x2=&y2=      // Obligatoris - les coordeandes UTM dels 2 nodes
    &node1=&node2=      // Opcionals - els noms dels 2 nodes
    &width=&height=      // Amplada de la imatge [ Per defecte 800 x 400 ]
-   &h1=&h2=        // alÁada Terra->Antena dels dos punts respectivament [ Per defecte 10 / 10]
-   &res=        // resoluciÛ de la gr‡fica : NUmero de punts interpolats entre 2 reals [ Per defecte 1]
+   &h1=&h2=        // al√ßada Terra->Antena dels dos punts respectivament [ Per defecte 10 / 10]
+   &res=        // resoluci√≥ de la gr√†fica : NUmero de punts interpolats entre 2 reals [ Per defecte 1]
 */ 
 
 if ( (array_key_exists("x1",$_GET)) &
@@ -110,11 +110,11 @@ if ( (array_key_exists("x1",$_GET)) &
      (array_key_exists("x2",$_GET)) &
      (array_key_exists("y2",$_GET)) )
   {
-  $script_header = "";  // Espai per la capÁalera
+  $script_header = "";  // Espai per la cap√ßalera
   $script_data = "";    // Espai per les dades del perfil
   $script_data2 = "";   // Espai per les dades de la LOV
   
-  // Recollida de par‡metres
+  // Recollida de par√†metres
     
   $x1 = $_GET["x1"];
   $y1 = $_GET["y1"];
@@ -167,8 +167,8 @@ if (array_key_exists("height",$_GET))
   
   //------------------------1
   
-  // calcul de les alÁades dels punts intermitjos que passen per la recta entre node1 i node 2
-  // el numero de punts (steps) ve determinat per la dist‡ncia entre els nodes
+  // calcul de les al√ßades dels punts intermitjos que passen per la recta entre node1 i node 2
+  // el numero de punts (steps) ve determinat per la dist√†ncia entre els nodes
   If ( ($g2<$g1) & ($h2<$h1) )
     {
     $a = $g1 - $g2;
@@ -308,7 +308,7 @@ if (array_key_exists("height",$_GET))
   $ytics = set_tics($totalheight);
   $xtics = set_tics($dist*0.3)/10;
   
-  // capÁalera de l'script pel GNUPLot
+  // cap√ßalera de l'script pel GNUPLot
   
         $script_header =  $script_header."set terminal png size ".$width." ".$height."\n";       // imatge en format PNG
   $script_header =  $script_header."set output\n";    // Sortida per STDOUT  
@@ -316,7 +316,7 @@ if (array_key_exists("height",$_GET))
   // $script_header =  $script_header."set mytics 40\n"; // interval de les sub ralletes [eix y]  
   // $script_header =  $script_header."set tics out\n";  // subralletes capa fora del grafic    
   if ($height >= 320) {
-    $script_header =  $script_header."set title '".$node1." - ".$node2."'\n";                    // TÌtol del Gr‡fic
+    $script_header =  $script_header."set title '".$node1." - ".$node2."'\n";                    // T√≠tol del Gr√†fic
     $script_header =  $script_header."set ylabel \"Altitud (m)\"\n";  // Etiqueta Eix Y
     $script_header =  $script_header."set grid\n";   // Mostrar graella de fons
  } else 
@@ -334,7 +334,7 @@ if (array_key_exists("height",$_GET))
   //$script_header =  $script_header."plot '-' notitle with filledcurves 6 , \\\n";// Grafica del perfil color 1 [vermell] color 6 [marro]
   //$script_header =  $script_header."set style fill solid 1.0 \n";  
   $script_header =  $script_header."plot '-' notitle with lines 6,\\\n";// Grafica del perfil color 1 [vermell] color 6 [marro]
-  $script_header =  $script_header."     '-' notitle with lines 3\n";  // Gr‡fica del LOV color 3 [blau]    
+  $script_header =  $script_header."     '-' notitle with lines 3\n";  // Gr√†fica del LOV color 3 [blau]    
   
   
   // Ajuntar parts de l'script    
@@ -347,7 +347,7 @@ if (array_key_exists("height",$_GET))
   fwrite($heights,$script);
   fclose($heights);    
     
-  //  l'executem, agafant el resultat i passantlo per la sortida com a imatge png  
+  //  l'executem, agafant el resultat i passant-lo per la sortida com a imatge png  
     
   header("Content-type: image/png");                                                            
   passthru("gnuplot ".$fname);
