@@ -20,15 +20,10 @@ function xz()
     GEvent.addListener(map, 'click', function(overlay,point) {
       if (overlay) {
         map.removeOverlay(overlay);
-        document.getElementById("latbox").value='';
-        document.getElementById("latboxm").value='';
-        document.getElementById("latboxmd").value='';
-        document.getElementById("latboxms").value='';
-
-        document.getElementById("lonbox").value='';
-        document.getElementById("lonboxm").value='';
-        document.getElementById("lonboxmd").value='';
-        document.getElementById("lonboxms").value='';
+        document.getElementById("edit-minx").value='';
+        document.getElementById("edit-miny").value='';
+        document.getElementById("edit-maxx").value='';
+        document.getElementById("edit-maxy").value='';
       } else {
         if (zm == 0) {
                 map.setCenter(point,7);
@@ -64,10 +59,10 @@ function xz()
         var lgm = Math.floor(((lonA/1000000) - Math.floor(lonA/1000000)) * 60);
         var lgd = ( Math.floor(((((lonA/1000000) - Math.floor(lonA/1000000)) * 60) - Math.floor(((lonA/1000000) - Math.floor(lonA/1000000)) * 60)) * 100000) *60/100000 );
 
-        document.getElementById("latbox").value=point.y;
-        document.getElementById("latboxm").value=ls;
-        document.getElementById("latboxmd").value=lm;
-        document.getElementById("latboxms").value=ld;
+        document.getElementById("edit-minx").value=point.y;
+        document.getElementById("edit-miny").value=ls;
+        document.getElementById("edit-maxx").value=lm;
+        document.getElementById("edit-maxy").value=ld;
 
         document.getElementById("lonbox").value=point.x;
         document.getElementById("lonboxm").value=lgs;
