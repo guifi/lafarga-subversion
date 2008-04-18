@@ -1,0 +1,5 @@
+; $Id: budgets.info,v 2.0 2008/28/01 $
+name = Budgets
+description = Budgets module for drupal 5
+package = budgets
+version = 2
