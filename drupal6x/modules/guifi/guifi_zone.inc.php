@@ -176,17 +176,6 @@ function guifi_zone_form(&$node, &$param) {
     );
   
     
-  // if gmap key defined, prepare scripts
-  if (guifi_gmap_key()) {
-    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zonelimits.js','module');
-    $form['GMAP'] = array(
-      '#type' => 'item',
-      '#title' => t('Map'),
-      '#description' => t('Click the limits over the map.'),
-      '#prefix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
-      '#weight' => $form_weight++,
-    );
-  }
   // Separació Paràmetres dels mapes
   $form['zone_mapping'] = array(
     '#type' => 'fieldset',
@@ -200,12 +189,23 @@ function guifi_zone_form(&$node, &$param) {
     '#value' => '<hr /><h2>'.t('zone mapping parameters').'</h2>',
     '#weight' => $form_weight++,
   );
+    // if gmap key defined, prepare scripts
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zonelimits.js','module');
+    $form['zone_mapping']['GMAP'] = array(
+      '#type' => 'item',
+      '#title' => t('Map'),
+      '#description' => t('Click the limits over the map.'),
+      '#suffix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
+      '#weight' => $form_weight++,
+    );
+  }
 
 
   $form['zone_mapping']['MIN_help'] = array(
     '#type' => 'item',
-    '#title' => t('Bottom left corner'),
-    '#description' => t('Coordinates (Lon/Lat) of the bottom left corner of the map.'),
+    '#title' => t('Upper-right corner'),
+    '#description' => t('Coordinates (Lon/Lat) of the upper-right corner of the map.'),
     '#weight' => $form_weight++,
   );
   $form['zone_mapping']['minx'] = array(
@@ -215,7 +215,7 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 24, 
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
     '#suffix' => '</ td>',
-    '#description' => t('Longutude'),
+    '#description' => t('Longitude'),
     '#weight' => $form_weight++,
   );
   $form['zone_mapping']['miny'] = array(
@@ -230,8 +230,8 @@ function guifi_zone_form(&$node, &$param) {
   );
   $form['zone_mapping']['MAX_help'] = array(
     '#type' => 'item',
-    '#title' => t('Upper right corner'),
-    '#description' => t('Coordinates (Lon/Lat) of the upper right corner of the map.'),
+    '#title' => t('Bottom-left corner'),
+    '#description' => t('Coordinates (Lon/Lat) of the bottom-left corner of the map.'),
     '#weight' => $form_weight++,
   );
   $form['zone_mapping']['maxx'] = array(
@@ -241,7 +241,7 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 24, 
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
     '#suffix' => '</ td>',
-    '#description' => t('Longutude'),
+    '#description' => t('Longitude'),
     '#weight' => $form_weight++,
   );
   $form['zone_mapping']['maxy'] = array(
