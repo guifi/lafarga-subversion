@@ -18,12 +18,22 @@ function xz()
     map.enableScrollWheelZoom();
     map.addControl(new GOverviewMapControl());
     GEvent.addListener(map, 'click', function(overlay,point) {
+      var minx = document.getElementById("edit-minx").value;
+      var miny = document.getElementById("edit-miny").value;
+      var maxx = document.getElementById("edit-maxx").value;
+      var maxy = document.getElementById("edit-maxy").value;
+        
       if (overlay) {
         map.removeOverlay(overlay);
-        document.getElementById("edit-minx").value='';
-        document.getElementById("edit-miny").value='';
-        document.getElementById("edit-maxx").value='';
-        document.getElementById("edit-maxy").value='';
+        if (minx == point.x)
+          document.getElementById("edit-minx").value='';
+        if (miny == point.y)
+          document.getElementById("edit-miny").value='';
+        if (maxx == point.x)
+          document.getElementById("edit-maxx").value='';
+        if (maxy == point.y)
+          document.getElementById("edit-maxy").value='';
+
       } else {
         if (zm == 0) {
                 map.setCenter(point,7);
@@ -58,7 +68,17 @@ function xz()
 
         var lgm = Math.floor(((lonA/1000000) - Math.floor(lonA/1000000)) * 60);
         var lgd = ( Math.floor(((((lonA/1000000) - Math.floor(lonA/1000000)) * 60) - Math.floor(((lonA/1000000) - Math.floor(lonA/1000000)) * 60)) * 100000) *60/100000 );
+       
+        if ((minx < point.x) || (minx == '')) 
+            document.getElementById("edit-minx").value = point.x;
+        if ((miny < point.y) || (miny == '')) 
+            document.getElementById("edit-miny").value = point.y;
+        if ((maxx > point.x) || (maxx == '')) 
+            document.getElementById("edit-maxx").value = point.x;
+        if ((maxy > point.y) || (maxy == '')) 
+            document.getElementById("edit-maxy").value = point.y;
 
+         /*
         document.getElementById("edit-minx").value=point.y;
         document.getElementById("edit-miny").value=ls;
         document.getElementById("edit-maxx").value=lm;
@@ -68,6 +88,7 @@ function xz()
         document.getElementById("lonboxm").value=lgs;
         document.getElementById("lonboxmd").value=lgm;
         document.getElementById("lonboxms").value=lgd;
+        */
       }
     });
     map.setCenter(new GLatLng(20.0, -10.0), 2);
