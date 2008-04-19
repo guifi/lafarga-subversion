@@ -42,6 +42,7 @@ function guifi_zone_form(&$node, &$param) {
     '#title' => t('Title'),
     '#required' => TRUE,
     '#default_value' => $node->title,
+    '#element_validate' => array('guifi_zone_title_validate'),    
     '#weight' => $form_weight++,
   );
   
@@ -52,6 +53,7 @@ function guifi_zone_form(&$node, &$param) {
     '#required' => FALSE,
     '#default_value' => $node->master,
     '#options' => guifi_zones_listbox(),
+    '#element_validate' => array('guifi_zone_master_validate'),    
     '#description' => t('The parent zone where this zone belongs to.'),
     '#weight' => $form_weight++,
   );
@@ -78,6 +80,7 @@ function guifi_zone_form(&$node, &$param) {
     '#default_value' => $node->nick,
     '#size' => 10,
     '#maxlength' => 10, 
+    '#element_validate' => array('guifi_zone_nick_validate'),
     '#description' => t('Single word, 7-bits characters. Used while default values as hostname, SSID, etc...'),
     '#weight' => $form_weight++,
   );
@@ -106,6 +109,7 @@ function guifi_zone_form(&$node, &$param) {
     '#default_value' => $node->notification,
     '#size' => 60,
     '#maxlength' => 1024, 
+    '#element_validate' => array('guifi_emails_validate'),
     '#description' => t('Mails where changes at the zone will be notified. Usefull for decentralized administration. If more than one, separated by \',\''),
     '#weight' => $form_weight++,
   );
@@ -149,6 +153,7 @@ function guifi_zone_form(&$node, &$param) {
     '#default_value' => $node->ospf_zone,
     '#size' => 60,
     '#maxlength' => 128, 
+    '#element_validate' => array('guifi_zone_ospf_validate'),
     '#description' => t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'),
     '#weight' => $form_weight++,
   );
@@ -208,6 +213,7 @@ function guifi_zone_form(&$node, &$param) {
     '#description' => t('Coordinates (Lon/Lat) of the upper-right corner of the map.'),
     '#weight' => $form_weight++,
   );
+
   $form['zone_mapping']['minx'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->minx,
@@ -215,6 +221,7 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 24, 
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
     '#suffix' => '</ td>',
+    '#element_validate' => array('guifi_lon_validate'),
     '#description' => t('Longitude'),
     '#weight' => $form_weight++,
   );
@@ -224,6 +231,7 @@ function guifi_zone_form(&$node, &$param) {
     '#size' => 12,
     '#prefix' => '<td style="width: 12em">',
     '#suffix' => '</td></tr></table>',
+    '#element_validate' => array('guifi_lat_validate'),    
     '#description' => t('Latitude'),
     '#maxlength' => 24, 
     '#weight' => $form_weight++,
@@ -241,6 +249,7 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 24, 
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
     '#suffix' => '</ td>',
+    '#element_validate' => array('guifi_lon_validate'),
     '#description' => t('Longitude'),
     '#weight' => $form_weight++,
   );
@@ -251,6 +260,7 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 24, 
     '#prefix' => '<td style="width: 12em">',
     '#suffix' => '</td></tr></table>',
+    '#element_validate' => array('guifi_lat_validate'),    
     '#description' => t('Latitude'),
     '#weight' => $form_weight++,
   );
@@ -308,74 +318,73 @@ function guifi_zone_map($nid) {
 
 /** guifi_zone_validate(): Confirm that an edited guifi item has fields properly filled in.
  */
-function guifi_zone_validate($node,$form) {
+ 
+function guifi_zone_title_validate($element, &$form_state) {
+  if (empty($element['#value'])) 
+    form_error($element,t('You must specify a title for the zone.'));
+}
 
-  function validate_limits($x, $y, $message,$field) {
-    if (!is_numeric($x))
-      form_set_error($field, $message.' '.
-        t("Lon must be numeric."));
-    if (!is_numeric($y))
-      form_set_error($field, $message.' '.
-        t("Lat must be numeric."));
-    if ((($x == null) and ($y != null)) || (($x != null) and ($y == null)))
-      form_set_error($field, $message.' '.
-        t("Both coordinates (Lon/Lat) must be filled."));
-    if (($x > 180) || ($x < -180))
-      form_set_error($field, $message.' '.
-        t("Longitude has to be between -180 and 180"));
-    if (($y > 90) || ($y < -90))
-      form_set_error($field, $message.' '.
-        t("Latitude has to be between -90 and 90"));
-  }
-
-  $emails = guifi_notification_validate($node->notification);
-  if (!$emails)
-    form_set_error('notification',
-      t('Error while validating email address'));
-  else 
-    form_set_value($form['notification'],$emails);
-  
-  if (($node->nick == "") or (is_null($node->nick))) {
-    $nick = guifi_abbreviate($node->title);
+function guifi_zone_nick_validate($element, &$form_state) {
+  if (empty($element['#value'])) {
+    $nick = guifi_abbreviate($form_state['values']['title']);
     drupal_set_message(t('Zone nick has been set to:').' '.$nick);
-    form_set_value($form['nick'],$nick);  
+    $form_state['values']['nick'] = $nick;
   }
+}
 
-  if  ($node->ospf_zone != htmlentities($node->ospf_zone, ENT_QUOTES))
-    form_set_error(
-      'ospf_zone', 
+function guifi_lat_validate($element, &$form_state) {
+  if (empty($element['#value'])) 
+    form_error($element,t('Latitude must be specified.'));
+  if (!is_numeric($element['#value']))
+    form_error($element,t('Latitude must be numeric'));
+  if (($element['#value'] > 180) || ($element['#value'] < -180))
+    form_error($element,t('Latitude must be between -180 and 180.'));
+}
+
+function guifi_lon_validate($element, &$form_state) {
+  if (empty($element['#value'])) 
+    form_error($element,t('Longitude must be specified.'));
+  if (!is_numeric($element['#value']))
+    form_error($element,t('Longitude must be numeric'));
+  if (($element['#value'] > 90) || ($element['#value'] < -90))
+    form_error($element,t('Longitude must be between -90 and 90.'));
+}
+
+function guifi_zone_ospf_validate($element, &$form_state) {
+  if  ($element['#value'] != htmlentities($element['#value'], ENT_QUOTES))
+    form_error(
       t('No special characters allowed for OSPF id, use just 7 bits chars.')
     );
 
-  if (str_word_count($node->ospf_zone) > 1)
-    form_set_error(
-      'ospf_zone', 
+  if (str_word_count($element['#value']) > 1)
+    form_error(
       t('OSPF zone id have to be a single word.'));
+}
 
-  if (empty($node->title)) {
-    form_set_error(
-      'name', 
-      t('You must specify a name for the zone.'));
-  }
+function guifi_emails_validate($element, &$form_state) {
+  if (empty($element['#value'])) 
+    form_error($element,t('You should specify at least one notification email address.'));
+  $emails = guifi_notification_validate($element['#value']);
+  if (!$emails)
+    form_error($element,
+      t('Error while validating email address'));
+  else 
+    $form_state['values']['notification'] = $emails;
+}
 
-  if ($node->nid == $node->master)  {
-    form_set_error('master', t("Master zone can't be set to itself"));
-    $node->master = 0;
-    unset($node->map);
-    unset($node->valid);
-  }
-  
-  if (!(($node->maxx == 0) && ($node->maxy == 0) && 
-      ($node->minx == 0) && ($node->miny == 0))  )
-  if (($node->maxx != null) && ($node->maxy != null) && 
-      ($node->minx != null) && ($node->miny != null)) {
-    validate_limits($node->minx, $node->miny,t('Min:'),'minx');
-    validate_limits($node->maxx, $node->maxy,t('Max:'),'maxx');
-    if ($node->minx >= $node->maxx)
-      form_set_error('minx', t("Min Lon should be less than max Lon"));
-    if ($node->miny >= $node->maxy)
-      form_set_error('minx', t("Min Lat should be less than max Lat"));
-  }
+function guifi_zone_master_validate($element, &$form_state) {
+  if (!$element['#value'] == $form_state['values']['id'])
+    form_error($element,
+      t("Master zone can't be set to itself"));
+}
+
+function guifi_zone_validate($form) {
+  if ($node->minx > $node->maxx)
+    form_set_error('minx', t("Longitude: Min should be less than Max").
+      ' '.$node->minx.'/'.$node->maxx);
+  if ($node->miny > $node->maxy)
+    form_set_error('miny', t("Latitude: Min should be less than Max"),
+      ' '.$node->miny.'/'.$node->maxy);
 }
 
 /** guifi_zone_insert(): Insert a zone into the database.
