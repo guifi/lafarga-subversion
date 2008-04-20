@@ -280,6 +280,11 @@ function guifi_zone_prepare(&$node) {
     $node->time_zone = '+01 2 2';
   }
   
+  $node->minx = -70;
+  $node->miny = -50;
+  $node->maxx = 70;
+  $node->maxy = 50;
+  
 }
 
 /** guifi_zone_map_help Print help text for embedded maps
@@ -337,8 +342,8 @@ function guifi_lat_validate($element, &$form_state) {
     form_error($element,t('Latitude must be specified.'));
   if (!is_numeric($element['#value']))
     form_error($element,t('Latitude must be numeric'));
-  if (($element['#value'] > 180) || ($element['#value'] < -180))
-    form_error($element,t('Latitude must be between -180 and 180.'));
+  if (($element['#value'] > 90) || ($element['#value'] < -90))
+    form_error($element,t('Latitude must be between -90 and 90.'));
 }
 
 function guifi_lon_validate($element, &$form_state) {
@@ -346,8 +351,8 @@ function guifi_lon_validate($element, &$form_state) {
     form_error($element,t('Longitude must be specified.'));
   if (!is_numeric($element['#value']))
     form_error($element,t('Longitude must be numeric'));
-  if (($element['#value'] > 90) || ($element['#value'] < -90))
-    form_error($element,t('Longitude must be between -90 and 90.'));
+  if (($element['#value'] > 180) || ($element['#value'] < -180))
+    form_error($element,t('Longitude must be between -180 and 180.'));
 }
 
 function guifi_zone_ospf_validate($element, &$form_state) {

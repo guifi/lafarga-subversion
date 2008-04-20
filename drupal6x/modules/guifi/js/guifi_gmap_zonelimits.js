@@ -62,25 +62,11 @@ function xz()
 function initialPosition()
 {
  map.clearOverlays();
- var bounds = map.getBounds();
- var span = bounds.toSpan();
 
- if  ((document.getElementById("edit-minx").value == '') ||
-      (document.getElementById("edit-miny").value == '') ||
-      (document.getElementById("edit-maxx").value == '') ||
-      (document.getElementById("edit-maxy").value == '')) {
-	 var newNE = new GLatLng(bounds.getNorthEast().lat() - span.lat()/3, 
-             bounds.getNorthEast().lng() - span.lng()/3);
-	 var newSW = new GLatLng(bounds.getSouthEast().lat() - span.lat()/3, 
-             bounds.getSouthEast().lng() - span.lng()/3);
- }
- else {
-	 var newNE = new GLatLng(document.getElementById("edit-maxy").value, 
+ var newNE = new GLatLng(document.getElementById("edit-maxy").value, 
 			 document.getElementById("edit-maxx").value);
-	 var newSW = new GLatLng(document.getElementById("edit-miny").value, 
-			 document.getElementById("edit-minx").value);
- }
- 
+ var newSW = new GLatLng(document.getElementById("edit-miny").value, 
+			 document.getElementById("edit-minx").value); 
 
  var newBounds = new GLatLngBounds(newSW, newNE) ;
 
@@ -138,7 +124,7 @@ function updatePolyline()
       marker_SW.getPoint(),
       new GLatLng(marker_NE.getPoint().lat(), marker_SW.getPoint().lng()),
       marker_NE.getPoint()];
- border = new GPolyline(points, "#ff6600");
+ border = new GPolyline(points, "#66000");
  
  document.getElementById("edit-miny").value = marker_SW.getPoint().lat();
  document.getElementById("edit-minx").value = marker_SW.getPoint().lng();
