@@ -1545,14 +1545,10 @@ function guifi_coord_dtodms($coord){
 function guifi_gmap_key() {
   $gmap_key = variable_get('guifi_gmap_key','');
   if ($gmap_key != '') {
-//    drupal_add_js(sprintf("http://maps.google.com/?file=api&amp;v=2.x&amp;key=%s",
-//      $gmap_key),'external');
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/wms-gs-1_1_1.js','module');
     drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key='.
            $gmap_key. 
-//         'ABQIAAAAAK9chFGyeT3aw-EZsnitkhTOpB_6qbDsPPqYFxm6_mHFkiVPqRRNEfPTmTWUIs5VCXRmUdEbsqJFjQ' .
          '" type="text/javascript"></script>');
-//    drupal_add_js('http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAAK9chFGyeT3aw-EZsnitkhTOpB_6qbDsPPqYFxm6_mHFkiVPqRRNEfPTmTWUIs5VCXRmUdEbsqJFjQ', 
-//     'external');
     return TRUE;
   }
   return FALSE;

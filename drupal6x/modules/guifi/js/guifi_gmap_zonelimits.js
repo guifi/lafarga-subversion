@@ -23,10 +23,24 @@ function xz()
     map=new GMap2(document.getElementById("map"));
     map.addControl(new GLargeMapControl());
     map.addControl(new GScaleControl()) ;
-    map.addControl(new GMapTypeControl());
+//    map.addControl(new GMapTypeControl());
     map.enableScrollWheelZoom();
     map.addControl(new GOverviewMapControl());
     
+	var layer1 = new GWMSTileLayer(map, new GCopyrightCollection("guifi.net"),1,17);
+    layer1.baseURL=
+    	"http://wms.guifi.net/cgi-bin/mapserv?map=/home1/fgs/www/htdocs/guifimaps/GMap.map";
+    layer1.layers="Nodes,Links";
+    layer1.mercZoomLevel = 0;
+    layer1.opacity = 0.65;
+
+    var myMapTypeLayers=[G_SATELLITE_MAP.getTileLayers()[0],layer1];
+    var myCustomMapType = new GMapType(myMapTypeLayers, 
+    		G_NORMAL_MAP.getProjection(), "guifi.net", G_SATELLITE_MAP);
+
+    map.addMapType(myCustomMapType);
+	map.addControl(new GMapTypeControl());	
+	
     icon_NE = new GIcon(); 
     icon_NE.image = '/modules/guifi/js/marker_NE_icon.png';
     icon_NE.shadow = '';
@@ -53,7 +67,7 @@ function xz()
 
 
     map.setCenter(new GLatLng(20.0, -10.0), 2);
-    map.setMapType(G_NORMAL_MAP);
+    //map.setMapType(myCustomMapType);
     
     initialPosition();
   }

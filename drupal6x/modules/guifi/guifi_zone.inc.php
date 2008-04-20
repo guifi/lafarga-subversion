@@ -278,13 +278,11 @@ function guifi_zone_prepare(&$node) {
     if ($node->notification == '') 
       $node->notification = $user->mail;
     $node->time_zone = '+01 2 2';
-  }
-  
-  $node->minx = -70;
-  $node->miny = -50;
-  $node->maxx = 70;
-  $node->maxy = 50;
-  
+    $node->minx = -70;
+    $node->miny = -50;
+    $node->maxx = 70;
+    $node->maxy = 50;
+  } 
 }
 
 /** guifi_zone_map_help Print help text for embedded maps
