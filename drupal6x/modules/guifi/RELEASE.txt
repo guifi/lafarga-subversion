@@ -14,8 +14,10 @@ New Features:
 User interface:
 - Collapsible forms to make complex forms such as edit device simpler and more
   user friendly.
-- Integration with google maps (module GMap required) while creating/editing
-  nodes to select lat/lon coordinates.
+- Integration with google maps while creating/editing zones (limits) or 
+  nodes to select lat/lon coordinates. Google Maps gives the background,
+  while the guifi.net WMS service displays the network (nodes & links) as
+  a custom layer.
 - Filter forms while listing candidate devices/interfaces to link with
 - Now while listing neighbors nodes, provides a small icon with the line of 
   sight directly in the same report page
@@ -28,18 +30,16 @@ Database:
   in column names, linked to the notification engine and with separated 
   delete, insert & update triggers for each table.
   See: _guifi_db_delete and _guifi_db_sql at guifi_includes.inc.php
-- The database schema is created/dropped by using the new drupal 5.2 install 
+- The database schema is created/dropped by using the new drupal 6.2 install 
   and uninstall procedures.
   
 BUG FIXES:
 
 TODO: 
   -Integration of zone & node location
-  	-Enable Google Maps for images
-  	-Enable OpenGIS overlays for network display
   	-KML export for GoogleEarth
   -Revisit node & device management for drupal 6.x
-  -Edit devices with FAPI 6.x in multiple page and jaba enabled forms
+  -Edit devices with FAPI 6.x in multiple page and java enabled forms
   -Javascript selector for zones
   -Migrate node user creation forms to drupal 6.x
   -Define ap/client links
