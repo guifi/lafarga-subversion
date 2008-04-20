@@ -200,7 +200,7 @@ function guifi_zone_form(&$node, &$param) {
     $form['zone_mapping']['GMAP'] = array(
       '#type' => 'item',
       '#title' => t('Map'),
-      '#description' => t('Click the limits over the map.'),
+      '#description' => t('Drag the South-West/North-East corners over the map to change the zone boundaries.'),
       '#suffix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
       '#weight' => $form_weight++,
     );
@@ -296,7 +296,15 @@ function guifi_zone_map_help($rid) {
 /** guifi_zone_simple_map(): Print de page show de zone map and nodes without zoom.
  */
 function guifi_zone_simple_map($node) {
-  $output .= '
+  if (guifi_gmap_key()) {
+  drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
+  $output = '<div id="map" style="width: 300px; height: 240px; margin:5px;"></div>';
+  $output .= '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
+  $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
+  $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
+  $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/></form>';
+  }
+/*  $output .= '
     <IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.
     variable_get(
       "guifi_maps",
@@ -306,16 +314,28 @@ function guifi_zone_simple_map($node) {
     '" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
   $output .= t('Sorry, your browser can\'t display the embedded map');
   $output .= '</IFRAME>';
+  */
   return $output;
 }
 
 /** * guifi_zone_map(): Print de page show de zone map and nodes.
  */
 function guifi_zone_map($nid) {
+  $node = guifi_zone_load($nid);
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
+    $output = '<div id="map" style="width: 100%; height: 480px; margin:5px;"></div>';
+    $output .= '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
+    $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
+    $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
+    $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/></form>';
+  }
+  /*
   $output = guifi_zone_map_help($node->id); 
   $output .= '<IFRAME FRAMEBORDER="0" SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=600,450&REGION_ID='.$node->id.'" ALIGN="CENTER" WIDTH="670" HEIGHT="500" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
   $output .= t('Sorry, your browser can\'t display the embedded map');
   $output .= '</IFRAME>';
+  */
   return $output;
 }
 

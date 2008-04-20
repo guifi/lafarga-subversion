@@ -11,6 +11,8 @@ var icon_NE;
 var icon_SW;
 var icon_move ;
 
+var container;
+
 if(Drupal.jsEnabled) {
 	  $(document).ready(function(){
 		xz();
@@ -20,16 +22,22 @@ if(Drupal.jsEnabled) {
 function xz() 
 {
   if (GBrowserIsCompatible()) {
-    map=new GMap2(document.getElementById("map"));
-    map.addControl(new GLargeMapControl());
-    map.addControl(new GScaleControl()) ;
-//    map.addControl(new GMapTypeControl());
+	container = document.getElementById("map");
+    map=new GMap2(container);
+    if (map.getSize().height >= 300)
+      map.addControl(new GLargeMapControl());
+    else
+      map.addControl(new GSmallMapControl());
+    if (map.getSize().width >= 400) {
+      map.addControl(new GScaleControl()) ;
+      map.addControl(new GOverviewMapControl());
+    }
     map.enableScrollWheelZoom();
-    map.addControl(new GOverviewMapControl());
     
 	var layer1 = new GWMSTileLayer(map, new GCopyrightCollection("guifi.net"),1,17);
     layer1.baseURL=
     	"http://wms.guifi.net/cgi-bin/mapserv?map=/home1/fgs/www/htdocs/guifimaps/GMap.map";
+//    	"http://quad.elserrat.org/cgi-bin/mapserv?map=/var/www/web6/web/sites/default/files/GMap.map";
     layer1.layers="Nodes,Links";
     layer1.mercZoomLevel = 0;
     layer1.opacity = 0.65;
@@ -39,7 +47,7 @@ function xz()
     		G_NORMAL_MAP.getProjection(), "guifi.net", G_SATELLITE_MAP);
 
     map.addMapType(myCustomMapType);
-	map.addControl(new GMapTypeControl());	
+//	map.addControl(new GMapTypeControl());	
 	
     icon_NE = new GIcon(); 
     icon_NE.image = '/modules/guifi/js/marker_NE_icon.png';
@@ -67,7 +75,7 @@ function xz()
 
 
     map.setCenter(new GLatLng(20.0, -10.0), 2);
-    //map.setMapType(myCustomMapType);
+    map.setMapType(myCustomMapType);
     
     initialPosition();
   }
@@ -77,27 +85,27 @@ function initialPosition()
 {
  map.clearOverlays();
 
- var newNE = new GLatLng(document.getElementById("edit-maxy").value, 
-			 document.getElementById("edit-maxx").value);
- var newSW = new GLatLng(document.getElementById("edit-miny").value, 
-			 document.getElementById("edit-minx").value); 
+ var newNE = new GLatLng(document.getElementById("maxy").value, 
+			 document.getElementById("maxx").value);
+ var newSW = new GLatLng(document.getElementById("miny").value, 
+			 document.getElementById("minx").value); 
 
  var newBounds = new GLatLngBounds(newSW, newNE) ;
 
- marker_NE = new GMarker(newBounds.getNorthEast(), {draggable: true, icon: icon_NE}) ;
+ marker_NE = new GMarker(newBounds.getNorthEast(), {draggable: false, icon: icon_NE}) ;
  GEvent.addListener(marker_NE, 'dragend', function() { updatePolyline() ; }) ;
 
- marker_SW = new GMarker(newBounds.getSouthWest(), {draggable: true, icon: icon_SW}) ;
+ marker_SW = new GMarker(newBounds.getSouthWest(), {draggable: false, icon: icon_SW}) ;
  GEvent.addListener(marker_SW, 'dragend', function() { updatePolyline() ; }) ;
 
  marker_move = new GMarker( new GLatLng(((marker_SW.getPoint().lat() + marker_NE.getPoint().lat()) / 2),
-		 (marker_NE.getPoint().lng() + marker_SW.getPoint().lng()) / 2), {draggable: true, icon: icon_move}) ;
+		 (marker_NE.getPoint().lng() + marker_SW.getPoint().lng()) / 2), {draggable: false, icon: icon_move}) ;
  GEvent.addListener(marker_move, 'dragend', function() { updatePolyline() ; }) ;
  marker_move.savePoint = marker_move.getPoint() ;			// Save for later
  
- map.addOverlay(marker_NE);
- map.addOverlay(marker_SW);
- map.addOverlay(marker_move);
+// map.addOverlay(marker_NE);
+// map.addOverlay(marker_SW);
+// map.addOverlay(marker_move);
 
  updatePolyline();
 }
@@ -140,11 +148,6 @@ function updatePolyline()
       marker_NE.getPoint()];
  border = new GPolyline(points, "#66000");
  
- document.getElementById("edit-miny").value = marker_SW.getPoint().lat();
- document.getElementById("edit-minx").value = marker_SW.getPoint().lng();
- document.getElementById("edit-maxy").value = marker_NE.getPoint().lat();
- document.getElementById("edit-maxx").value = marker_NE.getPoint().lng();
-
  map.addOverlay(border);
  bounds.extend(marker_SW.getPoint());
  bounds.extend(marker_NE.getPoint());
