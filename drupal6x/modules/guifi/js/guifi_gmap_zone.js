@@ -5,13 +5,6 @@ var marker_SW;
 var marker_move ;
 
 var border;
-var groundOverlay;
-
-var icon_NE;
-var icon_SW;
-var icon_move ;
-
-var container;
 
 if(Drupal.jsEnabled) {
 	  $(document).ready(function(){
@@ -22,15 +15,15 @@ if(Drupal.jsEnabled) {
 function xz() 
 {
   if (GBrowserIsCompatible()) {
-	container = document.getElementById("map");
-    map=new GMap2(container);
+    map=new GMap2(document.getElementById("map"));
     if (map.getSize().height >= 300)
       map.addControl(new GLargeMapControl());
     else
       map.addControl(new GSmallMapControl());
-    if (map.getSize().width >= 400) {
+    if (map.getSize().width >= 500) {
       map.addControl(new GScaleControl()) ;
       map.addControl(new GOverviewMapControl());
+  	  map.addControl(new GMapTypeControl());
     }
     map.enableScrollWheelZoom();
     
@@ -46,34 +39,8 @@ function xz()
     var myCustomMapType = new GMapType(myMapTypeLayers, 
     		G_NORMAL_MAP.getProjection(), "guifi.net", G_SATELLITE_MAP);
 
-    map.addMapType(myCustomMapType);
-//	map.addControl(new GMapTypeControl());	
+    map.addMapType(myCustomMapType);	
 	
-    icon_NE = new GIcon(); 
-    icon_NE.image = '/modules/guifi/js/marker_NE_icon.png';
-    icon_NE.shadow = '';
-    icon_NE.iconSize = new GSize(32, 32);
-    icon_NE.shadowSize = new GSize(22, 20);
-    icon_NE.iconAnchor = new GPoint(22, 10);
-    icon_NE.dragCrossImage = '';
-
-    icon_SW = new GIcon(); 
-    icon_SW.image = '/modules/guifi/js/marker_SW_icon.png';
-    icon_SW.shadow = '';
-    icon_SW.iconSize = new GSize(32, 32);
-    icon_SW.shadowSize = new GSize(22, 20);
-    icon_SW.iconAnchor = new GPoint(6, 20);
-    icon_SW.dragCrossImage = '';
-
-    icon_move = new GIcon();
-    icon_move.image = '/modules/guifi/js/marker_move_icon.png';
-    icon_move.shadow = '';
-    icon_move.iconSize = new GSize(32, 32);
-    icon_move.shadowSize = new GSize(6, 20);
-    icon_move.iconAnchor = new GPoint(6, 20);
-    icon_move.dragCrossImage = '';
-
-
     map.setCenter(new GLatLng(20.0, -10.0), 2);
     map.setMapType(myCustomMapType);
     
@@ -92,21 +59,31 @@ function initialPosition()
 
  var newBounds = new GLatLngBounds(newSW, newNE) ;
 
- marker_NE = new GMarker(newBounds.getNorthEast(), {draggable: false, icon: icon_NE}) ;
- GEvent.addListener(marker_NE, 'dragend', function() { updatePolyline() ; }) ;
-
- marker_SW = new GMarker(newBounds.getSouthWest(), {draggable: false, icon: icon_SW}) ;
- GEvent.addListener(marker_SW, 'dragend', function() { updatePolyline() ; }) ;
-
+ marker_NE = new GMarker(newBounds.getNorthEast()) ;
+ marker_SW = new GMarker(newBounds.getSouthWest()) ;
  marker_move = new GMarker( new GLatLng(((marker_SW.getPoint().lat() + marker_NE.getPoint().lat()) / 2),
-		 (marker_NE.getPoint().lng() + marker_SW.getPoint().lng()) / 2), {draggable: false, icon: icon_move}) ;
- GEvent.addListener(marker_move, 'dragend', function() { updatePolyline() ; }) ;
+		 (marker_NE.getPoint().lng() + marker_SW.getPoint().lng()) / 2)) ;
  marker_move.savePoint = marker_move.getPoint() ;			// Save for later
  
-// map.addOverlay(marker_NE);
-// map.addOverlay(marker_SW);
-// map.addOverlay(marker_move);
+ GEvent.addListener(map, "click", function(marker, point) {
+   if (marker) {
+     null;
+   } else {  
+     map.clearOverlays();    
+     var marcador = new GMarker(point);
 
+     if (map.getZoom() > 15) {
+       map.addOverlay(marcador);
+       marcador.openInfoWindowHtml(
+         'Lat : '+point.y+'<br>Lon: '+point.x+
+         '<br><a href="/node/add/guifi-node?Lon='
+           +point.x+'&Lat='+point.y+
+         '" TARGET=fijo APPEND=blank>Add node at guifi.net</a>');
+     } else {
+       map.setCenter(point,map.getZoom()+3);	
+     }
+   }
+ }	);
  updatePolyline();
 }
 
