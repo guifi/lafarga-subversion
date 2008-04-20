@@ -209,8 +209,8 @@ function guifi_zone_form(&$node, &$param) {
 
   $form['zone_mapping']['MIN_help'] = array(
     '#type' => 'item',
-    '#title' => t('Upper-right corner'),
-    '#description' => t('Coordinates (Lon/Lat) of the upper-right corner of the map.'),
+    '#title' => t('Bottom-left (SW) corner'),
+    '#description' => t('Coordinates (Lon/Lat) of the bottom-left (South-West) corner of the map.'),
     '#weight' => $form_weight++,
   );
 
@@ -238,8 +238,8 @@ function guifi_zone_form(&$node, &$param) {
   );
   $form['zone_mapping']['MAX_help'] = array(
     '#type' => 'item',
-    '#title' => t('Bottom-left corner'),
-    '#description' => t('Coordinates (Lon/Lat) of the bottom-left corner of the map.'),
+    '#title' => t('Upper-right (NE) corner'),
+    '#description' => t('Coordinates (Lon/Lat) of the upper-right (North-East) corner of the map.'),
     '#weight' => $form_weight++,
   );
   $form['zone_mapping']['maxx'] = array(
