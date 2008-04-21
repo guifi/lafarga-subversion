@@ -396,7 +396,27 @@ function guifi_emails_validate($element, &$form_state) {
 }
 
 function guifi_zone_master_validate($element, &$form_state) {
-  if (!$element['#value'] == $form_state['values']['id'])
+//  print_r($form_state);
+//  print "\n<br>";
+//  print_r($element);
+  
+  // if root, check that there is not another zone as zoot
+  if ($element['#value'] == 0) {
+  	  $qry = db_query(
+           'SELECT id, title, nick 
+  			FROM {guifi_zone} 
+  			WHERE master = 0');
+  	 while ($rootZone = db_fetch_object($qry)) 
+  	 {
+        if ($form_state['values']['nid'] != $rootZone->id)
+          form_error($element,
+            t('The root zone is already set to "%s". Only one root zone can be present at the database. Delete/change the actual root zone before assigning a new one or choose another partent.',
+              array('%s'=>$rootZone->title)));
+  	 }
+  }
+  
+  if (!empty($form_state['values']['nid']))
+  if ($element['#value'] == $form_state['values']['nid'])
     form_error($element,
       t("Master zone can't be set to itself"));
 }
