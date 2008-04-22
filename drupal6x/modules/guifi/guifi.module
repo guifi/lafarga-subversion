@@ -48,7 +48,7 @@ function guifi_menu() {
    //
    // ZONE menus & tabs
    //
-   $items['node/%node/view/nodes'] = array(
+   $items['node/%guifi_zone/view/nodes'] = array(
      'title' => 'nodes',
      'page callback' => 'guifi_zone_nodes',
      'page arguments' => array(1),
@@ -57,7 +57,7 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK,
 //     'weight' => 2,
    );
-   $items['node/%node/view/map'] = array( 
+   $items['node/%guifi_zone/view/map'] = array( 
      'title' => 'map',
      'page callback' => 'guifi_zone_map',
      'page arguments' => array(1),
@@ -66,7 +66,7 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
-   $items['node/%node/view/data'] = array( 
+   $items['node/%guifi_zone/view/data'] = array( 
      'title' => 'data',
      'page callback' => 'guifi_zone_print',
      'page arguments' => array(1),
@@ -74,7 +74,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 4,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%node/view/availability'] = array( 
+   $items['node/%guifi_zone/view/availability'] = array( 
      'title' => 'availability',
      'page callback' => 'guifi_zone_availability',
      'page arguments' => array(1),
@@ -82,7 +82,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%node/view/services'] = array( 
+   $items['node/%guifi_zone/view/services'] = array( 
      'title' => 'services',
      'page callback' => 'guifi_list_services',
      'page arguments' => array(1),
@@ -90,7 +90,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 6,
      'type' => MENU_LOCAL_TASK);   
-   $items['node/%node/view/ipv4'] = array( 
+   $items['node/%guifi_zone/view/ipv4'] = array( 
      'title' => 'networks',
      'page callback' => 'guifi_zone_ipv4',
      'page arguments' => array(1),
@@ -98,7 +98,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 7,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%node/view/ipv4/add'] = array( 
+   $items['node/%guifi_zone/view/ipv4/add'] = array( 
      'title' => 'add ipv4 network',
      'page callback' => 'guifi_add_ipv4',
      'page arguments' => array(1),
@@ -277,77 +277,6 @@ function guifi_menu() {
       'type' => MENU_LOCAL_TASK);
     }
 
-    // zone menus
-    if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(array('nid' => arg(1)));
-
-      // zone menus
-      if (($node->nid) && ($node->type == 'guifi_zone')) {
-        $items[] = array('path' => 'node/'. arg(1) .'/view/data', 
-          'title' => t('data'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 4,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/availability', 
-          'title' => t('availability'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 5,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/services', 
-          'title' => t('services'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 6,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4', 
-          'title' => t('networks'),
-          'callback' => 'guifi_zone_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 7,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/all', 
-          'title' => t('list'),
-          'callback arguments' => arg(1),
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/ipv4/add', 
-          'title' => t('add network range'),
-          'callback' => 'guifi_edit_ipv4',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 10,
-          'type' => MENU_LOCAL_TASK);
-
-        // Menus of edit
-        $items[] = array('path' => 'node/'. arg(1) .'edit', 
-          'title' => t('edit'),
-          'callback' => 'guifi_edit',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/edit/data', 
-          'title' => t('data'),
-          'callback' => 'guifi_edit',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-
-        // Menus of ipv4
-        $items[] = array('path' => 'node/'. arg(1) .'/add_ipv4', 
-          'title' => t('Add ipv4 network'),
-          'callback' => 'guifi_add_ipv4',
-          'callback arguments' => arg(1),
-          'access' => user_access('administer guifi networks'),
-          'weight' => 10,
-          'type' => MENU_LOCAL_TASK);
-      }
 
       // node (location) menus
       if (($node->nid) && ($node->type == 'guifi_node')) {
@@ -520,6 +449,16 @@ function guifi_node_info() {
     ),
   );
 }
+
+//function guifi_zone_load($arg) {
+//  return is_numeric($arg) && ($node = node_load($arg)) && ($node->type == 'guifi_zone') ? $node : FALSE;
+//}
+
+//function mymodule_page($node) {
+//  // $node->type can only be story or article.
+//  return $node->type == 'article' ? mymodule_page_article($node) : mymodule_page_story($node);
+//}
+
 /** help hook
  */
 function guifi_help($section) {

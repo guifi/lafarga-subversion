@@ -29,7 +29,9 @@ function guifi_zone_load($node) {
   if (($loaded->nick == '') or ($loaded->nick == null))
     $loaded->nick = guifi_abbreviate($loaded->title);
 
-  return $loaded;
+  if ($loaded->id != null)
+    return $loaded;
+  return false;
 }
 
 /** guifi_zone_form(): Present the guifi zone editing form.

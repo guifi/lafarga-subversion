@@ -51,7 +51,10 @@ function guifi_node_add($id) {
   guifi_node_load($node:obj-node):obj-location
 **/
 function guifi_node_load($node) {
-      return db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
+  $node = db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
+  if ($node->id == null)
+    return false;
+  return $node;
 }
 
 /** node editing functions
@@ -648,7 +651,31 @@ function guifi_node_print_data($node) {
     ???->node_load($node:obj-node):obj-node
     ???->node_prepare($node:obj-node):obj-node
 **/
-function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
+function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
+  
+  node_prepare($node);
+  if ($teaser)
+    return $node;
+  if ($block)
+    return $node;
+  
+  if ($page) {
+    $node->content['body']['#value'] = 
+      theme_table(null,array(
+          array(theme_table(null,array(array(array('data'=>'<small>'.guifi_zone_print($node->nid).'</small>','width'=>'50%'),
+                                             array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
+          array($node->body),
+ //         array(guifi_zone_print($node->nid)),
+          array(guifi_zone_nodes($node,true))
+        )
+      );
+        
+    return $node;
+  }
+  
+}
+/*
+&$node, $teaser = FALSE, $page = FALSE) {
 
   if (is_numeric($node)) {
     $node = node_load($node);
@@ -738,7 +765,7 @@ function guifi_node_view(&$node, $teaser = FALSE, $page = FALSE) {
 //  if ($op == 'default')
 //    print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
 }
-
+*/
 /** guifi_node_radio_list(): list of node devices
  
   guifi_node_radio_list($id:int):form
