@@ -28,9 +28,7 @@ function xz()
     map.addControl(new GOverviewMapControl());
     
 	var layer1 = new GWMSTileLayer(map, new GCopyrightCollection("guifi.net"),1,17);
-    layer1.baseURL=
-    	"http://wms.guifi.net/cgi-bin/mapserv?map=/home1/fgs/www/htdocs/guifimaps/GMap.map";
-//    	"http://quad.elserrat.org/cgi-bin/mapserv?map=/var/www/web6/web/sites/default/files/GMap.map";
+    layer1.baseURL=document.getElementById("edit-guifi-wms").value;
     layer1.layers="Nodes,Links";
     layer1.mercZoomLevel = 0;
     layer1.opacity = 0.65;

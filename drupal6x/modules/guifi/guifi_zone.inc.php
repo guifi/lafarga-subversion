@@ -204,6 +204,10 @@ function guifi_zone_form(&$node, &$param) {
       '#suffix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
       '#weight' => $form_weight++,
     );
+    $form['guifi_wms'] = array(
+      '#type' => 'hidden',
+      '#value' => variable_get('guifi_wms_service',''),
+    );
   }
 
 
@@ -293,16 +297,23 @@ function guifi_zone_map_help($rid) {
   return $output;
 }
 
+
+function guifi_zone_hidden_map_fileds($node) {
+  $output  = '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
+  $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
+  $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
+  $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/>';
+  $output .= '<input type="hidden" id="guifi-wms" value="'.variable_get('guifi_wms_service','').'"/></form>';
+  return $output;  
+}
+
 /** guifi_zone_simple_map(): Print de page show de zone map and nodes without zoom.
  */
 function guifi_zone_simple_map($node) {
   if (guifi_gmap_key()) {
-  drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
-  $output = '<div id="map" style="width: 100%; height: 240px; margin:5px;"></div>';
-  $output .= '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
-  $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
-  $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
-  $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/></form>';
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
+    $output = '<div id="map" style="width: 100%; height: 240px; margin:5px;"></div>';
+    $output .= guifi_zone_hidden_map_fileds($node);
   } else {
     $output .= '
       <IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.
@@ -318,19 +329,19 @@ function guifi_zone_simple_map($node) {
   return $output;
 }
 
+
 /** * guifi_zone_map(): Print de page show de zone map and nodes.
  */
 function guifi_zone_map($nid) {
+  
   $node = guifi_zone_load($nid);
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+  
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
     $output = '<div id="map" style="width: 100%; height: 480px; margin:5px;"></div>';
-    $output .= '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
-    $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
-    $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
-    $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/></form>';
-  }
-  else {
+    $output .= guifi_zone_hidden_map_fileds($node);
+  } else {
     $output = guifi_zone_map_help($node->id); 
     $output .= '<IFRAME FRAMEBORDER="0" SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=600,450&REGION_ID='.$node->id.'" ALIGN="CENTER" WIDTH="670" HEIGHT="500" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
     $output .= t('Sorry, your browser can\'t display the embedded map');
@@ -590,7 +601,7 @@ function guifi_zone_ariadna($id = 0, $link = 'node/') {
     $child[] = l($zoneChild['title'],$link.$zoneChild['id']);
   } 
   if (count($child)) {
-    $child[0] = '<small>('.$child[0];
+    $child[0] = '<br><small>('.$child[0];
     $child[count($child)-1] = $child[count($child)-1].')</small>';
     $ret = array_merge($ret,$child);
   }
@@ -629,6 +640,7 @@ function guifi_zone_print_data($zone) {
 function guifi_zone_print($id) {
 
   $zone = guifi_zone_load($id);
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
 
   $table = theme('table', null, guifi_zone_print_data($zone));
   $output .= theme('box', t('zone information'), $table);
@@ -671,12 +683,15 @@ function guifi_zone_totals($zones) {
 
 /** guifi_zone_nodes(): list nodes of a given zone and its childs
 */
-function guifi_zone_nodes($nid) {
+function guifi_zone_nodes($node,$embeded = false) {
+  
+  if (!$embeded)
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
 
   $output = '<h2>' .t('Nodes listed at') .' ' .$node->title .'</h2>';
 
   // Going to list child zones totals
-  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$nnid);
+  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->nid);
   if (db_result($result) > 0) {
     $header = array(
       array('data' => t('Zone name')),
@@ -723,7 +738,7 @@ function guifi_zone_nodes($nid) {
     'SELECT count(*)
     FROM {guifi_location}
     WHERE zone_id = %d',
-    $nid);
+    $node->nid);
   if (db_result($result) > 0) {
     $header = array(
       array('data' => t('nick (shortname)')),
@@ -836,13 +851,12 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
   
   if ($page) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->nid));
     $node->content['body']['#value'] = 
       theme_table(null,array(
           array(theme_table(null,array(array(array('data'=>$node->body,'width'=>'50%'),
                                              array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
           array(guifi_zone_print($node->nid)),
-          array(guifi_zone_nodes($node))
+          array(guifi_zone_nodes($node,true))
         )
       );
         

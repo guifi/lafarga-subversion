@@ -82,14 +82,6 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%node/view/availability'] = array( 
-     'title' => 'availability',
-     'page callback' => 'guifi_zone_availability',
-     'page arguments' => array(1),
-     'access callback' => 'user_access',
-     'access arguments' => array('access content'),
-//     'weight' => 5,
-     'type' => MENU_LOCAL_TASK);
    $items['node/%node/view/services'] = array( 
      'title' => 'services',
      'page callback' => 'guifi_list_services',
@@ -646,6 +638,16 @@ function guifi_admin_settings() {
     '#description' => t("If not present, Google Maps API will be disabled.<br>Get it at: ").
        '<a href="http://code.google.com/apis/maps/signup.html">'.
           'http://code.google.com/apis/maps/signup.html'.'</a>',
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_wms_service'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL for WMS service'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_wms_service", 'http://wms.guifi.net/cgi-bin/mapserv?map=/home1/fgs/www/htdocs/guifimaps/GMap.map'),
+    '#size' => 80,
+    '#maxlength' => 1024,
+    '#description' => t("URL to call to get WMS guifi mapping services"),
     '#weight' => $form_weight++,
   );
   $form['guifi_maps'] = array(
