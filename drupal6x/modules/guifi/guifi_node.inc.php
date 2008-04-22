@@ -519,6 +519,7 @@ function guifi_node_insert($node) {
     guifi_includes.inc->guifi_coord_dmstod($deg:int,$min:int,$seg:int):$coord:float or NULL
 */
 function guifi_node_update($node) {
+  global $user;
   
   $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
   if($coord!=NULL){
@@ -531,6 +532,7 @@ function guifi_node_update($node) {
 
   if ($node->lat == 0){$node->lat = NULL;}
   if ($node->lon == 0){$node->lon = NULL;}
+  print_r($node);
 
   $to_mail = explode(',',$node->notification);
 
@@ -549,10 +551,12 @@ function guifi_node_update($node) {
 
   $node->lat = (float)$node->lat;
   $node->lon = (float)$node->lon;
+
   $nnode = _guifi_db_sql(
     'guifi_location',
-    array('id'=>$node->id),
-    (array)$node,$log,$to_mail);
+    array('id'=>$node->nid),
+    (array)$node,
+    $log,$to_mail);
   guifi_notify(
     $to_mail,
     t('The node %name has been UPDATED by %user.',array('%name' => $node->title, '%user' => $user->name)),
@@ -645,9 +649,13 @@ function guifi_node_print_data($node) {
   $rows[] = array(null,null,null);
   $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
   if ($node->timestamp_created > 0)
-    $rows[] = array(t('created by'),l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created));
+    $rows[] = array(t('created by'),
+      array('data'=>l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created),
+      'colspan'=>2));
   if ($node->timestamp_changed > 0)
-    $rows[] = array(t('updated by'),l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed));
+    $rows[] = array(t('updated by'),
+      array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
+      'colspan'=>2));
   return array_merge($rows);
 }
 
@@ -696,7 +704,7 @@ function guifi_node_hidden_map_fileds($node) {
 function guifi_node_simple_map($node) {
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_point.js','module');
-    $output = '<div id="map" style="width: 100%; height: 380px; margin:5px;"></div>';
+    $output = '<div id="map" style="width: 100%; height: 340px; margin:5px;"></div>';
     $output .= guifi_node_hidden_map_fileds($node);
   } else {
     $output = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';

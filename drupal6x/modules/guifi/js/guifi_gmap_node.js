@@ -51,7 +51,7 @@ function xz()
    	       document.getElementById("edit-latmin").value = "";
    	       document.getElementById("edit-lonmin").value = "";
    	       document.getElementById("edit-latseg").value = "";
-   	       document.getElementById("edit-londeg").value = ""();
+   	       document.getElementById("edit-lonseg").value = "";
    	       
    	       map.setCenter(point);
    	     } else {

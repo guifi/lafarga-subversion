@@ -743,7 +743,7 @@ function guifi_zone_nodes($node,$embeded = false) {
     'SELECT count(*)
     FROM {guifi_location}
     WHERE zone_id = %d',
-  $node->nid);
+  $node->id);
   $header = array(
     array('data' => t('nick (shortname)')),
     array('data' => t('supernode')),
@@ -758,12 +758,10 @@ function guifi_zone_nodes($node,$embeded = false) {
       array('data' => $loc->zone_description),
       array('data' => t($loc->status_flag),'class' => $loc->status_flag));
   }
-//     $output .= theme('table', $header, array_merge($rows));
-  if (count($rows)) {
+  if (count($rows)>0) {
     $output .= theme('table', $header, $rows);
     $output .= theme_pager(null, 50);
   }
-
   return $output;
 }
 
