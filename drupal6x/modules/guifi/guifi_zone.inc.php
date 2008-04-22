@@ -579,30 +579,23 @@ function guifi_zone_ariadna($id = 0, $link = 'node/') {
   $ret = array();
   foreach (array_reverse(guifi_get_zone_parents($id)) as $parent) 
   if ($parent > 0) {
-    $result = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
-    $ret[] = l($result['title'],$link.$result['id']);
+    $parentData = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
+    $ret[] = l($parentData['title'],$link.$parentData['id']);
   }
+  $ret[count($ret)-1] = '<b>'.$ret[count($ret)-1].'</b>';
+  
+  $child = array();
   $query = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$id);
-  $t = db_result($query);
-  $c = 1;
-  if ($t) 
-  $ret[] = '<div class="breadcumb">';
-    while ($zone = db_fetch_array($query)) {
-      if ($c == 1)
-        $prefix = '(';
-      else 
-        $prefix = '';
-      if ($c == $t)
-        $suffix = ')';
-      else 
-        $suffix = '';
-      $ret[] = l($zone['title'],$link.$zone['id']);
-      $c++;
-    }
-    $ret[] = '</div><hr />';
+  while ($zoneChild = db_fetch_array($query)) {
+    $child[] = l($zoneChild['title'],$link.$zoneChild['id']);
+  } 
+  if (count($child)) {
+    $child[0] = '<small>('.$child[0];
+    $child[count($child)-1] = $child[count($child)-1].')</small>';
+    $ret = array_merge($ret,$child);
+  }
   return $ret;
 }
-
 /** guifi_zone_print_data(): outputs the zone information data
 **/
 function guifi_zone_print_data($zone) {
@@ -843,6 +836,7 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
   
   if ($page) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->nid));
     $node->content['body']['#value'] = 
       theme_table(null,array(
           array(theme_table(null,array(array(array('data'=>$node->body,'width'=>'50%'),
