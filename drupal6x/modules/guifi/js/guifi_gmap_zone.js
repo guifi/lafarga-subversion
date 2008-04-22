@@ -78,7 +78,7 @@ function initialPosition()
          'Lat : '+point.y+'<br>Lon: '+point.x+
          '<br><a href="/node/add/guifi-node?Lon='
            +point.x+'&Lat='+point.y+
-         '" TARGET=fijo APPEND=blank>Add node at guifi.net</a>');
+         '" TARGET=fijo APPEND=blank>Add a new node here</a>');
      } else {
        map.setCenter(point,map.getZoom()+3);	
      }

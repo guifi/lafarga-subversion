@@ -1415,11 +1415,15 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
 
   if ($notify) {
     if ($to_mail != null) {
+      $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_notify}'));
+      if (is_null($next_id['id']))
+        $next_id['id'] = 1;
       db_query("
         INSERT INTO {guifi_notify}
-          (timestamp,who_id,who_name,to_array,subject,body)
+          (id,timestamp,who_id,who_name,to_array,subject,body)
         VALUES
-           (%d,%d,'%s','%s','%s','%s')",
+           (%d,%d,%d,'%s','%s','%s','%s')",
+        $next_id['id'],
         time(),
         $user->uid,
         $user->name,
@@ -1501,12 +1505,12 @@ function guifi_notify_send() {
     );
     
     if ($error)
-      watchdog('guifi',t('Report of changes sent to %name',
-        array('%name'=>$to)));
+      watchdog('guifi','Report of changes sent to %name',
+        array('%name'=>$to));
     else {
       watchdog('guifi',
-        t('Report of changes was unable to be sent to %name',
-        array('%name'=>$to)));
+        'Report of changes was unable to be sent to %name',
+        array('%name'=>$to));
       $errors = true;
     }
 

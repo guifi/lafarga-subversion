@@ -128,12 +128,12 @@ function guifi_user_reset_password($edit) {
   $mail_success = drupal_mail(null, $edit['email'], $subject, $body, null, $headers);
 
     if ($mail_success) {
-      watchdog('user', t('Password mailed to %name at %email.', array('%name' => theme('placeholder', $edit['username']), '%email' => theme('placeholder', $edit['email']))));
+      watchdog('user', 'Password mailed to %name at %email.', array('%name' => theme('placeholder', $edit['username']), '%email' => theme('placeholder', $edit['email'])));
       drupal_set_message(t('Your password and further instructions have been sent to your e-mail address.'));
       guifi_edit_user_save($edit);
     }
     else {
-      watchdog('user', t('Error mailing password to %name at %email.', array('%name' => theme('placeholder', $email['username']), '%email' => theme('placeholder', $edit['email']))), WATCHDOG_ERROR);
+      watchdog('user', 'Error mailing password to %name at %email.', array('%name' => theme('placeholder', $email['username']), '%email' => theme('placeholder', $edit['email'])), WATCHDOG_ERROR);
       drupal_set_message(t('Unable to send mail. Please contact the site admin.'));
     }
 //  drupal_goto('node/'.$user->nid.'/view/users');
