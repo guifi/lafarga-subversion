@@ -335,9 +335,9 @@ function guifi_zone_simple_map($node) {
 
 /** * guifi_zone_map(): Print de page show de zone map and nodes.
  */
-function guifi_zone_map($nid) {
+function guifi_zone_map($node) {
   
-  $node = guifi_zone_load($nid);
+//  $node = guifi_zone_load($node);
   drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
   
   if (guifi_gmap_key()) {
@@ -653,9 +653,8 @@ function guifi_zone_print($id) {
 
 /** guifi_zone_ipv4(): outputs the zone networks
 **/
-function guifi_zone_ipv4($id) {
+function guifi_zone_ipv4($zone) {
 
-  $zone = guifi_zone_load($id);
   $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));
   
   $rows = guifi_ipv4_print_data($zone);
