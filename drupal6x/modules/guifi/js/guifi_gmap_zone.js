@@ -74,8 +74,9 @@ function initialPosition()
        map.addOverlay(marcador);
        marcador.openInfoWindowHtml(
          'Lat : '+point.y+'<br>Lon: '+point.x+
-         '<br><a href="/node/add/guifi-node?Lon='
-           +point.x+'&Lat='+point.y+
+         '<br><a href="/node/add/guifi-node?on='
+           +point.x+'&lat='+point.y+
+           '&zone='+document.getElementById("zone_id").value+
          '" TARGET=fijo APPEND=blank>Add a new node here</a>');
      } else {
        map.setCenter(point,map.getZoom()+3);	

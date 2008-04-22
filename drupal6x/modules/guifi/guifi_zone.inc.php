@@ -303,6 +303,7 @@ function guifi_zone_hidden_map_fileds($node) {
   $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
   $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
   $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/>';
+  $output .= '<input type="hidden" id="zone_id" value="'.$node->id.'"/>';
   $output .= '<input type="hidden" id="guifi-wms" value="'.variable_get('guifi_wms_service','').'"/></form>';
   return $output;  
 }

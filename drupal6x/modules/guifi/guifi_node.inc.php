@@ -69,7 +69,7 @@ function guifi_node_load($node) {
     guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
     guifi_includes.inc->guifi_coord_dtodms($coord:float):Array($deg:int,$min:int,$seg:int) or NULL
 */
-function guifi_node_form($node, $param){   //$node pasat per referencia a partir versio 5 de php tot es pasa per referencia no necesita &
+function guifi_node_form($node, $param){   
   global $user;
   
   if(empty($node->nid)){
@@ -89,6 +89,8 @@ function guifi_node_form($node, $param){   //$node pasat per referencia a partir
   if (isset($_POST['lon'])){$node->lon = $_POST['lon'];}
   if (isset($_GET['lat'])){$node->lat = $_GET['lat'];}
   if (isset($_GET['lon'])){$node->lon = $_GET['lon'];}
+  if (isset($_GET['zone'])){$node->lon = $_GET['zone'];}
+  if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
   $coord=guifi_coord_dtodms($node->lat);
   if($coord != NULL) {
     $node->latdeg = $coord[0];
