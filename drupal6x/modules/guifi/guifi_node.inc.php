@@ -89,8 +89,9 @@ function guifi_node_form($node, $param){
   if (isset($_POST['lon'])){$node->lon = $_POST['lon'];}
   if (isset($_GET['lat'])){$node->lat = $_GET['lat'];}
   if (isset($_GET['lon'])){$node->lon = $_GET['lon'];}
-  if (isset($_GET['zone'])){$node->lon = $_GET['zone'];}
   if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
+  if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
+  
   $coord=guifi_coord_dtodms($node->lat);
   if($coord != NULL) {
     $node->latdeg = $coord[0];
@@ -144,6 +145,7 @@ function guifi_node_form_supernode($node, $param) {
     '#required' => TRUE,
     '#size' => 20,
     '#maxlength' => 20, 
+    '#element_validate' => array('guifi_node_nick_validate'),
     '#default_value' => $node->nick,
     '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''),
     '#weight' => 2,
@@ -154,6 +156,7 @@ function guifi_node_form_supernode($node, $param) {
     '#required' => FALSE,
     '#size' => 60,
     '#maxlength' => 1024, 
+    '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $node->notification,
     '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'") . ($error['notification'] ? $error["notification"] : ''),
     '#weight' => 3,
@@ -216,6 +219,7 @@ function guifi_node_form_supernode($node, $param) {
 //      '#title' => t('Yes, I have read this and accepted'),
       '#default_value' => 'No',
       '#options' => array('Yes'=>t('Yes, I have read this and accepted')),
+      '#element_validate' => array('guifi_node_agreement_validate'),
       '#weight' => $form_weight++,
     );
   } else {
@@ -235,8 +239,9 @@ function guifi_node_form_supernode($node, $param) {
     '#title' => t('Node postion settings'),
     '#weight' => $form_weight++,
     '#collapsible' => false,
-//    '#collapsed' => TRUE,
+//    '#collapsed' => FALSE,
   );
+  
   $form['position']['zone_id'] = array(
     '#type' => 'select',
     '#title' => t("Zone"),
@@ -246,108 +251,105 @@ function guifi_node_form_supernode($node, $param) {
     '#description' => t('The zone where this node where this node belongs to.'),
     '#weight' => 0,
   );
-  if (module_exists('gmap')) {
-    $form['position']['gmap_node'] = array();
-    $form['position']['lat'] = array(
-      '#parents' => array('lat'),
-      '#type' => 'textfield',
-      '#title' => t('Latitude'),
-      '#default_value' => $node->lat,
-      '#size' => 30,
-      '#maxlength' => 120,
-    );
-    $form['position']['lon'] = array(
-      '#parents' => array('lon'),
-      '#type' => 'textfield',
-      '#title' => t('Longitude'),
-      '#default_value' => $node->lon,
-      '#size' => 30,
-      '#maxlength' => 120,
-      '#description' => t('The latitude and longitude will be entered here when you click on a location in the interactive map above. You can also fill in the values manually.'),
-    );
-    if ((($node->lat == 0) and ($node->lon == 0)) or ($node->lat == null) or ($node->lon == null)){ 
-      $map_macro = '[gmap |id=usermap|center=17,-4|zoom=2|width=100%|height=400px]';
-    } else {
-      $map_macro = '[gmap|id=usermap|center=17,-4|zoom=13|width=100%|height=400px|type=Hybrid]';
-    }
-    $form['position']['gmap_node']['#value'] = 
-      gmap_set_location($map_macro,$form['position'], array('latitude' => 'lat', 'longitude' => 'lon'));
-  } else {
-    $form['position']['longitude'] = array(
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_node.js','module');
+    $form['position']['GMAP'] = array(
       '#type' => 'item',
-      '#title' => t('Longitude'),
-      '#prefix' => '<table><th>&nbsp</th><th>'.
-        t('degrees (decimal values allowed)').
-          '</th><th>'.
-          t('minutes').
-          '</th><th>'.
-          t('seconds').
-          '</th><tr><td>',
-      '#suffix' => '</td>',
-      '#weight' => 1,
-    );  
-    $form['position']['londeg'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->londeg,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td>',
-      '#weight' => 2,
+      '#title' => t('Map'),
+      '#description' => t('Select the point where the node has to be placed.'),
+      '#suffix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
+      '#weight' => $form_weight++,
     );
-    $form['position']['lonmin'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->lonmin,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td>',
-      '#weight' => 3,
+    $form['guifi_wms'] = array(
+      '#type' => 'hidden',
+      '#value' => variable_get('guifi_wms_service',''),
     );
-    $form['position']['lonseg'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->lonseg,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td></tr>',
-      '#weight' => 4,
-    );
-    $form['position']['latitude'] = array(
-      '#type' => 'item',
-      '#title' => t('Latitude'),
-      '#prefix' => '<tr><td>',
-      '#suffix' => '</td>',
-      '#weight' => 5,
-    );
-    $form['position']['latdeg'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->latdeg,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td>',
-      '#weight' => 6,
-    );
-    $form['position']['latmin'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->latmin,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td>',
-      '#weight' => 7,
-    );
-    $form['position']['latseg'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $node->latseg,
-      '#size' => 12, 
-      '#maxlength' => 24, 
-      '#prefix' => '<td>',
-      '#suffix' => '</td></tr></table>',
-      '#weight' => 8,
+    $form['lat'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->lat,
+    );    
+    $form['lon'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->lon,
     );
   }
+  $form['position']['longitude'] = array(
+    '#type' => 'item',
+    '#title' => t('Longitude'),
+    '#prefix' => '<table><th>&nbsp</th><th>'.
+      t('degrees (decimal values allowed)').
+        '</th><th>'.
+        t('minutes').
+        '</th><th>'.
+        t('seconds').
+        '</th><tr><td>',
+    '#suffix' => '</td>',
+    '#weight' => 1,
+  );  
+  $form['position']['londeg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->londeg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#element_validate' => array('guifi_lon_validate'),
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#weight' => 2,
+  );
+  $form['position']['lonmin'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->lonmin,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#weight' => 3,
+  );
+  $form['position']['lonseg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->lonseg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#prefix' => '<td>',
+    '#suffix' => '</td></tr>',
+    '#weight' => 4,
+  );
+  $form['position']['latitude'] = array(
+    '#type' => 'item',
+    '#title' => t('Latitude'),
+    '#prefix' => '<tr><td>',
+    '#suffix' => '</td>',
+    '#weight' => 5,
+  );
+  $form['position']['latdeg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->latdeg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#element_validate' => array('guifi_lat_validate'),
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#weight' => 6,
+  );
+  $form['position']['latmin'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->latmin,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#weight' => 7,
+  );
+  $form['position']['latseg'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->latseg,
+    '#size' => 12, 
+    '#maxlength' => 24, 
+    '#prefix' => '<td>',
+    '#suffix' => '</td></tr></table>',
+    '#weight' => 8,
+  );
+  
   $form['position']['zone_description'] = array(
     '#type' => 'textfield',
     '#title' => t('Zone description'),
@@ -415,6 +417,26 @@ function _guifi_line_edit_device_form($id) {
   $form['#action'] = url('guifi/device/'. $id.'/edit');
   return $form;
 }
+
+function guifi_node_agreement_validate($element, &$form_state) {
+  if ($element['#value'] != 'Yes'){
+    form_error($element, 
+      t('You must read and accept the license terms and conditions to be allowed to create nodes.'));
+  }  
+}
+
+function guifi_node_nick_validate($element, &$form_state) {
+  guifi_validate_nick($element['#value']);
+
+  if (!empty($element['#value'])) { 
+    $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",
+      strtolower($element['#value']),$form_state['values']['nid']);
+    if (db_result($query)){
+      form_set_error('nick', t('Nick already in use.'));
+    }
+  }
+  
+}
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
  
   guifi_node_validate($node:obj-node,$form:obj-form):void si hi ha un error cancela la gravacio
@@ -424,27 +446,6 @@ function _guifi_line_edit_device_form($id) {
  */
 function guifi_node_validate($node,$form) {
   guifi_validate_nick($node->nick);
-
-  if ($node->agreement != 'Yes'){
-    form_set_error('agreement', 
-      t('You must read and accept the license &#038; terms and conditions to be allowed to create nodes.'));
-  }
-
-  if (!empty($node->nick)) { 
-    $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",
-      strtolower($node->nick),$node->nid);
-    if (db_result($query)){
-      form_set_error('nick', t('Nick already in use.'));
-    }
-  }
-
-  $emails = guifi_notification_validate($node->notification);
-  if (!$emails){
-    form_set_error('notification',
-      t('Error while validating email address'));
-  } else { 
-    form_set_value($form['title']['notification'],$emails);
-  }
 
   // not at root zone
   if (($node->zone_id == 0) && (!empty($node->nick))){
@@ -461,34 +462,7 @@ function guifi_node_validate($node,$form) {
     form_set_error('elevation', 
       t('Do you mean that you are flying over the earth??? :)'));
   }
-  $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
-  if($coord!=NULL){
-    $lat=$coord;
-  } else {
-    $lat=$node->lat;
-  }
-  $coord=guifi_coord_dmstod($node->londeg,$node->lonmin,$node->lonseg);
-  if($coord!=NULL){
-    $lon=$coord;
-  } else {
-    $lon=$node->lon;
-  }
 
-  if ($lat == 0){$lat = NULL;}
-  if ($lon == 0){$lon = NULL;}
-
-  if (($lat == NULL) or ($lon == NULL)){
-    form_set_error('lon', 
-      t('Please provide lon/lat information for the node. You can obtain by using the maps and clicking over the point where the node is located.'));
-  }
-  if (($lat > 180) or ($lat < -180)){
-    form_set_error('lat', 
-      t('Latitude must be between -180 and 180 degrees.'));
-  }
-  if (($lon > 90) or ($lon < -90)){
-    form_set_error('lon', 
-      t('Longitude must be between -90 and 90 degrees.'));
-  }
 }
  
 /** guifi_node_insert(): Create a new node in the database
