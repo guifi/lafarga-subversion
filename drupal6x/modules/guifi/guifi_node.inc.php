@@ -581,6 +581,17 @@ function guifi_node_delete(&$node) {
 
   return;
 }
+
+function guifi_node_print($node) {
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+
+  $table = theme('table', null, guifi_node_print_data($node));
+  $output .= theme('box', t('Node information'), $table);
+
+  return $output;
+}
+
 /** node visualization (view) function calls */
 
 /** guifi_node_print_data(): outputs the node information (d)ata
@@ -596,10 +607,6 @@ function guifi_node_print_data($node) {
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
   $url_map = sprintf(' <a href="http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude=%f&longitude=%f" target="_blank">%s</a>',$node->lat,$node->lon,t('external map'));
-
-  $map = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
-  $map .= t('Sorry, your browser can\'t display the embedded map');
-  $map .= '</IFRAME>';
   
   $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>',
                   array('data'=>$map,'rowspan'=>8)); 
@@ -662,17 +669,41 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
   if ($page) {
     $node->content['body']['#value'] = 
       theme_table(null,array(
-          array(theme_table(null,array(array(array('data'=>'<small>'.guifi_zone_print($node->nid).'</small>','width'=>'50%'),
-                                             array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
+          array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
+                                             array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
           array($node->body),
  //         array(guifi_zone_print($node->nid)),
-          array(guifi_zone_nodes($node,true))
+ //         array(guifi_zone_nodes($node,true))
         )
       );
         
     return $node;
   }
   
+}
+
+function guifi_node_hidden_map_fileds($node) {
+  $output  = '<from>';
+  $output .= '<input type="hidden" id="lat" value="'.$node->lat.'"/>';
+  $output .= '<input type="hidden" id="lon" value="'.$node->lon.'"/>';
+  $output .= '<input type="hidden" id="zone_id" value="'.$node->zone_id.'"/>';
+  $output .= '<input type="hidden" id="guifi-wms" value="'.variable_get('guifi_wms_service','').'"/></form>';
+  return $output;  
+}
+
+/** guifi_zone_simple_map(): Print de page show de zone map and nodes without zoom.
+ */
+function guifi_node_simple_map($node) {
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_point.js','module');
+    $output = '<div id="map" style="width: 100%; height: 380px; margin:5px;"></div>';
+    $output .= guifi_node_hidden_map_fileds($node);
+  } else {
+    $output = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
+    $output .= t('Sorry, your browser can\'t display the embedded map');
+    $output .= '</IFRAME>';
+  }
+  return $output;
 }
 /*
 &$node, $teaser = FALSE, $page = FALSE) {

@@ -45,6 +45,16 @@ function guifi_menu() {
     'type' => MENU_NORMAL_ITEM,
    );
    
+   // General guifi menu
+/*   $items['guifi/users'] = array( 
+     'title' => 'proxy users list',
+     'description' => 'Handles proxy users queues',
+     'page callback' => 'guifi_zone_map',
+     'page arguments' => array(0),
+     'access callback' => 'user_access',
+     'access arguments' => array('administer guifi networks'),
+     'type' => MENU_LOCAL_TASK);
+*/   
    //
    // ZONE menus & tabs
    //
@@ -860,7 +870,10 @@ function guifi_page() {
 
 }
 
-function guifi_view(&$node, $teaser = 0, $page = 0) {
+/* Obsolete after upgarde to drupal 6.x
+ * 
+ * function guifi_view(&$node, $teaser = 0, $page = 0) {
+  
   
   if (!is_object($node))  {
     $nid = $node;
@@ -879,6 +892,7 @@ function guifi_view(&$node, $teaser = 0, $page = 0) {
       guifi_service_view($node);
   }
 }
+*/
 
 
 function guifi_cron() {
