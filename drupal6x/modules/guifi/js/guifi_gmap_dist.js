@@ -66,9 +66,9 @@ function xz()
     map.addOverlay(oNode);
     map.setMapType(myCustomMapType);
 
-    if (document.getElementById("lon2").value != "") {
+    if (document.getElementById("lon2").value != "NA") {
       lon2 = document.getElementById("lon2").value;      
-      if (document.getElementById("lat2").value != "") {
+      if (document.getElementById("lat2").value != "NA") {
         lat2 = document.getElementById("lat2").value;
       }
       point = new GLatLng(lat2,lon2);

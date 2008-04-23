@@ -897,6 +897,7 @@ function guifi_node_distances_map($node) {
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
+    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight'),'align'=>'center'));
     $rows[] = array(array('data'=>'<img id="profile" src="/modules/guifi/js/marker_start.png" />','align'=>"center"));
     $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
     $output = theme('table',null,$rows);
@@ -924,6 +925,7 @@ function guifi_node_distances($node) {
 function guifi_node_distances_form($form_state,$node) {
   global $base_url;
   
+  $orig = $node->id;
   guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$form_state);
 
   $form = array();
@@ -1053,9 +1055,7 @@ function guifi_node_distances_form($form_state,$node) {
 
   $nc = 0;
   $tc = count($nodes);
-  
-  print_r($nodes);
-
+    
   foreach ($nodes as $key => $node) {
 
     $dAz = round($oGC->GCAzimuth($lat1, $long1, $node["lat"], $node["lon"]));
@@ -1086,6 +1086,7 @@ function guifi_node_distances_form($form_state,$node) {
     // heywhatsthat.com integration
 //    $height_url = "http://www.heywhatsthat.com/bin/profile.cgi?src=profiler&axes=1&curvature=1&metric=1&" .
 //        "pt0=".$20.96144,-9.84375,ff0000&pt1=42.293564,11.25,00c000";
+    $height_url_long = "/node/".$orig.'/view/distancesmap?lat2='.$node['lat'].'&lon2='.$node['lon'];
     $zone = node_load(array('nid'=>$node['zone_id']));
 
     if ($filters['search'])
