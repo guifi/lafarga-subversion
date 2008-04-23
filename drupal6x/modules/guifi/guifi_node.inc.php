@@ -872,6 +872,26 @@ function guifi_node_radio_list($id = 0) {
     ???->guifi_devices_select_filter(???):????
 **/
 
+function guifi_node_distances_map($node) {
+  drupal_set_title(t('distances map from').' '.
+    guifi_get_zone_nick($node->zone_id).
+    '-'.$node->nick);
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
+
+    $output = '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>' .
+      '<img id="profile" />' .
+      '<form>' .
+      '<input type=hidden value='.$node->lat.' id=lat />'.
+      '<input type=hidden value='.$node->lon.' id=lon />' .
+      '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
+      '</form>';
+  }
+      
+  return $output;
+}
+
+
 function guifi_node_distances($node) {
   drupal_set_title(t('distances from').' '.
     guifi_get_zone_nick($node->zone_id).
@@ -1043,6 +1063,10 @@ function guifi_node_distances_form($form_state,$node) {
 .$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
     $height_url_small = $height_url."&width=200&height=100";
+    
+    // heywhatsthat.com integration
+//    $height_url = "http://www.heywhatsthat.com/bin/profile.cgi?src=profiler&axes=1&curvature=1&metric=1&" .
+//        "pt0=".$20.96144,-9.84375,ff0000&pt1=42.293564,11.25,00c000";
     $zone = node_load(array('nid'=>$node['zone_id']));
 
     if ($filters['search'])

@@ -140,6 +140,14 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
+   $items['node/%guifi_node/view/distancesmap'] = array( 
+     'title' => 'distance & profiles map',
+     'page callback' => 'guifi_node_distances_map',
+     'page arguments' => array(1),
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
    $items['node/%guifi_node/view/data'] = array( 
      'title' => 'data',
      'page callback' => 'guifi_node_print_data',

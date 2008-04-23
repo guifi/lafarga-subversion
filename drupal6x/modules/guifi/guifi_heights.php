@@ -10,7 +10,7 @@
 
 function height($x,$y)
   {
-    $grid = fopen('../../../../files/guifi/cata.grd','r');
+    $grid = fopen('../../files/guifi/cata.grd','r');
     $pos = ((($y-1)*9235)+$x-1)*4;
     fseek($grid,$pos);
     $z = fread($grid,4);
@@ -71,7 +71,7 @@ function set_tics($th)
   Inerpola una alçada correponent a un punt de la graella
   -----------------------------------------------------------------------
   Calcula a partir de 4 punts coneguts, l'alçada paroximada d'un punt qualsevol
-  entre els 4, a partir de l'equació d'un pla ajsutad als 4 punts
+  entre els 4, a partir de l'equació d'un pla ajsutat als 4 punts
   */
   
   
