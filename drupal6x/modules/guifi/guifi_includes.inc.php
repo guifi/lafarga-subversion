@@ -405,7 +405,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 
 
 /* guifi_devices_select_filter($form,$filters): Construct a list of devices to link with */
-function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$fweight = -100) {
+function guifi_devices_select_filter(&$form,$form_state,&$fweight = -100) {
 
   
   $form['f'] = array(
@@ -422,7 +422,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#title' => t('Distance from'),
     '#size' => 5,
     '#maxlength' => 5,
-    '#default_value' => $filters['dmin'],
+    '#default_value' => $form_state['values']['filters']['dmin'],
     '#description' => t("List starts at this distance"),
     '#prefix' => '<table><tr><td>',
     '#suffix' => '</td>',
@@ -434,7 +434,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#title' => t('until'),
     '#size' => 5,
     '#maxlength' => 5,
-    '#default_value' => $filters['dmax'],
+    '#default_value' => $form_state['values']['filters']['dmax'],
     '#description' => t("...and finishes at this distance"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -447,7 +447,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#title' => t('Stop list at'),
     '#size' => 5,
     '#maxlength' => 5,
-    '#default_value' => $filters['max'],
+    '#default_value' => $form_state['values']['filters']['max'],
     '#description' => t("Max. # of rows to list"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -459,7 +459,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#title' => t('Search string'),
     '#size' => 25,
     '#maxlength' => 25,
-    '#default_value' => $filters['search'],
+    '#default_value' => $form_state['values']['filters']['search'],
     '#description' => t("Zone, node or device contains this string"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -472,7 +472,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
       '#parents'=>array('filters','status'),
       '#title' => t("Status"),
       '#required' => TRUE,
-      '#default_value' => $filters['status'],
+      '#default_value' => $form_state['values']['filters']['status'],
       '#options' => $choices,
       '#description' => t("Status of the node"),
       '#prefix' => '<td>',
@@ -484,7 +484,7 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#type' => 'radios',
     '#parents'=>array('filters','azimuth'),
     '#title' => t('Azimuth'),
-    '#default_value' => $filters['azimuth'],
+    '#default_value' => $form_state['values']['filters']['azimuth'],
     '#options' => array(
        '0,360'        => t('All'), //N
        '292,360-0,67' => t('North'), //N
@@ -507,36 +507,36 @@ function guifi_devices_select_filter(&$form,$action = 'op',$filters = array(),&$
     '#weight' => $fweight++,
   );
   
-  if (isset($filters['type']))
+  if (isset($form_state['values']['filters']['type']))
   $form['f']['type'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','type'),
-     '#value' => $filters['type']);
-  if (isset($filters['mode']))
+     '#value' => $form_state['values']['filters']['type']);
+  if (isset($form_state['values']['filters']['mode']))
   $form['f']['mode'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','mode'),
-     '#value' => $filters['mode']);
-  if (isset($filters['from_node']))
+     '#value' => $form_state['values']['filters']['mode']);
+  if (isset($form_state['values']['filters']['from_node']))
   $form['f']['from_node'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','from_node'),
-     '#value' => $filters['from_node']);
+     '#value' => $form_state['values']['filters']['from_node']);
   if (isset($filters['from_device']))
   $form['f']['from_device'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','from_device'),
-     '#value' => $filters['from_device']);
-  if (isset($filters['from_radio']))
+     '#value' => $form_state['values']['filters']['from_device']);
+  if (isset($form_state['values']['filters']['from_radio']))
   $form['f']['from_radio'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','from_radio'),
-     '#value' => $filters['from_radio']);
-  if (isset($filters['skip']))
+     '#value' => $form_state['values']['filters']['from_radio']);
+  if (isset($form_state['values']['filters']['skip']))
   $form['f']['skip'] = array(
      '#type'  => 'hidden',
      '#parents'=>array('filters','skip'),
-     '#value' => $filters['skip']);
+     '#value' => $form_state['values']['filters']['skip']);
   return;
 }
 
@@ -634,6 +634,10 @@ function guifi_get_zone_of_node($id) {
   return $node->zone_id;
 }
 
+function guifi_get_zone_nick($id) {
+  $node = db_fetch_object(db_query("SELECT nick FROM {guifi_zone} d WHERE id=%d",$id));
+  return $node->nick;
+}
 function guifi_get_interface_descr($iid) {
   $interface = db_fetch_object(db_query("SELECT device_id, interface_type, radiodev_counter  FROM {guifi_interfaces} WHERE id=%d",$iid));
   if ($interface->radiodev_counter != null) {

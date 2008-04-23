@@ -873,65 +873,80 @@ function guifi_node_radio_list($id = 0) {
 **/
 
 function guifi_node_distances($node) {
-  print_r($node);
-  drupal_set_title(t('distances from').' '.$node->nick);
-  $output .= drupal_get_form('guifi_node_distances_form');
+  drupal_set_title(t('distances from').' '.
+    guifi_get_zone_nick($node->zone_id).
+    '-'.$node->nick);
+  $output .= drupal_get_form('guifi_node_distances_form',$node);
   return $output;
 }
 
-function guifi_node_distances_form($form_state) {
+function guifi_node_distances_form($form_state,$node) {
   global $base_url;
   
-  guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$edit);
+  guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$form_state);
 
   $form = array();
-  $form['#multistep'] = TRUE;
-  $form['#redirect'] = FALSE;
+  $form_state['#redirect'] = FALSE;
 
-
-
-  
-
-  // initialize filters
-  if (empty($edit['filters'])) 
-    $edit['filters'] = array(
+  // default values
+  $filters = array(
     'dmin'   => 0,
     'dmax'   => 30,
     'search' => null,
     'max'    => 50,
     'skip'   => 0,
     'status' => "All",
-    'from_node' => $edit['nid'],
+    'from_node' => $node->nid,
     'azimuth' => "0,360",
-    );
-  $filters = $edit['filters'];
+  );
+  // initialize filters using default values or passed by form
+  if (!empty($form_state['values']['filters'])) 
+    $form_state['values']['filters'] = 
+      array_merge($filters,$form_state['values']['filters']);
+    else
+      $form_state['values']['filters'] = $filters;
+      
+  $filters = $form_state['values']['filters'];
 
-  // deso la lat/lon d'origen
+  // storing lat/lon from the current node to be user for computing
+  // distances with the other nodes
   $lat1 = $node->lat;
   $long1 = $node->lon;
   
-  // deso el nom del node d'origen per anomenar els perfils
+  // store the node nickname to be used for literal at the profiles
   $node1 = $node->nick;  
 
-  // Vaig a llistar els nodes i la calcular la distacia
-  $result = db_query("SELECT n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id  FROM {guifi_location} n WHERE n.id !=%d AND (n.lat != '' AND n.lon != '') AND (n.lat != 0 AND n.lon != 0)",$id);
+  // get the notes and compute distances
+  $result = db_query(
+      "SELECT " .
+        "n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id  " .
+      "FROM {guifi_location} n " .
+      "WHERE n.id !=%d " .
+        "AND (n.lat != '' " .
+        "AND n.lon != '') " .
+        "AND (n.lat != 0 " .
+        "AND n.lon != 0)",
+      $node->id);
 
   $oGC = new GeoCalc();
   $nodes = array();
   $rows = array();
   $totals[] = NULL;
+  
+  print_r($filters);
 
-  if ($edit['op'] == t('Next page'))
+  if ($form_state['clicked_button']['#value'] == t('Next page'))
      $filters['skip'] = $filters['skip'] + $filters['max'];
-  if ($edit['op'] == t('Previous page'))
+  if ($form_state['clicked_button']['#value'] == t('Previous page'))
      $filters['skip'] = $filters['skip'] - $filters['max'];
 
   $nc = 0;
+  
   $allow_next = false;
   if ($filters['skip'])
-   $allow_prev = true;
+    $allow_prev = true;
   else
-   $allow_prev = false;
+    $allow_prev = false;
 
   while ($node = db_fetch_array($result)) {
      $distance = round($oGC->EllipsoidDistance($lat1, $long1, $node["lat"], $node["lon"]),3);
@@ -947,7 +962,7 @@ function guifi_node_distances_form($form_state) {
 
   // Filter form
   $fw = 0;
-  guifi_devices_select_filter($form,null,$filters,$fw);
+  guifi_devices_select_filter($form,$form_state,$fw);
 
 
   if (count($nodes)==0) {
@@ -999,6 +1014,8 @@ function guifi_node_distances_form($form_state) {
 
   $nc = 0;
   $tc = count($nodes);
+  
+  print_r($nodes);
 
   foreach ($nodes as $key => $node) {
 
@@ -1043,7 +1060,7 @@ function guifi_node_distances_form($form_state) {
        continue;
     }
 
-   // All filters applied, see if fits in the current chink (skip/max)
+   // All filters applied, see if fits in the current chunk (skip/max)
    if ($nc >= $filters['skip'] + $filters['max']) {
      $allow_next = true;
      break;
@@ -1119,6 +1136,10 @@ function guifi_node_distances_form($form_state) {
     '#weight' => $fw++,
   );
   return $form;
+}
+
+function guifi_node_distances_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
 }
 
 /** guifi_node_link_list(): list of node links
