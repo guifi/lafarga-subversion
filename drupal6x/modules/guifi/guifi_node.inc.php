@@ -873,17 +873,38 @@ function guifi_node_radio_list($id = 0) {
 **/
 
 function guifi_node_distances_map($node) {
+  $rows = array();
+  
+  $lat2='';
+  $lon2='';
+  if (!empty($_GET['lat2']))
+    $lat2 = $_GET['lat2'];
+  else 
+    $lat2 = "NA";
+  if (!empty($_GET['lon2']))
+    $lon2 = $_GET['lon2'];
+  else
+    $lon2 = "NA";
+  if (!empty($_GET['name2']))
+    $name2 = $_GET['name2'];
+  else
+    $name2 = "NA";
+    
+  
   drupal_set_title(t('distances map from').' '.
     guifi_get_zone_nick($node->zone_id).
     '-'.$node->nick);
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
-    $output = '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>' .
-      '<img id="profile" />' .
-      '<form>' .
+    $rows[] = array(array('data'=>'<img id="profile" src="/modules/guifi/js/marker_start.png" />','align'=>"center"));
+    $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
+    $output = theme('table',null,$rows);
+    $output .=  '<form>' .
       '<input type=hidden value='.$node->lat.' id=lat />'.
       '<input type=hidden value='.$node->lon.' id=lon />' .
+      '<input type=hidden value='.$lat2.' id=lat2 />'.
+      '<input type=hidden value='.$lon2.' id=lon2 />' .
       '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
       '</form>';
   }
@@ -953,8 +974,6 @@ function guifi_node_distances_form($form_state,$node) {
   $rows = array();
   $totals[] = NULL;
   
-  print_r($filters);
-
   if ($form_state['clicked_button']['#value'] == t('Next page'))
      $filters['skip'] = $filters['skip'] + $filters['max'];
   if ($form_state['clicked_button']['#value'] == t('Previous page'))
@@ -1060,7 +1079,7 @@ function guifi_node_distances_form($form_state,$node) {
     // genero URL del Perfil
     
     $height_url = base_path(). drupal_get_path('module', 'guifi') .'/guifi_heights.php?x1='
-.$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
+      .$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
     $height_url_small = $height_url."&width=200&height=100";
     
