@@ -51,10 +51,17 @@ function guifi_node_add($id) {
   guifi_node_load($node:obj-node):obj-location
 **/
 function guifi_node_load($node) {
-  $node = db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $node->nid));
-  if ($node->id == null)
-    return false;
-  return $node;
+  if (is_object($node))
+    $k = $node->nid;
+  else
+    $k = $node;
+  
+  $node = db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $k));
+
+  if (!$node->id == null)
+    return $node;
+
+  return false;
 }
 
 /** node editing functions
@@ -864,18 +871,24 @@ function guifi_node_radio_list($id = 0) {
     ???->node_load(???):????
     ???->guifi_devices_select_filter(???):????
 **/
-function guifi_node_distances($id,$edit = NULL) {
+
+function guifi_node_distances($node) {
+  print_r($node);
+  drupal_set_title(t('distances from').' '.$node->nick);
+  $output .= drupal_get_form('guifi_node_distances_form');
+  return $output;
+}
+
+function guifi_node_distances_form($form_state) {
   global $base_url;
   
-  guifi_log(GUIFILOG_TRACE,'function guifi_node_distances()',$edit);
+  guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$edit);
 
-  $node = node_load(array('nid' => $id));
   $form = array();
   $form['#multistep'] = TRUE;
   $form['#redirect'] = FALSE;
 
 
-  drupal_set_title(t('distances from').' '.$node->nick);
 
   
 

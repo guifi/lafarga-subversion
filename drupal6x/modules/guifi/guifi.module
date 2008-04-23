@@ -131,6 +131,52 @@ function guifi_menu() {
      'access arguments' => array('administer guifi networks'),
      'type' => MENU_LOCAL_TASK);
      
+   // node (location) menus
+   $items['node/%guifi_node/view/distances'] = array( 
+     'title' => 'distances',
+     'page callback' => 'guifi_node_distances',
+     'page arguments' => array(1),
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['node/%guifi_node/view/data'] = array( 
+     'title' => 'data',
+     'page callback' => 'guifi_node_print_data',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['node/%guifi_node/view/devices'] = array( 
+     'title' => 'devices',
+     'page callback' => 'guifi_node_devices',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['node/%guifi_node/view/links'] = array( 
+     'title' => 'links',
+     'page callback' => 'guifi_node_links',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['node/%guifi_node/view/graphs'] = array( 
+     'title' => 'graphs',
+     'page callback' => 'guifi_node_graphs',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+     
     return $items;
 /*  
 
@@ -459,15 +505,6 @@ function guifi_node_info() {
     ),
   );
 }
-
-//function guifi_zone_load($arg) {
-//  return is_numeric($arg) && ($node = node_load($arg)) && ($node->type == 'guifi_zone') ? $node : FALSE;
-//}
-
-//function mymodule_page($node) {
-//  // $node->type can only be story or article.
-//  return $node->type == 'article' ? mymodule_page_article($node) : mymodule_page_story($node);
-//}
 
 /** help hook
  */

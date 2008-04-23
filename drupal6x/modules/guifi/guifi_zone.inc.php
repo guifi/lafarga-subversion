@@ -13,6 +13,8 @@
 /** guifi_zone_load(): Load the zone from the guifi database.
  */
 function guifi_zone_load($node) {
+//  print "Hello World (Zone) !!!";
+
   guifi_log(GUIFILOG_FULL,
     'function guifi_zone_load()',
     $node);
