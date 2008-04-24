@@ -484,6 +484,7 @@ function guifi_node_validate($node,$form) {
     guifi_includes.inc->guifi_coord_dmstod($deg:int,$min:int,$seg:int):$coord:float or NULL
  */
 function guifi_node_insert($node) {
+  global $user;
 
   $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
   if($coord!=NULL){
