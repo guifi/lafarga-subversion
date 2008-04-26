@@ -10,6 +10,8 @@ New Features:
 - Now the multiple radio devices are always numbered sequentally starting from 0 
   and radios can be moved up & down, so can be reordered to match the position
   on the device.
+- New profiles maps with the ability to dynamically create profiles.
+
   
 User interface:
 - Collapsible forms to make complex forms such as edit device simpler and more
@@ -22,6 +24,11 @@ User interface:
 - Now while listing neighbors nodes, provides a small icon with the line of 
   sight directly in the same report page
 - Reworked breadcrumbs when makes sense, integrated with drupal's breadcrumbs
+- While creating nodes from the zone maps, zone is passed as a parameter, so 
+  the user has no longer the need to specify at which node is creating the node.
+- While looking at the distances, there are some filters provided available 
+  to be customized by the user, so no longer need to get a hughe and heavy 
+  list to look for something.
 
 Database:
 - Add comments on tables to document primary/foreign key relationships

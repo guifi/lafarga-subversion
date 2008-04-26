@@ -69,6 +69,9 @@ Install & configuration of guifi.net module:
   Install & configure your own mapping system using guifi.net 
   OpenGIS mapping system, or federate with an existing one, to create your own 
   WMS mapping network diagrams.
+  In the meantime, at the guifi.net module configuration you could setup a 
+  Google Maps API key, and simply point to the production guifi.net WMS standard 
+  layers.
   
 - (Optional)
   Allocate the guifi.net statistics block in one of the regions
@@ -86,7 +89,9 @@ Developer's tips & tricks:
   (Administer->Site configuration->guifi.net)
   
 NOTES:
-  The LOS graphs require the gnuplot package installed and a grid file,
-  Currently there is a grid file available only for Catalonia (cata.grd). 
+  Local LOS graphs require the gnuplot package installed and a grid file,
+  Currently there is a grid file available only for Catalonia (cata.grd).
+  LOS for the rest of the world are obtained by external links to 
+  heywhatsthat.com 
   
   
