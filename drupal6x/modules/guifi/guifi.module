@@ -159,7 +159,7 @@ function guifi_menu() {
    );
    $items['node/%guifi_node/view/devices'] = array( 
      'title' => 'devices',
-     'page callback' => 'guifi_node_devices',
+     'page callback' => 'guifi_node_radio_list',
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),

@@ -664,6 +664,7 @@ function guifi_node_print_data($node) {
     $rows[] = array(t('updated by'),
       array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
       'colspan'=>2));
+    
   return array_merge($rows);
 }
 
@@ -687,10 +688,9 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       theme_table(null,array(
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
                                              array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
+                                             array(guifi_node_radio_list($node)),
           array($node->body),
- //         array(guifi_zone_print($node->nid)),
- //         array(guifi_zone_nodes($node,true))
-        )
+          array(guifi_node_radio_list($node)),        )
       );
         
     return $node;
@@ -823,7 +823,9 @@ function guifi_node_simple_map($node) {
     ???->guifi_main_ip(???):????
     ???->guifi_node_get_url_mrtg(???):????
 **/
-function guifi_node_radio_list($id = 0) {
+function guifi_node_radio_list($node) {
+  
+  $id = $node->nid;
   
   $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
 
