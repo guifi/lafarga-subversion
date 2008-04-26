@@ -218,7 +218,7 @@ function unsolclic_routeros($dev) {
       _outln('    dfs-mode=none \ ');
 
     if (empty($radio[antmode])) {
-	_outln(sprintf('    wds-mode=static wds-default-bridge=none wds-default-cost=100 \ '));
+	_outln(sprintf('    wds-mode=static wds-default-bridge=none wds-default-cost=100'));
     } else {
     if ($radio[antmode] != 'Main') 
           $radio[antmode]= 'ant-b';
