@@ -218,7 +218,7 @@ function unsolclic_routeros($dev) {
       _outln('    dfs-mode=none \ ');
 
     if (empty($radio[antmode])) {
-	_outln(sprintf('    wds-mode=static wds-default-bridge=none wds-default-cost=100'));
+	_outln(sprintf('    wds-mode=static wds-default-bridge=none wds-default-cost=100 \ '));
     } else {
     if ($radio[antmode] != 'Main') 
           $radio[antmode]= 'ant-b';
@@ -226,8 +226,9 @@ function unsolclic_routeros($dev) {
           $radio[antmode]= 'ant-a';
 
     _outln(sprintf('    antenna-mode=%s wds-mode=static wds-default-bridge=none wds-default-cost=100 \ ',$radio[antmode]));
+    }
     _outln('    wds-cost-range=50-150 wds-ignore-ssid=yes hide-ssid=no');
-}
+
     if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {
        _outln(':delay 1');
        _outln_comment('Type: '.$interface[interface_type]);
