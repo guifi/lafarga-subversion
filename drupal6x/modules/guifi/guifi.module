@@ -184,7 +184,16 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
-     
+
+   $items['guifi/device/add/%guifi_node/radio'] = array( 
+     'title' => 'add device',
+     'page callback' => 'guifi_add_device',
+//     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('create guifi nodes'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
     return $items;
 /*  
 

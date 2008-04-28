@@ -688,7 +688,6 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       theme_table(null,array(
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
                                              array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
-                                             array(guifi_node_radio_list($node)),
           array($node->body),
           array(guifi_node_radio_list($node)),        )
       );
