@@ -824,7 +824,7 @@ function guifi_node_simple_map($node) {
 **/
 function guifi_node_radio_list($node) {
   
-  $id = $node->nid;
+  $id = $node->id;
   
   $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
 
@@ -834,9 +834,12 @@ function guifi_node_radio_list($node) {
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
   if (db_result($query))
   while ($d = db_fetch_object($query)) {
+    print "Device: ";
+    print_r($d);
+    print "\n<br>";
      $device = guifi_get_device($d->id);
      $status_str = guifi_availabilitystr($device);
-     if (guifi_device_access('update',$device[id])) {
+     if (guifi_device_access('update',$device['id'])) {
        // form to allow editing the device
        $edit_radio = '<td>'.drupal_get_form('_guifi_line_edit_device_form',$device['id']);
        $edit_radio .= "<td/>";

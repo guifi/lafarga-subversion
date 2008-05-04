@@ -46,7 +46,7 @@ function guifi_edit_device_form_submit($form, &$form_state) {
           array(&$edit,$action));
     }
     // save
-    $id = guifi_edit_device_save($form_values['values']);
+    $id = guifi_edit_device_save($form_state['values']);
     if ($form_state['clicked_button']['#value'] == t('Save & exit'))
       drupal_goto('guifi/device/'.$id);
     drupal_goto('guifi/device/'.$id.'/edit');
@@ -87,9 +87,7 @@ function guifi_get_device($id,$ret = 'array') {
       WHERE id = %d
       ORDER BY id, radiodev_counter',
       $id);
-    if (db_num_rows($qr) == 0) {
-      return $device;
-    }
+
     $device['firewall'] = false; // Default: No firewall
 
     while ($radio = db_fetch_array($qr)) {

@@ -11,7 +11,9 @@
 function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
   global $user;
   
-  print_r($key);
+//  print_r($key);
+//  print_r($data);
+//  exit(0);
 
   $insert = false;
 
