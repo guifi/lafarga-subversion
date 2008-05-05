@@ -60,6 +60,10 @@ function guifi_edit_device_form_submit($form, &$form_state) {
 
 }
 
+function guifi_device_load($id) {
+  return guifi_get_device($id);
+}
+
 /* guifi_get_device(): get a device and all its related information and builds an array */
 function guifi_get_device($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_get_device()');
@@ -70,7 +74,7 @@ function guifi_get_device($id,$ret = 'array') {
     WHERE d.id = %d',
     $id));
   if (empty($device)) {
-    drupal_set_message(t('Device does not exist.'));
+    drupal_set_message(t('Device (%num) does not exist.',array('%num'=>$id)));
     return;
   }
   if (!empty($device['extra'])) 
@@ -1293,7 +1297,7 @@ function guifi_interfaces_print_data($id) {
 }
   
 /* guifi_device_print(): main print function, outputs the device information and call the others */
-function guifi_device_print($id = NULL) {
+function guifi_device_print($device = NULL) {
 //  print_r($_GET);
 //  print arg(0)."\n<br />";
 //  print arg(1)."\n<br />";
@@ -1304,9 +1308,9 @@ function guifi_device_print($id = NULL) {
 
   $output = '<div id="guifi">';
 
-  $device = guifi_get_device($id);
-  if (empty($device))
-    return print theme('page',null,t('device').': '.$id);
+//  $device = guifi_get_device($id);
+//  if (empty($device))
+//    return print theme('page',null,t('device').': '.$id);
     
   $node = node_load(array('nid' => $device[nid])); 
   $title = t('Node:').' <a href="'.url('node/'.$node->nid).'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
