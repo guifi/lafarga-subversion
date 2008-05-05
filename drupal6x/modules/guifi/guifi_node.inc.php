@@ -825,6 +825,7 @@ function guifi_node_simple_map($node) {
 function guifi_node_radio_list($node) {
   
   $id = $node->id;
+  $rows = array();
   
   $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
 
@@ -832,11 +833,7 @@ function guifi_node_radio_list($node) {
   $form = drupal_get_form('guifi_device_create_form',$id);
 
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
-  if (db_result($query))
   while ($d = db_fetch_object($query)) {
-    print "Device: ";
-    print_r($d);
-    print "\n<br>";
      $device = guifi_get_device($d->id);
      $status_str = guifi_availabilitystr($device);
      if (guifi_device_access('update',$device['id'])) {
@@ -849,7 +846,6 @@ function guifi_node_radio_list($node) {
        $unsolclic = '<td><a href="'.url('guifi/device/' .$device[id] .'/view/unsolclic').'" title="' .t("Get radio configuration with singleclick") .'">' .$device[variable]['firmware'] .'</a></td>';
      }
      $ip = guifi_main_ip($device[id]);
-//     print_r($ip);
      $graph_url = guifi_node_get_url_mrtg($id,FALSE);
      if ($graph_url != NULL)
        $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
@@ -864,6 +860,8 @@ function guifi_node_radio_list($node) {
                  $unsolclic
                     );
   }
+  if (count($rows)==0)
+     $rows[] = array(t('This node does not have any device.'));
 
   return '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
 }
