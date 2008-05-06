@@ -198,12 +198,20 @@ function guifi_menu() {
    $items['guifi/device/%guifi_device'] = array( 
      'title' => 'add device',
      'page callback' => 'guifi_device_print',
+     'page arguments' => array(2),
      'access callback' => 'user_access',
      'access arguments' => array('access_content'),
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
-   
+   $items['guifi/device/%guifi_device/edit'] = array( 
+     'title' => 'edit device',
+     'page callback' => 'guifi_edit_print',
+     'page arguments' => array(2),
+     'access callback' => 'guifi_device_access',
+     'access arguments' => array('update',arg(2)),
+     'type' => MENU_LOCAL_TASK
+   );   
     return $items;
 /*  
 

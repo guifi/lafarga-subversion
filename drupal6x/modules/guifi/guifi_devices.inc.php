@@ -1193,7 +1193,12 @@ function guifi_device_print_data($device) {
   $name_created = l($created->name,'user/'.$device['user_created']);
   $name_changed = l($changed->name,'user/'.$device['user_changed']);
   
-  $radios = db_query('SELECT * FROM {guifi_radios} WHERE id=%d ORDER BY id',$device['id']);
+  $radios = db_query(
+      'SELECT * 
+       FROM {guifi_radios} 
+       WHERE id=%d 
+       ORDER BY id',
+      $device['id']);
 
   $rows[] = array(t($device[type]),'<b>' .$device[nick] .'</b>'); 
 
