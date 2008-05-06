@@ -206,10 +206,18 @@ function guifi_menu() {
    );
    $items['guifi/device/%guifi_device/edit'] = array( 
      'title' => 'edit device',
-     'page callback' => 'guifi_edit_print',
+     'page callback' => 'guifi_edit_device',
      'page arguments' => array(2),
      'access callback' => 'guifi_device_access',
-     'access arguments' => array('update',arg(2)),
+     'access arguments' => array('update',array(2)),
+     'type' => MENU_LOCAL_TASK
+   );   
+   $items['guifi/device/%guifi_device/delete'] = array( 
+     'title' => 'edit device',
+     'page callback' => 'guifi_delete_device',
+     'page arguments' => array(2),
+     'access callback' => 'guifi_device_access',
+     'access arguments' => array('update',array(2)),
      'type' => MENU_LOCAL_TASK
    );   
     return $items;

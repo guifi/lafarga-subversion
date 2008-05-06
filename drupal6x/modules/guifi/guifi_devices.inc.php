@@ -1316,10 +1316,11 @@ function guifi_device_print($device = NULL) {
 //  $device = guifi_get_device($id);
 //  if (empty($device))
 //    return print theme('page',null,t('device').': '.$id);
-    
+   
   $node = node_load(array('nid' => $device[nid])); 
   $title = t('Node:').' <a href="'.url('node/'.$node->nid).'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
-  $output .= guifi_zone_ariadna($node->zone_id);
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
 
   switch (arg(4)) {
   case 'all': case 'data': default:
