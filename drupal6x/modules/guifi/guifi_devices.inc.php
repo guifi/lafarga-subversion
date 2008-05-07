@@ -61,7 +61,9 @@ function guifi_edit_device_form_submit($form, &$form_state) {
 }
 
 function guifi_device_load($id) {
-  return guifi_get_device($id);
+  if ($id != null)
+    return guifi_get_device($id);
+  return FALSE;
 }
 
 /* guifi_get_device(): get a device and all its related information and builds an array */
