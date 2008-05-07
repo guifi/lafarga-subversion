@@ -600,7 +600,7 @@ function guifi_node_print($node) {
 
   $table = theme('table', null, guifi_node_print_data($node));
   $output .= theme('box', t('Node information'), $table);
-
+  
   return $output;
 }
 

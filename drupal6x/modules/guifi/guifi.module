@@ -185,6 +185,15 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK
    );
 
+   $items['guifi'] = array( 
+     'title' => 'guifi menu page',
+     'page callback' => 'guifi_main',
+     'access callback' => 'user_access',
+     'access arguments' => array('access_content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
+
    // Devices menus
    $items['guifi/device/add/%guifi_node/radio'] = array( 
      'title' => 'add device',
@@ -195,8 +204,16 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
+   $items['guifi/device'] = array( 
+     'title' => 'guifi devices page',
+     'page callback' => 'guifi_device_main',
+   'access callback' => 'user_access',
+     'access arguments' => array('access_content'),
+//     'weight' => 3,
+     'type' => MENU_LOCAL_TASK
+   );
    $items['guifi/device/%guifi_device'] = array( 
-     'title' => 'add device',
+     'title' => 'view device',
      'page callback' => 'guifi_device_print',
      'page arguments' => array(2),
      'access callback' => 'user_access',
@@ -213,7 +230,7 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK
    );   
    $items['guifi/device/%guifi_device/delete'] = array( 
-     'title' => 'edit device',
+     'title' => 'delete device',
      'page callback' => 'guifi_delete_device',
      'page arguments' => array(2),
      'access callback' => 'guifi_device_access',

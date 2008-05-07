@@ -48,11 +48,18 @@ TODO:
   -Revisit node & device management for drupal 6.x
   -Edit devices with FAPI 6.x in multiple page and java enabled forms
   -Javascript selector for zones
-  -Migrate node user creation forms to drupal 6.x
+  -Migrate node user creation forms to drupal 6.x, create a new workflow for the
+   authorization ad verification process.
   -Define ap/client links
   -Migrate budgets module to drupal 6.x
     -Include the feature of define templates for budget items
   -Generate a simple cnml (xml) for export/import nodes
+  -Create guifi statistics/versions of nodes and track history.
+  -Generate utilities page for several tools like
+    -Find for an IP 
+    -Used networks
+    -Newly detected nodes to be verified
+    -Workflow for creating/verifying users...
   
   
 ... and much more! :)

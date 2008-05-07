@@ -1308,8 +1308,7 @@ function guifi_device_print($device = NULL) {
 //  print arg(1)."\n<br />";
 //  print arg(2)."\n<br />";
 //  print arg(3)."\n<br />";
-//  print arg(4)."\n<br />";
-
+//  print arg(4)."\n<br />";                                
 
   $output = '<div id="guifi">';
 
@@ -1351,7 +1350,7 @@ function guifi_device_print($device = NULL) {
 //  $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
   drupal_set_title(t('View device %dname',array('%dname'=>$device['nick'])));
 
-  return print theme('page',$output,t('device').': '.$device[nick]);
+  return $output;
 }
 
 function guifi_device_links_print($device,$ltype = '%') {
