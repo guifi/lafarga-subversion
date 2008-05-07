@@ -816,7 +816,7 @@ function guifi_node_simple_map($node) {
  
   guifi_node_radio_list($id:int):form
   functions
-    ???->guifi_get_device(???):????
+    ???->guifi_device_load(???):????
     ???->guifi_availabilitystr(???):????
     ???->guifi_device_access(???):????
     ???->guifi_main_ip(???):????
@@ -834,7 +834,7 @@ function guifi_node_radio_list($node) {
 
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
   while ($d = db_fetch_object($query)) {
-     $device = guifi_get_device($d->id);
+     $device = guifi_device_load($d->id);
      $status_str = guifi_availabilitystr($device);
      if (guifi_device_access('update',$device['id'])) {
        // form to allow editing the device

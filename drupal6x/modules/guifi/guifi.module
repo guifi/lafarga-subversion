@@ -198,7 +198,7 @@ function guifi_menu() {
    // Devices menus
    $items['guifi/device/add/%guifi_node/radio'] = array( 
      'title' => 'add device',
-     'page callback' => 'guifi_add_device',
+     'page callback' => 'guifi_device_add',
 //     'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('create guifi nodes'),
@@ -235,7 +235,7 @@ function guifi_menu() {
    $items['guifi/device/%guifi_device/edit'] = array( 
      'title' => 'edit device',
      'page callback' => 'drupal_get_form',
-     'page arguments' => array('guifi_edit_device_form',2),
+     'page arguments' => array('guifi_device_edit_form',2),
      'access callback' => 'guifi_device_access',
      'access arguments' => array('update',2),
           'weight' => 1,
@@ -243,7 +243,7 @@ function guifi_menu() {
    );   
    $items['guifi/device/%guifi_device/delete'] = array( 
      'title' => 'delete device',
-     'page callback' => 'guifi_delete_device',
+     'page callback' => 'guifi_device_delete',
      'page arguments' => array(2),
      'access callback' => 'guifi_device_access',
      'access arguments' => array('update',2),
@@ -274,7 +274,7 @@ function guifi_menu() {
 
      $items[] = array('path' => 'guifi/add/device', 
       'title' => t('add device'),	 
-      'callback' => 'guifi_add_device', 	 
+      'callback' => 'guifi_device_add', 	 
       'access' => user_access('create guifi nodes'), 	 
       'type' => MENU_LOCAL_TASK);
      $items[] = array('path' => 'guifi/graph', 
@@ -349,7 +349,7 @@ function guifi_menu() {
       'type' => MENU_SUGGESTED_ITEM);
     $items[] = array('path' => 'guifi/device/add', 
       'title' => t('Add device'),
-      'callback' => 'guifi_add_device',
+      'callback' => 'guifi_device_add',
       'access' => user_access('create guifi nodes'),
       'type' => MENU_SUGGESTED_ITEM);
     $items[] = array('path' => 'guifi/device/'.arg(2).'/view', 
@@ -387,7 +387,7 @@ function guifi_menu() {
       'type' => MENU_LOCAL_TASK, 'weight' => 11);
     $items[] = array('path' => 'guifi/device/'.arg(2).'/edit', 
       'title' => t('edit device'),
-      'callback' => 'guifi_edit_device',
+      'callback' => 'guifi_device_edit',
       'callback arguments' => arg(2),
       'access' => guifi_device_access('update',arg(2)),
       'type' => MENU_LOCAL_TASK);
@@ -399,7 +399,7 @@ function guifi_menu() {
       'type' => MENU_LOCAL_TASK);
     $items[] = array('path' => 'guifi/device/'.arg(2).'/delete', 
       'title' => t('delete device'),
-      'callback' => 'guifi_delete_device',
+      'callback' => 'guifi_device_delete',
       'callback arguments' => arg(2),
       'access' => guifi_device_access('update',arg(2)),
       'weight' => 10,
@@ -922,7 +922,7 @@ function guifi_device_access($op, $id) {
   if (is_array($id))
     $device = $id;
   else 
-    $device = guifi_get_device($id);
+    $device = guifi_device_load($id);
 
   $node = node_load(array('nid'=>$device['nid']));
 

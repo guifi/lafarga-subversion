@@ -9,7 +9,7 @@ function guifi_unsolclic($id, $format = 'html') {
   $otype = $format;
 
   $rc_startup = "";
-  $dev = (object) guifi_get_device($id);
+  $dev = (object) guifi_device_load($id);
 //  print_r($dev);
 
 

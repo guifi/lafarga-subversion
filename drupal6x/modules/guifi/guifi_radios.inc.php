@@ -217,7 +217,7 @@ function guifi_radio_form(&$edit) {
        $form['r']['help_addradio'] = array(
         '#type' => 'item',
         '#description' => t('Usage:<br />Choose <strong>wireless client</strong> mode for a normal station with full access to the network. That\'s the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio.'),
-        '#prefix' => '<tr><td colspan="0">',
+        '#prefix' => '<tr><td colspan="3">',
         '#suffix' => '</td></tr></table>',
         '#weight' => 22,
        );

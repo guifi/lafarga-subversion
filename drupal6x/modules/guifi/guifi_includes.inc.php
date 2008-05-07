@@ -604,7 +604,7 @@ function guifi_validate_nick($nick) {
   }
 }
 
-function guifi_get_deviceuser($id) {
+function guifi_device_loaduser($id) {
   $device = db_fetch_object(db_query("SELECT d.user_created FROM {guifi_devices} d WHERE d.id=%d",$id));
   return ($device->user_created);
 }

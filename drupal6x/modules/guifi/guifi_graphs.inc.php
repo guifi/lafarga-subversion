@@ -407,7 +407,7 @@ function guifi_mrtg() {
       print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
    $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
    if (db_result($query_routeros) > 0)   {
-     $dev = guifi_get_device($row[id]);
+     $dev = guifi_device_load($row[id]);
      if (isset($dev[radios])) foreach ($dev[radios] as $radio_id=>$radio) {
        print wlan_routeros_traffic(guifi_rrdfile($radio[ssid]),$row,$radio_id+1,$nl);
      }
@@ -563,7 +563,7 @@ function guifi_graph() {
   $cmd = '';
 
   if (isset($_GET['radio'])) {
-    $device = guifi_get_device($_GET['radio']);
+    $device = guifi_device_load($_GET['radio']);
     $queryradio = db_query("SELECT d.nick FROM {guifi_devices} d WHERE d.id=%d",$_GET['radio']);
     $radio = db_fetch_object($queryradio);
   }
