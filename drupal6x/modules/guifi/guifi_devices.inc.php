@@ -270,7 +270,10 @@ function guifi_get_device($id,$ret = 'array') {
 function guifi_edit_device_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form()');
+  guifi_log(GUIFILOG_BASIC,'function guifi_edit_device_form()',$params);
+  
+  if (empty($form_state['values']))
+    $form_state['values'] = $params;
 
   // if new device, initializing variables
   if (($form_state['values']['nid'] == null) && ($params['add'] != null)) {
@@ -304,14 +307,6 @@ function guifi_edit_device_form($form_state, $params = array()) {
 //  print "<br>\nedit_device_form POST: ";
 //  print_r($_POST);
 //  drupal_set_message($_POST);
-
-
-  // Loading the device if is not yet (is not a callback, just begining the edit flow)
-  if ($form_state['values']['id'] == null) { 
-    if ($params['edit'] != null){  
-      $form_state['values'] = guifi_get_device($params['edit']);
-    }
-  }
   
   // Loading node where the device belongs to (some information will be used)
   $node = node_load(array('nid'=>$form_state['values']['nid']));
@@ -479,64 +474,63 @@ function guifi_edit_device_form($form_state, $params = array()) {
 }
 
 /* guifi_edit_device_form_validate(): Confirm that an edited device has fields properly filled. */
-function guifi_edit_device_form_validate($edit,$form) {
+function guifi_edit_device_form_validate($form,&$form_state) {
 //  print "Hola validate!!\n<br>";
 //   print_r($edit);
 
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_validate()',$form_id);
+  guifi_log(GUIFILOG_TRACE,'function guifi_edit_device_form_validate()',$form_state);
   
 //   guifi_log(GUIFILOG_NONE,'function guifi_edit_device_form_validate()',$form);
    
   // nick
   if (isset($form['main']['nick'])) {
-    guifi_validate_nick($edit['nick']);
+    guifi_validate_nick($form_state['values']['nick']);
 
     $query = db_query("
       SELECT nick
       FROM {guifi_devices}
       WHERE lcase(nick)=lcase('%s')
        AND id <> %d",
-      strtolower($edit['nick']),
-      $edit['id']);
+      strtolower($form_state['values']['nick']),
+      $form_state['values']['id']);
     
-    if (db_num_rows($query))
-      form_set_error('nick', t('Nick already in use.'));
+    while (db_fetch_object($query)) {
+      form_set_error('nick', t('Nick already in use.'));      
+    }
   }
 
   // contact
-  if (isset($form['main']['notification'])) {
-    if (empty($edit['notification'])) {
-      form_set_error(
-        'notification',
-        $edit['contact'].
-        t('You must set a contact address for this device.'));
-    }
-    $emails = guifi_notification_validate($edit['notification']);
-    if (!$emails) {
-      form_set_error(
-        'notification',
-        t('Error while validating email address'));
-    } else
-      form_set_value($form['main']['notification'],$emails);
-
+  if (empty($form_state['values']['notification'])) {
+    form_set_error(
+      'notification',
+      $form_state['values']['contact'].
+      t('You must set a contact address for this device.'));
   }
+  $emails = guifi_notification_validate($form_state['values']['notification']);
+  if (!$emails) {
+    form_set_error(
+      'notification',
+      t('Error while validating email address'));
+  } else
+    form_set_value($form['main']['notification'],$emails);
+
 
   // ssid
-  if (empty($edit['ssid'])) {
-    $edit['ssid'] = $edit['nick'];
+  if (empty($form_state['values']['ssid'])) {
+    $form_state['values']['ssid'] = $form_state['values']['nick'];
   }
 
   // duplicated ip address
-  if (!empty($edit['ipv4'])) {
+  if (!empty($form_state['values']['ipv4'])) {
     if (db_num_rows(db_query("
       SELECT i.id
       FROM {guifi_interfaces} i,{guifi_ipv4} a
       WHERE i.id=a.interface_id AND a.ipv4='%s'
         AND i.device_id != %d",
-      $edit['ipv4'],
-      $edit['id']))) {
+      $form_state['values']['ipv4'],
+      $form_state['values']['id']))) {
       $message = t('IP %ipv4 already taken in the database. Choose another or leave the address blank.',
         array('%ipv4' => $edit['ipv4']));
       form_set_error('ipv4',$message);
@@ -556,12 +550,12 @@ function guifi_edit_device_form_validate($edit,$form) {
       form_set_error('radios]['.$radio_id.'][mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$radio['mac']);
     }
   }
-  if (!empty($edit['mac'])) {
-    $mac = _guifi_validate_mac($edit['mac']);
+  if (!empty($form_state['values']['mac'])) {
+    $mac = _guifi_validate_mac($form_state['values']['mac']);
     if ($mac) {
-      $edit['mac'] = $mac;
+      $form_state['values']['mac'] = $mac;
     } else {
-      form_set_error('mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$edit['mac']);
+      form_set_error('mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$form_state['values']['mac']);
     }
   }
 
