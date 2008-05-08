@@ -681,10 +681,10 @@ function _guifi_add_hotspot_submit(&$form,&$edit,$action) {
 
 /* Add  aradio to the device */
 function _guifi_add_radio(&$form,&$edit,$action) {
-  guifi_log(GUIFILOG_TRACE, "function _guifi_add_radio()");
+  guifi_log(GUIFILOG_BASIC, "function _guifi_add_radio()",$edit);
 
   // wrong form navigation, can't do anything
-  if ($edit['r']['newradio_mode'] == null)
+  if ($action['post']['r']['newradio_mode'] == null)
     return TRUE;
 
 

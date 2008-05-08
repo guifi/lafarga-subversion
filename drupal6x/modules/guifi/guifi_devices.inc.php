@@ -5,61 +5,6 @@
  */
 
 
-/***************************************
-   device editing functions
-****************************************/
-/* guifi_device_edit_form_submit(): Performs submit actions */
-function guifi_device_edit_form_submit($form, &$form_state) {
-
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()');
-
-  if ($form_state['values']['id'])
-  if (!guifi_device_access('update',$form_state['values']['id']))
-  {
-    drupal_set_message(t('You are not authorized to edit this device','error'));
-    return;
-  }
-
-  /* Check if there is an action to take over the current form 
-  $key = false;
-  foreach($_POST as $key=>$value) 
-    if (preg_match('/^_action/',$key)) {
-      // There is 
-      // Will return to the form if is not a save operation
-      $form_values['op'] = $value;
-      break;
-    }
- */
-
-  // Take the appropiate actions 
-  switch ($form_state['clicked_button']['#value']) {
-  case t('Save & continue edit'):
-  case t('Save & exit'):
-    // action _submit hook is called only if there was an action
-    // and it's a save operation
-    if ($key) {
-      // call to the action _submit hook
-      $action = explode(',',$key);
-      $edit = $_POST;
-      if (function_exists($action[1].'_submit'))
-        call_user_func_array($action[1].'_submit',
-          array(&$edit,$action));
-    }
-    // save
-    $id = guifi_device_edit_save($form_state['values']);
-    if ($form_state['clicked_button']['#value'] == t('Save & exit'))
-      drupal_goto('guifi/device/'.$id);
-    drupal_goto('guifi/device/'.$id.'/edit');
-    break;
-  default:
-//     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
-    guifi_log(GUIFILOG_TRACE,
-      'exit guifi_device_edit_form_submit without saving...');
-    return;
-  }
-
-}
-
 /* guifi_device_load(): get a device and all its related information and builds an array */
 function guifi_device_load($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_device_load()');
@@ -260,11 +205,68 @@ function guifi_device_load($id,$ret = 'array') {
   }
 }
 
+
+/***************************************
+   device editing functions
+****************************************/
+/* guifi_device_edit_form_submit(): Performs submit actions */
+function guifi_device_edit_form_submit($form, &$form_state) {
+
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
+
+  if ($form_state['values']['id'])
+  if (!guifi_device_access('update',$form_state['values']['id']))
+  {
+    drupal_set_message(t('You are not authorized to edit this device','error'));
+    return;
+  }
+
+  /* Check if there is an action to take over the current form 
+  $key = false;
+  foreach($_POST as $key=>$value) 
+    if (preg_match('/^_action/',$key)) {
+      // There is 
+      // Will return to the form if is not a save operation
+      $form_values['op'] = $value;
+      break;
+    }
+ */
+
+  // Take the appropiate actions 
+  switch ($form_state['clicked_button']['#value']) {
+  case t('Save & continue edit'):
+  case t('Save & exit'):
+    // action _submit hook is called only if there was an action
+    // and it's a save operation
+    if ($key) {
+      // call to the action _submit hook
+      $action = explode(',',$key);
+      $edit = $_POST;
+      if (function_exists($action[1].'_submit'))
+        call_user_func_array($action[1].'_submit',
+          array(&$edit,$action));
+    }
+    // save
+    $id = guifi_device_edit_save($form_state['values']);
+    if ($form_state['clicked_button']['#value'] == t('Save & exit'))
+      drupal_goto('guifi/device/'.$id);
+    drupal_goto('guifi/device/'.$id.'/edit');
+    break;
+  default:
+//     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
+    guifi_log(GUIFILOG_TRACE,
+      'exit guifi_device_edit_form_submit without saving...');
+    return;
+  }
+
+}
+
+
 /* guifi_device_edit_form(): Present the guifi device main editing form. */
 function guifi_device_edit_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form()',$params);
+  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form()',$form_state);
   
   if (empty($form_state['values']))
     $form_state['values'] = $params;
@@ -291,19 +293,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
       return;
     }
   }
-
-
-//  if (is_null($edit))
-//  if (!is_null($_POST))
-//  $edit = $_POST;
-
-//  print "Hola edit_device_form: nid $nid, id $id, type $type, edit $edit<br>\nEDIT: ";
-//  print_r($_POST);
-//  drupal_set_message($edit);
-//  print "<br>\nedit_device_form POST: ";
-//  print_r($_POST);
-//  drupal_set_message($_POST);
-  
+ 
   // Loading node where the device belongs to (some information will be used)
   $node = node_load(array('nid'=>$form_state['values']['nid']));
 
@@ -336,20 +326,14 @@ function guifi_device_edit_form($form_state, $params = array()) {
                                             ($devs->count + 1);
   }
 
-  // Initializing the form 
-  // TODO: Set form to multistep
-  if ($id != null){
-    $form['#redirect'] = FALSE;
-  }
-
-  // Set the title of the form page
   // Look if there is any action to take
-  foreach($_POST as $key=>$values) {
+  foreach($form_state['post'] as $key=>$values) {
     if (preg_match('/^_action/',$key)) {
       $action = explode(',',$key);
+      $action['post'] = $form_state['post'];
       // There is, execute the given function  
       if (function_exists($action[1])) {
-        if (!(call_user_func_array($action[1],array(&$form,&$edit,$action)))) {
+        if (!(call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)))) {
           // if function returns FALSE, the form has been finished here, returning
           return($form);
         }
