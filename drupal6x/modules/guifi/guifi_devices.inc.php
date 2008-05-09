@@ -4,8 +4,9 @@
  * Manage guifi_devices 
  */
 
-
-/* guifi_device_load(): get a device and all its related information and builds an array */
+/*
+ * guifi_device_load(): get a device and all its related information and builds an array 
+ */
 function guifi_device_load($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_device_load()');
   
@@ -206,10 +207,10 @@ function guifi_device_load($id,$ret = 'array') {
 }
 
 
-/***************************************
-   device editing functions
-****************************************/
-/* guifi_device_edit_form_submit(): Performs submit actions */
+/*
+ * Device edit funcions
+ * guifi_device_edit_form_submit(): Performs submit actions
+ */
 function guifi_device_edit_form_submit($form, &$form_state) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
