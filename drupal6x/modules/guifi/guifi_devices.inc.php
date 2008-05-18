@@ -267,7 +267,7 @@ function guifi_device_edit_form_submit($form, &$form_state) {
 function guifi_device_edit_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form()',$form_state);
   
   if (empty($form_state['values']))
     $form_state['values'] = $params;

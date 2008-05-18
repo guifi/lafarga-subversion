@@ -414,20 +414,6 @@ function guifi_node_form_supernode($node, $param) {
   //return $output;
 }
 
-/** _guifi_line_edit_device_form(): creates an url for editing the form
- 
-  _guifi_line_edit_device_form($id:int):form
-  globals
-    $form
-*/
-function _guifi_line_edit_device_form($id) {
-  unset($form);
-  $form['id'] = array('#type' => 'hidden', '#value' => $id);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
-  $form['#action'] = url('guifi/device/'. $id.'/edit');
-  return $form;
-}
-
 function guifi_node_agreement_validate($element, &$form_state) {
   if ($element['#value'] != 'Yes'){
     form_error($element, 
@@ -825,6 +811,15 @@ function guifi_node_simple_map($node) {
     ???->guifi_node_get_url_mrtg(???):????
 **/
 function guifi_node_radio_list($node) {
+  
+  function _guifi_line_edit_device_form($node,$id) {
+    print_r($id);
+    unset($form);
+    $form['id'] = array('#type' => 'hidden', '#value' => $id);
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
+    $form['#action'] = url('guifi/device/'. $id.'/edit');
+    return $form; 
+  }
   
   $id = $node->id;
   $rows = array();
