@@ -1465,6 +1465,19 @@ function guifi_notification_validate($to) {
   return implode(', ',$trimmed);
 }
 
+function guifi_mac_validate($mac,&$form_state) {
+  $pmac = _guifi_validate_mac($mac['#value']);
+  if ($pmac == FALSE) {
+    form_error($mac,
+      t('Error in MAC address (%mac), use 99:99:99:99:99:99 format.',
+        array('%mac'=>$mac['#value'])),'error');
+  } else { 
+    form_set_value($mac,$pmac,$form_state);
+  }
+    
+  return $mac;
+}
+
 /** guifi_notify_send(): Delivers all the waiting messages and empties the queue
 */
 function guifi_notify_send() {

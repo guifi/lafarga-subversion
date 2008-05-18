@@ -408,7 +408,7 @@ function guifi_emails_validate($element, &$form_state) {
     form_error($element,
       t('Error while validating email address'));
   else 
-    $form_state['values']['notification'] = $emails;
+    form_set_value($element,$emails,$form_state);
 }
 
 function guifi_zone_master_validate($element, &$form_state) {

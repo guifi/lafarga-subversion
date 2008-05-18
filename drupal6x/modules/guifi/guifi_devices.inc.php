@@ -516,14 +516,6 @@ function guifi_device_edit_form_validate($form,&$form_state) {
       form_set_error('radios]['.$radio_id.'][mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$radio['mac']);
     }
   }
-  if (!empty($form_state['values']['mac'])) {
-    $mac = _guifi_validate_mac($form_state['values']['mac']);
-    if ($mac) {
-      $form_state['values']['mac'] = $mac;
-    } else {
-      form_set_error('mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$form_state['values']['mac']);
-    }
-  }
 
 
   // callback to device specific validation routines if there are

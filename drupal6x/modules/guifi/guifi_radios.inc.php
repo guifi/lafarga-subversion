@@ -53,10 +53,11 @@ function guifi_radio_form(&$edit) {
   $form['radio_settings']['mac'] = array(
     '#type' => 'textfield',
     '#title' => t('Device MAC Address'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#size' => 17,
     '#maxlength' => 17,
     '#default_value' => $edit['mac'],
+    '#element_validate' => array('guifi_mac_validate'),
     '#description' => t("Base/Main MAC Address.<br />Some configurations won't work if is blank"),
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
