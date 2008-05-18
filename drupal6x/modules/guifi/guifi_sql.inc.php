@@ -172,16 +172,17 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
   // Node (location)
   case 'guifi_location':
+    // cascade to node devices
     $qc = db_query("SELECT id FROM {guifi_devices} where nid = '%s'",
                     $key['id']);
-    // cascade to node devices
-    while ($device = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_devices',$device,$to_mail,$depth);      
+    while ($device = db_fetch_array($qc)) 
+      $log .= '<br>'._guifi_db_delete('guifi_devices',$device,$to_mail,$depth);
+
     // cascade to node users
     $qc = db_query("SELECT id FROM {guifi_users} where nid = '%s'",
                     $key['id']);
-    while ($user = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_users',$user,$to_mail,$depth);      
+    while ($quser = db_fetch_array($qc))
+      $log .= '<br>'._guifi_db_delete('guifi_users',$quser,$to_mail,$depth);      
 
     break;
   // delete Device

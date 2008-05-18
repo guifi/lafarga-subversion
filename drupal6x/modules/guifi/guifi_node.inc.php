@@ -492,7 +492,7 @@ function guifi_node_insert($node) {
   }
   $coord=guifi_coord_dmstod($node->londeg,$node->lonmin,$node->lonseg);
   if($coord!=NULL){
-    $nose->lon=$coord;
+    $node->lon=$coord;
   }
 
   if ($node->lat == 0){$node->lat = NULL;}
@@ -578,7 +578,9 @@ function guifi_node_update($node) {
     ???->_guifi_db_delete(???):????
     ???->guifi_notify(???):void
 **/
-function guifi_node_delete(&$node) {
+function guifi_node_delete($node) {
+  global $user;
+  $depth = 0;
   
   $to_mail = explode(',',$node->notification);
   $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
