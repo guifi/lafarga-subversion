@@ -388,6 +388,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
     '#weight' => 1,
     '#title' => t('contact'),
     '#required' => TRUE,
+    '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $form_state['values']['notification'],
     '#description' =>  t('Mailid where changes on the device will be notified, if many, separated by \',\'<br />used for network administration.')
   );
@@ -481,22 +482,6 @@ function guifi_device_edit_form_validate($form,&$form_state) {
       form_set_error('nick', t('Nick already in use.'));      
     }
   }
-
-  // contact
-  if (empty($form_state['values']['notification'])) {
-    form_set_error(
-      'notification',
-      $form_state['values']['contact'].
-      t('You must set a contact address for this device.'));
-  }
-  $emails = guifi_notification_validate($form_state['values']['notification']);
-  if (!$emails) {
-    form_set_error(
-      'notification',
-      t('Error while validating email address'));
-  } else
-    form_set_value($form['main']['notification'],$emails);
-
 
   // ssid
   if (empty($form_state['values']['ssid'])) {
@@ -1239,8 +1224,8 @@ function guifi_device_print_data($device) {
   return array_merge($rows);
 }
 
-/* guifi_links_print_data(): outputs the device link data, create an array of rows per each link */
-function guifi_links_print_data($id) {
+/* guifi_device_links_print_data(): outputs the device link data, create an array of rows per each link */
+function guifi_device_links_print_data($id) {
   $query = db_query("
     SELECT i.*,a.ipv4,a.netmask
     FROM {guifi_interfaces} i, {guifi_ipv4} a
@@ -1253,8 +1238,8 @@ function guifi_links_print_data($id) {
   return array_merge($rows);
 }
   
-/* guifi_interfaces_print_data(): outputs the device interfaces data */
-function guifi_interfaces_print_data($id) {
+/* guifi_device_interfaces_print_data(): outputs the device interfaces data */
+function guifi_device_interfaces_print_data($id) {
   $rows = array();
   $query = db_query("
     SELECT i.*,a.ipv4,a.netmask, a.id ipv4_id
@@ -1305,7 +1290,7 @@ function guifi_device_print($device = NULL) {
     if (arg(4) == 'links') break;
   case 'interfaces':
     $header = array(t('id'),t('type'),t('ip address'),t('netmask'),t('mac'));
-    $table = theme('table', $header, guifi_interfaces_print_data($device[id]));
+    $table = theme('table', $header, guifi_device_interfaces_print_data($device[id]));
     $output .= theme('box', t('interfaces information'), $table);
     break;
   case 'services':
