@@ -960,10 +960,10 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
 
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
-    if ($zone->id == $rzone->id)
-      $tnets = db_num_rows($result);
-
+    $tnets = 0;
+    
     while ($net = db_fetch_object($result)) {
+      $tnets++;
       //  print "Going to find a slot ".$mask_allocate." at: ".$net->base."/".$net->mask."\n<br />";
       $item = _ipcalc($net->base,$net->mask);
       if ($ip = guifi_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {

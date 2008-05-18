@@ -326,7 +326,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
       $node->nick.ucfirst(guifi_trim_vowels($form_state['values']['type'])).
                                             ($devs->count + 1);
   }
-
+  
   // Look if there is any action to take
   foreach($form_state['post'] as $key=>$values) {
     if (preg_match('/^_action/',$key)) {
@@ -334,10 +334,10 @@ function guifi_device_edit_form($form_state, $params = array()) {
       $action['post'] = $form_state['post'];
       // There is, execute the given function  
       if (function_exists($action[1])) {
-        if (!(call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)))) {
-          // if function returns FALSE, the form has been finished here, returning
-          return($form);
-        }
+//        if (!(call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)))) {
+        call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)); 
+//                  return($form);
+//        }
       }
     }
   }
@@ -505,6 +505,7 @@ function guifi_device_edit_form_validate($form,&$form_state) {
 
   // Validates the mac address
   // radio MACs
+  /*
   if (isset($edit['radios'])) foreach ($edit[radios] as $radio_id=>$radio) 
   if (!empty($radio['mac'])) {
     $mac = _guifi_validate_mac($radio['mac']);
@@ -516,6 +517,7 @@ function guifi_device_edit_form_validate($form,&$form_state) {
       form_set_error('radios]['.$radio_id.'][mac',t('Error in MAC address, use 00:00:00:00:00:00 format.').' '.$radio['mac']);
     }
   }
+  */
 
 
   // callback to device specific validation routines if there are
