@@ -213,7 +213,16 @@ function guifi_device_load($id,$ret = 'array') {
  */
 function guifi_device_edit_form_submit($form, &$form_state) {
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
+  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form_submit()',$form_state);
+  
+  switch ($form_state['values']['op']) {
+  case t('Add new radio'):
+    guifi_log(GUIFILOG_BASIC,'Add new radio has been clicked');
+    _guifi_add_radio($form_state);
+    $form_state['rebuild'] = true;
+    $form_state['my_data'] = $form_state['values'];
+    return;    
+  }
 
   if ($form_state['values']['id'])
   if (!guifi_device_access('update',$form_state['values']['id']))
@@ -267,7 +276,7 @@ function guifi_device_edit_form_submit($form, &$form_state) {
 function guifi_device_edit_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form()',$form_state);
+  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form()',$form_state);
   
   if (empty($form_state['values']))
     $form_state['values'] = $params;

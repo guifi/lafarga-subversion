@@ -210,7 +210,8 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#type' => 'button',
         '#parents' => array('r','AddRadio'),
         '#value' => t('Add new radio'),
-        '#name'=>'_action,_guifi_add_radio',
+        '#executes_submit_callback' => true,
+//        '#name'=>'_action,_guifi_add_radio',
         '#prefix' => '<td style="width: 10em" align="left">',
         '#suffix' => '</td><td style="width: 100%" align="right">&nbsp</td></tr>',
         '#weight' => 21,
@@ -686,20 +687,21 @@ function _guifi_add_hotspot_submit(&$form,&$edit,$action) {
 }
 
 /* Add  aradio to the device */
-function _guifi_add_radio(&$form,&$edit,$action) {
+function _guifi_add_radio(&$form_state) {
   guifi_log(GUIFILOG_BASIC, "function _guifi_add_radio()",$action);
 
   // wrong form navigation, can't do anything
-  if ($action['post']['r']['newradio_mode'] == null)
+  if ($form_state['values']['r']['newradio_mode'] == null)
     return TRUE;
 
+  $edit = $form_state['values'];
 
   // next id
   $rc = 0; // Radio radiodev_counter next pointer
   $tc = 0; // Total active radios
 
   // fills $rc & $tc proper values
-  if (isset($edit[radios])) foreach ($edit['radios'] as $k=>$r) 
+  if (isset($edit['radios'])) foreach ($edit['radios'] as $k=>$r) 
     if ($k+1 > $rc)  {
       $rc = $k+1;
       if (!$edit['radios'][$k][delete])
@@ -771,7 +773,7 @@ function _guifi_add_radio(&$form,&$edit,$action) {
  //   $action[3] = $tc;
  //   _guifi_device_buttons($form,$action,$form_weight);
  
-    $edit['radios'][$rc] = $radio;
+    $form_state['values']['radios'][$rc] = $radio;
 
     drupal_set_title(t('Create a radio at %dname',array('%dname'=> $edit['nick'])));
 
@@ -779,7 +781,7 @@ function _guifi_add_radio(&$form,&$edit,$action) {
 }
 
 function _guifi_add_radio_submit(&$edit,$action) {
-  guifi_log(GUIFILOG_TRACE, "function _guifi_add_radio_submit()");
+  guifi_log(GUIFILOG_TRACE, "function _submit()");
 
   $rc = $action[2];
   $tc = $action[3];
