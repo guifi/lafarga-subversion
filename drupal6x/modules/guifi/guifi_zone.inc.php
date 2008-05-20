@@ -857,9 +857,9 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
   if ($page) {
     $node->content['body']['#value'] = 
       theme_table(null,array(
+          array($node->body),
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_zone_print($node->nid).'</small>','width'=>'50%'),
                                              array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
-          array($node->body),
  //         array(guifi_zone_print($node->nid)),
           array(guifi_zone_nodes($node,true))
         )

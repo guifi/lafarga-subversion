@@ -87,6 +87,8 @@ Developer's tips & tricks:
 - Feel free to provide patches to the current SUBVERSION release
 - You can activate trace levels by going to the guifi.net configuration page
   (Administer->Site configuration->guifi.net)
+- You can use our template with an Zone, nodes and network examples. Requiere FULL clean drupal and guifi.net module installation.
+  You can find it on a contrib/template/sample.sql file.
   
 NOTES:
   Local LOS graphs require the gnuplot package installed and a grid file,

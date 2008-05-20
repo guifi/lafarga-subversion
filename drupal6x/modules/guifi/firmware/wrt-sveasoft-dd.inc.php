@@ -97,11 +97,6 @@ function guifi_unsolclic_startup($dev, $version, $rc_startup) {
 }
 }
 
-
-function guifi_unsolclic_if($id, $itype) {
-  return db_fetch_object(db_query("SELECT i.id, a.ipv4, a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=0 WHERE device_id = %d AND interface_type = '%s' LIMIT 1",$id,$itype));
-}
-
 function guifi_get_alchemy_ifs($dev) {
   $ifs = array (
            'wLan/Lan' => 'br0',
@@ -340,7 +335,6 @@ function guifi_unsolclic_network_vars($dev,$zone) {
      else {
        _outln_nvram('wan_proto','static');
        _outln_nvram('wan_ipaddr',$wan->ipv4);
-//       _outln_nvram('wan_gateway',$item['netstart']);
        _outln_nvram('wan_netmask',$wan->netmask);
        if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')){
 	  _outln_nvram('fullswitch','1');
@@ -368,7 +362,13 @@ function guifi_unsolclic_network_vars($dev,$zone) {
    _outln_nvram('wl_frameburst','on');
    // Setting outpur power (mW)
    _outln_nvram('txpwr','28');
-   _outln_nvram('txant','0');
+    if (empty($dev->radios[0][antmode]))
+         $dev->radios[0][antmode]= 'Main';
+        if ($dev->radios[0][antmode] != 'Main') 
+          $dev->radios[0][antmode]= '1';
+        else
+          $dev->radios[0][antmode]= '0';
+   _outln_nvram('txant',$dev->radios[0][antmode]);
    _outln_nvram('wl0_antdiv','0');
    _outln_nvram('wl_antdiv','0');
    _outln_nvram('block_wan','0');

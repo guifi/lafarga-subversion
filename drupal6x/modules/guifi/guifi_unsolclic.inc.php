@@ -25,17 +25,22 @@ function guifi_unsolclic($id, $format = 'html') {
  // include specific firmware here
  include_once("firmware/mikrotik-routeros.inc.php");    // RouterOs Firmware
  include_once("firmware/wrt-sveasoft-dd.inc.php");      // WRT based firmwares (DD-guifi, DD-WRT, Alchemy and Talisman)
+ include_once("firmware/nanostation.inc.php");          // Ubutiqui NanoStation2 and Nanostation5 Firmware
  include_once("firmware/firmware-todo.inc.php");        // TODO firmwares
  
  switch ($dev->variable['firmware']) {
  case 'RouterOSv2.9': unsolclic_routeros($dev);
-                       exit;
+ case 'RouterOSv3.x': unsolclic_routeros($dev);
+                      exit;
                       break;
  case 'DD-guifi':
  case 'DD-WRT':
  case 'Alchemy':
  case 'Talisman': unsolclic_wrt($dev);
-                       exit;
+                      exit;
+                      break;
+ case 'NanoStation': unsolclic_nano($dev);
+                      exit;
                       break;
  case 'Freifunk-BATMAN':
  case 'Freifunk-OLSR':
@@ -106,6 +111,10 @@ function _out($value = '', $end = '') {
   global $otype;
   print "    ".$value.$end;
   if ($otype == 'html') print "\n<br />"; else print "\n";
+}
+
+function guifi_unsolclic_if($id, $itype) {
+  return db_fetch_object(db_query("SELECT i.id, a.ipv4, a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=0 WHERE device_id = %d AND interface_type = '%s' LIMIT 1",$id,$itype));
 }
 
 function guifi_get_dns($zone,$max = 3) {

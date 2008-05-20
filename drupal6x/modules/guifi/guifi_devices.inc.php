@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
  * @file
  * Manage guifi_devices 

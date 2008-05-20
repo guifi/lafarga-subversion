@@ -287,7 +287,7 @@ function guifi_devices_select($filters) {
     $query = db_query("
       SELECT
         l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id,
-        r.radiodev_counter, r.ssid, r.mode
+        r.radiodev_counter, r.ssid, r.mode, r.antmode
       FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z
       WHERE l.id<>%d
         AND r.nid=l.id

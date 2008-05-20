@@ -170,7 +170,8 @@ function guifi_schema() {
          'antenna_angle' => array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'disp-width' => '4'),
          'antenna_gain' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '4'),
          'antenna_azimuth' => array('type' => 'int', 'not null' => FALSE, 'default' => 360, 'disp-width' => '4'),
-         'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes')),
+         'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
+         'antmode' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE)),
     'primary key' => array('id', 'radiodev_counter'),
     'indexes' => array(
          'nid' => array('nid')),

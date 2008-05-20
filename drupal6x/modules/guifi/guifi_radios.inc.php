@@ -340,6 +340,18 @@ function _guifi_radio_form(&$form, $radio, $key, &$form_weight = -200) {
         '#options' => drupal_map_assoc(array( 0=>'Yes',1=>'No')),
         '#description' => t('Do this radio accept connections from clients?'),
         '#prefix'=>'<td>',
+        '#suffix'=>'</td>',
+        '#weight' => $fw2++,   
+      );
+      $form['r']['radios'][$key]['antmode'] = array(
+        '#type' => 'select',
+        '#parents'=> array('radios',$key,'antmode'),
+        '#title' => t("Antenna connector"),
+        '#required' => TRUE,
+        '#default_value' =>  $radio["antmode"],
+        '#options' => drupal_map_assoc(array( 0=>'',1=>'Main',2=>'Aux')),
+        '#description' => t('Leave blank to skip changes<br>MiniPci/Linksys/Nanostation<br>Main/Right/Integrated -  Aux/Left/Extern'),
+        '#prefix'=>'<td>',
         '#suffix'=>'</td></tr></table>',
         '#weight' => $fw2++,   
       );
