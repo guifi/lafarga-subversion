@@ -949,14 +949,26 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
 
   global $user;
 
-  $zone_fetch = db_fetch_object(db_query("SELECT l.zone_id id, z.master FROM {guifi_location} l LEFT JOIN {guifi_zone} z ON l.zone_id=z.id WHERE l.id=%d",$nid));
+  $zone_fetch = db_fetch_object(db_query(
+      "SELECT l.zone_id id, z.master 
+       FROM {guifi_location} l 
+         LEFT JOIN {guifi_zone} z ON l.zone_id=z.id 
+       WHERE l.id=%d",
+       $nid));
   $zone = guifi_zone_load($zone_fetch->id);
   $rzone = $zone;
 
   $depth = 0;
   $root_zone = $zone->id;
   do {
-    $result = db_query('SELECT n.id, n.base, n.mask FROM {guifi_networks} n WHERE n.valid = 1 AND n.zone = "%s" AND network_type="%s" ORDER BY n.id',$zone->id,$network_type);
+    $result = db_query(
+        'SELECT n.id, n.base, n.mask ' .
+        'FROM {guifi_networks} n ' .
+        'WHERE n.valid = 1 ' .
+        '  AND n.zone = "%s" ' .
+        '  AND network_type="%s" ' .
+        'ORDER BY n.id',
+        $zone->id,$network_type);
 
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
@@ -1262,7 +1274,7 @@ function guifi_cnml_tree($zid) {
 }
 
 
-function guifi_form_hidden(&$form,$var,&$form_weight = -200) {
+function guifi_form_hidden(&$form,$var,&$form_weight = -2000) {
 
 //  guifi_log(GUIFILOG_TRACE,'function guifi_form_hidden()');
 

@@ -213,14 +213,14 @@ function guifi_device_load($id,$ret = 'array') {
  */
 function guifi_device_edit_form_submit($form, &$form_state) {
 
-  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form_submit()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
   
   switch ($form_state['values']['op']) {
   case t('Add new radio'):
-    guifi_log(GUIFILOG_BASIC,'Add new radio has been clicked');
-    _guifi_add_radio($form_state);
+    guifi_log(GUIFILOG_TRACE,'Add new radio has been clicked');
+    $newRadio = guifi_radio_add_radio($form_state);
     $form_state['rebuild'] = true;
-    $form_state['my_data'] = $form_state['values'];
+    $form_state['newRadio'] = $newRadio;
     return;    
   }
 
@@ -276,7 +276,7 @@ function guifi_device_edit_form_submit($form, &$form_state) {
 function guifi_device_edit_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_BASIC,'function guifi_device_edit_form()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form()',$form_state);
   
   if (empty($form_state['values']))
     $form_state['values'] = $params;
@@ -336,8 +336,16 @@ function guifi_device_edit_form($form_state, $params = array()) {
                                             ($devs->count + 1);
   }
   
+  if (!empty($form_state['newRadio'])) { 
+    drupal_set_message(t('Radio %ssid added in mode %mode.',
+       array('%ssid'=>$form_state['newRadio']['ssid'],
+             '%mode'=>$form_state['newRadio']['mode'])));
+    $form_state['values']['radios'][$form_state['newRadio']['rc']] = $form_state['newRadio'];
+    unset($form_state['newRadio']);
+  }
+  
   // Look if there is any action to take
-  foreach($form_state['post'] as $key=>$values) {
+/*  foreach($form_state['post'] as $key=>$values) {
     if (preg_match('/^_action/',$key)) {
       $action = explode(',',$key);
       $action['post'] = $form_state['post'];
@@ -350,6 +358,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
       }
     }
   }
+*/
 
   $form_weight = -20;
   guifi_form_hidden($form,$form_state['values']);
@@ -417,8 +426,8 @@ function guifi_device_edit_form($form_state, $params = array()) {
   if (function_exists('guifi_'.$form_state['values']['type'].'_form')){
     $form = array_merge($form,
       call_user_func('guifi_'.$form_state['values']['type'].'_form',
-      $form_state['values'],
-      $form_weight));
+        $form_state['values'],
+        $form_weight));
   }
 
   // Cable interfaces/links
