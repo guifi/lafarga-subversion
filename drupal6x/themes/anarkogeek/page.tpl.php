@@ -1,6 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="<?php print $language; ?>" xml:lang="<?php print $language; ?>">
+<?php
+// $Id: page.tpl.php,v 1.28 2008/01/24 09:42:52 goba Exp $
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<?php print $language->language ?>" xml:lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
 <head>
   <title><?php print $head_title ?></title>
   <meta http-equiv="Content-Style-Type" content="text/css" />
@@ -9,17 +10,17 @@
   <!--[if IE]>
 	    <style type="text/css">
 	      @import "<?php print base_path(). path_to_theme(); ?>/ie-fixes.css";</style>
-	  <![endif]-->
-	<!--[if IE 7]>
+  <![endif]-->
+  <!--[if IE 7]>
 	    <style type="text/css">
 	      @import "<?php print base_path(). path_to_theme(); ?>/ie7-fixes.css";</style>
-	  <![endif]-->
+  <![endif]-->
 	
   <?php print $scripts ?>
   <script type="text/javascript"> </script>
 </head>
 <body>
-<?php print $fontsize_init ?>
+<div <?php print $body_attributes; ?>>
 <div class="bw1"><div class="bw2"><div id="body-wrap">
 
 <div id="header"><div class="hw1"><div class="hw2">
@@ -45,13 +46,6 @@
 
     <?php if (is_array($secondary_links) && !empty($secondary_links)): ?>
       <ul id="secondary">
-     <li>
-     <a href="ca"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/ca.png"  class="i18n-flag" width="16" height="12" alt="Catalan" /> </a> 
-     <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/en.png"  class="i18n-flag" width="16" height="12" alt="English" /> </a>
-     <a href="en"><img src="<?php print base_path(). drupal_get_path('module', 'i18n'); ?>/flags/es.png"  class="i18n-flag" width="16" height="12" alt="Spanish" /> </a>
-     </li>
-     <li><?php print $fontsize_links ?></li>
-
     <?php foreach (array_reverse($secondary_links) as $link): ?>
       <li><?php print phptemplate_wrap_links($link, 2); ?></li>
       <?php endforeach; ?>
@@ -63,11 +57,11 @@
 <div id="content" class="content-<?php print $layout; ?>">
     <div class="cw1"><div class="cw2"><div class="cw3"><div class="cw4"><div class="cw5"><div class="cw7">
  <div id="content-wrap" class="content-wrap-<?php print $layout; ?>">
-  <?php if ($sidebar_left != ""): ?>
+  <?php if ($left != ""): ?>
     <div class="sidebar" id="sidebar-left">
       <?php 
         // Mark first block title
-        list($a, $b) = explode('<h2>', $sidebar_left, 2);
+        list($a, $b) = explode('<h2>', $left, 2);
         print $a . '<h2 class="first">' . $b;
       ?>
     </div>
@@ -93,7 +87,7 @@
       <p id="help"><?php print $help; ?></p>
     <?php endif; ?>
         
-    <?php if ($messages): ?>
+    <?php if ($show_messages && $messages): ?>
       <div id="message"><?php print $messages; ?></div>
     <?php endif; ?>
         
@@ -105,12 +99,12 @@
   </div></div>
  </div>
 </div>
- <?php if ($sidebar_right): ?>
+ <?php if ($right): ?>
  <div class="sidebar" id="sidebar-right">
    <span id="sidebar-right-top"></span>
    <?php
      // Mark first block title
-     list($a, $b) = explode('<h2>', $sidebar_right, 2);
+     list($a, $b) = explode('<h2>', $right, 2);
      print $a . '<h2 class="first">' . $b;
    ?>
  </div>
@@ -119,5 +113,7 @@
 </div></div></div></div></div></div></div>
 
 <?php print $closure;?>
-</div></div></div><div id="end" class="end-<?php print $layout; ?>"><div class="ew1"><div class="ew2"></div></div></div></body>
+</div></div></div><div id="end" class="end-<?php print $layout; ?>"><div class="ew1"><div class="ew2"></div></div></div>
+</div>
+</body>
 </html>

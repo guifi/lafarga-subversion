@@ -104,7 +104,7 @@ body, input, textarea, select, option, legend, fieldset {
   _margin-right: 0px;
 }
 #content-wrap {
-  float: left;
+
   position: relative;
 }
 .content-wrap-right, .content-wrap-both {

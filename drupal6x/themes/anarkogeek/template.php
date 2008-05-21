@@ -22,11 +22,25 @@ function phptemplate_wrap_links($link, $n) {
     return $link;
 }
 
+function phptemplate_menu_item_link($link) {
+   if (empty($link['options'])) {
+    $link['options'] = array();
+  }
 
-function phptemplate_menu_item_link($item, $link_item) {
-  /* Wrapper span */
-  return l('<span class="lw1">'. check_plain($item['title']) .'</span>', $link_item['path'], array_key_exists('description', $item) ? array('title' => $items['description']) : array(), NULL, NULL, FALSE, TRUE);
+  // If an item is a LOCAL TASK, render it as a tab
+  if ($link['type'] & MENU_IS_LOCAL_TASK) {
+    $link['title'] = '<span class="lw1">' . check_plain($link['title']) . '</span>';
+    $link['options']['html'] = TRUE;
+  }
+
+  if (empty($link['type'])) {
+    $true = TRUE;
+  }
+
+  return l($link['title'], $link['href'], $link['options']);
 }
+
+
 
 function phptemplate_comment_thread_collapsed($comment) {
   if ($comment->depth) {
