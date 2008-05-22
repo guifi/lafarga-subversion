@@ -17,9 +17,10 @@ body {
   margin: 0px;
   padding: 0px;
   min-width: 780px;
+
 }
 body, input, textarea, select, option, legend, fieldset {
-  font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, "Trebuchet MS", sans-serif;
+  font: 17px/120% "Lucida Sans Unicode", sans-serif;
 }
 #body-wrap {
   margin: 0px 33px;
@@ -371,15 +372,24 @@ pre, tt, code {
 table td {
   padding: 3px;
 }
+
 table {
-  margin: 0.5em 0px 1em;
+  margin: 1em 0;
+  width: 100%;
 }
+
 li {
   margin: 0.2em 0px;
 }
+
 tr {
   border-bottom: 1px solid #bfd0d9;
 }
+
+td, th {
+  padding: .3em .5em;
+}
+
 tr.odd {
   background: #eee;
   border-bottom: 0px;
@@ -388,6 +398,14 @@ tr.even {
   background: #fff;
   border-bottom: 0px;
 }
+tr.drag {
+  background-color: #fffff0;
+}
+
+tr.drag-previous {
+  background-color: #ffd;
+}
+
 tr.odd td.active {
   background: #eee
   border-bottom: 0px;
