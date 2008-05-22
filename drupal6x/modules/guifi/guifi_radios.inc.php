@@ -639,7 +639,7 @@ function _guifi_add_wlan_submit(&$form,&$edit,$action) {
   $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
   //   print_r($ips_allocated);
   $net = guifi_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
-  guifi_log(GUIFULOG_FULL,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/27");
+  guifi_log(GUIFILOG_FULL,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/27");
   $interface['ipv4'][$radio]=array();
   $interface['ipv4'][$radio]['new']=true;
   $interface['ipv4'][$radio]['ipv4']=guifi_ip_op($net);

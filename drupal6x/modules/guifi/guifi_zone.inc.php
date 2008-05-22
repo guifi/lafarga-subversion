@@ -303,7 +303,7 @@ function guifi_zone_map_help($rid) {
 
 
 function guifi_zone_hidden_map_fileds($node) {
-  $output  = '<from><input type="hidden" id="minx" value="'.$node->minx.'"/>';
+  $output  = '<form><input type="hidden" id="minx" value="'.$node->minx.'"/>';
   $output .= '<input type="hidden" id="miny" value="'.$node->miny.'"/>';
   $output .= '<input type="hidden" id="maxx" value="'.$node->maxx.'"/>';
   $output .= '<input type="hidden" id="maxy" value="'.$node->maxy.'"/>';
@@ -855,14 +855,16 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
   
   if ($page) {
-    $node->content['body']['#value'] = 
+    $node->content['table']= array(
+    '#value' =>
       theme_table(null,array(
-          array($node->body),
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_zone_print($node->nid).'</small>','width'=>'50%'),
                                              array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
  //         array(guifi_zone_print($node->nid)),
           array(guifi_zone_nodes($node,true))
-        )
+        ),array('width'=>'100%')
+      ),
+     '#weight' => 1,
       );
         
     return $node;

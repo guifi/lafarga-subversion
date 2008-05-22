@@ -1122,14 +1122,13 @@ function guifi_set_node_flag($id) {
 
   $status = 'Planned';
   $query = db_query("SELECT d.id, d.flag FROM {guifi_devices} d WHERE d.nid = %d",$id);
-  if (db_num_rows($query) > 0) 
+  if ($query > 0) 
   while ($device = db_fetch_object($query)) {
     if ($status != 'Working') 
       $status = $device->flag;
   } // eof while devices
   db_query("UPDATE {guifi_location} SET status_flag = '%s' WHERE id = %d",$status,$id);   
 }
-
 
 define('GUIFILOG_NONE',0);
 define('GUIFILOG_BASIC',1);

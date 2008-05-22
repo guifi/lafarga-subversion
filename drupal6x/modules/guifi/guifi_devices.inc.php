@@ -911,6 +911,8 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
     $log,
     $verbose,
     $notify);
+
+  guifi_set_node_flag($edit['nid']);
     
   return $ndevice['id'];
 
