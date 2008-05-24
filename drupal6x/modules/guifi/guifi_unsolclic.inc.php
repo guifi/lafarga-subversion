@@ -21,34 +21,42 @@ function guifi_unsolclic($id, $format = 'html') {
 	_outln_comment($dev->variable['firmware']);
   }
 
- // Mainstream is for Linksys type firmwares, if others, branch
- // include specific firmware here
- include_once("firmware/mikrotik-routeros.inc.php");    // RouterOs Firmware
- include_once("firmware/wrt-sveasoft-dd.inc.php");      // WRT based firmwares (DD-guifi, DD-WRT, Alchemy and Talisman)
- include_once("firmware/nanostation.inc.php");          // Ubutiqui NanoStation2 and Nanostation5 Firmware
- include_once("firmware/firmware-todo.inc.php");        // TODO firmwares
+  // Mainstream is for Linksys type firmwares, if others, branch
+  // include specific firmware here
+  include_once("firmware/mikrotik-routeros.inc.php");	// RouterOs Firmware
+  include_once("firmware/wrt-sveasoft-dd.inc.php");	// WRT based firmwares (DD-guifi, DD-WRT, Alchemy and Talisman)
+  include_once("firmware/nanostation.inc.php");		// Ubutiqui NanoStation2 and Nanostation5 Firmware
+  include_once("firmware/kamikaze.inc.php");		// OpenWRT Kamikaze Firmware
+  include_once("firmware/firmware-todo.inc.php");	// TODO firmwares
  
- switch ($dev->variable['firmware']) {
- case 'RouterOSv2.9': unsolclic_routeros($dev);
- case 'RouterOSv3.x': unsolclic_routeros($dev);
-                      exit;
-                      break;
- case 'DD-guifi':
- case 'DD-WRT':
- case 'Alchemy':
- case 'Talisman': unsolclic_wrt($dev);
-                      exit;
-                      break;
- case 'NanoStation': unsolclic_nano($dev);
-                      exit;
-                      break;
- case 'Freifunk-BATMAN':
- case 'Freifunk-OLSR':
- case 'kamikaze': 
- case 'whiterussian': unsolclic_todo($dev);
-                       exit;
-                      break;
- }
+  switch ($dev->variable['firmware']) {
+    case 'RouterOSv2.9':
+    case 'RouterOSv3.x':
+      unsolclic_routeros($dev);
+      exit;
+      break;
+    case 'DD-guifi':
+    case 'DD-WRT':
+    case 'Alchemy':
+    case 'Talisman':
+      unsolclic_wrt($dev);
+      exit;
+      break;
+    case 'NanoStation':
+      unsolclic_nano($dev);
+      exit;
+      break;
+    case 'kamikaze':
+      unsolclic_kamikaze($dev);
+      exit;
+      break;
+    case 'Freifunk-BATMAN':
+    case 'Freifunk-OLSR':
+    case 'whiterussian':
+      unsolclic_todo($dev);
+      exit;
+      break;
+  }
 
 
  if ($dev->radios[0]->mode == 'client') {
