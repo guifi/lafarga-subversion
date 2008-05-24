@@ -36,6 +36,15 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
 
     $it = $interface['interface_type'];
     $ilist[$it] = $ki;
+    
+    $form['interfaces'][$ki]['id'] = array(
+      '#type'=>'hidden',
+      '#parents'=>array('interfaces',$ki,'id'),
+      '#value'=>$interface['id']);
+    $form['interfaces'][$ki]['interface_type'] = array(
+      '#type'=>'hidden',
+      '#parents'=>array('interfaces',$ki,'interface_type'),
+      '#value'=>$interface['interface_type']);
 
     if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {

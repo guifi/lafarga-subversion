@@ -234,7 +234,7 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
 
   if ($ipv4['deleted'])
     return 0;
-
+    
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
   if (count($tree)>4)
@@ -249,7 +249,7 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
   {
     // multilink set
     $multilink = TRUE;
-    $f = array(
+    $f['local'] = array(
       '#type' => 'fieldset',
       '#parents' => $tree,
       '#title' => $ipv4['ipv4'].' / '.
@@ -262,6 +262,10 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
       '#weight' => $weight++,
     );
     $prefix = '<table><tr><td>';
+    $f['local']['id'] = array(
+        '#type'=> 'hidden',
+        '#parents'=>array_merge($tree,array('id')),
+        '#default_value'=>$ipv4['id']);
     if (user_access('administer guifi networks')) {
       $f['local']['ipv4'] = array(
         '#type'=> 'textfield',

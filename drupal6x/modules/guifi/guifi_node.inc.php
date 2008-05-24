@@ -813,8 +813,6 @@ function guifi_node_simple_map($node) {
 function guifi_node_radio_list($node) {
   
   function _guifi_line_edit_device_form($node,$id) {
-    print_r($id);
-    unset($form);
     $form['id'] = array('#type' => 'hidden', '#value' => $id);
     $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
     $form['#action'] = url('guifi/device/'. $id.'/edit');
