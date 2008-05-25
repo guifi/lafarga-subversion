@@ -250,16 +250,6 @@ function guifi_device_edit_form_submit($form, &$form_state) {
   switch ($form_state['clicked_button']['#value']) {
   case t('Save & continue edit'):
   case t('Save & exit'):
-    // action _submit hook is called only if there was an action
-    // and it's a save operation
-    if ($key) {
-      // call to the action _submit hook
-      $action = explode(',',$key);
-      $edit = $_POST;
-      if (function_exists($action[1].'_submit'))
-        call_user_func_array($action[1].'_submit',
-          array(&$edit,$action));
-    }
     // save
 //    print_r($form_state['values']);
 //    exit;
@@ -558,7 +548,7 @@ function guifi_device_edit_form_validate($form,&$form_state) {
       $form_state['values']['ipv4'],
       $form_state['values']['id']))) {
       $message = t('IP %ipv4 already taken in the database. Choose another or leave the address blank.',
-        array('%ipv4' => $edit['ipv4']));
+        array('%ipv4' => $form_state['values']['ipv4']));
       form_set_error('ipv4',$message);
     }
   }
@@ -581,10 +571,10 @@ function guifi_device_edit_form_validate($form,&$form_state) {
 
 
   // callback to device specific validation routines if there are
-  if (function_exists('guifi_'.$edit['type'].'_validate'))
-    call_user_func('guifi_'.$edit['type'].'_validate',$edit,$form);
+  if (function_exists('guifi_'.$form_state['values']['type'].'_validate'))
+    call_user_func('guifi_'.$form_state['values']['type'].'_validate',$form_state['vaues'],$form);
 
-  guifi_links_validate($edit,$form);
+  guifi_links_validate($form_state['values'],$form);
 }
 
 /* functions to save interfaces, old code to be removed, for reference {
@@ -965,7 +955,7 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   $log = '';
 
 
-  guifi_log(GUIFILOG_TRACE,'going to SQL for interface',$interface);
+  guifi_log(GUIFILOG_BASIC,sprintf('guifi_device_edit_interface_save (id=%d)',$iid),$interface);
   
   $ninterface = _guifi_db_sql(
     'guifi_interfaces',
@@ -974,12 +964,16 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   if (empty($ninterface))
     return $log;
 
+  guifi_log(GUIFILOG_BASIC,'SQL interface',$ninterface);
   // ipv4
   if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
     $ipv4['interface_id'] = $ninterface['id'];
+    guifi_log(GUIFILOG_BASIC,sprintf('SQL ipv4 (id=%d, iid=%d)',
+      $ipv4_id,$ipv4['interface_id']),
+      $ipv4);
     $nipv4 = _guifi_db_sql(
       'guifi_ipv4',
-      array('id'=>$ipv4_id,'interface_id'=>$interface['id']),$ipv4,$log,$to_mail);
+      array('id'=>$ipv4_id,'interface_id'=>$ipv4['interface_id']),$ipv4,$log,$to_mail);
     if (empty($nipv4))
       continue;
 
@@ -1385,11 +1379,6 @@ function guifi_device_links_print($device,$ltype = '%') {
     $title = t('links');
   else
   $title = t('links').' ('.$ltype.')';
-
-  unset($rows);
-  unset($rows_wds);
-  unset($rows_ap_client);
-  unset($rows_cable);
 
   $rows_wds[] = array(array('data'=>'<strong>'.t('bridge wds/p2p').'</strong>','colspan'=>2));
   $rows_ap_client[] = array(array('data'=>'<strong>'.t('ap/client').'</strong>','colspan'=>2));

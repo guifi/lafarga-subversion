@@ -32,19 +32,11 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
     if ($interface['deleted'])
       continue;
 
+    guifi_log(GUIFILOG_BASIC,sprintf('cable interface %d',$ki),$interface);
     $interfaces_count++;
 
     $it = $interface['interface_type'];
     $ilist[$it] = $ki;
-    
-    $form['interfaces'][$ki]['id'] = array(
-      '#type'=>'hidden',
-      '#parents'=>array('interfaces',$ki,'id'),
-      '#value'=>$interface['id']);
-    $form['interfaces'][$ki]['interface_type'] = array(
-      '#type'=>'hidden',
-      '#parents'=>array('interfaces',$ki,'interface_type'),
-      '#value'=>$interface['interface_type']);
 
     if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {
@@ -109,7 +101,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
     $form['interfaces'][$ilist[$it]] = array(
       '#type' => 'fieldset',
       '#title' => $title,
-      '#weight' => $weight++,
+      '#weight' => $fw++,
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
@@ -128,14 +120,19 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
           '#type' => 'button',
           '#parents'=>array('interfaces',$ilist[$it],'delete_interface'),
           '#value'=>t('Delete interface'),
-          '#name'=>implode(',',array(
-               '_action',
-               '_guifi_delete_interface',
-               $rk,$ilist[$it]
-               )),
-          '#weight' => $weight++,
+          '#executes_submit_function' => true,
+          '#weight' => $fw++,
         );
     }
+    $form['interfaces'][$ki]['id'] = array(
+      '#type'=>'hidden',
+      '#parents'=>array('interfaces',$ki,'id'),
+//      '#value'=>$interface['id']);
+      '#value'=>$ki);
+    $form['interfaces'][$ki]['interface_type'] = array(
+      '#type'=>'hidden',
+      '#parents'=>array('interfaces',$ki,'interface_type'),
+      '#value'=>$interface['interface_type']);
   }
   $form['interfaces']['#title'] .= ' - '.
     $interfaces_count.' '.t('interface(s)').' - '.
