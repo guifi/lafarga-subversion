@@ -26,7 +26,6 @@ function guifi_unsolclic($id, $format = 'html') {
   include_once("firmware/mikrotik-routeros.inc.php");	// RouterOs Firmware
   include_once("firmware/wrt-sveasoft-dd.inc.php");	// WRT based firmwares (DD-guifi, DD-WRT, Alchemy and Talisman)
   include_once("firmware/nanostation.inc.php");		// Ubutiqui NanoStation2 and Nanostation5 Firmware
-  include_once("firmware/kamikaze.inc.php");		// OpenWRT Kamikaze Firmware
   include_once("firmware/firmware-todo.inc.php");	// TODO firmwares
  
   switch ($dev->variable['firmware']) {
@@ -44,10 +43,6 @@ function guifi_unsolclic($id, $format = 'html') {
       break;
     case 'NanoStation':
       unsolclic_nano($dev);
-      exit;
-      break;
-    case 'kamikaze':
-      unsolclic_kamikaze($dev);
       exit;
       break;
     case 'Freifunk-BATMAN':
