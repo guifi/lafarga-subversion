@@ -1,6 +1,7 @@
 <?php
 
 function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
+  $lweight = 0;
 
   // edit link details
   guifi_log(GUIFILOG_TRACE,'guifi_links_form()',$link);
@@ -469,7 +470,6 @@ function guifi_delete_link($edit,$op) {
       $output .= '<h2>'.t('Are you sure you want to delete this link?').'</h2>'.$link_text;
       $output .= '<br />'.form_button(t('Confirm delete'),'op').
                         form_button(t('Back to list'),'op');
-      $output .= $message;
     break;
   case t('Confirm delete'):
       if ($radio_id != 'interface')  {

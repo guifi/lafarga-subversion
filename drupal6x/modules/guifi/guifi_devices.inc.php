@@ -1225,7 +1225,6 @@ function guifi_device_print_data($device) {
     $rows[] = array($model->model,$device['variable']['firmware']); 
     // going to list all device radios
     if (count($device['radios'])) {
-      unset($rowsr);
       foreach ($device['radios'] as $radio_id=>$radio) {
         $rowsr[] = array(
           $radio['ssid'],
@@ -1296,6 +1295,7 @@ function guifi_device_links_print_data($id) {
     ORDER BY i.interface_type",
     $id);
   while ($if = db_fetch_object($query)) {
+    $ip = _ipcalc($if->ipv4,$if->metmask);
     $rows[] = array($if->interface_type,$if->ipv4.'/'.$ip['netid'],$if->netmask,$if->mac);
   }
   return array_merge($rows);

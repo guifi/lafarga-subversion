@@ -222,7 +222,7 @@ function _guifi_add_interface_submit(&$form,&$edit,$action) {
   $interface['ipv4'][$radio]=array();
   $interface['ipv4'][$radio]['new']=true;
   $interface['ipv4'][$radio]['ipv4']=guifi_ip_op($net);
-  guifi_log(GUIFILOG_FULL,"assigned IPv4: ".$edit['radios'][$radio]['interfaces'][$interface_id]['ipv4'][$radio]['ipv4']);
+  guifi_log(GUIFILOG_FULL,"assigned IPv4: ".$interface['ipv4'][$radio]['ipv4']);
   $interface['ipv4'][$radio]['netmask']='255.255.255.224';
   $interface['ipv4'][$radio]['links']=array();
   $interface['interface_type']='wLan';

@@ -157,7 +157,7 @@ function guifi_node_form_supernode($node, $param) {
     '#maxlength' => 20, 
     '#element_validate' => array('guifi_node_nick_validate'),
     '#default_value' => $node->nick,
-    '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc.") . ($error['nick'] ? $error["nick"] : ''),
+    '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc."),
     '#weight' => 2,
   );
   $form['title']['notification'] = array(
@@ -168,7 +168,7 @@ function guifi_node_form_supernode($node, $param) {
     '#maxlength' => 1024, 
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $node->notification,
-    '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'") . ($error['notification'] ? $error["notification"] : ''),
+    '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'"),
     '#weight' => 3,
   );
   
@@ -367,7 +367,7 @@ function guifi_node_form_supernode($node, $param) {
     '#size' => 60,
     '#maxlength' => 128, 
     '#default_value' => $node->zone_description,
-    '#description' => t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street.") . ($error['zone'] ? $error["zone"] : ''),
+    '#description' => t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street."),
     '#weight' => 4,
   );
 
@@ -379,7 +379,7 @@ function guifi_node_form_supernode($node, $param) {
     '#length' => 20,
     '#maxlength' => 20, 
     '#default_value' => $node->elevation,
-    '#description' => t("Antenna height over the floor level.") . ($error['elevation'] ? $error["elevation"] : ''),
+    '#description' => t("Antenna height over the floor level."),
     '#weight' => 5,
   );
   
@@ -394,7 +394,7 @@ function guifi_node_form_supernode($node, $param) {
     '#cols' => 60, 
     '#rows' => 20, 
     '#required' => FALSE,
-    '#description' => t("Textual description of the wifi node") . ($error['body'] ? $error['body'] : ''),
+    '#description' => t("Textual description of the wifi node"),
     '#weight' => $form_weight++,
   );
   
@@ -471,6 +471,7 @@ function guifi_node_validate($node,$form) {
  */
 function guifi_node_insert($node) {
   global $user;
+  $log = '';
 
   $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
   if($coord!=NULL){
@@ -514,6 +515,7 @@ function guifi_node_insert($node) {
 */
 function guifi_node_update($node) {
   global $user;
+  $log = '';
   
   $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
   if($coord!=NULL){
@@ -606,10 +608,7 @@ function guifi_node_print_data($node) {
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
-  $url_map = sprintf(' <a href="http://www.mapquest.com/maps/map.adp?latlongtype=decimal&latitude=%f&longitude=%f" target="_blank">%s</a>',$node->lat,$node->lon,t('external map'));
-  
-  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>',
-                  array('data'=>$map,'rowspan'=>8)); 
+  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>'); 
   $rows[] = array(t('zone'),$zone->title,$node->zone_description); 
   $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground')); 
@@ -1112,7 +1111,7 @@ function guifi_node_distances_form($form_state,$node) {
         continue;
 
     $suffix = '</td></tr>';
-    if ((!$allow_pre) and (!$allow_next))
+    if ((!$allow_prev) and (!$allow_next))
       if ($nc == $tc)
         $suffix = '</td></tr></table>';
 //    $form['z'][$nc]['d_nid'] = array (
