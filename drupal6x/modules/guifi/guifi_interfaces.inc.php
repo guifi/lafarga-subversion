@@ -32,7 +32,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
     if ($interface['deleted'])
       continue;
 
-    guifi_log(GUIFILOG_BASIC,sprintf('cable interface %d',$ki),$interface);
+    guifi_log(GUIFILOG_TRACE,sprintf('cable interface %d',$ki),$interface);
     $interfaces_count++;
 
     $it = $interface['interface_type'];

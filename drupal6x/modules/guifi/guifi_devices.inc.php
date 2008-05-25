@@ -955,7 +955,7 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   $log = '';
 
 
-  guifi_log(GUIFILOG_BASIC,sprintf('guifi_device_edit_interface_save (id=%d)',$iid),$interface);
+  guifi_log(GUIFILOG_TRACE,sprintf('guifi_device_edit_interface_save (id=%d)',$iid),$interface);
   
   $ninterface = _guifi_db_sql(
     'guifi_interfaces',
@@ -964,11 +964,11 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   if (empty($ninterface))
     return $log;
 
-  guifi_log(GUIFILOG_BASIC,'SQL interface',$ninterface);
+  guifi_log(GUIFILOG_TRACE,'SQL interface',$ninterface);
   // ipv4
   if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
     $ipv4['interface_id'] = $ninterface['id'];
-    guifi_log(GUIFILOG_BASIC,sprintf('SQL ipv4 (id=%d, iid=%d)',
+    guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 (id=%d, iid=%d)',
       $ipv4_id,$ipv4['interface_id']),
       $ipv4);
     $nipv4 = _guifi_db_sql(
