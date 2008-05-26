@@ -156,15 +156,15 @@ function guifi_radio_form(&$edit,$form_weight) {
     if ($rc) 
       $form['r']['radios'][$key]['up'] = array(
         '#type'=>'submit','#value'=>t('Up'), 
-//        '#parents'=>array('radios',$key,'up'),
-        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key-1),
+        '#parents'=>array('radios',$key,'up'),
+//        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key-1),
         '#weight'=>$form_weight++);
     // if not last, allow to move down
     if (($rc+1) < count($edit['radios'])) 
       $form['r']['radios'][$key]['down'] = array(
         '#type'=>'submit','#value'=>t('Down'), 
-//        '#parents'=>array('radios',$key,'down'),
-        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key+1),
+        '#parents'=>array('radios',$key,'down'),
+//        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key+1),
         '#weight'=>$form_weight++);
 
     $rc++;
@@ -639,10 +639,7 @@ function _guifi_move_radio_updown(&$form,&$edit,$action) {
 }
 
 /* _guifi_move_radio_updown_submit(): Action */
-function _guifi_move_radio_updown_submit(&$edit,$action) {
-  $old = $action[2];
-  $new = $action[3];
-
+function _guifi_move_radio_updown_submit(&$edit,$new,$old) {
   guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_move_radio_updown_submit(%d,%d)',$old,$new));
 
   $old_radio = $edit['radios'][$old];

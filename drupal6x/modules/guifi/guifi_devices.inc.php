@@ -226,7 +226,19 @@ function guifi_device_edit_form_submit($form, &$form_state) {
     $form_state['deleteRadio'] = $form_state['clicked_button']['#parents'][1];
     $form_state['rebuild'] = true;
     return;    
-  }
+  case t('Up'):
+    print_r($form_state['clicked_button']['#parents']);
+    $form_state['swapRadios']['old'] = $form_state['clicked_button']['#parents'][1];
+    $form_state['swapRadios']['new'] = $form_state['clicked_button']['#parents'][1]-1;
+    $form_state['rebuild'] = true;
+    return;
+  case t('Down'):
+    print_r($form_state['clicked_button']['#parents']);
+    $form_state['swapRadios']['old'] = $form_state['clicked_button']['#parents'][1];
+    $form_state['swapRadios']['new'] = $form_state['clicked_button']['#parents'][1]+1;
+    $form_state['rebuild'] = true;
+    return;
+   }
 
   if ($form_state['values']['id'])
   if (!guifi_device_access('update',$form_state['values']['id']))
@@ -350,6 +362,14 @@ function guifi_device_edit_form($form_state, $params = array()) {
        array('%num'=>$form_state['deleteRadio'])));
     $form_state['values']['radios'][$form_state['deleteRadio']]['deleted'] = true;
     unset($form_state['deleteRadio']);
+  }
+  
+  // swap (move) Radios
+  if (!empty($form_state['swapRadios'])) {
+    drupal_set_message(t('Radio#%old has been moved to #%new.',
+       array('%old'=>$form_state['swapRadios']['old'],
+             '%new'=>$form_state['swapRadios']['new'],
+       )));    
   }
   
   // Look if there is any action to take
