@@ -50,6 +50,7 @@ CREATE TABLE `budgets` (
   `currency_txt` varchar(10) NOT NULL default 'Euros',
   `currency_symbol` varchar(5) NOT NULL default '€',
   `min_contribution` decimal(10,2) NOT NULL default '0.00',
+  `min_contribution` decimal(10,2) NOT NULL default '50000.00',
   PRIMARY KEY  (`nid`)
 ) TYPE=MyISAM;
         

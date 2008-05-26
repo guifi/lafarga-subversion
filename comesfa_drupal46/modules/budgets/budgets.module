@@ -165,6 +165,7 @@ function budgets_settings() {
   $output  .= form_textfield(t("Default currency text"), "budget_currency_txt", variable_get("budget_currency_txt","Euros"), 10,10,t('By default, currency abbreviation)')) ;
   $output  .= form_textfield(t("Default currency symbol"), "budget_currency_symbol", variable_get("budget_currency_symbol","€"), 5,5,t('By default, currency symbol)')) ;
   $output  .= form_textfield(t("Default minimum contribution"), "budget_minimum", variable_get("budget_minimum","0"), 10,10,t('By default, minimum amount of each single contribution')) ;
+  $output  .= form_textfield(t("Default maximum contribution"), "budget_maximum", variable_get("budget_maximum","0"), 10,10,t('By default, maximum amount of each single contribution')) ;
 
  return $output;
 }
@@ -264,7 +265,8 @@ function budgets_edit_form($node) {
                   form_textfield(t('Text'),"currency_txt",$node->currency_txt,10,10,t('abbreviation')).
                   form_textfield(t('Symbol'),"currency_symbol",$node->currency_symbol,5,5));
     $output .= form_group(t('Contributions'),
-                  form_textfield(null,"min_contribution",$node->min_contribution,10,10,t('Under this amount, contributions will not be accepted')));
+                  form_textfield(null,"min_contribution",$node->min_contribution,10,10,t('Under this amount, contributions will not be accepted')).form_textfield(null,"max_contribution",$node->max_contribution,10,10,t('Below this amount, contributions will not be accepted')));
+
     $output .= "</div>\n";
      
 
@@ -427,6 +429,8 @@ function budgets_validate(&$node) {
       $node->currency_symbol = variable_get("budgets_currency_symbol",'€');
     if (empty($node->min_contribution))
       $node->min_contribution = variable_get("budgets_minimum",0);
+    if (empty($node->max_contribution))
+      $node->max_contribution = variable_get("budgets_maximum",50000);
   }
 
 
@@ -482,12 +486,12 @@ function budgets_validate(&$node) {
 }
 
 function budgets_insert($node) {
-  db_query("INSERT INTO {budgets} ( nid, budget_status, promoter, expires, terms, payment_instructions, guifi_zones, currency_symbol, currency_txt, min_contribution) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", $node->nid, $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution);
+  db_query("INSERT INTO {budgets} ( nid, budget_status, promoter, expires, terms, payment_instructions, guifi_zones, currency_symbol, currency_txt, min_contribution, max_contribution) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)", $node->nid, $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->max_contribution);
   budgets_insert_items($node->nid,$node->items);
 }
 
 function budgets_update($node) {
-  db_query("UPDATE {budgets} SET budget_status = '%s', promoter ='%s', expires = '%s', terms = '%s', payment_instructions = '%s', guifi_zones = '%s', currency_symbol = '%s', currency_txt = '%s', min_contribution = %d WHERE nid = '%d'", $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->nid);
+  db_query("UPDATE {budgets} SET budget_status = '%s', promoter ='%s', expires = '%s', terms = '%s', payment_instructions = '%s', guifi_zones = '%s', currency_symbol = '%s', currency_txt = '%s', min_contribution = %d, max_contribution = %d WHERE nid = '%d'", $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->max_contribution, $node->nid);
   budgets_insert_items($node->nid,$node->items);
 }
 
@@ -776,6 +780,7 @@ function budgets_contribute(&$node) {
 
   $form .= form_button(t('Submit'),'submit_fund');
   $form .= form_hidden('min_contribution',$node->min_contribution);
+  $form .= form_hidden('max_contribution',$node->max_contribution);
 
   $output .= form($form);
 
@@ -785,6 +790,8 @@ function budgets_contribute(&$node) {
 function budgets_validate_fund(&$fund) {
   if (($fund['amount'] < $fund['min_contribution']) or (empty($fund['amount'])) )
     form_set_error('amount',t('Minimum donation is').'&nbsp;'.$fund['min_contribution']);
+  if (($fund['amount'] > $fund['max_contribution']) or (empty($fund['amount'])) )
+    form_set_error('amount',t('Maximum donation is').'&nbsp;'.$fund['max_contribution']);
   $fund['amount'] = str_replace(',','.',$fund['amount']);
   $fund['amount'] = str_replace('€',null,$fund['amount']);
   $fund['amount'] = str_replace('$',null,$fund['amount']);
