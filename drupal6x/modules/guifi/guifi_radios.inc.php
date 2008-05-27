@@ -117,9 +117,8 @@ function guifi_radio_form(&$edit,$form_weight) {
           '#type'=>'image_button',
           '#src'=>drupal_get_path('module', 'guifi').'/icons/insertwlan.png',
           '#parents'=>array('radios',$key,'AddwLan'),
+          '#submit' => array('guifi_radio_add_wlan_submit'),
           '#attributes'=>array('title'=>t('Add a public network range to the wLan for clients')), 
-//          '#value'=>t('Add wLan for clients'),
-          '#name'=>'AddwLan,'.$key, 
           '#weight'=>$bw++);
       }
       if (!$hotspot) {
@@ -147,12 +146,9 @@ function guifi_radio_form(&$edit,$form_weight) {
       if ((count($edit['radios'])==1) or ($key))
       $form['r']['radios'][$key]['delete'] = array(
         '#type'=>'image_button',
-//        '#button_type'=>'submit',
         '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
         '#parents'=>array('radios',$key,'delete'),
-//        '#name'=>t('Delete radio'),
         '#attributes'=>array('title'=>t('Delete radio')), 
-//        '#default_value'=>'deleteRadio,'.$key,
         '#submit' => array('guifi_radio_delete_submit'),
         '#weight'=>$bw++);
       $form['r']['radios'][$key]['change'] = array(
@@ -160,7 +156,6 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#src'=>drupal_get_path('module', 'guifi').'/icons/move.png',
         '#parents'=>array('radios',$key,'move'),
         '#attributes'=>array('title'=>t('Move radio to another device')), 
-        '#name'=>'moveRadio,'.$key,
         '#weight'=>$bw++);
     }
 
@@ -661,47 +656,33 @@ function guifi_radio_swap($form, &$form_state) {
   return;
 }
 
-/* Add wlan */
-/* _guifi_add_wlan(): Cofirmation dialog */
-function _guifi_add_wlan(&$form,&$edit,$action) {
-  $radio = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan(%d)',$radio));
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to create a new wLan interface for clients at this radio?'),
-    '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
-    '#description' => t('If you save at this point, this interface will be created and device saved.'),
-    '#weight' => $fw++,
-  );
-  drupal_set_title(t('Create a wLan interface at %name',array('%name'=>$edit['radios'][$radio]['ssid'])));
-  _guifi_device_buttons($form,$action,$fw,TRUE);
-
-  return FALSE;
-}
-
 /* _guifi_add_wlan_submit(): Action */
-function _guifi_add_wlan_submit(&$form,&$edit,$action) {
-  $radio = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_wlan_submit(%d)',$radio));
-
-
+function guifi_radio_add_wlan_submit($form, &$form_state) {
+  $radio = $form_state['clicked_button']['#parents'][1];
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_add_wlan(%d)',$radio));
+  
   $interface = array();
   $interface['new']=true;
-  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
+  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
   //   print_r($ips_allocated);
-  $net = guifi_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
-  guifi_log(GUIFILOG_FULL,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/27");
+  $net = guifi_get_subnet_by_nid(
+            $form_state['values']['nid'],'255.255.255.224','public',
+            $ips_allocated);
+  guifi_log(GUIFILOG_FULL,
+            "IPs allocated: ".count($ips_allocated).
+            " Obtained new net: ".$net."/27");
   $interface['ipv4'][$radio]=array();
   $interface['ipv4'][$radio]['new']=true;
   $interface['ipv4'][$radio]['ipv4']=guifi_ip_op($net);
-  guifi_log(GUIFILOG_FULL,"assigned IPv4: ".$edit['radios'][$radio]['interfaces'][$interface_id]['ipv4'][$radio]['ipv4']);
   $interface['ipv4'][$radio]['netmask']='255.255.255.224';
   $interface['ipv4'][$radio]['links']=array();
   $interface['interface_type']='wLan';
-  $edit['radios'][$radio]['interfaces'][]=$interface;
-  
+  $form_state['values']['radios'][$radio]['interfaces'][]=$interface;
+  $form_state['rebuild'] = true;
+  drupal_set_message(t('wLan with %net/%mask added at radio#%radio',
+    array('%net'=>$net,'%mask'=>'255.255.255.224','%radio'=>$radio)));
+  $form_state['rebuild'] = true;
+    
   return TRUE;
 }
 
