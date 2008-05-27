@@ -126,7 +126,7 @@ function guifi_radio_form(&$edit,$form_weight) {
           '#type'=>'image_button',
           '#src'=>drupal_get_path('module', 'guifi').'/icons/inserthotspot.png',
           '#attributes'=>array('title'=>t('Add a Hotspot for guests')), 
-          '#name'=>'AddHotspot,'.$key,
+          '#submit' => array('guifi_radio_add_hotspot_submit'),
           '#weight'=>$bw++);
       }
     } else {
@@ -681,39 +681,22 @@ function guifi_radio_add_wlan_submit($form, &$form_state) {
   $form_state['rebuild'] = true;
   drupal_set_message(t('wLan with %net/%mask added at radio#%radio',
     array('%net'=>$net,'%mask'=>'255.255.255.224','%radio'=>$radio)));
-  $form_state['rebuild'] = true;
     
   return TRUE;
 }
 
-/* Add Hotspot */
-function _guifi_add_hotspot(&$form,&$edit,$action) {
-  $radio = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_hotspot(%d)',$radio));
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to create a Hotspot interface for guests at this radio?'),
-    '#value' => t('Radio').' #'.$radio.'-'.$edit['radios'][$radio]['ssid'],
-    '#description' => t('If you save at this point, this interface will be created and device saved.'),
-    '#weight' => $fw++,
-  );
-  drupal_set_title(t('Create a Hotspot interface at %name',array('%name'=>$edit['radios'][$radio]['ssid'])));
-  _guifi_device_buttons($form,$action,$fw,TRUE);
-
-  return FALSE;
-}
-
-function _guifi_add_hotspot_submit(&$form,&$edit,$action) {
-  $radio = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_hotspot_submit(%d)',$$radio));
+function guifi_radio_add_hotspot_submit($form, &$form_state) {
+  $radio = $form_state['clicked_button']['#parents'][1];
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_add_hotspot_submit(%d)',$radio));
 
     // filling variables
   $interface=array();
   $interface['new']=true;
   $interface['interface_type']='HotSpot';
-  $edit['radios'][$radio]['interfaces'][] = $interface;
+  $form_state['values']['radios'][$radio]['interfaces'][] = $interface;
+  $form_state['rebuild'] = true;
+  drupal_set_message(t('Hotspot added at radio#%radio',
+    array('%radio'=>$radio)));
   
   return TRUE;
 }
