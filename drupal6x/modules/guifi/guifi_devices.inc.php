@@ -345,9 +345,9 @@ function guifi_device_edit_form($form_state, $params = array()) {
     $form_state['values']['radios'][$form_state['newRadio']['rc']] = $form_state['newRadio'];
     unset($form_state['newRadio']);
   }
-  
+
   if (isset($form_state['action'])) {
-    guifi_log(GUIFILOG_BASIC,'action',$form_state['action']);
+    guifi_log(GUIFILOG_TRACE,'action',$form_state['action']);
     if (function_exists($form_state['action'])) {
       call_user_func_array($form_state['action'],
         array(&$form,&$form_state));     

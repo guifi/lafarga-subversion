@@ -633,7 +633,7 @@ function guifi_radio_validate($edit,$form) {
 
 /* guifi_radio_swap_submit(): Action */
 function guifi_radio_swap_submit($form, &$form_state) {
-  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_radio_swap_submit()'),$form_state['clicked_button']);
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_swap_submit()'),$form_state['clicked_button']);
   $old = $form_state['clicked_button']['#parents'][1];
   switch ($form_state['clicked_button']['#parents'][2]) {
     case "up": 
@@ -641,15 +641,15 @@ function guifi_radio_swap_submit($form, &$form_state) {
     case "down": 
       $new = $old+1; break;
   }
-  $form_state['swapRadios']=$new.','.$old;
-  $form_state['action']['guifi_radio_swap'];
+  $form_state['swapRadios']=$old.','.$new;
+  $form_state['action']='guifi_radio_swap';
   $form_state['rebuild'] = true;
   return;
 }
 
 /* guifi_radio_swap(): Action */
 function guifi_radio_swap($form, &$form_state) {
-  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_radio_swap()'),$form_state['clicked_button']);
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_swap()'),$form_state['clicked_button']);
   list($old, $new) = explode(',',$form_state['swapRadios']);
   $old_radio = $form_state['values']['radios'][$old];
   $new_radio = $form_state['values']['radios'][$new];
