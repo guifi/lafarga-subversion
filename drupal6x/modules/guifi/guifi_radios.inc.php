@@ -403,8 +403,8 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
     $form['r']['radios'][$key]['antenna'] = array(
       '#type' => 'fieldset',
       '#title' => t('Antenna settings'),
-      '#collapsible' => $collapsed,
-      '#collapsed' => $collapsed,
+      '#collapsible' => true,
+      '#collapsed' => false,
       '#tree'=>false,
       '#weight' => $fw2++,
     ); 
@@ -526,11 +526,12 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
     switch ($it) {
     case 'HotSpot':
       $f[$it][$ki]['ipv4'][$ka]['local']['deleteHotspot'] = array(
-        '#type'=>'button',
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
         '#parents'=>array('radios',$rk,'interfaces',$ki,'deleteHotspot'),
-        '#value'=>t('Delete Hotspot'), 
-        '#name'=>'_action,_guifi_delete_interface,'.$rk.','.$ki,
-        '#weight'=>$weight++);
+        '#attributes'=>array('title'=>t('Delete Hotspot')), 
+        '#submit' => array('guifi_interface_delete_submit'),
+        '#weight'=>$weight++);      
       $hotspot = true;
       break;
     case 'wds/p2p':
@@ -703,7 +704,7 @@ function guifi_radio_add_hotspot_submit($form, &$form_state) {
 
 /* Add  aradio to the device */
 function guifi_radio_add_radio(&$form_state) {
-  guifi_log(GUIFILOG_TRACE, "function guifi_radio_add_radio()",$action);
+  guifi_log(GUIFILOG_TRACE, "function guifi_radio_add_radio()",$form_state);
 
   // wrong form navigation, can't do anything
   if ($form_state['values']['newradio_mode'] == null)

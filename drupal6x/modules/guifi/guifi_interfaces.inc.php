@@ -299,49 +299,26 @@ function _guifi_add_subnet_submit(&$form,&$edit,$action) {
 
 
 /* Delete interface */
-function _guifi_delete_interface(&$form,&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_interface(radio: %d, interface: %d)',$radio_id,$interface_id));
-
-  $fw = 0;
-
+function guifi_interface_delete(&$form,&$form_state) {
+  list($radio_id, $interface_id) = explode(',',$form_state['deleteInterface']);
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interface_delete(radio: %d, interface: %d)',
+    $radio_id,$interface_id));
   if ($radio_id == '')
-    $it = $edit['interfaces'][$interface_id]['interface_type'];
+    $form_state['values']['interfaces'][$interface_id]['deleted'] = true;
   else
-    $it = $edit['radios'][$radio_id]['ssid'].'-'.
-      $edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'];
-    
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to delete this interface?'),
-    '#value' => $it,
-//    '#description' => t('If you save at this point, this interface and links will be deleted, information saved and can\'t be undone.'),
-    '#weight' => $fw++,
-  );
-  drupal_set_title(t('Delete interface (%type)',array('%type'=>$it)));
-  _guifi_device_buttons($form,$action,$fw,TRUE);
-
-  return FALSE;
+    $it = $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['deleted']=true;
+  
+  return TRUE;
 }
 
-function _guifi_delete_interface_submit(&$form,&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_interface_submit(radio: %d, interface: %d)',
+function guifi_interface_delete_submit(&$form,&$form_state) {
+  $radio_id    = $form_state['clicked_button']['#parents'][1];
+  $interface_id= $form_state['clicked_button']['#parents'][3];
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interface_delete_submit(radio: %d, interface: %d)',
     $radio_id,$interface_id));
-
-  if ($radio_id == '')
-    $edit['interfaces'][$interface_id]['deleted'] = true;
-  else
-    $it = $edit['radios'][$radio_id]['interfaces'][$interface_id]['deleted']=true;
-
-/*  if ($it['new'])
-    unset($it);
-  else
-    $it['deleted'] = TRUE;
-*/
+  $form_state['deleteInterface']=($radio_id).','.($interface_id);
+  $form_state['rebuild'] = true;
+  $form_state['action'] = 'guifi_interface_delete';
   return TRUE;
 }
 
