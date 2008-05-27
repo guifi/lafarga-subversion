@@ -215,17 +215,12 @@ function guifi_device_edit_form_submit($form, &$form_state) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
   
-  print_r($form_state['clicked_button']);
   switch ($form_state['clicked_button']['#value']) {
   case t('Add new radio'):
     guifi_log(GUIFILOG_TRACE,'Add new radio has been clicked');
     $newRadio = guifi_radio_add_radio($form_state);
     $form_state['rebuild'] = true;
     $form_state['newRadio'] = $newRadio;
-    return;    
-  case t('Delete radio'):
-    $form_state['deleteRadio'] = $form_state['clicked_button']['#parents'][1];
-    $form_state['rebuild'] = true;
     return;    
   case t('Up'):
   case t('Down'):

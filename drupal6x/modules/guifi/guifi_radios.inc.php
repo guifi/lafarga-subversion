@@ -151,7 +151,7 @@ function guifi_radio_form(&$edit,$form_weight) {
 //        '#name'=>t('Delete radio'),
         '#attributes'=>array('title'=>t('Delete radio')), 
 //        '#default_value'=>'deleteRadio,'.$key,
-//        '#submit' => array('guifi_radio_delete_submit'),
+        '#submit' => array('guifi_radio_delete_submit'),
         '#weight'=>$form_weight++);
       $form['r']['radios'][$key]['change'] = array(
         '#type'=>'image_button',
@@ -169,7 +169,7 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#src'=>drupal_get_path('module', 'guifi').'/icons/up.png',
         '#attributes'=>array('title'=>t('Move radio up')), 
 //        '#value'=>t('Up'), 
-//        '#submit' => array('guifi_radio_swap_submit'),
+        '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'up'),
 //        '#default_value'=>'swapRadios,'.($key).','.($key-1),
         '#weight'=>$form_weight++);
@@ -180,7 +180,7 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#src'=>drupal_get_path('module', 'guifi').'/icons/down.png',
         '#attributes'=>array('title'=>t('Move radio down')), 
 //        '#value'=>t('Down'), 
-//        '#submit' => array('guifi_radio_swap_submit'),
+        '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'down'),
 //        '#default_value'=>'swapRadios,'.($key).','.($key+1),
         '#weight'=>$form_weight++);
@@ -629,45 +629,19 @@ function guifi_radio_validate($edit,$form) {
 
 }
 
-/* Swapping rdios (move up & down) */
-/* _guifi_move_radio_updown(): Confirmation dialog */
-function _guifi_move_radio_updown(&$form,&$edit,$action) {
-  $old=$action[2];
-  $new=$action[3];
-
-  guifi_log(GUIFILOG_TRACE,
-    sprintf('function _guifi_move_radio_updown(%d,%d)',
-    $old,
-    $new));
-    
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to swap this radios?'),
-    '#value' => '#'.$old.'-'.$edit['radios'][$old]['ssid'].' <-> '.
-	'#'.$new.'-'.$edit['radios'][$new]['ssid'],
-    '#description' => t('If you save at this point, this radios will be swapped and the device saved.'),
-    '#weight' => 0,
-  );
-  drupal_set_title(t('Swap radios'));
-  _guifi_device_buttons($form,$action);
-
-  return FALSE;
-}
-
 /* guifi_radio_swap_submit(): Action */
 function guifi_radio_swap_submit($form, &$form_state) {
-  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_radio_swap_submit()'),$form_state['clicked_button']);
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_swap_submit()'),$form_state['clicked_button']);
+  $old = $form_state['clicked_button']['#parents'][1];
+  switch ($form_state['clicked_button']['#parents'][2]) {
+    case "up": 
+      $new = $old-1; break;
+    case "down": 
+      $new = $old+1; break;
+  }
+  $form_state['swapRadios']=$new.','.$old;;
+  $form_state['rebuild'] = true;
   return;
-  $old_radio = $edit['radios'][$old];
-  unset($edit['radios'][$old]);
-  $new_radio = $edit['radios'][$new];
-  unset($edit['radios'][$new]);
-  $edit['radios'][$new] = $old_radio;
-  $edit['radios'][$old] = $new_radio;
-
-  ksort($edit['radios']);
 }
 
 /* Add wlan */
@@ -922,11 +896,11 @@ function _guifi_delete_radio_interface_link_submit(&$edit,$action) {
 }
 
 
-function guifi_radio_delete_submit($form, &$form_staten) {
-  guifi_log(GUIFILOG_BASIC,"function guifi_radio_delete_submit()");
-  return;
-  $radio_id=$action[2];
-  $edit['radios'][$radio_id]['deleted'] = true;
+function guifi_radio_delete_submit($form, &$form_state) {
+  guifi_log(GUIFILOG_TRACE,"function guifi_radio_delete_submit()",$form_state['clicked_button]']);
+  $form_state['deleteRadio'] = $form_state['clicked_button']['#parents'][1];
+  $form_state['rebuild'] = true;
+  return;    
 }
 
 /* _guifi_link_2AP(): Link client to an AP */
