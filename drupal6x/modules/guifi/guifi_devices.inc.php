@@ -215,6 +215,7 @@ function guifi_device_edit_form_submit($form, &$form_state) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
   
+  print_r($form_state['clicked_button']);
   switch ($form_state['clicked_button']['#value']) {
   case t('Add new radio'):
     guifi_log(GUIFILOG_TRACE,'Add new radio has been clicked');
@@ -227,18 +228,12 @@ function guifi_device_edit_form_submit($form, &$form_state) {
     $form_state['rebuild'] = true;
     return;    
   case t('Up'):
-    print_r($form_state['clicked_button']['#parents']);
-    $form_state['swapRadios']['old'] = $form_state['clicked_button']['#parents'][1];
-    $form_state['swapRadios']['new'] = $form_state['clicked_button']['#parents'][1]-1;
-    $form_state['rebuild'] = true;
-    return;
   case t('Down'):
-    print_r($form_state['clicked_button']['#parents']);
-    $form_state['swapRadios']['old'] = $form_state['clicked_button']['#parents'][1];
-    $form_state['swapRadios']['new'] = $form_state['clicked_button']['#parents'][1]+1;
+    print_r($form_state['clicked_button']['#name']);
+    $form_state['swapRadios']=$form_state['clicked_button']['#name'];
     $form_state['rebuild'] = true;
     return;
-   }
+  }
 
   if ($form_state['values']['id'])
   if (!guifi_device_access('update',$form_state['values']['id']))
@@ -366,10 +361,16 @@ function guifi_device_edit_form($form_state, $params = array()) {
   
   // swap (move) Radios
   if (!empty($form_state['swapRadios'])) {
-    drupal_set_message(t('Radio#%old has been moved to #%new.',
-       array('%old'=>$form_state['swapRadios']['old'],
-             '%new'=>$form_state['swapRadios']['new'],
-       )));    
+    list($old, $new) = explode(',',$form_state['swapRadios']);
+    $old_radio = $form_state['values']['radios'][$old];
+    $new_radio = $form_state['values']['radios'][$new];
+//    unset($form_state['values']['radios'][$new]);
+//    unset($form_state['values']['radios'][$old]);
+    $form_state['values']['radios'][$new] = $old_radio;
+    $form_state['values']['radios'][$old] = $new_radio;
+    ksort($form_state['values']['radios']);
+    drupal_set_message(t('Radio #%old moved to #%new.',
+        array('%old'=>$old,'%new'=>$new)));
   }
   
   // Look if there is any action to take

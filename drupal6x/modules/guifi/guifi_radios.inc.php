@@ -112,16 +112,20 @@ function guifi_radio_form(&$edit,$form_weight) {
       // If no wLan interface, allow to create one
       if ((count($radio['interfaces']) < 2) or (user_access('administer guifi networks'))) {
         $form['r']['radios'][$key]['AddwLan'] = array(
-          '#type'=>'submit',
-          '#value'=>t('Add wLan for clients'),
-          '#name'=>'_action,_guifi_add_wlan,'.$key, 
+          '#type'=>'image_button',
+          '#src'=>drupal_get_path('module', 'guifi').'/icons/insertwlan.png',
+          '#parents'=>array('radios',$key,'AddwLan'),
+          '#attributes'=>array('title'=>t('Add a public network range to the wLan for clients')), 
+//          '#value'=>t('Add wLan for clients'),
+          '#name'=>'AddwLan,'.$key, 
           '#weight'=>$form_weight++);
       }
       if (!$hotspot) {
         $form['r']['radios'][$key]['AddHotspot'] = array(
-          '#type'=>'submit',
-          '#value'=>t('Add Hotspot for guests'), 
-          '#name'=>'_action,_guifi_add_hotspot,'.$key,
+          '#type'=>'image_button',
+          '#src'=>drupal_get_path('module', 'guifi').'/icons/inserthotspot.png',
+          '#attributes'=>array('title'=>t('Add a Hotspot for guests')), 
+          '#name'=>'AddHotspot,'.$key,
           '#weight'=>$form_weight++);
       }
     } else {
@@ -140,31 +144,45 @@ function guifi_radio_form(&$edit,$form_weight) {
       // Only allow delete radio if several when is not the first 
       if ((count($edit['radios'])==1) or ($key))
       $form['r']['radios'][$key]['delete'] = array(
-        '#type'=>'submit',
+        '#type'=>'image_button',
+//        '#button_type'=>'submit',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
         '#parents'=>array('radios',$key,'delete'),
-        '#value'=>t('Delete radio'), 
-//        '#name'=>$key,
+//        '#name'=>t('Delete radio'),
+        '#attributes'=>array('title'=>t('Delete radio')), 
+//        '#default_value'=>'deleteRadio,'.$key,
+//        '#submit' => array('guifi_radio_delete_submit'),
         '#weight'=>$form_weight++);
       $form['r']['radios'][$key]['change'] = array(
-        '#type'=>'submit','#value'=>t('Move to another device'), 
-//        '#parents'=>array('radios',$key,'change'),
-        '#name'=>'_action,_guifi_move_radio'.$key,
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/move.png',
+        '#parents'=>array('radios',$key,'move'),
+        '#attributes'=>array('title'=>t('Move radio to another device')), 
+        '#name'=>'moveRadio,'.$key,
         '#weight'=>$form_weight++);
     }
 
     // if not first, allow to move up  
     if ($rc) 
       $form['r']['radios'][$key]['up'] = array(
-        '#type'=>'submit','#value'=>t('Up'), 
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/up.png',
+        '#attributes'=>array('title'=>t('Move radio up')), 
+//        '#value'=>t('Up'), 
+//        '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'up'),
-//        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key-1),
+//        '#default_value'=>'swapRadios,'.($key).','.($key-1),
         '#weight'=>$form_weight++);
     // if not last, allow to move down
     if (($rc+1) < count($edit['radios'])) 
       $form['r']['radios'][$key]['down'] = array(
-        '#type'=>'submit','#value'=>t('Down'), 
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/down.png',
+        '#attributes'=>array('title'=>t('Move radio down')), 
+//        '#value'=>t('Down'), 
+//        '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'down'),
-//        '#name'=>'_action,_guifi_move_radio_updown,'.$key.','.($key+1),
+//        '#default_value'=>'swapRadios,'.($key).','.($key+1),
         '#weight'=>$form_weight++);
 
     $rc++;
@@ -207,9 +225,9 @@ function guifi_radio_form(&$edit,$form_weight) {
       $form['r']['AddRadio'] = array(
         '#type' => 'button',
 //        '#parents' => array('r','AddRadio'),
-        '#value' => t('Add new radio'),
+        '#default_value' => t('Add new radio'),
         '#executes_submit_callback' => true,
-//        '#name'=>'_action,_guifi_add_radio',
+        '#name'=>'addRadio',
         '#prefix' => '<td style="width: 10em" align="left">',
         '#suffix' => '</td><td style="width: 100%" align="right">&nbsp</td></tr>',
         '#weight' => 21,
@@ -638,10 +656,10 @@ function _guifi_move_radio_updown(&$form,&$edit,$action) {
   return FALSE;
 }
 
-/* _guifi_move_radio_updown_submit(): Action */
-function _guifi_move_radio_updown_submit(&$edit,$new,$old) {
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_move_radio_updown_submit(%d,%d)',$old,$new));
-
+/* guifi_radio_swap_submit(): Action */
+function guifi_radio_swap_submit($form, &$form_state) {
+  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_radio_swap_submit()'),$form_state['clicked_button']);
+  return;
   $old_radio = $edit['radios'][$old];
   unset($edit['radios'][$old]);
   $new_radio = $edit['radios'][$new];
@@ -904,8 +922,9 @@ function _guifi_delete_radio_interface_link_submit(&$edit,$action) {
 }
 
 
-function _guifi_delete_radio_submit(&$edit,$action) {
-  guifi_log(GUIFILOG_TRACE,"function _guifi_delete_radio_submit()");
+function guifi_radio_delete_submit($form, &$form_staten) {
+  guifi_log(GUIFILOG_BASIC,"function guifi_radio_delete_submit()");
+  return;
   $radio_id=$action[2];
   $edit['radios'][$radio_id]['deleted'] = true;
 }
