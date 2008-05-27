@@ -346,6 +346,14 @@ function guifi_device_edit_form($form_state, $params = array()) {
     unset($form_state['newRadio']);
   }
   
+  if (isset($form_state['action'])) {
+    guifi_log(GUIFILOG_BASIC,'action',$form_state['action']);
+    if (function_exists($form_state['action'])) {
+      call_user_func_array($form_state['action'],
+        array(&$form,&$form_state));     
+    }
+  }
+/*  
   // Delete radio
   if (!empty($form_state['deleteRadio'])) { 
     drupal_set_message(t('Radio#%num has been deleted.',
@@ -353,14 +361,13 @@ function guifi_device_edit_form($form_state, $params = array()) {
     $form_state['values']['radios'][$form_state['deleteRadio']]['deleted'] = true;
     unset($form_state['deleteRadio']);
   }
+
   
   // swap (move) Radios
   if (!empty($form_state['swapRadios'])) {
     list($old, $new) = explode(',',$form_state['swapRadios']);
     $old_radio = $form_state['values']['radios'][$old];
     $new_radio = $form_state['values']['radios'][$new];
-//    unset($form_state['values']['radios'][$new]);
-//    unset($form_state['values']['radios'][$old]);
     $form_state['values']['radios'][$new] = $old_radio;
     $form_state['values']['radios'][$old] = $new_radio;
     ksort($form_state['values']['radios']);
