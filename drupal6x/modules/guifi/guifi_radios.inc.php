@@ -1057,8 +1057,7 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $radio_id    =$form_state['values']['#parents'][1];
   $interface_id=$form_state['values']['#parents'][3];
   guifi_log(GUIFILOG_BASIC,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id));
-  guifi_log(GUIFILOG_FULL,"linked",$form_state['linked']);
-  return;
+//  guifi_log(GUIFILOG_FULL,"linked",$form_state['linked']);
 
   // get list of the current used ips
   $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
@@ -1068,19 +1067,34 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   //
   $newlk['new']=true;
   $newlk['interface']=array();
-  list($newlk['nid'],$newlk['device_id'],$newlk['interface']['radiodev_counter']) =  explode(',',$edit['linked']);
+  list($newlk['nid'],
+    $newlk['device_id'],
+    $newlk['interface']['radiodev_counter']) =  
+        explode(',',$form_state['values']['linked']);
+        
   guifi_log(GUIFILOG_FULL,"newlk",$newlk);
+  
   $newlk['link_type']='wds';
   $newlk['flag']='Planned';
   $newlk['routing'] = 'BGP';
   // get an ip addres for local-remote interfaces
-  $net = guifi_get_subnet_by_nid($edit['nid'],'255.255.255.252','backbone',$ips_allocated);
+  $net = guifi_get_subnet_by_nid($form_state['values']['nid'],
+            '255.255.255.252',
+            'backbone',
+            $ips_allocated);
   $ip1 = guifi_ip_op($net);
   $ip2 = guifi_ip_op($ip1);
   guifi_merge_ip(array('ipv4'=>$ip1,'netmask'=>'255.255.255.252'),$ips_allocated,false);
   guifi_merge_ip(array('ipv4'=>$ip2,'netmask'=>'255.255.255.252'),$ips_allocated,true);
   // getting remote interface
-  $remote_interface = db_fetch_array(db_query("SELECT id FROM {guifi_interfaces} WHERE device_id = %d AND interface_type = 'wds/p2p' AND radiodev_counter = %d",$newlk['device_id'],$newlk['interface']['radiodev_counter']));
+  $remote_interface = 
+    db_fetch_array(db_query(
+        "SELECT id " .
+        "FROM {guifi_interfaces} " .
+        "WHERE device_id = %d " .
+        "   AND interface_type = 'wds/p2p' " .
+        "   AND radiodev_counter = %d",
+        $newlk['device_id'],$newlk['interface']['radiodev_counter']));
   $newlk['interface']['id']=$remote_interface['id'];
   $newlk['interface']['device_id']=$newlk['device_id'];
   $newlk['interface']['interface_type']='wds/p2p';
