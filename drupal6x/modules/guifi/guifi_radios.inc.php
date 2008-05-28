@@ -515,7 +515,7 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
           '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'new'),
           '#value' => true);
       
-      $links_count[$it] += guifi_link_ipv4_form(
+      $links_count[$it] += guifi_ipv4_link_form(
         $f[$it][$ki]['ipv4'][$ka],
         $ipv4,
         $interface,
@@ -536,11 +536,12 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
       break;
     case 'wds/p2p':
       $f[$it][$ki]['ipv4'][$ka]['local']['AddWDS'] = array(
-        '#type'=>'button',
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
         '#parents'=>array('radios',$rk,'interfaces',$ki,'AddWDS'),
-        '#value'=>t('Add WDS/bridge p2p link'), 
-        '#name'=>'_action,_guifi_add_wds,'.$rk.','.$ki,
-        '#weight'=>$weight++);
+        '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
+        '#submit' => array('guifi_radio_add_wds_submit'),
+        '#weight'=>$weight++);      
       break;
     }
 
@@ -986,26 +987,27 @@ function _guifi_link_2AP(&$form,&$edit,$action) {
 }
 
 /* _guifi_add_wds(): Add WDS/p2p link */
-function _guifi_add_wds(&$form,&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
+function guifi_radio_add_wds_form(&$form,&$form_state) {
+  $radio_id    =$form_state['values']['#parents'][1];
+  $interface_id=$form_state['values']['#parents'][3];
   guifi_log(GUIFILOG_TRACE,sprintf("function _guifi_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id));
 
   // read input parameters
   $form_weight = 0;
 
-  guifi_form_hidden($form,$edit,$form_weight);
+  // store all the form_stat values
+  guifi_form_hidden($form,$form_state['values'],$form_weight);
 
   // initialize filters
-  if (empty($edit['filters']))
-  $edit['filters'] = array(
+  if (empty($form_state['values']['filters']))
+  $form_state['values']['filters'] = array(
     'dmin'   => 0,
     'dmax'   => 15,
     'search' => null,
     'type'   => 'wds',
-    'mode'   => $edit['radios'][$radio_id]['mode'],
-    'from_node' => $edit['nid'],
-    'from_device' => $edit['id'],
+    'mode'   => $form_state['values']['radios'][$radio_id]['mode'],
+    'from_node' => $form_state['values']['nid'],
+    'from_device' => $form_state['values']['id'],
     'from_radio' => $radio_id,
     'azimuth' => "0,360",
   );
@@ -1013,16 +1015,16 @@ function _guifi_add_wds(&$form,&$edit,$action) {
   drupal_set_title(t(
     'Choose an AP from the list to link with %ssid',
     array(
-      '%ssid'=> $edit['radios'][$radio_id]['ssid'])));
+      '%ssid'=> $form_state['values']['radios'][$radio_id]['ssid'])));
 
   // Filter form
   guifi_devices_select_filter(
     $form,
     implode(',',$action),
-    $edit['filters'],
+    $form_state['values']['filters'],
     $form_weight);
 
-  $choices = guifi_devices_select($edit['filters']);
+  $choices = guifi_devices_select($form_state['values']['filters']);
 
   if (count($choices) == 0) {
     $form['help'] = array(
@@ -1051,14 +1053,15 @@ function _guifi_add_wds(&$form,&$edit,$action) {
   return FALSE;
 }
 
-function _guifi_add_wds_submit(&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  guifi_log(GUIFILOG_TRACE,sprintf("function _guifi_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id));
-  guifi_log(GUIFILOG_FULL,"linked",$edit['linked']);
+function guifi_radio_add_wds_submit(&$form,&$form_state) {
+  $radio_id    =$form_state['values']['#parents'][1];
+  $interface_id=$form_state['values']['#parents'][3];
+  guifi_log(GUIFILOG_BASIC,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id));
+  guifi_log(GUIFILOG_FULL,"linked",$form_state['linked']);
+  return;
 
   // get list of the current used ips
-  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
+  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
   
   //
   // initializing WDS/p2p link parameters

@@ -46,7 +46,7 @@ function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
         
       $ipv4_count[$it] ++;
       
-      $links_count[$it] += guifi_link_ipv4_form(
+      $links_count[$it] += guifi_ipv4_link_form(
         $f[$it][$ki]['ipv4'][$ka],
         $ipv4,
         $interface,

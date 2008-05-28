@@ -227,9 +227,9 @@ function guifi_edit_ipv4_save($edit) {
   }
 }
 
-/* guifi_link_ipv4_form(): edit an ipv4 within a link */
+/* guifi_ipv4_link_form(): edit an ipv4 within a link */
 
-function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
+function guifi_ipv4_link_form(&$f,$ipv4,$interface,$tree,&$weight) {
   global $definedBridgeIpv4;
 
   if ($ipv4['deleted'])
@@ -342,18 +342,15 @@ function guifi_link_ipv4_form(&$f,$ipv4,$interface,$tree,&$weight) {
     }
   default:
     $f['local']['delete_address'] = array(
-      '#type' => 'button',
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
       '#parents'=>array_merge($tree,array('delete_address')),
-      '#value'=>t('Delete address'),
-      '#name'=>implode(',',array(
-         '_action',
-         '_guifi_delete_ipv4',
-         $rk,$ki,$ka,
-         $ipv4['ipv4'],
-         $ipv4['netmask'])),
+      '#attributes'=>array('title'=>t('Delete ipv4 address')), 
+      '#submit' => array('guifi_ipv4_delete_submit'),
       '#prefix'=> '<td>',
       '#suffix'=> '</td></tr></table>',
-      '#weight' =>  3,
+      '#weight'=>3
+      // parameters $rk, $ki, $ka, $ipv4, $netmask
     );
   }  // switch $it (interface_type)
 
@@ -395,7 +392,7 @@ function _guifi_delete_ipv4(&$form,&$edit,$action) {
 
 /* _guifi_delete_ipv4_submit(): Action */
 
-function _guifi_delete_ipv4_submit(&$form,&$edit,$action) {
+function guifi_ipv4_delete_submit(&$form,&$form_state) {
   $rk = $action[2]; // radio#
   $ki = $action[3]; // interface#
   $ka = $action[4]; // ipv4#
