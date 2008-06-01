@@ -5,7 +5,7 @@
  * Functions for Asynchrnous HTTP and HTML (AHAH) at some forms
  */
  
- function guifi_ahah_render($fields, $name) {
+function guifi_ahah_render($fields, $name) {
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
   // Add the new element to the stored form. Without adding the element to the
@@ -27,6 +27,10 @@
 }
 
 function guifi_ahah_add_wds(){
+  ob_start();
+  print_r($_POST);
+  $descr = ob_get_clean();
+  ob_end_flush();
   $form = array(
     '#type' => 'select',
     '#title' => 'You selected that because...',
@@ -35,7 +39,7 @@ function guifi_ahah_add_wds(){
       '2' => 'I do what I want.',
       '3' => "I'm feeling lucky..."
     ),
-    '#description'=>$_POST,
+    '#description'=>$descr,
   );
   // ahah_render is where the magic happens. 
   // 'the value of this field will show up as $form_value['user_problem'] 
@@ -44,5 +48,34 @@ function guifi_ahah_add_wds(){
   exit();
 }
 
+function guifi_ahah_select_firmware_by_model(){
+  ob_start();
+  print_r($_POST);
+  $descr = ob_get_clean();
+  ob_end_flush();
+  $edit=$_POST;
+  $model=db_fetch_object(db_query(
+        "SELECT model name " .
+        "FROM {guifi_model} " .
+        "WHERE mid=%d}",
+    $edit['variable']['model_id']));
+  $form['radio_settings']['variable']['firmware'] = array(
+    '#type' => 'select',
+    '#title' => t("Firmware"),
+    '#required' => TRUE,
+    '#default_value' => $edit['variable']['firmware'],
+    '#options' => guifi_types('firmware',0,0,$model->name),
+    '#description' => t('Used for automatic configuration.'),
+    '#prefix' => '<td><div="select-firmware">',
+    '#suffix' => '</div></td>',
+    '#weight' => 1,
+    '#description'=>$edit['variable']['model_id'],
+  );
+  // ahah_render is where the magic happens. 
+  // 'the value of this field will show up as $form_value['user_problem'] 
+  $output = guifi_ahah_render($form, 'variable-firmware');
+  print drupal_to_js(array('data' => $output, 'status' => true));
+  exit();
+}
 
 ?>

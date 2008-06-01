@@ -253,13 +253,20 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK
    );   
    
+   // AHAH Calls
    $items['guifi/js/add_wds'] = array(
     'title' => 'Javascript Add WDS',
     'page callback' => 'guifi_ahah_add_wds',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
-   
+   $items['guifi/js/firmware_by_model'] = array(
+    'title' => 'Javascript Select Firmware by Model',
+    'page callback' => 'guifi_ahah_select_firmware_by_model',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    );   
+    
     return $items;
 /*  
 

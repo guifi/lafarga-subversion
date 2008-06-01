@@ -37,6 +37,12 @@ function guifi_radio_form(&$edit,$form_weight) {
     '#description' => t('Select the readio model that do you have.'),
     '#prefix' => '<table><tr><td>',
     '#suffix' => '</td>',
+    '#ahah' => array(
+      'path' => 'guifi/js/firmware_by_model',
+      'wrapper' => 'select-firmware',
+      'method' => 'replace',
+      'effect' => 'fade',
+     ),
     '#weight' => 0,
   );
   $form['radio_settings']['variable']['firmware'] = array(
@@ -46,8 +52,8 @@ function guifi_radio_form(&$edit,$form_weight) {
     '#default_value' => $edit['variable']['firmware'],
     '#options' => guifi_types('firmware'),
     '#description' => t('Used for automatic configuration.'),
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
+    '#prefix' => '<td><div id="select-firmware">',
+    '#suffix' => '</div></td>',
     '#weight' => 1,
   );
   $form['radio_settings']['mac'] = array(
@@ -538,7 +544,9 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
       $f[$it][$ki]['ipv4'][$ka]['local']['AddWDS'] = array(
         '#type'=>'image_button',
         '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
-        '#parents'=>array('radios',$rk,'interfaces',$ki,'AddWDS'),
+//        '#parents'=>array('radios',$rk,'interfaces',$ki,'AddWDS'),
+        '#parents'=>array('AddWDS',$rk,$ki),
+//        '#value'=>($rk).','.($ki),
         '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
         '#submit' => array('guifi_radio_add_wds_submit'),
         '#ahah' => array(
