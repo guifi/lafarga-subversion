@@ -20,7 +20,9 @@ include_once("guifi_maps.inc.php");      // maps management
 include_once("guifi_includes.inc.php");  // misc. routines
 include_once("guifi_networkutils.inc.php");  // network calc routines
 include_once("guifi_sql.inc.php");       // database changes 
+include_once("guifi_ahah.inc.php");      // AHAH functions 
 include_once("GeoCalc.class.php");       // geographic routines
+
 
 
 /** Implementation of drupal main hooks.
@@ -250,6 +252,14 @@ function guifi_menu() {
           'weight' => 2,
      'type' => MENU_LOCAL_TASK
    );   
+   
+   $items['guifi/js/add_wds'] = array(
+    'title' => 'Javascript Add WDS',
+    'page callback' => 'guifi_ahah_add_wds',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    );
+   
     return $items;
 /*  
 

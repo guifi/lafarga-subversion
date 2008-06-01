@@ -541,7 +541,17 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
         '#parents'=>array('radios',$rk,'interfaces',$ki,'AddWDS'),
         '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
         '#submit' => array('guifi_radio_add_wds_submit'),
-        '#weight'=>$weight++);      
+        '#ahah' => array(
+          'path' => 'guifi/js/add_wds',
+          'wrapper' => 'WDSLinks-'.$ki,
+          'method' => 'replace',
+          'effect' => 'fade',
+         ),
+        '#weight'=>$weight++);
+        $f[$it][$ki]['ipv4'][$ka]['local']['WDSLinks'] = array(
+          '#type' => 'item',
+          '#prefix' => '<div id="WDSLinks-'.$ki.'"">',
+          '#suffix' => '</div>');             
       break;
     }
 
