@@ -62,6 +62,7 @@ function guifi_ahah_select_firmware_by_model(){
   $form['radio_settings']['variable']['firmware'] = array(
     '#type' => 'select',
     '#title' => t("Firmware"),
+    '#parents'=>array('variable','firmware'),
     '#required' => TRUE,
     '#default_value' => $edit['variable']['firmware'],
     '#options' => guifi_types('firmware',0,0,$model->name),
@@ -73,7 +74,7 @@ function guifi_ahah_select_firmware_by_model(){
   );
   // ahah_render is where the magic happens. 
   // 'the value of this field will show up as $form_value['user_problem'] 
-  $output = guifi_ahah_render($form, 'variable-firmware');
+  $output = guifi_ahah_render($form, 'edit-variable-firmware');
   print drupal_to_js(array('data' => $output, 'status' => true));
   exit();
 }
