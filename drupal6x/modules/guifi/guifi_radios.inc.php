@@ -45,17 +45,26 @@ function guifi_radio_form(&$edit,$form_weight) {
      ),
     '#weight' => 0,
   );
-  $form['radio_settings']['variable']['firmware'] = array(
-    '#type' => 'select',
-    '#title' => t("Firmware"),
-    '#required' => TRUE,
-    '#default_value' => $edit['variable']['firmware'],
-    '#options' => guifi_types('firmware'),
-    '#description' => t('Used for automatic configuration.'),
-    '#prefix' => '<td><div id="select-firmware">',
+/*  
+  $form['radio_settings']['variable']['firmwarestart'] = array(
+    '#type'=>'hidden',
+    '#value'=> -1,
+    '#prefix' => '<td><div="select-firmware">',
+    '#weight' => 1
+    );
+  */
+  $form['radio_settings']['variable']['firmware'] = 
+    guifi_radio_firmware_field($edit['variable']['firmware'],
+        $edit['variable']['model_id']);
+  /*
+  $form['radio_settings']['variable']['firmwareend'] = array(
+    '#type'=>'hidden',
+    '#value'=> -1,
     '#suffix' => '</div></td>',
-    '#weight' => 1,
-  );
+    '#weight' => 3
+    );
+  */
+        
   $form['radio_settings']['mac'] = array(
     '#type' => 'textfield',
     '#title' => t('Device MAC Address'),
@@ -67,7 +76,7 @@ function guifi_radio_form(&$edit,$form_weight) {
     '#description' => t("Base/Main MAC Address.<br />Some configurations won't work if is blank"),
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
-    '#weight' => 2
+    '#weight' => 4
   );
 
   $msg = t('Wireless radios settings').' - ';
@@ -260,6 +269,29 @@ function guifi_radio_form(&$edit,$form_weight) {
 }
 
 /* _guifi_radio_form(): radio (loop per radio) form */
+
+function guifi_radio_firmware_field($fid,$mid) {
+  $model=db_fetch_object(db_query(
+        "SELECT model name " .
+        "FROM {guifi_model} " .
+        "WHERE mid=%d}",
+    $mid));
+  return array(
+    '#type' => 'select',
+    '#title' => t("Firmware"),
+    '#parents'=>array('variable','firmware'),
+    '#required' => TRUE,
+    '#default_value' => $fid,
+    '#prefix' => '<td><div id="select-firmware">',
+    '#suffix' => '</div></td>',    
+    '#options' => guifi_types('firmware',0,0,$model->name),
+    '#description' => t('Used for automatic configuration.'),
+    '#weight' => 2,
+//    '#description'=>$edit['variable']['model_id'],
+  );
+}
+
+
 function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
     guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_radio_radio_form(key=%d)',$key),$radio); 
 

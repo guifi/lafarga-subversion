@@ -5,7 +5,7 @@
  * Functions for Asynchrnous HTTP and HTML (AHAH) at some forms
  */
  
-function guifi_ahah_render($fields, $name) {
+function guifi_ahah_render_newfields($fields, $name) {
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
   // Add the new element to the stored form. Without adding the element to the
@@ -26,6 +26,30 @@ function guifi_ahah_render($fields, $name) {
   return drupal_render($new_form); 
 }
 
+function guifi_ahah_render_field($field){
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
+  
+  if ($cache) {
+    $form = $cache->data;
+
+    // Validate the firmware.
+    $form['replacedField'] = $field;
+    cache_set($cid, $form, 'cache_form', $cache->expire);
+
+    // Build and render the new select element, then return it in JSON format.
+    $form_state = array();
+    $form['#post'] = array();
+    $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+    $output = drupal_render($form['replacedField']);
+    drupal_json(array('status' => TRUE, 'data' => $output));
+  }
+  else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
+}
+
 function guifi_ahah_add_wds(){
   ob_start();
   print_r($_POST);
@@ -43,40 +67,49 @@ function guifi_ahah_add_wds(){
   );
   // ahah_render is where the magic happens. 
   // 'the value of this field will show up as $form_value['user_problem'] 
-  $output = guifi_ahah_render($form, 'user_problem');
+  $output = guifi_ahah_render_newfields($form, 'user_problem');
   print drupal_to_js(array('data' => $output, 'status' => true));
   exit();
 }
 
 function guifi_ahah_select_firmware_by_model(){
-  ob_start();
-  print_r($_POST);
-  $descr = ob_get_clean();
-  ob_end_flush();
-  $edit=$_POST;
-  $model=db_fetch_object(db_query(
-        "SELECT model name " .
-        "FROM {guifi_model} " .
-        "WHERE mid=%d}",
-    $edit['variable']['model_id']));
-  $form['radio_settings']['variable']['firmware'] = array(
-    '#type' => 'select',
-    '#title' => t("Firmware"),
-    '#parents'=>array('variable','firmware'),
-    '#required' => TRUE,
-    '#default_value' => $edit['variable']['firmware'],
-    '#options' => guifi_types('firmware',0,0,$model->name),
-    '#description' => t('Used for automatic configuration.'),
-    '#prefix' => '<td><div="select-firmware">',
-    '#suffix' => '</div></td>',
-    '#weight' => 1,
-    '#description'=>$edit['variable']['model_id'],
-  );
-  // ahah_render is where the magic happens. 
-  // 'the value of this field will show up as $form_value['user_problem'] 
-  $output = guifi_ahah_render($form, 'edit-variable-firmware');
-  print drupal_to_js(array('data' => $output, 'status' => true));
-  exit();
+/*  $mid = $_POST['variable']['model_id'];
+  $field = guifi_radio_firmware_field($_POST['variable']['firmware'],
+          $mid);
+  guifi_ahah_render_field($field);
+  exit;
+  */
+  
+  $cid = 'form_'. $_POST['form_build_id'];
+//  $bid = $_POST['book']['bid'];
+  $cache = cache_get($cid, 'cache_form');
+  $mid = $_POST['variable']['model_id'];
+  
+  if ($cache) {
+    $form = $cache->data;
+
+    // Validate the firmware.
+    if (isset($form['radio_settings']['variable']['model_id'])) {
+      $form['radio_settings']['variable']['firmware'] = 
+        guifi_radio_firmware_field($_POST['variable']['firmware'],
+          $mid);
+      cache_set($cid, $form, 'cache_form', $cache->expire);
+
+      // Build and render the new select element, then return it in JSON format.
+      $form_state = array();
+      $form['#post'] = array();
+      $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+      $output = drupal_render($form['radio_settings']['variable']['firmware']);
+      drupal_json(array('status' => TRUE, 'data' => $output));
+    }
+    else {
+      drupal_json(array('status' => FALSE, 'data' => ''));
+    }
+  }
+  else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
 }
 
 ?>

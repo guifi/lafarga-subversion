@@ -213,7 +213,8 @@ function guifi_device_load($id,$ret = 'array') {
  */
 function guifi_device_edit_form_submit($form, &$form_state) {
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',
+    $form_state);
   
   switch ($form_state['clicked_button']['#value']) {
   case t('Add new radio'):
