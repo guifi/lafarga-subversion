@@ -72,6 +72,35 @@ function guifi_ahah_add_wds(){
   exit();
 }
 
+function guifi_ahah_select_channel($rid){
+ 
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
+  $protocol = $_POST['radios'][$rid]['protocol'];
+  $curr_channel = $_POST['radios'][$rid]['channel'];
+  
+  if ($cache) {
+    $form = $cache->data;
+
+    $form['r']['radios'][$rid]['channel'] = 
+        guifi_radio_channel_field(
+          $rid,
+          $curr_channel,
+          $protocol);
+          
+    cache_set($cid, $form, 'cache_form', $cache->expire);
+    // Build and render the new select element, then return it in JSON format.
+    $form_state = array();
+    $form['#post'] = array();
+    $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+    $output = drupal_render($form['r']['radios'][$rid]['channel']);
+    drupal_json(array('status' => TRUE, 'data' => $output));
+  } else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
+}
+
 function guifi_ahah_select_firmware_by_model(){
 /*  $mid = $_POST['variable']['model_id'];
   $field = guifi_radio_firmware_field($_POST['variable']['firmware'],

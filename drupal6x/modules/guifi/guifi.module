@@ -266,6 +266,12 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );   
+   $items['guifi/js/channel'] = array(
+    'title' => 'Javascript Select Channel by protocol',
+    'page callback' => 'guifi_ahah_select_channel',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    );   
     
     return $items;
 /*  
