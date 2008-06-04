@@ -36,6 +36,94 @@ function guifi_zone_load($node) {
   return false;
 }
 
+function guifi_zone_select_field($zid,$fname) {
+  $parents = array();
+  $parent=$zid;
+  $c = 0;
+  while ($parent > 0) {
+    $result = db_query('
+      SELECT z.id zid, z.master master, z.title title 
+      FROM {guifi_zone} z 
+      WHERE z.id = %d',
+      $parent);
+    $row = db_fetch_object($result);
+    $parent = $row->master;
+    if ($parent == $zid)
+      continue;
+    $parents[$row->zid] = $row->title;
+    if ($c == 0)
+      $master = $parent;
+    $c++;
+  }
+
+  $parents = array_reverse($parents,true);
+
+  $lzones['0'] = t('(root zone)');
+  $ident = $c;
+  foreach ($parents as $k=>$value) {
+    $lzones[$k] = str_repeat('-',($c+1)-$ident).$value;
+    $ident--;
+  }  
+
+  
+  ob_start();
+  print_r($lzones);
+  $txt = ob_get_clean();
+  ob_end_clean(); 
+
+  $has_peers = false;
+  $has_childs = false;
+  $qpeer = db_query(
+    'SELECT z.id, z.title ' .
+    'FROM {guifi_zone} z ' .
+    'WHERE z.master=%d '.
+    'ORDER BY z.title',
+    $master);
+  $qchilds = db_query(
+    'SELECT z.id, z.title ' .
+    'FROM {guifi_zone} z ' .
+    'WHERE z.master=%d '.
+    'ORDER BY z.title',
+    $zid);
+    
+  while ($peer = db_fetch_object($qpeer)) {
+    if ($peer->id == $zid) {
+      while ($child = db_fetch_object($qchilds)) {
+        $has_childs = true;
+        $lzones[$child->id] = str_repeat('-',$c+1).$child->title;
+      }
+    } else {
+      $has_peers = true;
+      $lzones[$peer->id] = str_repeat('-',$c).$peer->title;      
+    }
+  }
+  
+  $msg = t('Select the zone no navigate<br>Zone list hierarchy will be dynamically refreshed after each selection');
+  if ($has_childs)
+    $msg .= '<br>'.t('<bold>Attention!</bold>: The selected zone has childs, and has been refreshed, click to view');
+
+  $msg .= $txt;
+  
+  return array(    
+    '#type' => 'select',
+    '#title' => t('Zone'),
+    '#default_value' => $zid,
+    '#options' => $lzones,
+//    '#element_validate' => array('guifi_zone_master_validate'),    
+    '#description' => $msg,
+    '#prefix'=>'<div id="select-zone">',
+    '#suffix'=>'</div>',
+    '#ahah'=>array(
+      'path' => 'guifi/js/select-zone/'.$fname,
+      'wrapper' => 'select-zone',
+      'method' => 'replace',
+      'effect' => 'fade',
+     ),    
+    );
+//'#weight' => $form_weight++,
+  
+}
+
 /** guifi_zone_form(): Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node, &$param) {
@@ -51,7 +139,7 @@ function guifi_zone_form(&$node, &$param) {
   );
   
   
-  $form['master'] = array(
+/*  $form['master'] = array(
     '#type' => 'select',
     '#title' => t('Parent zone'),
     '#required' => FALSE,
@@ -61,6 +149,10 @@ function guifi_zone_form(&$node, &$param) {
     '#description' => t('The parent zone where this zone belongs to.'),
     '#weight' => $form_weight++,
   );
+*/
+  $form['master'] = guifi_zone_select_field($node->master,'master');
+  $form['master']['#weight'] = $form_weight++;
+  
   $form['body'] = array(
     '#type' => 'textarea', 
     '#title' => t('Description of the zone'), 
@@ -892,7 +984,10 @@ function guifi_zones_listbox_recurse($id, $indent, $listbox, $children, $exclude
 }
 
 function guifi_zones_listbox($exclude = 0) {
-  $result = db_query('SELECT z.id, z.title, z.master, z.weight FROM {guifi_zone} z ORDER BY z.weight, z.title');
+  $result = db_query(
+    'SELECT z.id, z.title, z.master, z.weight ' .
+    'FROM {guifi_zone} z ' .
+    'ORDER BY z.weight, z.title');
 
   while ($zone = db_fetch_object($result)) {
     if (!$children[$zone->master]) {

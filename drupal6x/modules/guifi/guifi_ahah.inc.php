@@ -101,13 +101,33 @@ function guifi_ahah_select_channel($rid){
   exit;
 }
 
-function guifi_ahah_select_firmware_by_model(){
-/*  $mid = $_POST['variable']['model_id'];
-  $field = guifi_radio_firmware_field($_POST['variable']['firmware'],
-          $mid);
-  guifi_ahah_render_field($field);
+function guifi_ahah_select_zone($fname) {
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
+  
+  $zid = $_POST[$fname];
+  
+  if ($cache) {
+    $form = $cache->data;
+
+    $form[$fname] = 
+        guifi_zone_select_field($zid,$fname);
+          
+    cache_set($cid, $form, 'cache_form', $cache->expire);
+    // Build and render the new select element, then return it in JSON format.
+    $form_state = array();
+    $form['#post'] = array();
+    $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+    $output = drupal_render($form[$fname]);
+    drupal_json(array('status' => TRUE, 'data' => $output));
+  } else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
   exit;
-  */
+}
+
+
+function guifi_ahah_select_firmware_by_model(){
   
   $cid = 'form_'. $_POST['form_build_id'];
 //  $bid = $_POST['book']['bid'];
@@ -140,5 +160,6 @@ function guifi_ahah_select_firmware_by_model(){
   }
   exit;
 }
+
 
 ?>
