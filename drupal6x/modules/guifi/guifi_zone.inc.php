@@ -114,6 +114,7 @@ function guifi_zone_select_field($zid,$fname) {
   return array(    
     '#type' => 'select',
     '#title' => $title,
+    '#parents' => array($fname),
     '#default_value' => $zid,
     '#options' => $lzones,
 //    '#element_validate' => array('guifi_zone_master_validate'),    
@@ -145,18 +146,6 @@ function guifi_zone_form(&$node, &$param) {
     '#weight' => $form_weight++,
   );
   
-  
-/*  $form['master'] = array(
-    '#type' => 'select',
-    '#title' => t('Parent zone'),
-    '#required' => FALSE,
-    '#default_value' => $node->master,
-    '#options' => guifi_zones_listbox(),
-    '#element_validate' => array('guifi_zone_master_validate'),    
-    '#description' => t('The parent zone where this zone belongs to.'),
-    '#weight' => $form_weight++,
-  );
-*/
   $form['master'] = guifi_zone_select_field($node->master,'master');
   $form['master']['#weight'] = $form_weight++;
   

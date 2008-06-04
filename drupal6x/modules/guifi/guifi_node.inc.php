@@ -252,6 +252,10 @@ function guifi_node_form_supernode($node, $param) {
 //    '#collapsed' => FALSE,
   );
   
+  $form['position']['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
+  $form['position']['zone_id']['#weight'] = 0;
+  
+  /*
   $form['position']['zone_id'] = array(
     '#type' => 'select',
     '#title' => t("Zone"),
@@ -261,6 +265,7 @@ function guifi_node_form_supernode($node, $param) {
     '#description' => t('The zone where this node where this node belongs to.'),
     '#weight' => 0,
   );
+  */
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_node.js','module');
     $form['position']['GMAP'] = array(
