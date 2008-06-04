@@ -100,7 +100,7 @@ function guifi_zone_select_field($zid,$fname) {
     }
   }
   
-  $msg = t('Select to navigate through the available zones<br>Zone list hierarchy will be dynamically refreshed after each selection');
+  $msg = t('Select to navigate through the available zones, only parent, peer and child zones are shown in the list.<br>By selecting any other zone, the list will be refreshed with the corresponding parents, peers and childs.');
   if ($has_childs)
     $msg .= '<br>'.t('<strong>Attention!</strong>: The currently selected zone has childs, click to view');
 
