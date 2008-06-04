@@ -39,20 +39,21 @@ function guifi_zone_load($node) {
 function guifi_zone_select_field($zid,$fname) {
   $parents = array();
   $parent=$zid;
-  $c = 0;
+  $c = 1;
   while ($parent > 0) {
     $result = db_query('
       SELECT z.id zid, z.master master, z.title title 
       FROM {guifi_zone} z 
       WHERE z.id = %d',
       $parent);
-    $row = db_fetch_object($result);
+    $row = db_fetch_object($result);      
     $parent = $row->master;
-    if ($parent == $zid)
-      continue;
-    $parents[$row->zid] = $row->title;
-    if ($c == 0)
+    
+    if ($row->zid == $zid) {
       $master = $parent;
+      continue;
+    }
+    $parents[$row->zid] = $row->title;
     $c++;
   }
 
@@ -67,6 +68,7 @@ function guifi_zone_select_field($zid,$fname) {
 
   
   ob_start();
+  print "<br>Zid: $zid Master: $master <br>";
   print_r($lzones);
   $txt = ob_get_clean();
   ob_end_clean(); 
@@ -87,6 +89,7 @@ function guifi_zone_select_field($zid,$fname) {
     $zid);
     
   while ($peer = db_fetch_object($qpeer)) {
+    $lzones[$peer->id] = str_repeat('-',$c).$peer->title;      
     if ($peer->id == $zid) {
       while ($child = db_fetch_object($qchilds)) {
         $has_childs = true;
@@ -94,19 +97,23 @@ function guifi_zone_select_field($zid,$fname) {
       }
     } else {
       $has_peers = true;
-      $lzones[$peer->id] = str_repeat('-',$c).$peer->title;      
     }
   }
   
-  $msg = t('Select the zone no navigate<br>Zone list hierarchy will be dynamically refreshed after each selection');
+  $msg = t('Select to navigate through the available zones<br>Zone list hierarchy will be dynamically refreshed after each selection');
   if ($has_childs)
-    $msg .= '<br>'.t('<bold>Attention!</bold>: The selected zone has childs, and has been refreshed, click to view');
+    $msg .= '<br>'.t('<strong>Attention!</strong>: The currently selected zone has childs, click to view');
 
-  $msg .= $txt;
+//  $msg .= $txt;
+  
+  if ($fname == 'master')
+    $title = t('Parent zone');
+  else
+    $title = t('Zone');
   
   return array(    
     '#type' => 'select',
-    '#title' => t('Zone'),
+    '#title' => $title,
     '#default_value' => $zid,
     '#options' => $lzones,
 //    '#element_validate' => array('guifi_zone_master_validate'),    
