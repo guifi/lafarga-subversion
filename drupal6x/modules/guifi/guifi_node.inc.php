@@ -128,19 +128,16 @@ function guifi_node_form($node, $param){
 function guifi_node_form_supernode($node, $param) {   
   global $user;
 
-  // A partir d'ara l'ordre el definirem per aquesta variable.
-  // Així ens estalviem canviar-ho tot cada cop que inserim un nou element.
-  $form_weight = -20;
-  
+
   // ----
   // El títol el primer de tot
   // ------------------------------------------------
   $form['title'] = array(
     '#type' => 'fieldset',
     '#title' => t('Node name and general settings'),
-    '#weight' => $form_weight++,
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
+    '#weight' => 0
   );
   $form['title']['title'] = array(
     '#type' => 'textfield',
@@ -158,7 +155,7 @@ function guifi_node_form_supernode($node, $param) {
     '#element_validate' => array('guifi_node_nick_validate'),
     '#default_value' => $node->nick,
     '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc."),
-    '#weight' => 2,
+    '#weight' => 1,
   );
   $form['title']['notification'] = array(
     '#type' => 'textfield',
@@ -169,7 +166,7 @@ function guifi_node_form_supernode($node, $param) {
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $node->notification,
     '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'"),
-    '#weight' => 3,
+    '#weight' => 2,
   );
   
   // ----
@@ -222,7 +219,7 @@ function guifi_node_form_supernode($node, $param) {
       '#title' => t('License and usage agreement'),
       '#value' => variable_get('guifi_license',null),
       '#description' => t('You must accept this agreement to be authorized to create new nodes.'),
-      '#weight' => $form_weight++,
+      '#weight' => 1,
     );
     $form['agreement']= array(
       '#type' => 'radios',
@@ -230,15 +227,19 @@ function guifi_node_form_supernode($node, $param) {
       '#default_value' => 'No',
       '#options' => array('Yes'=>t('Yes, I have read this and accepted')),
       '#element_validate' => array('guifi_node_agreement_validate'),
-      '#weight' => $form_weight++,
+      '#weight' => 2,
     );
   } else {
     $form['agreement']= array(
       '#type' => 'hidden',
       '#default_value' => 'Yes',
-      '#weight' => $form_weight++,
     );
   };
+
+
+  $form['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
+  $form['zone_id']['#weight'] = 3;
+  
   
   // ----
   // position
@@ -247,13 +248,10 @@ function guifi_node_form_supernode($node, $param) {
   $form['position'] = array(
     '#type' => 'fieldset',
     '#title' => t('Node postion settings'),
-    '#weight' => $form_weight++,
+    '#weight' => 4,
     '#collapsible' => false,
 //    '#collapsed' => FALSE,
   );
-  
-  $form['position']['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
-  $form['position']['zone_id']['#weight'] = 0;
   
   /*
   $form['position']['zone_id'] = array(
@@ -273,7 +271,7 @@ function guifi_node_form_supernode($node, $param) {
       '#title' => t('Map'),
       '#description' => t('Select the point where the node has to be placed.'),
       '#suffix' => '<div id="map" style="width: 100%; height: 437px; margin:5px;"></div>',
-      '#weight' => $form_weight++,
+      '#weight' => 0,
     );
     $form['guifi_wms'] = array(
       '#type' => 'hidden',
@@ -373,7 +371,7 @@ function guifi_node_form_supernode($node, $param) {
     '#maxlength' => 128, 
     '#default_value' => $node->zone_description,
     '#description' => t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street."),
-    '#weight' => 4,
+    '#weight' => 9,
   );
 
   $form['position']['elevation'] = array(
@@ -385,7 +383,7 @@ function guifi_node_form_supernode($node, $param) {
     '#maxlength' => 20, 
     '#default_value' => $node->elevation,
     '#description' => t("Antenna height over the floor level."),
-    '#weight' => 5,
+    '#weight' => 10,
   );
   
   // ----
@@ -400,7 +398,7 @@ function guifi_node_form_supernode($node, $param) {
     '#rows' => 20, 
     '#required' => FALSE,
     '#description' => t("Textual description of the wifi node"),
-    '#weight' => $form_weight++,
+    '#weight' => 11,
   );
   
   // ----

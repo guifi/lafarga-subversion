@@ -107,15 +107,11 @@ function guifi_edit_ipv4_form($form_state, $params = array()) {
     '#description' => t('The mask of the network. The number of valid hosts of each masks is displayed in the list box.'),
     '#weight' => 1,
   );
-  $form['zone'] = array(
-    '#type' => 'select',
-    '#title' => t("Zone"),
-    '#required' => true,
-    '#default_value' => $form_state['values']['zone'],
-    '#options' => guifi_zones_listbox(),
-    '#description' => t('The zone where this netwok belongs to.'),
-    '#weight' => 2,
-  );
+  
+  
+  $form['zone'] = guifi_zone_select_field($form_state['values']['zone'],'zone');
+  $form['zone']['#weight'] = 2;
+ 
   $form['network_type'] = array(
     '#type' => 'select',
     '#title' => t("Network type"),
