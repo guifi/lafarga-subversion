@@ -405,8 +405,9 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 
 
 /* guifi_devices_select_filter($form,$filters): Construct a list of devices to link with */
-function guifi_devices_select_filter(&$form,$form_state,&$fweight = -100) {
+function guifi_devices_select_filter($form_state,&$fweight = -100) {
 
+  $form = array();
   
   $form['f'] = array(
     '#type' => 'fieldset',
@@ -537,7 +538,7 @@ function guifi_devices_select_filter(&$form,$form_state,&$fweight = -100) {
      '#type'  => 'hidden',
      '#parents'=>array('filters','skip'),
      '#value' => $form_state['values']['filters']['skip']);
-  return;
+  return $form;
 }
 
 function _guifi_set_namelocation($location) {
@@ -1477,6 +1478,9 @@ function guifi_notification_validate($to) {
 }
 
 function guifi_mac_validate($mac,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+    
   $pmac = _guifi_validate_mac($mac['#value']);
   if ($pmac == FALSE) {
     form_error($mac,

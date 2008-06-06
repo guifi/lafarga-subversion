@@ -213,24 +213,9 @@ function guifi_device_load($id,$ret = 'array') {
  */
 function guifi_device_edit_form_submit($form, &$form_state) {
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_submit()',
+  guifi_log(GUIFILOG_TRACEf,'function guifi_device_edit_form_submit()',
     $form_state);
   
-  switch ($form_state['clicked_button']['#value']) {
-  case t('Add new radio'):
-    guifi_log(GUIFILOG_TRACE,'Add new radio has been clicked');
-    $newRadio = guifi_radio_add_radio($form_state);
-    $form_state['rebuild'] = true;
-    $form_state['newRadio'] = $newRadio;
-    return;    
-  case t('Up'):
-  case t('Down'):
-    print_r($form_state['clicked_button']['#name']);
-    $form_state['swapRadios']=$form_state['clicked_button']['#name'];
-    $form_state['rebuild'] = true;
-    return;
-  }
-
   if ($form_state['values']['id'])
   if (!guifi_device_access('update',$form_state['values']['id']))
   {
@@ -238,19 +223,15 @@ function guifi_device_edit_form_submit($form, &$form_state) {
     return;
   }
 
-  /* Check if there is an action to take over the current form 
-  $key = false;
-  foreach($_POST as $key=>$value) 
-    if (preg_match('/^_action/',$key)) {
-      // There is 
-      // Will return to the form if is not a save operation
-      $form_values['op'] = $value;
-      break;
-    }
- */
-
   // Take the appropiate actions 
   switch ($form_state['clicked_button']['#value']) {
+  case t('Reset'):
+    drupal_set_message(t('Reset was pressed, ' .
+        'if there was any change, was not saved and lost.' .
+        '<br>The device information has been reloaded ' .
+        'from the current information available at the database'));
+    drupal_goto('guifi/device/'.$form_state['values']['id'].'/edit');
+    break;
   case t('Save & continue edit'):
   case t('Save & exit'):
     // save
@@ -264,8 +245,8 @@ function guifi_device_edit_form_submit($form, &$form_state) {
     break;
   default:
 //     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
-    guifi_log(GUIFILOG_TRACE,
-      'exit guifi_device_edit_form_submit without saving...');
+    guifi_log(GUIFILOG_BASIC,
+      'exit guifi_device_edit_form_submit without saving...',$form_state['clicked_button']['#value']);
     return;
   }
 
@@ -350,8 +331,9 @@ function guifi_device_edit_form($form_state, $params = array()) {
   if (isset($form_state['action'])) {
     guifi_log(GUIFILOG_TRACE,'action',$form_state['action']);
     if (function_exists($form_state['action'])) {
-      call_user_func_array($form_state['action'],
-        array(&$form,&$form_state));     
+      if (!call_user_func_array($form_state['action'],
+        array(&$form,&$form_state)))
+          return $form;     
     }
   }
 /*  
@@ -489,8 +471,9 @@ function guifi_device_edit_form($form_state, $params = array()) {
   // Cable interfaces/links
   guifi_interfaces_form($form['if'],$form_state['values'],$form_weight = 2);
 
-  // Comments & save/validate/reset buttons
+  // Comments
   $form_weight = 200;
+  
   $form['comment'] = array(
     '#type' => 'textarea',
 //    '#parents' => 'comment',
@@ -501,30 +484,9 @@ function guifi_device_edit_form($form_state, $params = array()) {
     '#rows' => 5,
     '#weight' => $form_weight++,
   );
-  $form['reset'] = array(
-    '#type' => 'button',
-//    '#parents' => 'reset',
-    '#value' => t('Reset'),
-    '#weight' => $form_weight++,
-  );
-  $form['validate'] = array(
-    '#type' => 'button',
-//    '#parents' => 'validate',
-    '#value' => t('Validate'),
-    '#weight' => $form_weight++,
-  );
-  $form['save_continue'] = array(
-    '#type' => 'submit',
-//    '#parents' => 'save_continue',
-    '#value' => t('Save & continue edit'),
-    '#weight' => $form_weight++,
-  );
-  $form['save_exit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save & exit'),
-    '#weight' => $form_weight++,
-  );
-
+  
+  //  save/validate/reset buttons
+  $form['dbuttons'] = guifi_device_buttons(false,'',$form_weight);
 
   return $form;
 }
@@ -974,7 +936,6 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
 
 }
 
-
 function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   $log = '';
 
@@ -1051,6 +1012,45 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   return $log;
 }
 
+function guifi_device_buttons($continue = false,$action = '', &$form_weight = 1000) {
+  $form['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reset'),
+    '#weight' => $form_weight++,
+  );
+  
+  if ($continue) { 
+    $form['ignore_continue'] = array(
+      '#type' => 'submit',
+      '#value' => t('Ignore & back to main form'),
+      '#weight' => $form_weight++,
+    );
+    $form['save_continue'] = array(
+      '#type' => 'submit',
+      '#submit' => array($action),
+      '#value' => t('Confirm & back to main form'),
+      '#weight' => $form_weight++,
+    );
+    return $form;
+  }
+  $form['validate'] = array(
+    '#type' => 'button',
+    '#value' => t('Validate'),
+    '#weight' => $form_weight++,
+  );
+  $form['save_continue'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save & continue edit'),
+    '#weight' => $form_weight++,
+  );
+  $form['save_exit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save & exit'),
+    '#weight' => $form_weight++,
+  );
+  
+  return $form;
+}
 /* guifi_device_delete(): Delete a device */
 function guifi_device_delete_confirm($form_state,$params) {
 
