@@ -1032,32 +1032,34 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
 //    $form_weight);
 
 
-  // TODO: Move the list to an AHAH call 
-  $choices = guifi_devices_select($form_state['values']['filters']);
+  $form['devices-list'] = guifi_devices_select($form_state['values']['filters']);
 
-  $form['dbuttons'] = guifi_device_buttons(true,'guifi_radio_add_wds',$form_weight);
-
+/*
   if (count($choices) == 0) {
-    $form['help'] = array(
+    $form['list-devices'] = array(
       '#type' => 'item',
       '#parents'=> array('dummy'),
       '#title' => t('No devices available'),
       '#value'=> t('There are no devices to link within the given criteria, you can use the filters to get more results.'),
       '#description' => t('...or go back to the previous page'),
+      '#prefix'=>'<div id="list-devices">',
+      '#suffix'=>'</div>',
       '#weight' => 0,
     );
     return FALSE;
   }
 
-  $form['links'] = array(
+  $form['list-devices'] = array(
     '#type' => 'select',
     '#parents'=> array('linked'),
     '#title' => t('select the device which do you like to link with'),
     '#options' => $choices,
     '#description' => t('If you save at this point, link will be created and information saved.'),
+    '#prefix'=>'<div id="list-devices">',
+    '#suffix'=>'</div>',
     '#weight' => 0,
   );
-
+*/
 
   return FALSE;
 }
@@ -1132,6 +1134,7 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
     'dmin'   => 0,
     'dmax'   => 15,
     'search' => null,
+//    'max' => 25,
     'type'   => 'wds',
     'mode'   => $form_state['values']['radios'][$radio_id]['mode'],
     'from_node' => $form_state['values']['nid'],

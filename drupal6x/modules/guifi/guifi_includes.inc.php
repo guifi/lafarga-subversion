@@ -214,7 +214,7 @@ function guifi_servers_select() {
  * funtion _set_value
  * called by guifi_devices_select to populate list of values
 **/
-function _set_value($device,&$var,$id,$rid,$search) {
+function _set_value($device,$node,&$var,$id,$rid,$search) {
   $prefix = '';
 
   if (isset($device->radiodev_counter)) 
@@ -222,7 +222,7 @@ function _set_value($device,&$var,$id,$rid,$search) {
   else
     $ql = db_query('SELECT l1.id FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id=%d AND l2.device_id=%d',$device->id, $id);
 
-  if (db_num_rows($ql) > 0)  
+  if (db_result($ql) > 0)  
     // link already exists
     return;
 
@@ -235,7 +235,13 @@ function _set_value($device,&$var,$id,$rid,$search) {
 
   $zone = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id=%d',$device->zone_id));
   if ($device->distance) {
-    $value= $zone->title.', '.$device->ssid.$backhaul.' '.$device->distance.' '.t('kms').')';
+    $value= $zone->title.', '.$device->ssid.$backhaul.
+    '<a href="http://www.heywhatsthat.com/bin/profile.cgi?axes=1&curvature=0&metric=1' .
+      '&pt0='.$node->lat.','.$node->lon.',ff0000' .
+      '&pt1='.$device->lat.','.$device->lon.',00c000" ' .
+      'target="_blank">' .
+      ' ('.$device->distance.' '.t('kms').')'.
+    '</a>';
   } else
     $value= $zone->title.', '.$device->ssid;
 
@@ -341,22 +347,68 @@ function guifi_devices_select($filters) {
           if (($filters['mode'] == 'ap') and ($device->mode == 'client')) {
             $cr = guifi_count_radio_links($device->id);
             if ($cr[ap] < 1)
-              _set_value($device,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+              _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
           } else 
           if (($filters['mode'] == 'client') and ($device->mode == 'ap')) 
-            _set_value($device,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+            _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
         break; 
       case 'wds':
         if ($device->mode == 'ap')
-          _set_value($device,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+          _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
         break; 
       case 'cable':
-          _set_value($device,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+          _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
         break; 
       } // eof switch link_type
   } // eof while query device,node,zone
 
-  return $var;
+//  return $var;
+
+  ob_start();
+  print_r($filters);
+  $txt = ob_get_contents();
+  ob_end_clean();
+
+  $form = array(
+    '#type' => 'fieldset',
+ //   '#title' => t('filters'),
+ //   '#weight' => 0,
+    '#collapsible' => false, 
+    '#collapsed' => false,
+ //   '#weight' => $fweight++,
+    '#prefix' => '<div id="list-devices">',
+    '#suffix' => '</div>',
+  );
+  
+  if (count($var) == 0) {
+    $form['d'] = array(
+      '#type' => 'item',
+      '#parents'=> array('dummy'),
+      '#title' => t('No devices available'),
+      '#value'=> t('There are no devices to link within the given criteria, you can use the filters to get more results.'),
+      '#description' => t('...or press "Ignore & Back to the Main Form" to dismiss.').$txt,
+//      '#prefix'=>'<div id="list-devices">',
+//      '#suffix'=>'</div>',
+    );
+    $form['dbuttons'] = guifi_device_buttons(true,'guifi_radio_add_wds',0);
+    return $form;
+  }
+
+  $form['d'] = array(
+    '#type' => 'radios',
+    '#parents'=> array('linked'),
+    '#title' => t('select the device which do you like to link with'),
+    '#options' => $var,
+    '#description' => $txt,
+//    '#description' => t('If you save at this point, link will be created and information saved.'),
+//    '#prefix'=>'<div id="list-devices">',
+//    '#suffix'=>'</div>',
+  );
+  
+  $form['dbuttons'] = guifi_device_buttons(true,'guifi_radio_add_wds',1);
+  
+  return $form;
+  
 }
 
 function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
@@ -408,13 +460,19 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 function guifi_devices_select_filter($form_state,&$fweight = -100) {
 
   $form = array();
+  $ahah = array(
+          'path' => 'guifi/js/select-device',
+          'wrapper' => 'list-devices',
+          'method' => 'replace',
+          'effect' => 'fade',
+         );
   
   $form['f'] = array(
     '#type' => 'fieldset',
-    '#title' => t('FILTERS (expand to refine the list)'),
+    '#title' => t('Filters'),
     '#weight' => 0,
-    '#collapsible' => TRUE, 
-    '#collapsed' => TRUE,
+    '#collapsible' => true, 
+    '#collapsed' => false,
     '#weight' => $fweight++,
   );
   $form['f']['dmin'] = array(
@@ -427,6 +485,7 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
     '#description' => t("List starts at this distance"),
     '#prefix' => '<table><tr><td>',
     '#suffix' => '</td>',
+    '#ahah' => $ahah,
     '#weight' => $fweight++
   );
   $form['f']['dmax'] = array(
@@ -439,9 +498,10 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
     '#description' => t("...and finishes at this distance"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
+    '#ahah' => $ahah,
     '#weight' => $fweight++
   );
-  if (isset($filters['max']))
+  if (isset($form_state['values']['filters']['max']))
   $form['f']['max'] = array(
     '#type' => 'textfield',
     '#parents'=>array('filters','max'),
@@ -452,6 +512,7 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
     '#description' => t("Max. # of rows to list"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
+    '#ahah' => $ahah,
     '#weight' => $fweight++
   );
   $form['f']['search'] = array(
@@ -464,6 +525,7 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
     '#description' => t("Zone, node or device contains this string"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
+    '#ahah' => $ahah,
     '#weight' => $fweight++
   );
   if (isset($filters['status'])) {
@@ -478,11 +540,12 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
       '#description' => t("Status of the node"),
       '#prefix' => '<td>',
       '#suffix' => '</td>',
+      '#ahah' => $ahah,
       '#weight' => $fweight++,
      );
   }
   $form['f']['azimuth'] = array(
-    '#type' => 'radios',
+    '#type' => 'select',
     '#parents'=>array('filters','azimuth'),
     '#title' => t('Azimuth'),
     '#default_value' => $form_state['values']['filters']['azimuth'],
@@ -494,19 +557,25 @@ function guifi_devices_select_filter($form_state,&$fweight = -100) {
        '202,338'      => t('West'),  //W
         ),
     '#description' => t('List nodes at the selected orientation.'),
-    '#multiple' => TRUE,
-    '#size' => 2,
+//    '#multiple' => TRUE,
+//    '#size' => 3,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
+    '#ahah' => $ahah,
     '#weight' => $fweight++,
   );
-  $form['f']['action'] = array(
+/*  $form['f']['action'] = array(
     '#type' => 'submit',
     '#parents'=>array('action'),
     '#value' => t('Apply filter'),
-    '#name'=> $action,
+    '#ahah' => array(
+          'path' => 'guifi/js/select-device',
+          'wrapper' => 'list-devices',
+          'method' => 'replace',
+          'effect' => 'fade',
+         ),
     '#weight' => $fweight++,
-  );
+  );*/
   
   if (isset($form_state['values']['filters']['type']))
   $form['f']['type'] = array(

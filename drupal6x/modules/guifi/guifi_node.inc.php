@@ -1081,8 +1081,14 @@ function guifi_node_distances_form($form_state,$node) {
     $height_url = base_path(). drupal_get_path('module', 'guifi') .'/guifi_heights.php?x1='
       .$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
-    $height_url_small = $height_url."&width=200&height=100";
-    
+//    $height_url_small = $height_url."&width=200&height=100";
+    $height_url_small =
+      'http://www.heywhatsthat.com/bin/profile.cgi?axes=0&curvature=0&metric=1' .
+      '&pt0='.$lat1.','.$long1.',ff0000,15' .
+      '&pt1='.$node[lat].','.$node[lon].',00c000,15' .
+      '&groundrelative=1' .
+      '&src=guifi.net' .
+      '&width=200&height=100';
     // heywhatsthat.com integration
 //    $height_url = "http://www.heywhatsthat.com/bin/profile.cgi?src=profiler&axes=1&curvature=1&metric=1&" .
 //        "pt0=".$20.96144,-9.84375,ff0000&pt1=42.293564,11.25,00c000";
@@ -1145,7 +1151,10 @@ function guifi_node_distances_form($form_state,$node) {
     $form['z'][$nc]['d_status'] = array(
       '#type'=> 'item',
       '#parents'=> array('z',$nc,'d_status'),
-      '#value'=> '<a href="'.$height_url_long.'" alt="'.t('Click to view in large format').'" target="_blank"><img src="'.$height_url_small.'"></a>',
+      '#value'=> '<a href="'.$height_url_long.'" alt="'.t('Click to view in large format').'" target="_blank">' .
+//          '<img src="'.$height_url_small.'"></a>',
+          '<img src="'.$height_url_small.'"></a>',
+          
 //      '#prefix'=> '<td><img src="'.$height_url_small.'">',
       '#prefix'=> '<td>',
       '#suffix'=>$suffix,

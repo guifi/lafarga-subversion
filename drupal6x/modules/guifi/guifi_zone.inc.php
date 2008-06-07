@@ -537,6 +537,8 @@ function guifi_zone_validate($form) {
 /** guifi_zone_insert(): Insert a zone into the database.
  */
 function guifi_zone_insert($node) {
+  $log = '';
+  
   $node->new=true;
   $node->id   = $node->nid;
   $node->minx = (float)$node->minx;
@@ -570,6 +572,7 @@ function guifi_zone_insert($node) {
 function guifi_zone_update($node) {
 
   global $user;
+  $log = '';
 
   // if box changed, maps should be rebuilt
   $pz = db_fetch_object(db_query('SELECT * FROM {guifi_zone} z WHERE z.id = %d',$node->nid));
@@ -605,6 +608,7 @@ function guifi_zone_update($node) {
 **/
 function guifi_zone_delete(&$node) {
   global $user;
+  $log = '';
   
   $delete = true;
   $qn = db_fetch_object(db_query("
@@ -965,7 +969,7 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
 
 /** guifi_zones_listbox(): Creates a list of the zones
 **/
-// TODO Apply filters for this
+
 function guifi_zones_listbox_recurse($id, $indent, $listbox, $children, $exclude) {
   if ($children[$id]) {
     foreach ($children[$id] as $foo => $zone) {
@@ -986,7 +990,7 @@ function guifi_zones_listbox($exclude = 0) {
     'ORDER BY z.weight, z.title');
 
   while ($zone = db_fetch_object($result)) {
-    if (!$children[$zone->master]) {
+    if (!isset($children[$zone->master])) {
       $children[$zone->master] = array();
     }
     array_push($children[$zone->master], $zone);

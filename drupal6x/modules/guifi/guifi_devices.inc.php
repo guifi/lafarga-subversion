@@ -1012,7 +1012,7 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   return $log;
 }
 
-function guifi_device_buttons($continue = false,$action = '', &$form_weight = 1000) {
+function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form_weight = 1000) {
   $form['reset'] = array(
     '#type' => 'submit',
     '#value' => t('Reset'),
@@ -1025,12 +1025,14 @@ function guifi_device_buttons($continue = false,$action = '', &$form_weight = 10
       '#value' => t('Ignore & back to main form'),
       '#weight' => $form_weight++,
     );
-    $form['save_continue'] = array(
-      '#type' => 'submit',
-      '#submit' => array($action),
-      '#value' => t('Confirm & back to main form'),
-      '#weight' => $form_weight++,
-    );
+    if ($nopts > 0) {
+      $form['save_continue'] = array(
+        '#type' => 'submit',
+        '#submit' => array($action),
+        '#value' => t('Confirm & back to main form'),
+        '#weight' => $form_weight++,
+      );
+    }
     return $form;
   }
   $form['validate'] = array(
