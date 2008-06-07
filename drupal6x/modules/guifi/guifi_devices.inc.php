@@ -1026,7 +1026,7 @@ function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form
       '#weight' => $form_weight++,
     );
     if ($nopts > 0) {
-      $form['save_continue'] = array(
+      $form['confirm_continue'] = array(
         '#type' => 'submit',
         '#submit' => array($action),
         '#value' => t('Confirm & back to main form'),

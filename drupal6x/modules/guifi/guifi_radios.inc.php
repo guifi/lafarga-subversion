@@ -1004,12 +1004,38 @@ function _guifi_link_2AP(&$form,&$edit,$action) {
 
 }
 
+function guifi_radio_add_wds(&$form,&$form_state) {
+  guifi_log(GUIFILOG_BASIC,"function guifi_radio_add_wds",$form_state);
+  
+  list(
+    $newlk['nid'],
+    $newlk['device_id'],
+    $newlk['interface']['radiodev_counter']) =  
+        explode(',',$form_state['values']['linked']);
+        
+  // getting remote interface
+  $remote_interface = 
+    db_fetch_array(db_query(
+        "SELECT id " .
+        "FROM {guifi_interfaces} " .
+        "WHERE device_id = %d " .
+        "   AND interface_type = 'wds/p2p' " .
+        "   AND radiodev_counter = %d",
+        $newlk['device_id'],$newlk['interface']['radiodev_counter']));
+  $newlk['interface']['id']=$remote_interface['id'];
+  $newlk['interface']['device_id']=$newlk['device_id']; 
+        
+  guifi_log(GUIFILOG_FULL,"newlk: ",$newlk);
+  
+}
+
 /* _guifi_add_wds(): Add WDS/p2p link */
 function guifi_radio_add_wds_form(&$form,&$form_state) {
 
-  guifi_log(GUIFILOG_BASIC,"function guifi_radio_add_wds_form",$form_state['newInterface']);
+  guifi_log(GUIFILOG_TRACE,"function guifi_radio_add_wds_form",$form_state['newInterface']);
 
   $form_weight = 0;
+  $form_state['values']['newInterface']=$form_state['newInterface'];
   
   // store all the form_stat values
   guifi_form_hidden($form,$form_state['values'],$form_weight);
@@ -1032,7 +1058,8 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
 //    $form_weight);
 
 
-  $form['devices-list'] = guifi_devices_select($form_state['values']['filters']);
+  $form['devices-list'] = guifi_devices_select($form_state['values']['filters'],
+     'guifi_radio_add_wds');
 
 /*
   if (count($choices) == 0) {
@@ -1081,12 +1108,6 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   //
   $newlk['new']=true;
   $newlk['interface']=array();
-//  list($newlk['nid'],
-//    $newlk['device_id'],
-//    $newlk['interface']['radiodev_counter']) =  
-//        explode(',',$form_state['values']['linked']);
-        
-//  guifi_log(GUIFILOG_FULL,"newlk",$newlk);
   
   $newlk['link_type']='wds';
   $newlk['flag']='Planned';
@@ -1100,17 +1121,7 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $ip2 = guifi_ip_op($ip1);
   guifi_merge_ip(array('ipv4'=>$ip1,'netmask'=>'255.255.255.252'),$ips_allocated,false);
   guifi_merge_ip(array('ipv4'=>$ip2,'netmask'=>'255.255.255.252'),$ips_allocated,true);
-  // getting remote interface
-/*  $remote_interface = 
-    db_fetch_array(db_query(
-        "SELECT id " .
-        "FROM {guifi_interfaces} " .
-        "WHERE device_id = %d " .
-        "   AND interface_type = 'wds/p2p' " .
-        "   AND radiodev_counter = %d",
-        $newlk['device_id'],$newlk['interface']['radiodev_counter']));
-  $newlk['interface']['id']=$remote_interface['id'];
-  $newlk['interface']['device_id']=$newlk['device_id']; */
+
   $newlk['interface']['interface_type']='wds/p2p';
 
   // remote ipv4

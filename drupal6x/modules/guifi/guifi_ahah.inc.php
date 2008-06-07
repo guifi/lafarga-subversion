@@ -126,7 +126,7 @@ function guifi_ahah_select_zone($fname) {
   exit;
 }
 
-function guifi_ahah_select_device() {
+function guifi_ahah_select_device($action) {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
     
@@ -134,7 +134,7 @@ function guifi_ahah_select_device() {
     $form = $cache->data;
 
     $form['list-devices'] = 
-        guifi_devices_select($_POST['filters']);
+        guifi_devices_select($_POST['filters'],$action);
           
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.

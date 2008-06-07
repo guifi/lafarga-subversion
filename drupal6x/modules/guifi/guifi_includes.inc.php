@@ -262,7 +262,7 @@ function _set_value($device,$node,&$var,$id,$rid,$search) {
  * function guifi_devices_select
  * pupulates an array to be used as a select list for selecting WDS/p2p, cable or ap/client connections
 ***/
-function guifi_devices_select($filters) {
+function guifi_devices_select($filters,$action = '') {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_devices_select()',$filters);
   
@@ -390,7 +390,7 @@ function guifi_devices_select($filters) {
 //      '#prefix'=>'<div id="list-devices">',
 //      '#suffix'=>'</div>',
     );
-    $form['dbuttons'] = guifi_device_buttons(true,'guifi_radio_add_wds',0);
+    $form['dbuttons'] = guifi_device_buttons(true,$action,0);
     return $form;
   }
 
@@ -457,11 +457,11 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 
 
 /* guifi_devices_select_filter($form,$filters): Construct a list of devices to link with */
-function guifi_devices_select_filter($form_state,&$fweight = -100) {
+function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
 
   $form = array();
   $ahah = array(
-          'path' => 'guifi/js/select-device',
+          'path' => 'guifi/js/select-device/'.$action,
           'wrapper' => 'list-devices',
           'method' => 'replace',
           'effect' => 'fade',
