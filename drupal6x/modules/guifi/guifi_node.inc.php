@@ -1084,8 +1084,8 @@ function guifi_node_distances_form($form_state,$node) {
 //    $height_url_small = $height_url."&width=200&height=100";
     $height_url_small =
       'http://www.heywhatsthat.com/bin/profile.cgi?axes=0&curvature=0&metric=1' .
-      '&pt0='.$lat1.','.$long1.',ff0000,15' .
-      '&pt1='.$node[lat].','.$node[lon].',00c000,15' .
+      '&pt0='.$lat1.','.$long1.',ff0000,9' .
+      '&pt1='.$node[lat].','.$node[lon].',00c000,9' .
       '&groundrelative=1' .
       '&src=guifi.net' .
       '&width=200&height=100';

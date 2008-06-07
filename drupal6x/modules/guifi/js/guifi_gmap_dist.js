@@ -87,11 +87,12 @@ function initialPosition(point) {
   var dNode = new GMarker(point);
   document.getElementById("profile").src =
     "http://www.heywhatsthat.com/bin/profile.cgi?"+
-    "axes=1&curvature=0&metric=1&"+
+    "axes=1&curvature=0&metric=1&groundrelative=1&"+
+    "src=guifi.net&"+
     "pt0="+document.getElementById("lat").value+","+document.getElementById("lon").value+
-    ",ff0000"+
+    ",ff0000,9"+
     "&pt1="+point.y+","+point.x+
-    ",00c000";   
+    ",00c000,9";   
   pLine = new GPolyline([newNode,point],"#ff0000", 5);
   map.addOverlay(dNode);
   map.addOverlay(pLine);   
