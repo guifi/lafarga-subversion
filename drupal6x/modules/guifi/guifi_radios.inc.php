@@ -1005,12 +1005,17 @@ function _guifi_link_2AP(&$form,&$edit,$action) {
 }
 
 function guifi_radio_add_wds(&$form,&$form_state) {
-  guifi_log(GUIFILOG_BASIC,"function guifi_radio_add_wds",$form_state);
+  guifi_log(GUIFILOG_BASIC,"function guifi_radio_add_wds",$form_state['values']);
+  
+  $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][] = 
+    $form['values']['newInterface'];
+  
+//  $newLink = &$newInt['links'][0];
   
   list(
-    $newlk['nid'],
-    $newlk['device_id'],
-    $newlk['interface']['radiodev_counter']) =  
+    $newLink['nid'],
+    $newLink['device_id'],
+    $newLink['interface']['radiodev_counter']) =  
         explode(',',$form_state['values']['linked']);
         
   // getting remote interface
@@ -1021,11 +1026,14 @@ function guifi_radio_add_wds(&$form,&$form_state) {
         "WHERE device_id = %d " .
         "   AND interface_type = 'wds/p2p' " .
         "   AND radiodev_counter = %d",
-        $newlk['device_id'],$newlk['interface']['radiodev_counter']));
-  $newlk['interface']['id']=$remote_interface['id'];
-  $newlk['interface']['device_id']=$newlk['device_id']; 
+        $newLink['device_id'],$newLink['interface']['radiodev_counter']));
+  $newLink['interface']['id']=$remote_interface['id'];
+  $newLink['interface']['device_id']=$newLink['device_id']; 
+  
+  $newLink['interface']['ipv4']['interface_id']=$remote_interface['id'];
+  
         
-  guifi_log(GUIFILOG_FULL,"newlk: ",$newlk);
+  guifi_log(GUIFILOG_FULL,"newlk: ",$newLink);
   
 }
 
@@ -1127,7 +1135,6 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   // remote ipv4
   $newlk['interface']['ipv4']=array();
   $newlk['interface']['ipv4']['new'] = true;
-//  $newlk['interface']['ipv4']['interface_id']=$remote_interface['id'];
   $newlk['interface']['ipv4']['ipv4']=$ip2;
   $newlk['interface']['ipv4']['netmask']='255.255.255.252';
 
@@ -1155,8 +1162,6 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   );
   
   $form_state['newInterface'][$interface_id]['ipv4'] = $newif; 
-  
-//  $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][]=$newif;
 }
 
 //function _guifi_radio_mac_process($element, $form_state) {
