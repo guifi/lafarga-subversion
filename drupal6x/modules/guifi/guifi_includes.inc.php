@@ -405,7 +405,7 @@ function guifi_devices_select($filters,$action = '') {
 //    '#suffix'=>'</div>',
   );
   
-  $form['dbuttons'] = guifi_device_buttons(true,'guifi_radio_add_wds',1);
+  $form['dbuttons'] = guifi_device_buttons(true,$action,1);
   
   return $form;
   
