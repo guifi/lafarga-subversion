@@ -70,8 +70,8 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
       $data['id'] = $next_id['id'];
     break;
   case 'guifi_links':
-      // fill only if comes empty (remote id already know the id)
-      if ($data['id'] == null) {
+      // fill only if insert (remote id already know the id)
+      if (($insert) && ($data['id']==-1))  {
         $next_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_links}'));
         if (is_null($next_id['id']))
           $next_id['id'] = 1;
@@ -117,7 +117,9 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
    $qc = db_query('SELECT '.implode(',',array_keys($data)).' FROM {'.$table.' WHERE '.implode(' AND ',$where_data));
    if (($qc) != 1) 
    {
-     drupal_set_message(t('Can\'t update %table while primary key (%where) doesn\'t give 1 row',array('%table'=>$table,'%where'=>$where)));
+     drupal_set_message(
+       t('Can\'t update %table while primary key (%where) doesn\'t give 1 row',
+       array('%table'=>$table,'%where'=>implode(' AND ',$where_data))));
      return;
    }
    $orig_data = db_fetch_array($qc);

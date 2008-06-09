@@ -236,6 +236,7 @@ function guifi_device_edit_form_submit($form, &$form_state) {
   case t('Save & exit'):
     // save
 //    print_r($form_state['values']);
+//    print_r($_POST);
 //    exit;
     $id = guifi_device_edit_save($form_state['values']);
 //    exit;
@@ -967,9 +968,9 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
       $llink = $link;
       $llink['nid'] = $nid;
       $llink['device_id'] = $interface['device_id'];
-      $llink['interface_id'] = $interface['id'];
+      $llink['interface_id'] = $ninterface['id'];
       $llink['ipv4_id'] = $nipv4['id'];
-      guifi_log(GUIFILOG_FULL,'going to SQL for local link',$llink);
+      guifi_log(GUIFILOG_TRACE,'going to SQL for local link',$llink);
       $nllink = _guifi_db_sql(
         'guifi_links',
         array('id'=>$link['id'],'device_id'=>$interface['device_id']),$llink,$log,$to_mail);

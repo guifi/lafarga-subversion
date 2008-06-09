@@ -13,6 +13,28 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
   else
     $rk = null;
 
+  // creating hidden form elements for non-edited fields
+  if ($link['new'])
+    $link['id']= -1;
+    
+  $f = guifi_form_hidden_var(
+    $link,
+    array('id','nid','device_id','interface_id','link_type'),
+    array_merge($tree,array('links',$link['id']))
+  );
+  
+  $f['interface'] = guifi_form_hidden_var(
+    $link['interface'],
+    array('id','interface_type','radiodev_counter'),
+    array_merge($tree,array('links',$link['id'],'interface'))
+  );  
+  
+  $f['interface']['ipv4'] = guifi_form_hidden_var(
+    $link['interface']['ipv4'],
+    array('interface_id'),
+    array_merge($tree,array('links',$link['id'],'interface','ipv4'))
+  );  
+  
   if ($multilink)
     $prefix='<table><td>';
   else
@@ -50,8 +72,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     $f['ipv4_remote'] = array(
       '#type'=> 'textfield',
       '#parents'=>array_merge(
-        $tree,
-        array('links',$link['id'],'interface','ipv4','ipv4')),
+        $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
       '#size'=> 16,
       '#maxlength'=>16,
       '#default_value'=>$link['interface']['ipv4']['ipv4'],
@@ -74,7 +95,8 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
    } else {
     $f['ipv4_remote'] = array(
       '#type' =>         'item',
-      '#parents'=>       array_merge($tree,array('links',$link['id'],'interface','ipv4','ipv4')),
+      '#parents'=>       array_merge(
+         $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
       '#title'=>         t('Remote IPv4'),
       '#value'=>         $link['interface']['ipv4']['ipv4'],
       '#description' =>  $link['interface']['ipv4']['netmask'],

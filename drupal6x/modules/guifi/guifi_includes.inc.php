@@ -1342,6 +1342,20 @@ function guifi_cnml_tree($zid) {
   return $childs;
 }
 
+function guifi_form_hidden_var($var,$keys = array(),$parents = array()) {
+  
+  $keys = array_merge($keys,array('new','delete'));
+  
+  foreach ($keys as $kvalue) {
+    if (isset($var[$kvalue]))
+      $form[$kvalue] = array(
+        '#type'=>'hidden','#value'=>$var[$kvalue],
+        '#parents'=> array_merge($parents,array($kvalue))
+      ); 
+  }
+  
+  return $form;
+}
 
 function guifi_form_hidden(&$form,$var,&$form_weight = -2000) {
 

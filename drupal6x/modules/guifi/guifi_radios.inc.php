@@ -1009,7 +1009,7 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
   $radio_id = $form_state['values']['filters']['from_radio'];
   $interface_id = key($form_state['values']['newInterface']);
   
-  guifi_log(GUIFILOG_BASIC,
+  guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_wds_confirm (radio: %d, interface: %d)",
     $radio_id,$interface_id),$form_state['values']);
 
@@ -1019,7 +1019,7 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
     $form_state['values']['newInterface'][$interface_id]
   );
   
-  guifi_log(GUIFILOG_BASIC,
+  guifi_log(GUIFILOG_FULL,
     sprintf("function guifi_radio_add_wds_confirm POST (radio: %d, interface: %d)",
     $radio_id,$interface_id),$form_state['values']);
   
