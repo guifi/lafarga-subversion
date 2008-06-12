@@ -260,6 +260,9 @@ function guifi_device_edit_form($form_state, $params = array()) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form()',$form_state);
   
+  guifi_validate_js();
+
+  $form['#attributes'] = array('onsubmit' => 'kk');  
   if (empty($form_state['values']))
     $form_state['values'] = $params;
     
@@ -426,6 +429,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
     '#weight' => 0,
     '#title' => t('nick'),
     '#required' => TRUE,
+    '#attributes' => array('class'=>'required'),
     '#default_value' => $form_state['values']['nick'],
     '#description' =>  t('The name of the device.<br />Used as a hostname, SSID, etc...')
   );
@@ -445,6 +449,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
     '#weight' => 1,
     '#title' => t('contact'),
     '#required' => TRUE,
+    '#attributes' => array('class'=>'email required'),
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $form_state['values']['notification'],
     '#description' =>  t('Mailid where changes on the device will be notified, if many, separated by \',\'<br />used for network administration.')
@@ -1030,7 +1035,7 @@ function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form
       $form['confirm_continue'] = array(
         '#type' => 'submit',
         '#submit' => array($action),
-        '#value' => t('Confirm & back to main form'),
+        '#value' => t('Select device & back to main form'),
         '#weight' => $form_weight++,
       );
     }

@@ -1013,13 +1013,21 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
     sprintf("function guifi_radio_add_wds_confirm (radio: %d, interface: %d)",
     $radio_id,$interface_id),$form_state['values']);
 
-  $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id] =
-  array_merge(
-    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id],
-    $form_state['values']['newInterface'][$interface_id]
-  );
+
+  foreach ($form_state['values']['newInterface'][$interface_id]['ipv4'] as $newInterface) {
+    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][] =
+      $newInterface;
+    guifi_log(GUIFILOG_TRACE,"new Interface added: ",$newInterface);
+  }
+//    array("kakadevaca",'kuldemandril');
+//    $form_state['values']['newInterface'][$interface_id]['ipv4]'][0];
+    
+//  array_merge(
+//    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id],
+//    $form_state['values']['newInterface'][$interface_id]
+//  );
   
-  guifi_log(GUIFILOG_FULL,
+  guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_wds_confirm POST (radio: %d, interface: %d)",
     $radio_id,$interface_id),$form_state['values']);
   
@@ -1096,7 +1104,7 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
         [$form_state['filters']['from_radio']]['ssid'])));
 
   // Filter form
-  $form['filters_region'] = guifi_devices_select_filter($form_state);
+  $form['filters_region'] = guifi_devices_select_filter($form_state,'guifi_radio_add_wds_confirm_submit');
 //    $form,
 //    implode(',',$action),
 //    $form_state['values']['filters'],

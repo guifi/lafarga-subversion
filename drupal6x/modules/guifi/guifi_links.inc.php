@@ -31,7 +31,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
   
   $f['interface']['ipv4'] = guifi_form_hidden_var(
     $link['interface']['ipv4'],
-    array('interface_id'),
+    array('interface_id','netmask'),
     array_merge($tree,array('links',$link['id'],'interface','ipv4'))
   );  
   
@@ -192,8 +192,9 @@ function guifi_links_validate(&$edit,&$form) {
 
 function guifi_links_validate_recurse(&$link,&$form,$interface_type,$parents = array()) {
 
+    return;
     list($radio_id,$interface_id,$ipv4_id,$link_id) = $parents;
-//     drupal_set_message('Radio id: '.$radio_id);
+     drupal_set_message('Radio id: '.$radio_id);
     if (is_null($radio_id))
       $str_err = 'interfaces]['.$interface_id.'][ipv4][';
     else

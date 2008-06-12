@@ -386,7 +386,8 @@ function guifi_devices_select($filters,$action = '') {
       '#parents'=> array('dummy'),
       '#title' => t('No devices available'),
       '#value'=> t('There are no devices to link within the given criteria, you can use the filters to get more results.'),
-      '#description' => t('...or press "Ignore & Back to the Main Form" to dismiss.').$txt,
+//      '#description' => t('...or press "Ignore & Back to the Main Form" to dismiss.'),
+//      '#description' => $txt.'<br>'.$action,
 //      '#prefix'=>'<div id="list-devices">',
 //      '#suffix'=>'</div>',
     );
@@ -399,7 +400,9 @@ function guifi_devices_select($filters,$action = '') {
     '#parents'=> array('linked'),
     '#title' => t('select the device which do you like to link with'),
     '#options' => $var,
-    '#description' => $txt,
+//    '#description' => $txt.'<br>'.$action,
+    '#attributes' => array('class'=>'required'),    
+    
 //    '#description' => t('If you save at this point, link will be created and information saved.'),
 //    '#prefix'=>'<div id="list-devices">',
 //    '#suffix'=>'</div>',
@@ -464,6 +467,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
           'path' => 'guifi/js/select-device/'.$action,
           'wrapper' => 'list-devices',
           'method' => 'replace',
+          'event' => 'change',
           'effect' => 'fade',
          );
   
@@ -481,6 +485,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#title' => t('Distance from'),
     '#size' => 5,
     '#maxlength' => 5,
+    '#attributes' => array('class'=>'digits min(0)'),    
     '#default_value' => $form_state['values']['filters']['dmin'],
     '#description' => t("List starts at this distance"),
     '#prefix' => '<table><tr><td>',
@@ -495,6 +500,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#size' => 5,
     '#maxlength' => 5,
     '#default_value' => $form_state['values']['filters']['dmax'],
+    '#attributes' => array('class'=>'digits min(0)'),    
     '#description' => t("...and finishes at this distance"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -1671,6 +1677,17 @@ function guifi_gmap_key() {
     return TRUE;
   }
   return FALSE;
+}
+
+function guifi_validate_js($scriptName = '') {
+  drupal_add_js(drupal_get_path('module', 'guifi').'/js/jquery.validate.pack.js','module');
+  
+  if ($scriptName != '')
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/'.$scriptName,'module');
+    
+  drupal_add_js (
+    '$(document).ready(function(){$("#guifi-device-edit-form").validate()}); ',
+    'inline');
 }
 
 

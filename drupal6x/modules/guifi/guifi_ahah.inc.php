@@ -126,9 +126,13 @@ function guifi_ahah_select_zone($fname) {
   exit;
 }
 
-function guifi_ahah_select_device($action) {
+function guifi_ahah_select_device() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
+  
+  $action = arg(3);  
+  
+  // print "Action: $action\n<br>";
     
   if ($cache) {
     $form = $cache->data;

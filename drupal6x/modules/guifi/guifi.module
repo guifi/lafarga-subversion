@@ -278,7 +278,7 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );   
-   $items['guifi/js/select-device'] = array(
+   $items['guifi/js/select-device/%'] = array(
     'title' => 'Javascript Select Device',
     'page callback' => 'guifi_ahah_select_device',
     'access arguments' => array('access content'),
