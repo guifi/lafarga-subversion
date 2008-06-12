@@ -10,7 +10,8 @@ New Features:
 - Now the multiple radio devices are always numbered sequentally starting from 0 
   and radios can be moved up & down, so can be reordered to match the position
   on the device.
-- New profiles maps with the ability to dynamically create profiles.
+- New profiles maps with the ability to dynamically create profiles directly
+  over the map, working worldwide and based on heywhatsthat.com calls.
 
   
 User interface:
@@ -26,9 +27,18 @@ User interface:
 - Reworked breadcrumbs when makes sense, integrated with drupal's breadcrumbs
 - While creating nodes from the zone maps, zone is passed as a parameter, so 
   the user has no longer the need to specify at which node is creating the node.
+- Added ahah calls to validate/refresh field values, i.e. while navigating
+  through a large zone hierarchy, providing the right values for firmwares
+  depending on the device brand, or providing the right channel choices 
+  per each selected protocol.
 - While looking at the distances, there are some filters provided available 
   to be customized by the user, so no longer need to get a hughe and heavy 
   list to look for something.
+- Filters also available when looking to the possible links, list is refreshed
+  by ahah calls without having to reload the page.
+- Enabled jquery/validation scripts for client-site validations without having
+  to submit the entire form
+- Added image buttons to simplify the user interfice while editing devices.
 
 Database:
 - Add comments on tables to document primary/foreign key relationships
@@ -46,8 +56,6 @@ TODO:
   -Integration of zone & node location
   	-KML export for GoogleEarth
   -Revisit node & device management for drupal 6.x
-  -Edit devices with FAPI 6.x in multiple page and java enabled forms
-  -Javascript selector for zones
   -Migrate node user creation forms to drupal 6.x, create a new workflow for the
    authorization ad verification process.
   -Define ap/client links

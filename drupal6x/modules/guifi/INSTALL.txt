@@ -95,5 +95,7 @@ NOTES:
   Currently there is a grid file available only for Catalonia (cata.grd).
   LOS for the rest of the world are obtained by external links to 
   heywhatsthat.com 
+  If you are synching with the SVN development version, use the "rebuild menus"
+  option often to update registered url calls, if not AHAH calls would fail.
   
   
