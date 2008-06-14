@@ -857,43 +857,52 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
 
 
 /* Delete radio interface link */
-function _guifi_delete_radio_interface_link(&$form,&$edit,$action) {
-  $radio_id    =$action[2];
-  $interface_id=$action[3];
-  $ipv4_id     =$action[4];
-  $link_id     =$action[5];
-  $remote_nid  =$action[6];
-  $remote_did  =$action[7];
-  
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface_link(radio: %d, interface: %d)',$radio_id,$interface_id),$action);
 
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure you want to delete this link?'),
-    '#value' => $edit['radios'][$radio_id]['ssid'].'-'.
-  	$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'].'-'.
-	guifi_get_nodename($remote_nid).'/'.
-	guifi_get_hostname($remote_did),
-    '#description' => t('If you save at this point, this link will be deleted, information saved and can\'t be undone.'),
-    '#weight' => 0,
-  );
-  drupal_set_title(t('Delete link (%type)',array('%type'=>$edit['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'])));
-  _guifi_device_buttons($form,$action);
-  
-  return FALSE;
+function guifi_radio_interface_link_delete_submit(&$form,&$form_state) {
+  $values = $form_state['clicked_button']['#parents'];
+  while (count($values)> 6)
+    array_shift($values);
+
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('function guifi_radio_interface_link_delete_submit(radio: %d, interface: %d)',
+      $values[0],$values[1]),
+    $values);
+  $form_state['deleteRadioInterfaceLink'] = $values;
+  $form_state['action'] = 'guifi_radio_interface_link_delete';
+  $form_state['rebuild'] = true;
+  return;
+//  $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id]['links'][$link_id]['deleted'] = true;
 }
 
-function _guifi_delete_radio_interface_link_submit(&$edit,$action) {
-  $radio_id=$action[2];
-  $interface_id=$action[3];
-  $ipv4_id     =$action[4];
-  $link_id     =$action[5];
-  $remote_nid  =$action[6];
-  $remote_did  =$action[7];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_delete_radio_interface_link_submit(radio: %d, interface: %d)',$radio_id,$interface_id),$action);
-  $edit['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][$ipv4_id]['links'][$link_id]['deleted'] = true;
+function guifi_radio_interface_link_delete(&$form,&$form_state) {
+  list(
+   $radio_id,
+   $interface_id,
+   $ipv4_id,
+   $link_id,
+   $remote_nid,
+   $remote_did
+   ) = $form_state['deleteRadioInterfaceLink'];
+  
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('function guifi_radio_interface_link_delete(radio: %d, interface: %d)',
+    $radio_id,$interface_id),
+    $form_state['deleteRadioInterfaceLink']);
+
+  drupal_set_message(t('%type link with %node/%device deleted.',
+    array(
+      '%type' => $form_state['values']
+        ['radios'][$radio_id]['interfaces'][$interface_id]['interface_type'],
+      '%node' =>   guifi_get_nodename($remote_nid),
+      '%device' => guifi_get_hostname($remote_did)
+    )
+  ));
+  unset($form_state['deleteRadioInterfaceLink']);
+  unset($form_tate['action']);
+  $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]
+    ['ipv4'][$ipv4_id]['links'][$link_id]['deleted'] = true;
+  
+  return TRUE;
 }
 
 function guifi_radio_delete($form, &$form_state) {

@@ -45,6 +45,21 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     $descr =  guifi_get_ap_ssid($link['device_id'],$link['radiodev_counter']);
   else
     $descr = guifi_get_interface_descr($link['interface_id']);
+  
+  /*  
+  $f['l'] = array(
+    '#type' => 'fieldset',
+    '#title' => guifi_get_nodename($link['nid']),
+    '#value'=>  guifi_get_hostname($link['device_id']),
+    '#description'=>guifi_get_interface_descr($link['interface_id']),
+    '#weight' => $lweight++,
+    '#collapsible' => TRUE,
+    '#tree' => FALSE,
+    '#collapsed' => false,
+    '#prefix'=> '<table><tr><td>',
+    '#suffix'=> '</td>',
+  ); 
+  */
   $f['link_name'] = array(
     '#type' => 'item',
     '#parents'=>array_merge($tree,array('links',0,'link_name')),
@@ -55,10 +70,11 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     '#suffix'=> '</td>',
     '#weight' => $lweight++,
   );
+  
         
   if (user_access('administer guifi networks')) {
     if (!$multilink)
-    $f['ipv4'] = array(
+    $f['l']['ipv4'] = array(
       '#type'=> 'textfield',
       '#parents'=>array_merge($tree,array('ipv4')),
       '#size'=> 16,
@@ -69,7 +85,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
       '#suffix'=> '</td>',
       '#weight'=> $lweight++,
     );
-    $f['ipv4_remote'] = array(
+    $f['l']['ipv4_remote'] = array(
       '#type'=> 'textfield',
       '#parents'=>array_merge(
         $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
@@ -82,7 +98,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
       '#weight'=> $lweight++,
     );
     if (!$multilink)
-      $f['netmask'] = array(
+      $f['l']['netmask'] = array(
         '#type' => 'select',
         '#parents'=>array_merge($tree,array('netmask')),
         '#title' => t("Network mask"),
@@ -93,7 +109,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
         '#weight' =>  $lweight++,
       );
    } else {
-    $f['ipv4_remote'] = array(
+    $f['l']['ipv4_remote'] = array(
       '#type' =>         'item',
       '#parents'=>       array_merge(
          $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
@@ -107,7 +123,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
   } // if network administrator
         
   // Routing
-  $f['routing'] = array(
+  $f['l']['routing'] = array(
     '#type' =>          'select',
     '#parents'=>        array_merge($tree,array('links',$link['id'],'routing')),
     '#title' =>         t("Routing"),
@@ -118,7 +134,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     '#weight' =>        $lweight++,
   );
   // Status
-  $f['status'] = array(
+  $f['l']['status'] = array(
     '#type' =>          'select',
     '#parents'=>        array_merge($tree,array('links',$link['id'],'flag')),
     '#title' =>         t("Status"),
@@ -129,7 +145,29 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     '#weight' =>        $lweight++,
   );
   // delete link button
-  $f['delete_link'] = array(
+  $f['l']['delete_link'] = array(
+    '#type'=>'image_button',
+    '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
+    '#parents'=>array_merge($tree,array(
+      'delete_link',
+      $rk,$ki,$ka,
+      $link['id'],
+      $link['nid'],
+      $link['device_id']
+    )),
+    '#attributes'=>array(
+      'title'=>t('Delete %name link',
+        array('%name'=>
+          guifi_get_interface_descr($link['interface_id'])
+        )
+      )
+    ), 
+    '#submit' => array('guifi_radio_interface_link_delete_submit'),
+    '#prefix'=> '<td>',
+    '#suffix'=> '</td></tr></table>',
+    '#weight'=>$lweight++);
+/*  
+  $f['l']['delete_link'] = array(
     '#type' => 'button',
     '#parents'=>array_merge($tree,array('delete_link')),
     '#value'=>t('Delete'),
@@ -143,6 +181,7 @@ function guifi_link_form(&$f,$link,$ipv4,$tree,$multilink) {
     '#suffix'=> '</td></tr></table>',
     '#weight' =>  $lweight++,
   );
+  */
 }
 
 function guifi_links_validate(&$edit,&$form) {
