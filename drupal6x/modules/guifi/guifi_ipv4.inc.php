@@ -223,6 +223,122 @@ function guifi_edit_ipv4_save($edit) {
   }
 }
 
+
+function guifi_device_ipv4_link_form($ipv4,$tree) {
+
+  if ($ipv4['deleted'])
+    return;
+    
+  $ki = $tree[count($tree)-3];
+  $ka = $tree[count($tree)-1];
+  if (count($tree)>4)
+    $rk = $tree[1];
+  else
+    $rk = null;
+    
+  $f['storage']['ipv4_local'] = guifi_form_hidden_var(
+    $ipv4,
+    array('interface_id'),
+    $tree
+  );
+    
+  if (($ipv4['netmask'] != '255.255.255.252')
+    or (count($ipv4['links']) > 1))
+  {
+    // multilink set
+    $multilink = TRUE;
+    $f['local'] = array(
+      '#type' => 'fieldset',
+      '#parents' => $tree,
+      '#title' => $ipv4['ipv4'].' / '.
+        $ipv4['netmask'].' - '.
+        (count($ipv4['links'])).' '.
+        t('link(s)'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+//      '#weight' => $weight++,
+    );
+    $prefix = '<table><tr><td>';
+    $f['local']['id'] = array(
+        '#type'=> 'hidden',
+        '#parents'=>array_merge($tree,array('id')),
+        '#default_value'=>$ipv4['id']);
+    if (user_access('administer guifi networks')) {
+      $f['local']['ipv4'] = array(
+        '#type'=> 'textfield',
+        '#parents'=>array_merge($tree,array('ipv4')),
+        '#size'=> 16,
+        '#maxlength'=>16,
+        '#default_value'=>$ipv4['ipv4'],
+        '#title'=>t('Local IPv4'),
+        '#prefix'=> $prefix,
+        '#suffix'=> '</td>',
+ //       '#weight'=> 0,
+      );
+      $f['local']['netmask'] = array(
+        '#type' => 'select',
+        '#parents'=>array_merge($tree,array('netmask')),
+        '#title' => t("Network mask"),
+        '#default_value' => $ipv4['netmask'],
+        '#options' => guifi_types('netmask',30,0),
+        '#prefix'=> '<td>',
+        '#suffix'=> '</td>',
+//        '#weight' =>1,
+      );
+    } else {
+      $f['local']['ipv4'] = array(
+        '#type' => 'item',
+        '#parents'=>array_merge($tree,array('ipv4')),
+        '#title' => t('Local IPv4'),
+        '#value'=>  $ipv4['ipv4'],
+        '#description'=> $ipv4['netmask'],
+        '#prefix'=> $prefix,
+        '#suffix'=> '</td>',
+//        '#weight' =>0,
+      );
+    }
+  } else {
+     // singlelink set
+     $multilink = FALSE;
+     $prefix = '<td>';
+  }
+  
+  // Deleting the IP address
+  if ($multilink)
+  $f['local']['delete_address'] = array(
+    '#type'=>'image_button',
+    '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
+    '#parents'=>array_merge($tree,array('delete_address')),
+    '#attributes'=>array('title'=>t('Delete address')), 
+    '#submit' => array('guifi_ipv4_delete_submit'),
+    '#prefix'=> '<td>',
+    '#suffix'=> '</td></tr></table>',
+ //   '#weight'=>3
+    // parameters $rk, $ki, $ka, $ipv4, $netmask
+  );
+  
+  // foreach link
+  if (count($ipv4['links'])) foreach($ipv4['links'] as $kl => $link)  {
+    if ($link['deleted'])
+      continue;
+      
+     // linked node-device
+    $f['local']['links'][$kl] =
+      guifi_device_link_form(
+        $link,
+        $ipv4,
+        $tree,
+        $multilink);
+        
+//   if ($multiset)
+
+  } // foreach link
+
+  return $f;
+  
+}
+
+
 /* guifi_ipv4_link_form(): edit an ipv4 within a link */
 
 function guifi_ipv4_link_form(&$f,$ipv4,$interface,$tree,&$weight) {

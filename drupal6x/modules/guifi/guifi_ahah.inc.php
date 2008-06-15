@@ -82,7 +82,7 @@ function guifi_ahah_select_channel($rid){
   if ($cache) {
     $form = $cache->data;
 
-    $form['r']['radios'][$rid]['channel'] = 
+    $form['r']['radios'][$rid]['s']['channel'] = 
         guifi_radio_channel_field(
           $rid,
           $curr_channel,
@@ -93,7 +93,7 @@ function guifi_ahah_select_channel($rid){
     $form_state = array();
     $form['#post'] = array();
     $form = form_builder($form['form_id']['#value'] , $form, $form_state);
-    $output = drupal_render($form['r']['radios'][$rid]['channel']);
+    $output = drupal_render($form['r']['radios'][$rid]['s']['channel']);
     drupal_json(array('status' => TRUE, 'data' => $output));
   } else {
     drupal_json(array('status' => FALSE, 'data' => ''));

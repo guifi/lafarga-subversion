@@ -209,11 +209,11 @@ function guifi_device_load($id,$ret = 'array') {
 
 /*
  * Device edit funcions
- * guifi_device_edit_form_submit(): Performs submit actions
+ * guifi_device_form_submit(): Performs submit actions
  */
-function guifi_device_edit_form_submit($form, &$form_state) {
+function guifi_device_form_submit($form, &$form_state) {
 
-  guifi_log(GUIFILOG_TRACEf,'function guifi_device_edit_form_submit()',
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_form_submit()',
     $form_state);
   
   if ($form_state['values']['id'])
@@ -235,10 +235,10 @@ function guifi_device_edit_form_submit($form, &$form_state) {
   case t('Save & continue edit'):
   case t('Save & exit'):
     // save
-//    print_r($form_state['values']);
 //    print_r($_POST);
+//    print_r($form_state['values']);
 //    exit;
-    $id = guifi_device_edit_save($form_state['values']);
+    $id = guifi_device_save($form_state['values']);
 //    exit;
     if ($form_state['clicked_button']['#value'] == t('Save & exit'))
       drupal_goto('guifi/device/'.$id);
@@ -247,22 +247,22 @@ function guifi_device_edit_form_submit($form, &$form_state) {
   default:
 //     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
     guifi_log(GUIFILOG_BASIC,
-      'exit guifi_device_edit_form_submit without saving...',$form_state['clicked_button']['#value']);
+      'exit guifi_device_form_submit without saving...',$form_state['clicked_button']['#value']);
     return;
   }
 
 }
 
 
-/* guifi_device_edit_form(): Present the guifi device main editing form. */
-function guifi_device_edit_form($form_state, $params = array()) {
+/* guifi_device_form(): Present the guifi device main editing form. */
+function guifi_device_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$form_state);
   
   guifi_validate_js();
 
-  $form['#attributes'] = array('onsubmit' => 'kk');  
+  // $form['#attributes'] = array('onsubmit' => 'kk');  
   if (empty($form_state['values']))
     $form_state['values'] = $params;
     
@@ -327,7 +327,6 @@ function guifi_device_edit_form($form_state, $params = array()) {
     drupal_set_message(t('Radio %ssid added in mode %mode.',
        array('%ssid'=>$form_state['newRadio']['ssid'],
              '%mode'=>$form_state['newRadio']['mode'])));
-    $form_state['newRadio']['unfold'] = true;
     $form_state['values']['radios'][$form_state['newRadio']['rc']] = $form_state['newRadio'];
     unset($form_state['newRadio']);
   }
@@ -340,43 +339,6 @@ function guifi_device_edit_form($form_state, $params = array()) {
           return $form;     
     }
   }
-/*  
-  // Delete radio
-  if (!empty($form_state['deleteRadio'])) { 
-    drupal_set_message(t('Radio#%num has been deleted.',
-       array('%num'=>$form_state['deleteRadio'])));
-    $form_state['values']['radios'][$form_state['deleteRadio']]['deleted'] = true;
-    unset($form_state['deleteRadio']);
-  }
-
-  
-  // swap (move) Radios
-  if (!empty($form_state['swapRadios'])) {
-    list($old, $new) = explode(',',$form_state['swapRadios']);
-    $old_radio = $form_state['values']['radios'][$old];
-    $new_radio = $form_state['values']['radios'][$new];
-    $form_state['values']['radios'][$new] = $old_radio;
-    $form_state['values']['radios'][$old] = $new_radio;
-    ksort($form_state['values']['radios']);
-    drupal_set_message(t('Radio #%old moved to #%new.',
-        array('%old'=>$old,'%new'=>$new)));
-  }
-  
-  // Look if there is any action to take
-/*  foreach($form_state['post'] as $key=>$values) {
-    if (preg_match('/^_action/',$key)) {
-      $action = explode(',',$key);
-      $action['post'] = $form_state['post'];
-      // There is, execute the given function  
-      if (function_exists($action[1])) {
-//        if (!(call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)))) {
-        call_user_func_array($action[1],array(&$form,&$form_state['values'],$action)); 
-//                  return($form);
-//        }
-      }
-    }
-  }
-*/
 
   $form_weight = -20;
   
@@ -411,8 +373,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
     drupal_set_title(t('edit device %dname',array('%dname' => $form_state['values']['nick'])));
   } 
 
-  // All preprocess is complete, now going to execute the form
-  // Now going to construct the form
+  // All preprocess is complete, now going to create the form
 
   $form['main'] = array(
     '#type' => 'fieldset',
@@ -449,7 +410,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
     '#weight' => 1,
     '#title' => t('contact'),
     '#required' => TRUE,
-    '#attributes' => array('class'=>'email required'),
+//    '#attributes' => array('class'=>'email required'),
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $form_state['values']['notification'],
     '#description' =>  t('Mailid where changes on the device will be notified, if many, separated by \',\'<br />used for network administration.')
@@ -467,6 +428,8 @@ function guifi_device_edit_form($form_state, $params = array()) {
     );
   }
 
+  // create the device-type depenedent form
+  // looking for a "guifi_"<device_type>"_form()" function 
   if (function_exists('guifi_'.$form_state['values']['type'].'_form')){
     $form = array_merge($form,
       call_user_func('guifi_'.$form_state['values']['type'].'_form',
@@ -475,7 +438,7 @@ function guifi_device_edit_form($form_state, $params = array()) {
   }
 
   // Cable interfaces/links
-  guifi_interfaces_form($form['if'],$form_state['values'],$form_weight = 2);
+//  guifi_interfaces_form($form['if'],$form_state['values'],$form_weight = 2);
 
   // Comments
   $form_weight = 200;
@@ -497,16 +460,16 @@ function guifi_device_edit_form($form_state, $params = array()) {
   return $form;
 }
 
-/* guifi_device_edit_form_validate(): Confirm that an edited device has fields properly filled. */
-function guifi_device_edit_form_validate($form,&$form_state) {
+/* guifi_device_form_validate(): Confirm that an edited device has fields properly filled. */
+function guifi_device_form_validate($form,&$form_state) {
 //  print "Hola validate!!\n<br>";
 //   print_r($edit);
 
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_edit_form_validate()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_form_validate()',$form_state);
   
-//   guifi_log(GUIFILOG_NONE,'function guifi_device_edit_form_validate()',$form);
+//   guifi_log(GUIFILOG_NONE,'function guifi_device_form_validate()',$form);
    
   // nick
   if (isset($form['main']['nick'])) {
@@ -868,7 +831,7 @@ function guifi_save_interfaces2($edit,$var,$rc_old = null,$rc_new = null, $casca
 ** } end of code to be removed */
 
 /* guifi_device_edit_save(): Save changes/insert devices */
-function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
+function guifi_device_save($edit, $verbose = true, $notify = true) {
   global $user;
   global $bridge;
 
@@ -881,6 +844,7 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
   // device
   $edit['extra'] = serialize($edit['variable']);
   $ndevice = _guifi_db_sql('guifi_devices',array('id'=>$edit['id']),$edit,$log,$to_mail);
+  
   // radios
   $rc = 0;
   if (is_array($edit['radios']))
@@ -905,7 +869,7 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
     if ($interface['interface_type'] == 'wLan/Lan')
       $interface['radiodev_counter'] = 0;
 
-      $log .= guifi_device_edit_interface_save($interface,$interface_id,$ndevice['id'],$to_mail);
+      $log .= guifi_device_interface_save($interface,$interface_id,$ndevice['nid'],$to_mail);
 
     } // foreach interface
     $rc++;
@@ -915,7 +879,7 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
     $interface['device_id'] = $ndevice['id'];
     $interface['mac'] = $radio['mac'];
 
-    $log .= guifi_device_edit_interface_save($interface,$iid,$ndevice['id'],$to_mail);
+    $log .= guifi_device_interface_save($interface,$iid,$ndevice['id'],$to_mail);
   }
 
   $to_mail = explode(',',$edit['notification']);
@@ -942,7 +906,7 @@ function guifi_device_edit_save($edit, $verbose = true, $notify = true) {
 
 }
 
-function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
+function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
   $log = '';
 
 
@@ -951,6 +915,8 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   $ninterface = _guifi_db_sql(
     'guifi_interfaces',
     array('id'=>$iid),$interface,$log,$to_mail);
+  if (!isset($ninterface['id']))
+    $ninterface['id'] = $iid;
 
   if (empty($ninterface))
     return $log;
@@ -959,7 +925,7 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
   // ipv4
   if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
     $ipv4['interface_id'] = $ninterface['id'];
-    guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 (id=%d, iid=%d)',
+    guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)',
       $ipv4_id,$ipv4['interface_id']),
       $ipv4);
     $nipv4 = _guifi_db_sql(
@@ -997,6 +963,11 @@ function guifi_device_edit_interface_save($interface,$iid,$nid,&$to_mail) {
               '%mask'=>$ipv4['netmask']));
           $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
         }
+        $link['interface']['ipv4']['interface_id'] = $link['interface']['id'];
+        guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 remote (id=%d, iid=%d)',
+          $link['interface']['ipv4']['id'],
+          $link['interface']['ipv4']['interface_id']),
+          $link['interface']);
         $ripv4 = _guifi_db_sql(
           'guifi_ipv4',
           array('id'=>$link['interface']['ipv4']['id'],
@@ -1114,7 +1085,7 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
 function guifi_device_add() {
   guifi_log(GUIFILOG_TRACE,'function guifi_device_add()');
   
-  return drupal_get_form('guifi_device_edit_form',array('add'=>arg(3),
+  return drupal_get_form('guifi_device_form',array('add'=>arg(3),
                                                     'type'=>arg(4)));
 }
 
@@ -1599,6 +1570,13 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
     return $output;
   }
   return NULL;
+}
+
+function guifi_device_item_delete_msg($msg) {
+  return t($msg).'<br>'.
+    t('Press "<em>Save</em>" to confirm deletion or ' .
+      '"<em>Reset</em>" to discard changes and ' .
+      'recover the values from the database.');
 }
 
 

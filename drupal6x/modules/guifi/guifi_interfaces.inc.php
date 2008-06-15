@@ -1,5 +1,190 @@
 <?php
 
+function guifi_device_interface_form(&$interface,$ptree) {
+  global $hotspot;
+  
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_interface_form()',$interface);
+
+  // Interface type shoudn't be null
+  if ($interface['interface_type'] == null)
+    return;
+     
+  $it = $interface['interface_type'];
+    
+  $f = array(
+    '#type' => 'fieldset',
+    '#title' => $it,
+    '#collapsible' => true,
+    '#collapsed' => !isset($interface['unfold'])
+  );
+  
+  $f['interface'] = guifi_form_hidden_var(
+    $interface,
+    array('id','interface_type','radiodev_counter'),
+    $ptree
+  );
+  
+  if ($interface['deleted']){
+    $f['interface']['deleteMsg'] = array(
+      '#type' => 'item',
+//      '#parents' => array_merge($ptree,array('deleted')),
+      '#value' => t('Deleted'),
+      '#description' => guifi_device_item_delete_msg( 
+         'This interface has been deleted, ' .
+         'related addresses and links will be also deleted'),
+    );
+  } else {
+    if (($it != 'wds/p2p') and ($it != 'wLan/Lan'))
+      $f['interface']['deleteInterface'] = array(
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
+        '#parents'=>array_merge($ptree,array('deleteInterface')),
+        '#attributes'=>array('title'=>t('Delete interface')), 
+        '#submit' => array('guifi_interface_delete_submit'),
+      );
+  }
+  if ($it == 'wds/p2p')  
+    $f['interface']['AddWDS'] = array(
+    '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
+        '#parents'=>array_merge($ptree,array('AddWDS',$ptree[1],$ptree[2])),
+        '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
+        '#submit' => array('guifi_radio_add_wds_submit'),
+     );  
+  
+  if (count($interface['ipv4']) > 0)
+    foreach ($interface['ipv4'] as $ka => $ipv4) {
+
+      if ($ipv4['deleted'])
+        continue;
+      
+      $f['ipv4'][$ka] =
+        guifi_device_ipv4_link_form(
+          $ipv4,
+          array_merge(
+            $ptree,
+            array('ipv4',$ka)
+          )
+        );
+    }   // foreach ipv4
+  
+  if ($it != 'HotSpot')      
+    $f['#title'] .= ' - '.count($interface['ipv4']).' '.
+      t('address(es)');
+  else
+    $hotspot = true;
+
+  return $f;
+    
+//    $f[$it][$ki]['addCableConnection'] = array(
+//      '#type'=>'button',
+//      '#parents'=>array('interfaces',$ki,'addCableConnection'),
+//      '#value'=>t('Add cable connection'),
+//      '#name'=>'_action,_guifi_add_cable_link,'.$ki,
+//      '#weight'=>$fw++);
+//    $f[$it][$ki]['addPublicSubnet'] = array(
+//      '#type'=>'button',
+//      '#parents'=>array('interfaces',$ki,'addPublicSubnet'),
+//      '#value'=>t('Add public subnetwork'),
+//      '#name'=>'_action,_guifi_add_subnet,'.$ki,
+//      '#weight'=>$fw++);
+//    if ($interface['interface_type'] != 'wLan/Lan')
+//      $f[$it][$ki]['deleteInterface'] = array(
+//        '#type'=>'button',
+//        '#parents'=>array('interfaces',$ki,'deleteInterface'),
+//        '#value'=>t('Delete Interface'),
+//        '#name'=>'_action,_guifi_delete_interface,,'.$ki,
+//        '#weight'=>$fw++);
+//
+//  
+//  foreach ($f as $it => $value) {
+//    
+//    //    guifi_log(GUIFILOG_FULL,'building form for: ',$value);
+//    switch ($it) {
+//    case 'wLan/Lan':
+//    case 'wds/p2p':
+//      $title = $it.' - '.$links_count[$it].' '.t('link(s)');
+//      break;
+//    case 'wLan':
+//      $title = $it.' - '.
+//        count($value).' '.t('interface(s)').' - '.
+//        $links_count[$it].' '.t('link(s)');
+//      break;
+//    default:
+//      $title = $it;
+//    }
+//    
+//    if ($ipv4_count[$it])
+//       $title .= ' - '.$ipv4_count[$it].' '.t('address(es)');
+//    
+//        
+//    $form['interfaces'][$ilist[$it]] = array(
+//      '#type' => 'fieldset',
+//      '#title' => $title,
+//      '#weight' => $fw++,
+//      '#collapsible' => TRUE,
+//      '#collapsed' => TRUE,
+//    );
+//
+//    if (!empty($value)) {
+//      foreach ($value as $ki => $fin)
+//        if (empty($form['interfaces'][$ki]))
+//          $form['interfaces'][$ki] = $fin;
+//        else
+//          $form['interfaces'][$ki] = array_merge($form['interfaces'][$ki],$fin);
+//    } else {
+//      if ((!$edit['interfaces'][$ilist[$it]]['new']) and
+//        ($it != 'wds/p2p') and 
+//        ($it != 'wLan/Lan'))
+//        $form['interfaces'][$ki]['delete_address'] = array(
+//          '#type' => 'button',
+//          '#parents'=>array('interfaces',$ilist[$it],'delete_interface'),
+//          '#value'=>t('Delete interface'),
+//          '#executes_submit_function' => true,
+//          '#weight' => $fw++,
+//        );
+//    }
+//    $form['interfaces'][$ki]['id'] = array(
+//      '#type'=>'hidden',
+//      '#parents'=>array('interfaces',$ki,'id'),
+////      '#value'=>$interface['id']);
+//      '#value'=>$ki);
+//    $form['interfaces'][$ki]['interface_type'] = array(
+//      '#type'=>'hidden',
+//      '#parents'=>array('interfaces',$ki,'interface_type'),
+//      '#value'=>$interface['interface_type']);
+//  }
+//  $form['interfaces']['#title'] .= ' - '.
+//    $interfaces_count.' '.t('interface(s)').' - '.
+//    array_sum($links_count).' '.t('link(s)').' - '.
+//    array_sum($ipv4_count).' '.t('address(es)');
+//    
+//  $form['interfaces']['NewInterfaceName'] = array(
+//    '#type'=>'select',
+//    '#parents'=>array('NewInterfaceName'),
+//    '#value'=> '0',
+//    '#options'=>array_merge(
+////       array('0'=>t('Select interface name')),
+//      guifi_get_free_interfaces($edit['id'],$edit),
+//      array('other'=>t('other'))
+//    ),
+//    '#prefix'=>'<table style="width: 0"><tr><td>',
+//    '#suffix'=>'</td>',
+//    '#weight'=>$fw++,
+//  );
+//  $form['interfaces']['AddCableInterface'] = array(
+//    '#type'=>'submit',
+//    '#parents'=>array('AddCableInterface'),
+//    '#value'=>t('Add interface'),
+//    '#name'=>'_action,_guifi_add_interface,',
+//    '#prefix'=>'<td>',
+//    '#suffix'=>'</td></tr></table>',
+//    '#weight'=>$fw++);
+//  
+//  return;
+//  
+}
+
 /* guifi_interfaces_form(): Main cable interface edit form */
 function guifi_interfaces_form(&$form,&$edit,&$fw = 500) {
 
@@ -301,21 +486,25 @@ function _guifi_add_subnet_submit(&$form,&$edit,$action) {
 /* Delete interface */
 function guifi_interface_delete(&$form,&$form_state) {
   list($radio_id, $interface_id) = explode(',',$form_state['deleteInterface']);
-  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interface_delete(radio: %d, interface: %d)',
+  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_interface_delete(radio: %d, interface: %d)',
     $radio_id,$interface_id));
-  if ($radio_id == '')
+  if ($radio_id == '') {
     $form_state['values']['interfaces'][$interface_id]['deleted'] = true;
-  else
-    $it = $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['deleted']=true;
+  } else {
+    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['deleted']=true;
+    $form_state['values']['radios'][$radio_id]['unfold'] = true;
+    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['unfold']=true;
+  }
   
   return TRUE;
 }
 
 function guifi_interface_delete_submit(&$form,&$form_state) {
-  $radio_id    = $form_state['clicked_button']['#parents'][1];
-  $interface_id= $form_state['clicked_button']['#parents'][3];
-  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interface_delete_submit(radio: %d, interface: %d)',
-    $radio_id,$interface_id));
+  $values      = $form_state['clicked_button']['#parents'];
+  $radio_id    = $values[count($values)-4];
+  $interface_id= $values[count($values)-2];
+  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_interface_delete_submit(radio: %d, interface: %d)',
+    $radio_id,$interface_id),$form_state['clicked_button']['#parents']);
   $form_state['deleteInterface']=($radio_id).','.($interface_id);
   $form_state['rebuild'] = true;
   $form_state['action'] = 'guifi_interface_delete';

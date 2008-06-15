@@ -130,6 +130,7 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
      }
    $new_data = array_diff_assoc($data,$orig_data);
    if (count($new_data) == 0) {
+//     $log .= "no changes at ".$table;
      return $orig_data;
    }
 

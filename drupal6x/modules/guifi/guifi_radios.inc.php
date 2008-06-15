@@ -45,25 +45,10 @@ function guifi_radio_form(&$edit,$form_weight) {
      ),
     '#weight' => 0,
   );
-/*  
-  $form['radio_settings']['variable']['firmwarestart'] = array(
-    '#type'=>'hidden',
-    '#value'=> -1,
-    '#prefix' => '<td><div="select-firmware">',
-    '#weight' => 1
-    );
-  */
+
   $form['radio_settings']['variable']['firmware'] = 
     guifi_radio_firmware_field($edit['variable']['firmware'],
         $edit['variable']['model_id']);
-  /*
-  $form['radio_settings']['variable']['firmwareend'] = array(
-    '#type'=>'hidden',
-    '#value'=> -1,
-    '#suffix' => '</div></td>',
-    '#weight' => 3
-    );
-  */
         
   $form['radio_settings']['mac'] = array(
     '#type' => 'textfield',
@@ -79,7 +64,7 @@ function guifi_radio_form(&$edit,$form_weight) {
     '#weight' => 4
   );
 
-  $msg = t('Wireless radios settings').' - ';
+  $msg = t('Wireless radios').' - ';
   switch (count($edit['radios'])) {
   case 0: 
      $msg .= t('No radios');
@@ -105,14 +90,17 @@ function guifi_radio_form(&$edit,$form_weight) {
   $cipv4 = 0;
   $clinks = 0;
   if (!empty($edit['radios'])) foreach ($edit['radios'] as $key => $radio) {
+    $rc++;
     $hotspot = false;
     
 //    if ($radio['deleted']) continue;
     
-    guifi_radio_radio_form($form,$radio,$key,$form_weight);
+    $form['r']['radios'][$key] =
+      guifi_radio_radio_form($radio,$key,$form_weight);
     
     $bw = $form_weight - 1000;
 
+/*
     $counters = guifi_radio_radio_interfaces_form($edit, $form, $key, $form_weight);
     $form['r']['radios'][$key]['#title'] .= ' - '.
       $counters['interfaces'].' '.t('interface(s)').' - '.
@@ -122,10 +110,12 @@ function guifi_radio_form(&$edit,$form_weight) {
     $cipv4 += $counters['ipv4'];
     $clinks += $counters['links'];
 
+*/
     // Going to paint the buttons
 
     // For AP Mode, clients_accepted
-    if ($radio['mode'] == 'ap') { 
+    if (!isset($radio['deleted']))
+    if ($radio['mode'] == 'ap')  { 
       // If no wLan interface, allow to create one
       if ((count($radio['interfaces']) < 2) or (user_access('administer guifi networks'))) {
         $form['r']['radios'][$key]['AddwLan'] = array(
@@ -156,6 +146,7 @@ function guifi_radio_form(&$edit,$form_weight) {
     }   
 
     // Only allow delete and move functions if the radio has been saved 
+    if (!isset($radio['deleted']))
     if ($radio['new']==false)  {
       // Only allow delete radio if several when is not the first 
       if ((count($edit['radios'])==1) or ($key))
@@ -175,6 +166,7 @@ function guifi_radio_form(&$edit,$form_weight) {
     }
 
     // if not first, allow to move up  
+    if (!isset($radio['deleted']))
     if ($rc) 
       $form['r']['radios'][$key]['up'] = array(
         '#type'=>'image_button',
@@ -260,10 +252,10 @@ function guifi_radio_form(&$edit,$form_weight) {
        );
     }
   }
-  $form['r']['#title'] .= ' - '.
-    $cinterfaces.' '.t('interface(s)').' - '.
-    $cipv4.' '.t('address(es)').' - '.
-    $clinks.' '.t('link(s)');
+//  $form['r']['#title'] .= ' - '.
+//    $cinterfaces.' '.t('interface(s)').' - '.
+//    $cipv4.' '.t('address(es)').' - '.
+//    $clinks.' '.t('link(s)');
 
   return $form;
 }
@@ -305,39 +297,51 @@ function guifi_radio_channel_field($rid,$channel,$protocol,$weight = 0) {
      );
 }
 
-function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
+function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
     guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_radio_radio_form(key=%d)',$key),$radio); 
     
-    $form['r']['radios'][$key] = array(
+    $f = array(
       '#type' => 'fieldset',
-      '#title' => t('Radio #').$key.' - '.$radio['mode'].' - '.$radio['ssid'],
+      '#title' => t('Radio #').$key.' - '.$radio['mode'].' - '.$radio['ssid'].
+        ' - '.count($radio['interfaces']).' '.t('interface(s)'),
       '#collapsible' => true,
       '#collapsed' => !(isset($radio['unfold'])),
       '#tree'=> TRUE,
       '#weight' => $form_weight++,
     );
     if ($radio['deleted']) {
-      $form['r']['radios'][$key]['deletedMsg'] = array(
+      $f['deletedMsg'] = array(
         '#type' => 'item',
-        '#value' => t("This radio and has been deleted, deletion will cascade to all properties, including interfaces, links and ip addresses.\n".
-                      'Press "Save" to confirm deletion or "Reset" to discard changes and recover the values from the database.'),
+        '#value' => guifi_device_item_delete_msg(
+            "This radio and has been deleted, " .
+            "deletion will cascade to all properties, including interfaces, " .
+            "links and ip addresses."),
         '#weight' => $form_weight++);
-      $form['r']['radios'][$key]['deleted'] = array(
+      $f['deleted'] = array(
         '#type' => 'hidden',
         '#value' => true);
     }
     if ($radio['new']) {
-      $form['r']['radios'][$key]['new'] = array(
+      $f['new'] = array(
         '#type' => 'hidden',
         '#parents' => array('radios',$key,'new'),
         '#value' => true);
     }
-    $form['r']['radios'][$key]['mode'] = array(
+    $f['mode'] = array(
         '#type' => 'hidden',
         '#parents' => array('radios',$key,'mode'),
         '#value' => $radio['mode']);
+        
+    $f['s'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Radio main settings (SSID, MAC, Channel...)'),
+      '#collapsible' => true,
+      '#collapsed' => !(isset($radio['unfold_main'])),
+      '#tree'=>false,
+//      '#weight' => $fw2++,
+    );
     if ($radio['mode'] == 'ap')
-      $form['r']['radios'][$key]['ssid'] = array(     
+      $f['s']['ssid'] = array(     
         '#type' => 'textfield',
         '#title' => t('SSID'),
         '#parents' => array('radios',$key,'ssid'),
@@ -352,7 +356,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
       );
     else {
       $inherit_msg = t('Will take it from the connected AP.');
-      $form['r']['radios'][$key]['ssid'] = array(     
+      $f['s']['ssid'] = array(     
         '#type' => 'hidden',
         '#parents' => array('radios',$key,'ssid'),
         '#title' => t('SSID'),
@@ -363,7 +367,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
 //        '#weight' => $fw2++
       );
     }
-    $form['r']['radios'][$key]['mac'] = array(
+    $f['s']['mac'] = array(
       '#type' => 'textfield',
 //      '#parents' => array('radios',$key,'mac'),
       '#title' => t('MAC'),
@@ -380,7 +384,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
  //     '#weight' => $fw2++
     );
     if ($radio['mode'] == 'ap') {
-      $form['r']['radios'][$key]['protocol'] = array(
+      $f['s']['protocol'] = array(
         '#type' => 'select',
         '#title' => t("Protocol"),
         '#parents' => array('radios',$key,'protocol'),        
@@ -399,14 +403,14 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
 //        '#weight' => $fw2++,   
       );
       
-      $form['r']['radios'][$key]['channel'] = 
+      $f['s']['channel'] = 
         guifi_radio_channel_field(
           $key,
           $radio["channel"],
           $radio['protocol']);
 //          $fw2++);
 
-      $form['r']['radios'][$key]['clients_accepted'] = array(
+      $f['s']['clients_accepted'] = array(
         '#type' => 'select',
         '#title' => t("Clients accepted?"),
         '#parents' => array('radios',$key,'clients_accepted'),        
@@ -419,7 +423,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
 //        '#weight' => $fw2++,   
       );
      } else {
-      $form['r']['radios'][$key]['protocol'] = array(
+      $f['s']['protocol'] = array(
         '#type' => 'hidden',
         '#title' => t("Protocol"),
         '#parents' => array('radios',$key,'protocol'),        
@@ -429,18 +433,18 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
         '#suffix'=>'</td>',
   //      '#weight' => $fw2++,   
       );
-      $form['r']['radios'][$key]['channel'] = array(
+      $f['s']['channel'] = array(
         '#type' => 'hidden',
         '#title' => t("Channel"),
         '#parents' => array('radios',$key,'channel'),        
-        '#value' =>  $radio["channel"],
+        '#default_value' =>  $radio["channel"],
         '#options' => guifi_types('channel',null,null,$radio['protocol']), 
         '#description' => $inherit_msg,
         '#prefix'=>'<td>',
         '#suffix'=>'</td>',
 //        '#weight' => $fw2++,   
       );
-      $form['r']['radios'][$key]['clients_accepted'] = array(
+      $f['s']['clients_accepted'] = array(
         '#type' => 'hidden',
         '#parents' => array('radios',$key,'clients_accepted'),        
         '#value' =>  $radio["clients_accepted"],
@@ -451,16 +455,16 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
     }
 
     // Antenna settings group
-    $form['r']['radios'][$key]['antenna'] = array(
+    $f['antenna'] = array(
       '#type' => 'fieldset',
       '#title' => t('Antenna settings'),
       '#collapsible' => true,
-      '#collapsed' => false,
+      '#collapsed' => !(isset($radio['unfold_antenna'])),
       '#tree'=>false,
 //      '#weight' => $fw2++,
     ); 
     $fw2 = 0;
-    $form['r']['radios'][$key]['antenna']['antenna_angle'] = array(
+    $f['antenna']['antenna_angle'] = array(
       '#type' => 'select',
       '#title' => t("Type (angle)"),
       '#parents' => array('radios',$key,'antenna_angle'),
@@ -471,7 +475,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
       '#suffix'=>'</td>',
 //      '#weight' => $fw2++,
     );
-    $form['r']['radios'][$key]['antenna']['antenna_gain'] = array(
+    $f['antenna']['antenna_gain'] = array(
       '#type' => 'select',
       '#title' => t("Gain"),
       '#parents' => array('radios',$key,'antenna_gain'),
@@ -482,7 +486,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
       '#suffix'=>'</td>',
 //      '#weight' => $fw2++,
     );
-    $form['r']['radios'][$key]['antenna']['antenna_azimuth'] = array(
+    $f['antenna']['antenna_azimuth'] = array(
       '#type' => 'textfield',
       '#title' => t('Degrees (º)'),
       '#parents' => array('radios',$key,'antenna_azimuth'),
@@ -494,7 +498,7 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
       '#suffix'=>'</td>',
 //      '#weight' => $fw2++,
     );
-    $form['r']['radios'][$key]['antenna']['antmode'] = array(
+    $f['antenna']['antmode'] = array(
       '#type' => 'select',
       '#title' => t("Connector"),
       '#parents' => array('radios',$key,'antmode'),        
@@ -509,24 +513,41 @@ function guifi_radio_radio_form(&$form, $radio, $key, &$form_weight = -200) {
       '#suffix'=>'</td></tr></table>',
 //      '#weight' => $fw2++,   
     );
+    
+    foreach ($radio['interfaces'] as $iid=>$interface)
+      $f['interfaces'][$iid] =
+        guifi_device_interface_form($interface,array('radios',$key,'interfaces',$iid));
+/*    
+    $f = guifi_radio_radio_interfaces_form($edit, $form, $key, $form_weight);
+    $form['r']['radios'][$key]['#title'] .= ' - '.
+      $counters['interfaces'].' '.t('interface(s)').' - '.
+      $counters['links'].' '.t('link(s)').' - '.
+      $counters['ipv4'].' '.t('ipv4 address(es)');
+    $cinterfaces += $counters['interfaces'];
+    $cipv4 += $counters['ipv4'];
+    $clinks += $counters['links'];
+*/    
+  return $f;
 }
 
-/* guifi_radio_interfaces_form(): Tadio interfaces form */
-function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
+/* guifi_radio_interfaces_form(): Radio interfaces form */
+//function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
+function guifi_radio_radio_interfaces_form($radio, $rk, &$counters, &$weight) {
   global $hotspot;
   global $bridge;
 
-  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_interfaces_form(key=%d)',$rk)); 
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_radio_interfaces_form(key=%d)'));
+   
   $f = array();
 
-  if (count($edit['radios'][$rk]['interfaces']) == 0)
-    return $weight;
+  if (count($radio['interfaces']) == 0)
+    return;
 
   $interfaces_count = 0;
   $ipv4_count = 0;
   $links_count = array();
 
-  foreach ($edit['radios'][$rk]['interfaces'] as $ki => $interface) {
+  foreach ($radio['interfaces'] as $ki => $interface) {
 //    guifi_log(GUIFILOG_FULL,'interface',$interface); 
     if ($interface['interface_type'] == null)
       continue;
@@ -625,7 +646,7 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
     default:
       $title = $it;
     }
-    $form['r']['radios'][$rk][$it] = array(
+    $form[$it] = array(
     '#type' => 'fieldset',
     '#title' => $title,
     '#weight' => $weight,
@@ -636,12 +657,12 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
 
     if (!empty($value))
       foreach ($value as $ki => $fin)
-        $form['r']['radios'][$rk][$it]['interfaces'][$ki] = $fin; 
+        $form[$it]['interfaces'][$ki] = $fin; 
     else {
-      if ((!$edit['radios'][$rk]['interfaces'][$ilist[$it]]['new']) and 
+      if ((!$radio['interfaces'][$ilist[$it]]['new']) and 
         ($it != 'wds/p2p') and 
         ($it != 'wLan/Lan'))
-        $form['r']['radios'][$rk][$it]['delete_address'] = array(
+        $form[$it]['delete_address'] = array(
           '#type' => 'button',
           '#parents'=>array('radios',$rk,'interfaces',$ilist[$it],'delete_interface'),
           '#value'=>t('Delete'),
@@ -655,7 +676,9 @@ function guifi_radio_radio_interfaces_form(&$edit, &$form, $rk, &$weight) {
     }
  }
  
- return array('interfaces'=>$interfaces_count,'ipv4'=>$ipv4_count,'links'=>array_sum($links_count));
+ $counters = array('interfaces'=>$interfaces_count,'ipv4'=>$ipv4_count,'links'=>array_sum($links_count));
+ 
+ return $form;
 }
 
 /* guifi_radio_validate()): Validate radio, called as a hook while validating the form */
@@ -758,6 +781,8 @@ function guifi_radio_add_hotspot_submit($form, &$form_state) {
   $interface=array();
   $interface['new']=true;
   $interface['interface_type']='HotSpot';
+  $interface['unfold']=true;
+  $form_state['values']['radios'][$radio]['unfold']=true;
   $form_state['values']['radios'][$radio]['interfaces'][] = $interface;
   $form_state['rebuild'] = true;
   drupal_set_message(t('Hotspot added at radio#%radio',
@@ -849,6 +874,10 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
 
     $radio['rc'] = $rc;
     
+    $radio['unfold'] = true;
+    $radio['unfold_main'] = true;
+    $radio['unfold_antenna'] = true;
+    
     $form_state['rebuild'] = true;
     $form_state['newRadio'] = $radio;
     
@@ -898,7 +927,7 @@ function guifi_radio_interface_link_delete(&$form,&$form_state) {
     )
   ));
   unset($form_state['deleteRadioInterfaceLink']);
-  unset($form_tate['action']);
+  unset($form_state['action']);
   $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]
     ['ipv4'][$ipv4_id]['links'][$link_id]['deleted'] = true;
   
@@ -910,6 +939,7 @@ function guifi_radio_delete($form, &$form_state) {
   drupal_set_message(t('Radio#%num has been deleted.',
     array('%num'=>$form_state['deleteRadio'])));
   $form_state['values']['radios'][$form_state['deleteRadio']]['deleted'] = true;
+  $form_state['values']['radios'][$form_state['deleteRadio']]['unfold'] = true;
   unset($form_state['deleteRadio']);
   unset($form_state['action']);
   return true;    
@@ -1028,14 +1058,11 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
       $newInterface;
     guifi_log(GUIFILOG_TRACE,"new Interface added: ",$newInterface);
   }
-//    array("kakadevaca",'kuldemandril');
-//    $form_state['values']['newInterface'][$interface_id]['ipv4]'][0];
-    
-//  array_merge(
-//    $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id],
-//    $form_state['values']['newInterface'][$interface_id]
-//  );
-  
+
+  $form_state['values']['radios'][$radio_id]['unfold'] =true;
+  $form_state['values']['radios'][$radio_id]
+    ['interfaces'][$interface_id]['unfold'] =true;
+   
   guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_wds_confirm POST (radio: %d, interface: %d)",
     $radio_id,$interface_id),$form_state['values']);
@@ -1081,6 +1108,9 @@ function guifi_radio_add_wds_confirm_submit(&$form,&$form_state) {
     $form_state['values']['radios'][$radio_id]['interfaces'],
     $form_state['values']['newInterface']
   );
+  
+  $form_state['newinterface'] = $form_state['values']['newInterface']['unfold']=
+    true;  
   
   guifi_log(GUIFILOG_FULL,"finished link: ",$form_state['values']['radios'][$radio_id]['interfaces']);
   
@@ -1155,8 +1185,9 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
 
 function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $radio_id    =$form_state['clicked_button']['#parents'][1];
-  $interface_id=$form_state['clicked_button']['#parents'][2];
-  guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id));
+  $interface_id=$form_state['clicked_button']['#parents'][3];
+  guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
+    $form_state['clicked_button']['#parents']);
 
   $form_state['rebuild'] = true;
   $form_state['action'] = 'guifi_radio_add_wds_form';
