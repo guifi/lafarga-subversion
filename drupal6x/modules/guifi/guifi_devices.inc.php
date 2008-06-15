@@ -1085,8 +1085,10 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
 function guifi_device_add() {
   guifi_log(GUIFILOG_TRACE,'function guifi_device_add()');
   
-  return drupal_get_form('guifi_device_form',array('add'=>arg(3),
+  $output = drupal_get_form('guifi_device_form',array('add'=>arg(3),
                                                     'type'=>arg(4)));
+  // To gain space, save bandwith and CPU, omit blocks
+  print theme('page', $output, FALSE);                                                   
 }
 
 /* guifi_device_create_form(): generates html output form with a listbox, 
@@ -1577,6 +1579,13 @@ function guifi_device_item_delete_msg($msg) {
     t('Press "<em>Save</em>" to confirm deletion or ' .
       '"<em>Reset</em>" to discard changes and ' .
       'recover the values from the database.');
+}
+
+function guifi_device_edit($device) {
+  $output = drupal_get_form('guifi_device_form',$device);
+  
+  // To gain space, save bandwith and CPU, omit blocks
+  print theme('page', $output, FALSE);
 }
 
 
