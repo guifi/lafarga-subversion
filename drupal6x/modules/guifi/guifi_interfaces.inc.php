@@ -10,10 +10,15 @@ function guifi_device_interface_form(&$interface,$ptree) {
     return;
      
   $it = $interface['interface_type'];
+  if ($it == 'Wan') {
+    $interface['unfold'] = true;
+    $msg = t('Connection to AP');
+  } else
+    $msg = $it;
     
   $f = array(
     '#type' => 'fieldset',
-    '#title' => $it,
+    '#title' => $msg,
     '#collapsible' => true,
     '#collapsed' => !isset($interface['unfold'])
   );
@@ -23,18 +28,27 @@ function guifi_device_interface_form(&$interface,$ptree) {
     array('id','interface_type','radiodev_counter'),
     $ptree
   );
-  
+    
+  // wds/p2p link, allow to create new links
+  if ($it == 'wds/p2p')  
+    $f['interface']['AddWDS'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
+      '#parents'=>array_merge($ptree,array('AddWDS',$ptree[1],$ptree[2])),
+      '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
+      '#submit' => array('guifi_radio_add_wds_submit'),
+    );
+     
   if ($interface['deleted']){
     $f['interface']['deleteMsg'] = array(
       '#type' => 'item',
-//      '#parents' => array_merge($ptree,array('deleted')),
       '#value' => t('Deleted'),
       '#description' => guifi_device_item_delete_msg( 
          'This interface has been deleted, ' .
          'related addresses and links will be also deleted'),
     );
   } else {
-    if (($it != 'wds/p2p') and ($it != 'wLan/Lan'))
+    if (($it != 'wds/p2p') and ($it != 'wLan/Lan') and ($it != 'Wan'))
       $f['interface']['deleteInterface'] = array(
         '#type'=>'image_button',
         '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
@@ -43,21 +57,14 @@ function guifi_device_interface_form(&$interface,$ptree) {
         '#submit' => array('guifi_interface_delete_submit'),
       );
   }
-  if ($it == 'wds/p2p')  
-    $f['interface']['AddWDS'] = array(
-    '#type'=>'image_button',
-        '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
-        '#parents'=>array_merge($ptree,array('AddWDS',$ptree[1],$ptree[2])),
-        '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')), 
-        '#submit' => array('guifi_radio_add_wds_submit'),
-     );  
   
+  $ipv4Count = 0;
   if (count($interface['ipv4']) > 0)
     foreach ($interface['ipv4'] as $ka => $ipv4) {
-
-      if ($ipv4['deleted'])
-        continue;
       
+      if (!$ipv4['deleted'])
+        $ipv4Count++;
+
       $f['ipv4'][$ka] =
         guifi_device_ipv4_link_form(
           $ipv4,
@@ -67,9 +74,19 @@ function guifi_device_interface_form(&$interface,$ptree) {
           )
         );
     }   // foreach ipv4
+
+  // Mode Client or client-routed, allow to link to AP
+  if ( ($it == 'Wan') and ($ipv4Count == 0) )
+    $f['interface']['Link2AP'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/link2ap.png',
+      '#parents'=>array('Link2AP',$ptree[1],$interface['id']),
+      '#attributes'=>array('title'=>t('Create a simple (ap/client) link to an Access Point')), 
+      '#submit' => array('guifi_radio_add_link2ap_submit'),
+    );   
   
   if ($it != 'HotSpot')      
-    $f['#title'] .= ' - '.count($interface['ipv4']).' '.
+    $f['#title'] .= ' - '.$ipv4Count.' '.
       t('address(es)');
   else
     $hotspot = true;

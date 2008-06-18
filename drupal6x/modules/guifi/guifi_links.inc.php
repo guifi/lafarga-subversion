@@ -8,6 +8,7 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
 
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
+  
   if (count($tree)>4)
     $rk = $tree[1];
   else
@@ -35,13 +36,6 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
     array_merge($tree,array('links',$link['id'],'interface','ipv4'))
   );
     
-  
-//  $f['interface']['ipv4'] = guifi_form_hidden_var(
-//    $link['interface']['ipv4'],
-//    array('id','interface_id','netmask'),
-//    array_merge($tree,array('links',$link['id'],'interface','ipv4'))
-//  );  
-  
   if ($multilink)
     $prefix='<table><td>';
   else
@@ -56,32 +50,13 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
   
   $f['l'] = array(
     '#type' => 'fieldset',
-//    '#title' => sprintf('node# %d: ',$link['nid'])
-//                .guifi_get_nodename($link['nid']),
     '#title'=>  guifi_get_nodename($link['nid']).'/'.
       guifi_get_hostname($link['device_id']),
-//    '#description'=>guifi_get_interface_descr($link['interface_id']),
-//    '#weight' => $lweight++,
     '#collapsible' => TRUE,
-//    '#tree' => FALSE,
-    '#collapsed' => TRUE,
-//    '#prefix'=> '<table><tr><td>',
-//    '#suffix'=> '</td>',
-//    '#suffix'=> '<table><tr>',
+    '#collapsed' => !isset($link['unfold']),
   ); 
-  /*
-  $f['link_name'] = array(
-    '#type' => 'item',
-    '#parents'=>array_merge($tree,array('links',0,'link_name')),
-    '#title' => guifi_get_nodename($link['nid']),
-    '#value'=>  guifi_get_hostname($link['device_id']),
-    '#description'=>guifi_get_interface_descr($link['interface_id']),
-    '#prefix'=> '<table><tr><td>',
-    '#suffix'=> '</td>',
-    '#weight' => $lweight++,
-  );
-  */
-  
+  if ($link['deleted'])
+    $f['l']['#description'] = guifi_device_item_delete_msg('<b>Link deleted</b>.'); 
         
   if (user_access('administer guifi networks')) {
     if (!$multilink)
@@ -92,6 +67,7 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
       '#maxlength'=>16,
       '#default_value'=>$ipv4['ipv4'],
       '#title'=>t('Local IPv4'),
+      '#element_validate' => array('guifi_validate_ip'),
       '#prefix'=> '<table><tr><td>',
 //      '#prefix'=> '<td>',
       '#suffix'=> '</td>',
@@ -105,6 +81,9 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
       '#maxlength'=>16,
       '#default_value'=>$link['interface']['ipv4']['ipv4'],
       '#title'=>t('Remote IPv4'),
+      '#element_validate' => array(
+        'guifi_validate_ip',
+        'guifi_links_validate_subnet'),
       '#prefix'=> $prefix,
       '#suffix'=> '</td>',
       '#weight'=> $lweight++,
@@ -157,43 +136,32 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
     '#weight' =>        $lweight++,
   );
   // delete link button
-  $f['l']['delete_link'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
-    '#parents'=>array_merge($tree,array(
-      'delete_link',
-      $rk,$ki,$ka,
-      $link['id'],
-      $link['nid'],
-      $link['device_id']
-    )),
-    '#attributes'=>array(
-      'title'=>t('Delete %name link',
-        array('%name'=>
-          guifi_get_interface_descr($link['interface_id'])
-        )
-      )
-    ), 
-    '#submit' => array('guifi_radio_interface_link_delete_submit'),
-    '#prefix'=> '<td>',
-    '#suffix'=> '</td></tr></table>',
-    '#weight'=>$lweight++);
-/*  
-  $f['l']['delete_link'] = array(
-    '#type' => 'button',
-    '#parents'=>array_merge($tree,array('delete_link')),
-    '#value'=>t('Delete'),
-    '#name'=>implode(',',array(
-       '_action',
-       '_guifi_delete_radio_interface_link',
-       $rk,$ki,$ka,$link['id'],
-       $link['nid'],
-       $link['device_id'])),
-    '#prefix'=> '<td>',
-    '#suffix'=> '</td></tr></table>',
-    '#weight' =>  $lweight++,
-  );
-  */
+  if ($link['deleted'])
+    $f['deleted_link'] = array(
+      '#type'=> 'hidden',
+      '#parents'=> array_merge($tree,array('deleted_link')),
+      '#value'=> true,
+      '#suffix'=> '</tr></table>',
+    );
+  else
+    $f['l']['delete_link'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
+      '#parents'=>array_merge($tree,array(
+        'delete_link',  
+        $rk,$ki,$ka,
+        $link['id'],
+        $link['nid'],
+        $link['device_id']
+      )),
+      '#attributes'=>array(
+        'title'=>t('Delete link with').': '.
+            guifi_get_interface_descr($link['interface_id'])
+        ),
+      '#submit' => array('guifi_radio_interface_link_delete_submit'),
+      '#prefix'=> '<td>',
+      '#suffix'=> '</td></tr></table>',
+      '#weight'=>$lweight++);
   
   return $f;
 }
@@ -202,7 +170,7 @@ function guifi_link_form($link,$ipv4,$tree,$multilink) {
   $lweight = 0;
 
   // edit link details
-  guifi_log(GUIFILOG_BASIC,'guifi_links_form()',$link);
+  guifi_log(GUIFILOG_TRACE,'guifi_links_form()',$link);
 
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
@@ -357,12 +325,9 @@ function guifi_link_form($link,$ipv4,$tree,$multilink) {
       $link['device_id']
     )),
     '#attributes'=>array(
-      'title'=>t('Delete %name link',
-        array('%name'=>
+      'title'=>t('Delete link with').': '.
           guifi_get_interface_descr($link['interface_id'])
-        )
-      )
-    ), 
+      ),
     '#submit' => array('guifi_radio_interface_link_delete_submit'),
     '#prefix'=> '<td>',
     '#suffix'=> '</td></tr></table>',
@@ -889,6 +854,52 @@ function guifi_add_link(&$edit,$type,$interface_ipv4_id) {
   }
 //  print_r($edit);
   return;
+}
+
+function guifi_links_validate_subnet($remoteIp,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+    
+  $keys         = count($remoteIp['#parents']);
+  $radio_id     = $remoteIp['#parents'][$keys - 10];
+  $interface_id = $remoteIp['#parents'][$keys - 8];
+  $ipv4_id      = $remoteIp['#parents'][$keys - 6];
+  $link_id      = $remoteIp['#parents'][$keys - 4];
+  
+  if ($keys == 11)
+    $ipv4 = &$form_state['values']['radios'][$radio_id]
+                                  ['interfaces'][$interface_id]
+                                  ['ipv4'][$ipv4_id];
+  else
+    $ipv4 = &$form_state['values']['interfaces'][$interface_id]
+                                  ['ipv4'][$ipv4_id];
+  
+  $item1 = _ipcalc($ipv4['ipv4'],$ipv4['netmask']);
+  $item2 = _ipcalc($remoteIp['#value'],$ipv4['netmask']);
+  if (($item1[netstart] != $item2[netstart]) or ($item1[netend] != $item2[netend])) {
+    form_error($remoteIp,
+      t('Error in linked ipv4 addresses (%addr1/%mask - %addr2), not at same subnet.',
+          array(
+            '%addr1'=>$ipv4['ipv4'],
+            '%addr2'=>$remoteIp['#value'],
+            '%mask'=>$ipv4['netmask']
+          )
+        ),
+        'error');
+  }
+  
+
+  return;  
+//  $longIp = ip2long($ip['#value']);
+//  
+//  if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
+//    form_error($ip,
+//      t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
+//        array('%addr'=>$ip['#value'])),'error');
+//  else
+//    $ip['#value'] = long2ip($longIp);
+//    
+//  return $ip;  
 }
 
 ?>

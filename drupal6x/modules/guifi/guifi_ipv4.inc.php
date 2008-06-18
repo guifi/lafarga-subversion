@@ -225,25 +225,28 @@ function guifi_edit_ipv4_save($edit) {
 
 
 function guifi_device_ipv4_link_form($ipv4,$tree) {
-
-  if ($ipv4['deleted'])
-    return;
-    
+   
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
+  
+  
   if (count($tree)>4)
     $rk = $tree[1];
   else
     $rk = null;
-    
+
+  guifi_log(GUIFILOG_TRACE,'guifi_device_ipv4_link_form()',$ipv4);
+      
   $f['storage']['ipv4_local'] = guifi_form_hidden_var(
     $ipv4,
     array('interface_id'),
     $tree
   );
     
-  if (($ipv4['netmask'] != '255.255.255.252')
-    or (count($ipv4['links']) > 1))
+  if ((count($ipv4['links']) > 1)
+    or (($ipv4['netmask'] != '255.255.255.252') 
+      and (count($ipv4['links']) == 0) ) 
+    )
   {
     // multilink set
     $multilink = TRUE;
@@ -255,7 +258,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
         (count($ipv4['links'])).' '.
         t('link(s)'),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed' => !isset($ipv4['unfold']),
 //      '#weight' => $weight++,
     );
     $prefix = '<table><tr><td>';
@@ -291,6 +294,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
         '#parents'=>array_merge($tree,array('ipv4')),
         '#title' => t('Local IPv4'),
         '#value'=>  $ipv4['ipv4'],
+        '#element_validate' => array('guifi_validate_ip'),
         '#description'=> $ipv4['netmask'],
         '#prefix'=> $prefix,
         '#suffix'=> '</td>',
@@ -304,23 +308,30 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
   }
   
   // Deleting the IP address
-  if ($multilink)
-  $f['local']['delete_address'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
-    '#parents'=>array_merge($tree,array('delete_address')),
-    '#attributes'=>array('title'=>t('Delete address')), 
-    '#submit' => array('guifi_ipv4_delete_submit'),
-    '#prefix'=> '<td>',
-    '#suffix'=> '</td></tr></table>',
- //   '#weight'=>3
-    // parameters $rk, $ki, $ka, $ipv4, $netmask
-  );
+  if (($multilink) and (!$ipv4['deleted'])) {
+    $f['local']['delete_address'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
+      '#parents'=>array_merge($tree,array('delete_address')),
+      '#attributes'=>array('title'=>t('Delete address')), 
+      '#submit' => array('guifi_ipv4_delete_submit'),
+      '#prefix'=> '<td>',
+      '#suffix'=> '</td></tr></table>',
+    );
+  } else if (($ipv4['deleted']) and (!multilink)) {
+    $f['local']['delete_address'] = array(
+      '#type'=>'item',
+      '#description'=> guifi_device_item_delete_msg("Address deleted:"),
+      '#prefix'=> '<td>',
+      '#suffix'=> '</td></tr></table>',
+    );
+  }
   
   // foreach link
   if (count($ipv4['links'])) foreach($ipv4['links'] as $kl => $link)  {
-    if ($link['deleted'])
-      continue;
+    
+//    if ($link['deleted'])
+//      continue;
       
      // linked node-device
     $f['local']['links'][$kl] =
@@ -469,59 +480,38 @@ function guifi_ipv4_link_form(&$f,$ipv4,$interface,$tree,&$weight) {
   return count($ipv4['links']);
 }
 
-/* delete ipv4 */
-/* _guifi_delete_ipv4(): Cofirmation dialog */
-function _guifi_delete_ipv4(&$form,&$edit,$action) {
-  $rk = $action[2]; // radio#
-  $ki = $action[3]; // interface#
-  $ka = $action[4]; // ipv4#
-  guifi_log(GUIFILOG_TRACE,'function _guifi_delete_ipv4()',$action);
-
-  if ($rk == '') {
-    $ipv4 = $edit['interfaces'][$ki]['ipv4'][$ka];
-  } else {
-//     $ipv4 = $edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka];
-  }
-  
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  
-  $form['help'] = array(
-    '#type' => 'item',
-    '#title' => t('Are you sure that do you want to delete this address?'),
-    '#value' => $ipv4['ipv4'].'/'.$ipv4['netmask'],
-    '#weight' => $fw++,
-  );
-  
-  drupal_set_title(t(
-    'Delete address %ipv4/%mask',
-    array('%ipv4'=>$ipv4['ipv4'],
-      '%mask'=>$ipv4['netmask'])));
-  _guifi_device_buttons($form,$action,$fw,TRUE);
-
-  return FALSE;
-}
 
 /* _guifi_delete_ipv4_submit(): Action */
 
 function guifi_ipv4_delete_submit(&$form,&$form_state) {
-  $rk = $action[2]; // radio#
-  $ki = $action[3]; // interface#
-  $ka = $action[4]; // ipv4#
+  $values = $form_state['clicked_button']['#parents'];
+  $k = count($values);
+  
+  $ka = $values[$k -2]; // ipv4#
+  $ki = $values[$k -4]; // interface#
+  if ($k == 7) {
+    $rk = $values[$k -6]; // radio#
+    $form_state['values']['radios'][$rk]['unfold'] = true;
+    $interface = 
+      &$form_state['values']['radios'][$rk]['interfaces'][$ki];
+  } else
+    $ipv4 = 
+      &$form_state['values']['interfaces'][$ki];
+    
+  guifi_log(GUIFILOG_BASIC,
+    sprintf('function _guifi_delete_ipv4_submit(radio %d, interface %d, address: %d)',
+      $rk,$ki,$ka),
+    $form_state['clicked_button']['#parents']);
 
-  guifi_log(GUIFILOG_TRACE,'function _guifi_delete_ipv4_submit()',$action);
+  $form_state['rebuild'] = true;
+  $interface['unfold'] = true;
+  $interface['ipv4'][$ka]['unfold'] = true;
+  $interface['ipv4'][$ka]['deleted'] = true;
+  
+  if ($interface['ipv4'][$ka]['new'])
+    unset($interface['ipv4'][$ka]);
 
-  if ($rk == '')
-    $ipv4 = &$edit['interfaces'][$ki]['ipv4'][$ka]['deleted'];
-  else
-    $ipv4 = &$edit['radios'][$rk]['interfaces'][$ki]['ipv4'][$ka]['deleted'];
-
-  if ($ipv4['new'])
-    unset($ipv4);
-  else
-    $ipv4['deleted'] = TRUE;
-
-  return TRUE;
+  return;
 }
 
 ?>

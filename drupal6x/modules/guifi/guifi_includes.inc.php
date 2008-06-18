@@ -271,7 +271,7 @@ function guifi_devices_select($filters,$action = '') {
 
   if ($filters['type'] == 'cable') {
     if ($filters['mode'] != 'cable-router')
-      $query = db_query("
+      $query = sprintf(" 
         SELECT
           l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id
         FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z
@@ -281,7 +281,7 @@ function guifi_devices_select($filters,$action = '') {
           AND l.zone_id=z.id",
         $filters['from_node']);
     else
-      $query = db_query("
+      $query = sprintf("
         SELECT
           l.lat, l.lon, r.nick ssid, r.id r.nid, z.id zone_id, r.type
         FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z
@@ -290,7 +290,7 @@ function guifi_devices_select($filters,$action = '') {
           AND l.zone_id=z.id",
         $filters['from_node']);
   } else
-    $query = db_query("
+    $query = sprintf("
       SELECT
         l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id,
         r.radiodev_counter, r.ssid, r.mode, r.antmode
@@ -303,7 +303,9 @@ function guifi_devices_select($filters,$action = '') {
   $devdist = array();
   $devarr = array(); 
   $k = 0;
-  while ($device = db_fetch_object($query)) {
+  $devsq = db_query($query);
+  
+  while ($device = db_fetch_object($devsq)) {
     $k++;
     $l = false;
     if ($filters['type']!='cable') {
@@ -338,7 +340,14 @@ function guifi_devices_select($filters,$action = '') {
     }
   }
   asort($devdist);
-
+ 
+//  ob_start();
+//  print "Query: $query \n<br>";
+//  print_r($devdist);
+//  $txt = ob_get_contents();
+//  ob_end_clean();
+  
+  
   if (!empty($devdist)) foreach ($devdist as $id=>$foo) {    
     $device = $devarr[$id];
 
@@ -361,13 +370,6 @@ function guifi_devices_select($filters,$action = '') {
         break; 
       } // eof switch link_type
   } // eof while query device,node,zone
-
-//  return $var;
-
-  ob_start();
-  print_r($filters);
-  $txt = ob_get_contents();
-  ob_end_clean();
 
   $form = array(
     '#type' => 'fieldset',
@@ -680,6 +682,22 @@ function guifi_validate_nick($nick) {
   }
 }
 
+function guifi_validate_ip($ip,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+    
+  $longIp = ip2long($ip['#value']);
+  
+  if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
+    form_error($ip,
+      t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
+        array('%addr'=>$ip['#value'])),'error');
+  else
+    $ip['#value'] = long2ip($longIp);
+    
+  return $ip;  
+}
+
 function guifi_device_loaduser($id) {
   $device = db_fetch_object(db_query("SELECT d.user_created FROM {guifi_devices} d WHERE d.id=%d",$id));
   return ($device->user_created);
@@ -990,7 +1008,8 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
  * @ @return 
  *   the next available IP or false if none available
 */
-function guifi_next_ip($base_ip = '0.0.0.0', $mask_range = '0.0.0.0', $ips_allocated = null) {
+function guifi_next_ip($base_ip = '0.0.0.0', 
+  $mask_range = '0.0.0.0', $ips_allocated = null) {
   
   if ($ips_allocated == null) {
     $ips_allocated = guifi_get_ips($base_ip,$mask_range);
@@ -1007,15 +1026,18 @@ function guifi_next_ip($base_ip = '0.0.0.0', $mask_range = '0.0.0.0', $ips_alloc
   while (($ips_allocated[$key]['dec'] < $ip_dec) and ($key < $elem)) {
     $key++;
   }
-  while (($ips_allocated[$key]['dec'] == $ip_dec) and ($key < $elem) and ($ips_allocated[$key]['dec'] < $end_dec ) ) {
-    $key++;
-    $ip_dec++;
+  while (($ips_allocated[$key]['dec'] == $ip_dec) and ($key < $elem) 
+    and ($ips_allocated[$key]['dec'] < $end_dec ) ) {
+      $key++;
+      $ip_dec++;
   }
 
   if ($ip_dec < $end_dec-1)
     return _dec_to_ip($ip_dec);
 
-  drupal_set_message(t('Fatal error: Network %net/%mask is full',array('%net' => theme('placeholder', $base_ip), '%mask' => theme('placeholder', $mask_range)  )),'error');
+  drupal_set_message(t('Network %net/%mask is full',
+    array('%net' => $base_ip, '%mask' => $mask_range)),
+    'error');
   return false;
 }
 
@@ -1577,6 +1599,7 @@ function guifi_mac_validate($mac,&$form_state) {
         array('%mac'=>$mac['#value'])),'error');
   } else { 
     form_set_value($mac,$pmac,$form_state);
+    $mac['#value'] = $pmac;
   }
     
   return $mac;
@@ -1679,14 +1702,10 @@ function guifi_gmap_key() {
   return FALSE;
 }
 
-function guifi_validate_js($scriptName = '') {
-  drupal_add_js(drupal_get_path('module', 'guifi').'/js/jquery.validate.pack.js','module');
-  
-  if ($scriptName != '')
-    drupal_add_js(drupal_get_path('module', 'guifi').'/js/'.$scriptName,'module');
-    
+function guifi_validate_js($form_name) {
+  drupal_add_js(drupal_get_path('module', 'guifi').'/js/jquery.validate.pack.js','module');   
   drupal_add_js (
-    '$(document).ready(function(){$("#guifi-device-edit-form").validate()}); ',
+    '$(document).ready(function(){$("'.$form_name.'").validate()}); ',
     'inline');
 }
 

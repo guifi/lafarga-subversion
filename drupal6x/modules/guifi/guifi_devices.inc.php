@@ -260,7 +260,7 @@ function guifi_device_form($form_state, $params = array()) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$form_state);
   
-  guifi_validate_js();
+  guifi_validate_js("#guifi-device-form");
 
   // $form['#attributes'] = array('onsubmit' => 'kk');  
   if (empty($form_state['values']))
@@ -319,16 +319,6 @@ function guifi_device_form($form_state, $params = array()) {
     $form_state['values']['nick'] = 
       $node->nick.ucfirst(guifi_trim_vowels($form_state['values']['type'])).
                                             ($devs->count + 1);
-  }
-  
-  // Processing actions because of buttons
-  // Add new radio
-  if (!empty($form_state['newRadio'])) { 
-    drupal_set_message(t('Radio %ssid added in mode %mode.',
-       array('%ssid'=>$form_state['newRadio']['ssid'],
-             '%mode'=>$form_state['newRadio']['mode'])));
-    $form_state['values']['radios'][$form_state['newRadio']['rc']] = $form_state['newRadio'];
-    unset($form_state['newRadio']);
   }
 
   if (isset($form_state['action'])) {
@@ -845,6 +835,10 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
   $edit['extra'] = serialize($edit['variable']);
   $ndevice = _guifi_db_sql('guifi_devices',array('id'=>$edit['id']),$edit,$log,$to_mail);
   
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('device saved:'),
+    $ndevice);
+  
   // radios
   $rc = 0;
   if (is_array($edit['radios']))
@@ -945,7 +939,7 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
       $nllink = _guifi_db_sql(
         'guifi_links',
         array('id'=>$link['id'],'device_id'=>$interface['device_id']),$llink,$log,$to_mail);
-      if (empty($nllink))
+      if (empty($nllink) or ($llink['deleted']))
         continue;
 
       // links (remote)
@@ -974,15 +968,17 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
             'interface_id'=>$link['interface']['ipv4']['interface_id']),
             $link['interface']['ipv4'],$log,$to_mail);
       }
-      $link['id'] = $nllink['id'];
-      $link['ipv4_id'] = $ripv4['id'];
-      $link['interface_id'] = $rinterface['id'];
-      $nrlink = _guifi_db_sql(
-        'guifi_links',
-        array('id'=>$link['id'],
-        'device_id'=>$link['device_id']),
-        $link,$log,$to_mail);
-      guifi_log(GUIFILOG_FULL,'going to SQL for remote link',$link);
+      if (!$llink['deleted']) {
+        $link['id'] = $nllink['id'];
+        $link['ipv4_id'] = $ripv4['id'];
+        $link['interface_id'] = $rinterface['id'];
+        $nrlink = _guifi_db_sql(
+          'guifi_links',
+          array('id'=>$link['id'],
+          'device_id'=>$link['device_id']),
+          $link,$log,$to_mail);
+        guifi_log(GUIFILOG_TRACE,'going to SQL for remote link',$nllink);
+      }
     }
   } // foreach ipv4
   
@@ -991,21 +987,24 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
 
 function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form_weight = 1000) {
   $form['reset'] = array(
-    '#type' => 'submit',
+    '#type' => 'button',
+    '#executes_submit_callback' => true,
     '#value' => t('Reset'),
     '#weight' => $form_weight++,
   );
   
   if ($continue) { 
     $form['ignore_continue'] = array(
-      '#type' => 'submit',
+      '#type' => 'button',
+      '#executes_submit_callback' => true,
       '#value' => t('Ignore & back to main form'),
       '#weight' => $form_weight++,
     );
     if ($nopts > 0) {
       $form['confirm_continue'] = array(
-        '#type' => 'submit',
+        '#type' => 'button',
         '#submit' => array($action),
+        '#executes_submit_callback' => true,
         '#value' => t('Select device & back to main form'),
         '#weight' => $form_weight++,
       );
@@ -1576,8 +1575,8 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
 
 function guifi_device_item_delete_msg($msg) {
   return t($msg).'<br>'.
-    t('Press "<em>Save</em>" to confirm deletion or ' .
-      '"<em>Reset</em>" to discard changes and ' .
+    t('Press "<b>Save</b>" to confirm deletion or ' .
+      '"<b>Reset</b>" to discard changes and ' .
       'recover the values from the database.');
 }
 

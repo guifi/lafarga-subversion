@@ -17,7 +17,10 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
 
   $insert = false;
 
-  guifi_log(GUIFILOG_TRACE,sprintf('guifi_sql (%s)',$table),$data);
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('guifi_sql(table: %s, keys='.implode(',',$key).')',
+      $table,key),
+    $data);
   // delete?
   if ($data['deleted']) {
     $log .= _guifi_db_delete($table,$key,$to_mail);
@@ -113,16 +116,40 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
    $where_data = array(); 
    foreach ($key as $k=>$value)
      $where_data[$k] = $k.'='.$value;
+     
    // check what's being changed
-   $qc = db_query('SELECT '.implode(',',array_keys($data)).' FROM {'.$table.' WHERE '.implode(' AND ',$where_data));
-   if (($qc) != 1) 
+   $sqlqc = 'SELECT '.implode(',',array_keys($data)).
+           ' FROM {'.$table.
+           ' WHERE '.implode(' AND ',$where_data);
+   $ck = 0;   
+   $qc = db_query($sqlqc);
+   
+   
+   while ($odata = db_fetch_array($qc)) {
+     $orig_data = $odata;
+     $ck++;
+   }
+//     
+//   print "SQL:$sqlqc\n<br>Rows: $ck\n<br>";
+//   print_r($orig_data);
+//   exit;
+   
+   if ($ck != 1) 
    {
      drupal_set_message(
-       t('Can\'t update %table while primary key (%where) doesn\'t give 1 row',
-       array('%table'=>$table,'%where'=>implode(' AND ',$where_data))));
+       t('Can\'t update %table while primary key (%where) doesn\'t give 1 row' .
+          '<br>%sql gives %rows rows.',
+       array(
+         '%table'=>$table,
+         '%sql'=>$sqlqc,
+         '%rows'=>$ck,
+         '%where'=>implode(' AND ',$where_data))),
+       'error'
+     );
+         
      return;
    }
-   $orig_data = db_fetch_array($qc);
+   //$orig_data = db_fetch_array($qc);
    // cast floats to compare
    foreach ($data as $k=>$value)
      if (is_float($value)) {
