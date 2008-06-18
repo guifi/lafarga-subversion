@@ -935,21 +935,13 @@ function guifi_radio_interface_link_delete_submit(&$form,&$form_state) {
   return true;
 }
 
-function guifi_radio_delete($form, &$form_state) {
-  guifi_log(GUIFILOG_TRACE,"function guifi_radio_delete()",$form_state['clicked_button]']);
-  drupal_set_message(t('Radio#%num has been deleted.',
-    array('%num'=>$form_state['deleteRadio'])));
-  $form_state['values']['radios'][$form_state['deleteRadio']]['deleted'] = true;
-  $form_state['values']['radios'][$form_state['deleteRadio']]['unfold'] = true;
-  unset($form_state['deleteRadio']);
-  unset($form_state['action']);
-  return true;    
-}
-
 function guifi_radio_delete_submit($form, &$form_state) {
   guifi_log(GUIFILOG_TRACE,"function guifi_radio_delete_submit()",$form_state['clicked_button]']);
-  $form_state['deleteRadio'] = $form_state['clicked_button']['#parents'][1];
-  $form_state['action'] = 'guifi_radio_delete';
+  $radio_id = $form_state['clicked_button']['#parents'][1];
+  $form_state['values']['radios'][$radio_id]['deleted'] = true;
+  $form_state['values']['radios'][$radio_id]['unfold'] = true;
+  drupal_set_message(t('Radio#%num has been deleted.',
+    array('%num'=>$radio_id)));
   $form_state['rebuild'] = true;
   return;
 }
