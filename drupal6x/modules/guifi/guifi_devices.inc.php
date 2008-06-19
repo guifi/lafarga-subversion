@@ -373,9 +373,10 @@ function guifi_device_form($form_state, $params = array()) {
   $form['main']['movenode'] = array(
     '#type'=>'image_button',
     '#src'=>drupal_get_path('module', 'guifi').'/icons/movenode.png',
-    '#attributes'=>array('title'=>t('Move device to another node')), 
+    '#attributes'=>array('title'=>t('Move device to another node')),
+    '#prefix'=>'<div id="select-node">', 
     '#ahah' => array(
-      'path' => 'guifi/js/select_node',
+      'path' => 'guifi/js/select-node',
       'wrapper' => 'select-node',
       'method' => 'replace',
       'effect' => 'fade',
@@ -386,7 +387,6 @@ function guifi_device_form($form_state, $params = array()) {
     '#value'=>guifi_get_nodename($form_state['values']['nid']),
     '#description'=>guifi_get_zone_nick(guifi_get_zone_of_node(
        $form_state['values']['nid'])),
-    '#prefix'=>'<div id="select-node">',
   );
   $form['main']['nid'] = array(
     '#type'=>'hidden',

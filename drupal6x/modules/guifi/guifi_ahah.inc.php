@@ -50,24 +50,20 @@ function guifi_ahah_render_field($field){
   exit;
 }
 
-function guifi_ahah_add_wds(){
+function guifi_ahah_select_node(){
   ob_start();
   print_r($_POST);
   $descr = ob_get_clean();
   ob_end_flush();
-  $form = array(
-    '#type' => 'select',
-    '#title' => 'You selected that because...',
-    '#options' => array(
-      '1' => 'drugs',
-      '2' => 'I do what I want.',
-      '3' => "I'm feeling lucky..."
-    ),
-    '#description'=>$descr,
-  );
+  
+  $form['zid'] = 
+     guifi_zone_select_field(
+       guifi_get_zone_of_node($_POST['nid']),
+         'select-zone');
+          
   // ahah_render is where the magic happens. 
   // 'the value of this field will show up as $form_value['user_problem'] 
-  $output = guifi_ahah_render_newfields($form, 'user_problem');
+  $output = guifi_ahah_render_newfields($form, 'zid');
   print drupal_to_js(array('data' => $output, 'status' => true));
   exit();
 }
