@@ -162,10 +162,8 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#type'=>'image_button',
         '#src'=>drupal_get_path('module', 'guifi').'/icons/up.png',
         '#attributes'=>array('title'=>t('Move radio up')), 
-//        '#value'=>t('Up'), 
         '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'up'),
-//        '#default_value'=>'swapRadios,'.($key).','.($key-1),
         '#weight'=>$bw++);
     // if not last, allow to move down
     if (($rc+1) < count($edit['radios'])) 
@@ -173,10 +171,8 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#type'=>'image_button',
         '#src'=>drupal_get_path('module', 'guifi').'/icons/down.png',
         '#attributes'=>array('title'=>t('Move radio down')), 
-//        '#value'=>t('Down'), 
         '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'down'),
-//        '#default_value'=>'swapRadios,'.($key).','.($key+1),
         '#weight'=>$bw++);
     
     $rc++;

@@ -349,11 +349,8 @@ function guifi_device_form($form_state, $params = array()) {
     '#name'=>'type',
     '#value'=> $form_state['values']['type']
   );
-  $form['nid'] = array(
-    '#type'=>'hidden',
-    '#name'=>'nid',
-    '#value'=> $form_state['values']['nid']
-  );
+  
+  
 
 //  guifi_form_hidden($form,$form_state['values']);
 
@@ -373,6 +370,29 @@ function guifi_device_form($form_state, $params = array()) {
     '#collapsible' => TRUE,
     '#collapsed' => (is_null($params['edit'])),
   );
+  $form['main']['movenode'] = array(
+    '#type'=>'image_button',
+    '#src'=>drupal_get_path('module', 'guifi').'/icons/movenode.png',
+    '#attributes'=>array('title'=>t('Move device to another node')), 
+    '#ahah' => array(
+      'path' => 'guifi/js/select_node',
+      'wrapper' => 'select-node',
+      'method' => 'replace',
+      'effect' => 'fade',
+     ),
+  );
+  $form['main']['node_description'] = array(
+    '#type'=>'item',
+    '#description'=>guifi_get_nodename($form_state['values']['nid']),
+    '#prefix'=>'<div id="select-node">',
+  );
+  $form['main']['nid'] = array(
+    '#type'=>'hidden',
+    '#name'=>'nid',
+    '#value'=> $form_state['values']['nid'],
+    '#suffix'=>'</div>'
+  );
+  
   $form['main']['nick'] = array(
     '#type' => 'textfield',
     '#size' => 20,
