@@ -383,7 +383,9 @@ function guifi_device_form($form_state, $params = array()) {
   );
   $form['main']['node_description'] = array(
     '#type'=>'item',
-    '#description'=>guifi_get_nodename($form_state['values']['nid']),
+    '#value'=>guifi_get_nodename($form_state['values']['nid']),
+    '#description'=>guifi_get_zone_nick(guifi_get_zone_of_node(
+       $form_state['values']['nid'])),
     '#prefix'=>'<div id="select-node">',
   );
   $form['main']['nid'] = array(
@@ -397,7 +399,6 @@ function guifi_device_form($form_state, $params = array()) {
     '#type' => 'textfield',
     '#size' => 20,
     '#maxlength' => 128,
-    '#weight' => 0,
     '#title' => t('nick'),
     '#required' => TRUE,
     '#attributes' => array('class'=>'required'),
@@ -411,16 +412,13 @@ function guifi_device_form($form_state, $params = array()) {
       '#default_value' => $form_state['values']['flag'],
       '#options' => guifi_types('status'),
       '#description' => t("Current status of this device."),
-      '#weight' => 2,
    );
   $form['main']['notification'] = array(
     '#type' => 'textfield',
     '#size' => 60,
     '#maxlength' => 1024,
-    '#weight' => 1,
     '#title' => t('contact'),
     '#required' => TRUE,
-//    '#attributes' => array('class'=>'email required'),
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $form_state['values']['notification'],
     '#description' =>  t('Mailid where changes on the device will be notified, if many, separated by \',\'<br />used for network administration.')
@@ -434,7 +432,6 @@ function guifi_device_form($form_state, $params = array()) {
       '#default_value' => ($node->graph_server ? $node->graph_server : 0),
       '#options' => array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'),
       '#description' => t("If not specified, inherits zone properties."),
-      '#weight' => 2,
     );
   }
 
