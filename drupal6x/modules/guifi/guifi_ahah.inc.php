@@ -70,7 +70,7 @@ function guifi_ahah_select_node(){
     $c++;
     $matches[$value['str']] = $value['str'];
   }
-//  $matches[$string] = $string;
+
   print drupal_to_js($matches);
   exit();
 }
@@ -80,28 +80,12 @@ function guifi_ahah_select_zone() {
   $cache = cache_get($cid, 'cache_form');
   
   $fname = arg(3);
-  
-//  print "fname: $fname<br>\n";
-//  exit;
-  
-  $var = explode(',',$fname);
-  if (count($var)>1) {
-    list($zidFn,$nidFn) = $var;
-    $zid = $_POST[$zidFn];
-    $nid = $_POST[$nidFn];
-  } else {
-    $zid = $_POST[$fname];
-    $zidFn = $fname;
-  }
-  
-  drupal_set_message("zid: $zid, nid: $_POST[zid], fname: $fname, zidFn: $zidFn" .
-      "var[0]: $var[0] count(var): ".count($var));
-  
+   
   if ($cache) {
     $form = $cache->data;
 
     // zid field
-    $form[$zidFn] = 
+    $form[$fname] = 
         guifi_zone_select_field($zid,$fname);
           
     cache_set($cid, $form, 'cache_form', $cache->expire);
@@ -109,15 +93,13 @@ function guifi_ahah_select_zone() {
     $form_state = array();
     $form['#post'] = array();
     $form = form_builder($form['form_id']['#value'] , $form, $form_state);
-    $output = drupal_render($form[$zidFn]);
+    $output = drupal_render($form[$fname]);
     
     // nid field
     if (isset($nid)) {
       
       
     }
-    
-    
     
     drupal_json(array('status' => TRUE, 'data' => $output));
   } else {

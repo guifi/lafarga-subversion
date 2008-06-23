@@ -370,20 +370,7 @@ function guifi_device_form($form_state, $params = array()) {
     '#collapsible' => TRUE,
     '#collapsed' => (is_null($params['edit'])),
   );
-  /*
-  $form['main']['movenode'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/movenode.png',
-    '#attributes'=>array('title'=>t('Move device to another node')),
-    '#prefix'=>'<div id="select-zone">', 
-    '#ahah' => array(
-      'path' => 'guifi/js/select-zone/zid,nid',
-      'wrapper' => 'select-zone',
-      'method' => 'replace',
-      'effect' => 'fade',
-     ),
-  );
-  */
+
   $form['main']['movenode'] = array(
     '#type'=>'textfield',
     '#title'=>t('Node'),
@@ -400,26 +387,6 @@ function guifi_device_form($form_state, $params = array()) {
         'with a maximum of 50 values will be created.<br>' .
         'You can refine the text to find your choice.')
   );
-  /*
-  $form['main']['zid'] = array(
-    '#parents' => array('zid'),
-    '#type'=>'hidden',
-    '#value'=> guifi_get_zone_of_node($form_state['values']['nid']),
-  );
-  $form['main']['node_description'] = array(
-    '#type'=>'item',
-    '#value'=>guifi_get_nodename($form_state['values']['nid']),
-    '#description'=>guifi_get_zone_nick(guifi_get_zone_of_node(
-       $form_state['values']['nid'])),
-        '#ahah' => array(
-      'path' => 'guifi/js/select-zone/zid,nid',
-      'wrapper' => 'select-zone',
-      'method' => 'replace',
-      'effect' => 'fade',
-    ),    
-    
-  );
-  */
   $form['main']['nid'] = array(
     '#type'=>'hidden',
     '#value'=> $form_state['values']['nid'],
