@@ -291,6 +291,12 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
+    $items['guifi/js/move-device/%'] = array(
+      'title' => 'Javascript Move Device',
+      'page callback' => 'guifi_ahah_move_device',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
     return $items;
 /*  
 

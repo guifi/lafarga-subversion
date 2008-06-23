@@ -108,8 +108,6 @@ function guifi_ahah_select_device() {
   $cache = cache_get($cid, 'cache_form');
   
   $action = arg(3);  
-  
-  // print "Action: $action\n<br>";
     
   if ($cache) {
     $form = $cache->data;
@@ -123,6 +121,70 @@ function guifi_ahah_select_device() {
     $form['#post'] = array();
     $form = form_builder($form['form_id']['#value'] , $form, $form_state);
     $output = drupal_render($form['list-devices']);
+    drupal_json(array('status' => TRUE, 'data' => $output));
+  } else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
+}
+
+function guifi_ahah_move_device() {
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
+  
+  $radio_id = arg(3);
+  $node = explode('-',$_POST['movenode']);
+  $orig_device_id = $_POST['id'];
+  
+  $qry = db_query('SELECT id, nick ' .
+                  'FROM {guifi_devices} ' .
+                  'WHERE nid=%d' .
+                  ' AND id<>%d',
+                  $node[0],$orig_device_id);
+  
+  $list = array();
+  while ($value = db_fetch_array($qry)) {
+    $list[$value['id']] = $value['nick']; 
+  }
+    
+  if ($cache) {
+    $form = $cache->data;
+
+    $form['r'][$radio_id]['moveradio'] = array (
+      '#type' => 'fieldset',
+      '#collapsible' => false
+    );
+    if (count($list)) {
+      $form['r'][$radio_id]['moveradio']['to_did'] = array(
+        '#type'=>'select',
+        '#parents'=> array('radios',$radio_id,'to_did'),        
+        '#title'=>t('Move radio to device'),
+        '#description'=>t('Select the device which you want to assign this radio.<br>' .
+            'Note that the change will not take effect until the device has been saved.'),
+        '#options'=>$list
+      );
+    } else {
+      $form['r'][$radio_id]['moveradio']['msg'] = array(
+        '#type'=>'item',
+        '#title'=>t('No devices available'),
+        '#description'=>t('Can\'t move this radio to another device ' .
+            'since there are no other devices defined on this node.<br>' .
+            'To move the radio to a device defined at another node, ' .
+            'you should reassign the node of this device before proceeding.')
+      );
+      $form['r'][$radio_id]['moveradio']['to_id'] = array(
+        '#type'=>'hidden',
+        '#parents'=> array('radios',$radio_id,'to_did'),
+        '#value'=>$orig_device_id,
+      );      
+    } 
+          
+    cache_set($cid, $form, 'cache_form', $cache->expire);
+    // Build and render the new select element, then return it in JSON format.
+    $form_state = array();
+    $form['#post'] = array();
+    $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+    $output = drupal_render($form['r'][$radio_id]['moveradio']);
     drupal_json(array('status' => TRUE, 'data' => $output));
   } else {
     drupal_json(array('status' => FALSE, 'data' => ''));

@@ -152,6 +152,12 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#src'=>drupal_get_path('module', 'guifi').'/icons/move.png',
         '#parents'=>array('radios',$key,'move'),
         '#attributes'=>array('title'=>t('Move radio to another device')), 
+        '#ahah' => array(
+          'path' => 'guifi/js/move-device/'.$key,
+          'wrapper' => 'move-device-'.$key,
+          'method' => 'replace',
+          'effect' => 'fade',
+        ),
         '#weight'=>$bw++);
     }
 
@@ -174,6 +180,13 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'down'),
         '#weight'=>$bw++);
+    $form['r']['radios'][$key]['moveradiodevice'] = array(
+      '#type'=>'hidden',
+      '#value'=>$radio['device_id'],
+      '#prefix'=>'<div id="move-device-'.$key.'"',
+      '#suffix'=>'</div>',
+      '#weight'=>$bw++
+    );
     
     $rc++;
   } // foreach radio
