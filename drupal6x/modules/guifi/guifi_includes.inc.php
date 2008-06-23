@@ -1605,6 +1605,21 @@ function guifi_mac_validate($mac,&$form_state) {
   return $mac;
 }
 
+function guifi_nodename_validate($nodestr,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+  
+  $nid = explode('-',$nodestr['#value']);
+  $qry = db_query('SELECT id FROM {guifi_location} WHERE id="%s"',$nid[0]);
+  while ($node = db_fetch_array($qry)) {
+    $form_state['values']['nid']=$node['id'];
+    return $nodestr;
+  }
+  form_error($nodestr,
+    t('Node name %name not valid.',array('%name'=>$nodestr['#value'])),'error');
+
+  return $nodestr;
+}
 /** guifi_notify_send(): Delivers all the waiting messages and empties the queue
 */
 function guifi_notify_send() {

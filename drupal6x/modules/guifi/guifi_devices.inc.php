@@ -370,29 +370,60 @@ function guifi_device_form($form_state, $params = array()) {
     '#collapsible' => TRUE,
     '#collapsed' => (is_null($params['edit'])),
   );
+  /*
   $form['main']['movenode'] = array(
     '#type'=>'image_button',
     '#src'=>drupal_get_path('module', 'guifi').'/icons/movenode.png',
     '#attributes'=>array('title'=>t('Move device to another node')),
-    '#prefix'=>'<div id="select-node">', 
+    '#prefix'=>'<div id="select-zone">', 
     '#ahah' => array(
-      'path' => 'guifi/js/select-node',
-      'wrapper' => 'select-node',
+      'path' => 'guifi/js/select-zone/zid,nid',
+      'wrapper' => 'select-zone',
       'method' => 'replace',
       'effect' => 'fade',
      ),
+  );
+  */
+  $form['main']['movenode'] = array(
+    '#type'=>'textfield',
+    '#title'=>t('Node'),
+    '#maxlength'=>60,
+    '#default_value'=>$form_state['values']['nid'].'-'.
+        guifi_get_zone_nick(guifi_get_zone_of_node(
+          $form_state['values']['nid'])).', '.
+        guifi_get_nodename($form_state['values']['nid']),
+    '#autocomplete_path'=> 'guifi/js/select-node',
+    '#element_validate' => array('guifi_nodename_validate'),
+    '#description'=>t('Select the node where the device is.<br>' .
+        'You can find the node by introducing part of the node id number, ' .
+        'zone name or node name. A list with all matching values ' .
+        'with a maximum of 50 values will be created.<br>' .
+        'You can refine the text to find your choice.')
+  );
+  /*
+  $form['main']['zid'] = array(
+    '#parents' => array('zid'),
+    '#type'=>'hidden',
+    '#value'=> guifi_get_zone_of_node($form_state['values']['nid']),
   );
   $form['main']['node_description'] = array(
     '#type'=>'item',
     '#value'=>guifi_get_nodename($form_state['values']['nid']),
     '#description'=>guifi_get_zone_nick(guifi_get_zone_of_node(
        $form_state['values']['nid'])),
+        '#ahah' => array(
+      'path' => 'guifi/js/select-zone/zid,nid',
+      'wrapper' => 'select-zone',
+      'method' => 'replace',
+      'effect' => 'fade',
+    ),    
+    
   );
+  */
   $form['main']['nid'] = array(
     '#type'=>'hidden',
-    '#name'=>'nid',
     '#value'=> $form_state['values']['nid'],
-    '#suffix'=>'</div>'
+    //'#suffix'=>'</div>'
   );
   
   $form['main']['nick'] = array(
@@ -855,6 +886,8 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
   guifi_log(GUIFILOG_TRACE,
     sprintf('device saved:'),
     $ndevice);
+    
+  $movenode = explode('-',$edit['movenode']);
   
   // radios
   $rc = 0;
@@ -864,7 +897,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
   if ($edit['radios']) foreach ($edit['radios'] as $radiodev_counter=>$radio) {
     $radio['id'] = $ndevice['id'];
     $radio['radiodev_counter'] = $rc;
-    $radio['nid']=$edit['nid'];
+    $radio['nid']=$movenode[0];
     $radio['model_id']=$edit['variable']['model_id'];
     $nradio = _guifi_db_sql('guifi_radios',array('id'=>$radio['id'],'radiodev_counter'=>$radiodev_counter),$radio,$log,$to_mail);
     if (empty($nradio)) 

@@ -110,11 +110,21 @@ function guifi_zone_select_field($zid,$fname) {
     $title = t('Parent zone');
   else
     $title = t('Zone');
+    
+  $var = explode(',',$fname);
+  if (count($var)>1) {
+    $zidFn = $var[0];
+    $nidFn = $var[1];
+  } else {
+    $zidFn = $fname;
+  }
+  $msg .= ("select zone zid: $zid, nid: $_POST[zid], fname: $fname, zidFn: $zidFn" .
+      " var[0]: $var[0] count(var): ".count($var));
   
   return array(    
     '#type' => 'select',
     '#title' => $title,
-    '#parents' => array($fname),
+    '#parents' => array($zidFn),
     '#default_value' => $zid,
     '#options' => $lzones,
 //    '#element_validate' => array('guifi_zone_master_validate'),    

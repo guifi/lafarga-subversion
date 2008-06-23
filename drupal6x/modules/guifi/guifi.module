@@ -272,7 +272,7 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );   
-   $items['guifi/js/select-zone'] = array(
+   $items['guifi/js/select-zone/%'] = array(
     'title' => 'Javascript Select Zone',
     'page callback' => 'guifi_ahah_select_zone',
     'access arguments' => array('access content'),
@@ -284,9 +284,10 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
-    $items['guifi/js/select-node'] = array(
+    $items['guifi/js/select-node/%'] = array(
       'title' => 'Javascript Select Node',
       'page callback' => 'guifi_ahah_select_node',
+      'page_arguments'=>array(1),
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
