@@ -70,7 +70,6 @@ function guifi_ahah_select_node(){
     $c++;
     $matches[$value['str']] = $value['str'];
   }
-
   print drupal_to_js($matches);
   exit();
 }
@@ -80,7 +79,9 @@ function guifi_ahah_select_zone() {
   $cache = cache_get($cid, 'cache_form');
   
   $fname = arg(3);
-   
+  
+  $zid = $_POST[$fname];
+  
   if ($cache) {
     $form = $cache->data;
 
@@ -94,12 +95,6 @@ function guifi_ahah_select_zone() {
     $form['#post'] = array();
     $form = form_builder($form['form_id']['#value'] , $form, $form_state);
     $output = drupal_render($form[$fname]);
-    
-    // nid field
-    if (isset($nid)) {
-      
-      
-    }
     
     drupal_json(array('status' => TRUE, 'data' => $output));
   } else {
