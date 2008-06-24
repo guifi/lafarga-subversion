@@ -180,9 +180,9 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#submit' => array('guifi_radio_swap_submit'),
         '#parents'=>array('radios',$key,'down'),
         '#weight'=>$bw++);
-    $form['r']['radios'][$key]['moveradiodevice'] = array(
+    $form['r']['radios'][$key]['to_did'] = array(
       '#type'=>'hidden',
-      '#value'=>$radio['device_id'],
+      '#value'=>$radio['id'],
       '#prefix'=>'<div id="move-device-'.$key.'"',
       '#suffix'=>'</div>',
       '#weight'=>$bw++

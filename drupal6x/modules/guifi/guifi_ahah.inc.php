@@ -139,11 +139,16 @@ function guifi_ahah_move_device() {
   $qry = db_query('SELECT id, nick ' .
                   'FROM {guifi_devices} ' .
                   'WHERE nid=%d' .
-                  ' AND id<>%d',
-                  $node[0],$orig_device_id);
+                  ' AND type = "radio" ',
+//                  ' AND id<>%d',
+                  $node[0]);
   
-  $list = array();
+  $list[$orig_device_id] = t('To move this radio to another device, ' .
+      'select it from the list');
   while ($value = db_fetch_array($qry)) {
+    if ($value['id']==$orig_device_id)
+      $value['nick'] = t('To move this radio to another device, ' .
+        'select it from the list');
     $list[$value['id']] = $value['nick']; 
   }
     
@@ -154,14 +159,29 @@ function guifi_ahah_move_device() {
       '#type' => 'fieldset',
       '#collapsible' => false
     );
-    if (count($list)) {
+    if ($node[0] != $_POST['nid']) {
+      $form['r'][$radio_id]['moveradio']['msg'] = array(
+        '#type'=>'item',
+        '#title'=>t('Node changed. Option not available'),
+        '#description'=>t('Can\'t move this radio to another device ' .
+            'since there has been changed the assigned node.<br>' .
+            'To move the radio to a device defined at another node, ' .
+            'you should save the node of this device before proceeding.')
+      );
+      $form['r'][$radio_id]['moveradio']['to_did'] = array(
+        '#type'=>'hidden',
+        '#parents'=> array('radios',$radio_id,'to_did'),
+        '#value'=>$orig_device_id,
+      );            
+    } else if (count($list)>1) {
       $form['r'][$radio_id]['moveradio']['to_did'] = array(
         '#type'=>'select',
         '#parents'=> array('radios',$radio_id,'to_did'),        
         '#title'=>t('Move radio to device'),
         '#description'=>t('Select the device which you want to assign this radio.<br>' .
             'Note that the change will not take effect until the device has been saved.'),
-        '#options'=>$list
+        '#options'=>$list,
+        '#default_value'=>$orig_device_id
       );
     } else {
       $form['r'][$radio_id]['moveradio']['msg'] = array(
@@ -172,7 +192,7 @@ function guifi_ahah_move_device() {
             'To move the radio to a device defined at another node, ' .
             'you should reassign the node of this device before proceeding.')
       );
-      $form['r'][$radio_id]['moveradio']['to_id'] = array(
+      $form['r'][$radio_id]['moveradio']['to_did'] = array(
         '#type'=>'hidden',
         '#parents'=> array('radios',$radio_id,'to_did'),
         '#value'=>$orig_device_id,

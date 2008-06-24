@@ -862,17 +862,43 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     ksort($edit['radios']);
   $rc = 0;
   if ($edit['radios']) foreach ($edit['radios'] as $radiodev_counter=>$radio) {
+    $keys['id'] = $ndevice['id'];
+    $keys['radiodev_counter']=$radiodev_counter;
     $radio['id'] = $ndevice['id'];
     $radio['radiodev_counter'] = $rc;
     $radio['nid']=$movenode[0];
     $radio['model_id']=$edit['variable']['model_id'];
-    $nradio = _guifi_db_sql('guifi_radios',array('id'=>$radio['id'],'radiodev_counter'=>$radiodev_counter),$radio,$log,$to_mail);
+    
+    // check if device id has changed  
+    guifi_log(GUIFILOG_TRACE,
+      sprintf('Checking radio (from:%d, to: %d): ',
+        $radio['id'],$radio['to_id']),
+      null);    
+    if (isset($radio['to_did']))
+    if ($radio['to_did'] != $radio['id']) {
+      $radio['id'] = $radio['to_did'];
+      $qry = db_query('SELECT  max(radiodev_counter) + 1 rc ' .
+                      'FROM {guifi_radios} ' .
+                      'WHERE id=%d',
+                      $radio['to_did']);
+      $nrc = db_fetch_array($qry);
+      $radio['radiodev_counter'] = $nrc['rc'];
+      
+      drupal_set_message(t('Radio# %id has been moved to radio# %id2 at device %dname',
+        array('%id'=>$rc,
+          '%id2'=>$radio['radiodev_counter'],
+          '%dname'=>guifi_get_hostname($radio['to_did'])
+        )));
+    }
+    
+    // save the radio
+    $nradio = _guifi_db_sql('guifi_radios',$keys,$radio,$log,$to_mail);
     if (empty($nradio)) 
       continue;
 
     // interfaces
     if ($radio['interfaces']) foreach ($radio['interfaces'] as $interface_id=>$interface) {
-      $interface['device_id'] = $ndevice['id'];
+      $interface['device_id'] = $radio['id'];
       $interface['mac'] = $radio['mac'];
       $interface['radiodev_counter'] = $nradio['radiodev_counter'];
         
