@@ -297,6 +297,58 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
+
+    // Export formats
+    $items['guifi/cnml/%'] = array( 
+      'title' => 'export zone in CNML format',
+      'page callback' => 'guifi_cnml',
+      'page arguments' => array(2),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/cnml/%/%'] = array( 
+      'title' => 'export zone in CNML format',
+      'page callback' => 'guifi_cnml',
+      'page arguments' => array(2, 3),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/nodexchange/%'] = array( 
+      'title' => 'export zone in nodeXchange format',
+      'page callback' => 'guifi_nodexchange',
+      'page arguments' => array(2),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/nodexchange/%/%'] = array( 
+      'title' => 'export zone in nodeXchange format',
+      'page callback' => 'guifi_nodexchange',
+      'page arguments' => array(2, 3),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/gml/%'] = array( 
+      'title' => 'export zone in gml format',
+      'page callback' => 'guifi_gml',
+      'page arguments' => array(2),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/gml/%/%'] = array( 
+      'title' => 'export zone in gml format',
+      'page callback' => 'guifi_gml',
+      'page arguments' => array(2, 3),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+    $items['guifi/mrtg/%'] = array( 
+      'title' => 'generate mrtg config file',
+      'page callback' => 'guifi_mrtg',
+      'page arguments' => array(2),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK
+    );
+
     return $items;
 /*  
 
@@ -670,7 +722,7 @@ function guifi_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Block title'),
     '#required' => FALSE,
-    '#default_value' => variable_get("guifi_title", t("network statistics")),
+    '#default_value' => variable_get("guifi_title", t("Network statistics")),
     '#size' => 35,
     '#maxlength' => 255, 
     '#description' => t("Title of guifi block..."),
@@ -792,18 +844,41 @@ function guifi_admin_settings() {
 }
 
 
-function guifi_block($op = "list", $delta = 0) {
+function guifi_block($op = "list", $delta = 0, $edit = array()) {
+  
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array('info' => t(variable_get("guifi_title",t("guifi nodes"))),
+      'weight' => 0, 'status' => 1, 'region' => 'left');
+    return $blocks;
+
+  case 'configure':
+    $form['items'] = array(
+      '#type' => 'select',
+      '#title' => t('Number of items'),
+      '#default_value' => variable_get('guifi_block_items', 0),
+      '#options' => array('1', '2', '3'),
+    );
+    return $form;
+    case 'save':
+    variable_set('guifi_block_items', $edit['items']);
+    
+  case 'view':
+    switch($delta) {
+      case 0:
+    $block['subject'] = t(variable_get("guifi_title", "<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
+    $block['content'] = guifi_display_block_1($content);
+        break;
+    }
+    return $block;
+  }
+}
+
+
+function guifi_display_block_1() {
   $oGC = new GeoCalc();
   $dTotals = array();
-  
 
-  if ($op == "list") {
-    $blocks[0]["info"] = t(variable_get("guifi_title",t("guifi nodes")));
-    return $blocks;
-  }
-  else {
-    $block['subject'] = t(variable_get("guifi_title",
-      "<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
     $tnodes = db_query('
       SELECT 
         status_flag, count(*) c 
@@ -830,7 +905,7 @@ function guifi_block($op = "list", $delta = 0) {
     }
     $header = array(
       t('Nodes'),
-      '<p align=RIGHT>'.
+      '<p align="right">'.
         number_format(
           $totals,
           0,
@@ -928,10 +1003,7 @@ function guifi_block($op = "list", $delta = 0) {
       array(t('Wireless<br />links'),
       '<p align="right">#</p>',t('kms.')),$rows);
 
-    $block['content'] = $content;
-    return $block;
-
-  }
+    return $content;
 }
 
 function guifi_access($op, $node) {

@@ -7,14 +7,14 @@ function guifi_nodexchange($zoneid,$action = 'help') {
 
   if ($action == "help") {
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zoneid));
+     drupal_set_breadcrumb(guifi_zone_ariadna($zoneid));
      $output = '<div id="guifi">';
-     $output .= guifi_zone_ariadna($zoneid);
      $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
      $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
      $output .= '<ol><li>'. l(t('Zones'), "guifi/nodexchange/".$zoneid."/zones", array('title'=>t('export zone and zone childs in nodexchange format')) ).'</li>';
      $output .= '<li>'. l(t('Zones and nodes'), "guifi/nodexchange/".$zoneid."/nodes", array('title'=>t('export zones and nodes in nodexchange format (short)')) ).'</li>';
      $output .= '<li>'. l(t('Detailed'), "guifi/nodexchange/".$zoneid."/detail", array('title'=>t('export zones, nodes  and devices in nodexchange format (long)')) ).'</li></ol>';
-     $output .= '<p>'.t('The <a href="/node/3521>">nodeXchange</a> is a XML format to interchange network information between services or servers.').'</p>';
+     $output .= '<p>'.t('The <a href="/node/3521">nodeXchange</a> is a XML format to interchange network information between services or servers.').'</p>';
      $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
      $output .= "</div>";
      print theme('page',$output,t('export %zname% in GML format',array('%zname%' => $z->title)));

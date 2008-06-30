@@ -4,8 +4,8 @@ function guifi_gml($zid,$action = "help",$type = 'gml') {
 
   if ($action == "help") { 
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zid));
+     drupal_set_breadcrumb(guifi_zone_ariadna($zid));
      $output = '<div id="guifi">';
-     $output .= guifi_zone_ariadna($zid);
      $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
      $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
      $output .= '<ol><li>'. l(t('Nodes'), "guifi/gml/".$zid."/nodes", array('title'=>t('export zone nodes in gml format')) ).'</li>';
@@ -37,8 +37,8 @@ function guifi_gml_nodes($zid,$type) {
   while ($row = db_fetch_object($res)) {
     if (($row->zone_id != $zid) and (!$zchilds[$row->zone_id]))
       continue;
-    $resradio = db_query("SELECT mode FROM {guifi_radios} WHERE nid = %d",$row->id);
-    switch (db_num_rows($resradio)) {
+    $resradio = db_query("SELECT COUNT(mode) FROM {guifi_radios} WHERE nid = %d",$row->id);
+    switch (db_result($resradio)) {
     case 0:
       $node_type = 'N_A';
       break;
