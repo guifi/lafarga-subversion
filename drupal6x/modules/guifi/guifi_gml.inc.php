@@ -37,7 +37,7 @@ function guifi_gml_nodes($zid,$type) {
   while ($row = db_fetch_object($res)) {
     if (($row->zone_id != $zid) and (!$zchilds[$row->zone_id]))
       continue;
-    $resradio = db_query("SELECT COUNT(mode) FROM {guifi_radios} WHERE nid = %d",$row->id);
+    $resradio = db_query("SELECT mode FROM {guifi_radios} WHERE nid = %d",$row->id);
     switch (db_result($resradio)) {
     case 0:
       $node_type = 'N_A';
