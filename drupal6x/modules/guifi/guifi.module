@@ -297,6 +297,24 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
+    $items['guifi/js/add-interface'] = array(
+      'title' => 'Javascript Add Interface',
+      'page callback' => 'guifi_ahah_add_interface',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
+    $items['guifi/js/add-subnet-mask/%'] = array(
+      'title' => 'Javascript Add Public Subnetwork Mask',
+      'page callback' => 'guifi_ahah_add_subnet_mask',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
+    $items['guifi/js/add-radio'] = array(
+      'title' => 'Javascript Add Wireless Radio',
+      'page callback' => 'guifi_ahah_add_radio',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
 
     // Export formats
     $items['guifi/cnml/%'] = array( 

@@ -443,7 +443,10 @@ function guifi_device_form($form_state, $params = array()) {
   }
 
   // Cable interfaces/links
-//  guifi_interfaces_form($form['if'],$form_state['values'],$form_weight = 2);
+//  foreach ($form_state['values']['interfaces'] as $iid=>$interface)
+//    $form['if'][$iid] = 
+//        guifi_device_interface_form($interface,array('interfaces',$iid));
+  $form['if'] = guifi_interfaces_cable_form($form_state['values']);
 
   // Comments
   $form_weight = 200;
@@ -511,6 +514,19 @@ function guifi_device_form_validate($form,&$form_state) {
         array('%ipv4' => $form_state['values']['ipv4']));
       form_set_error('ipv4',$message);
     }
+  }
+
+  // no duplicate names on cable interfaces
+  $ifs = array();
+  if (count($form_state['values']['interfaces']))
+  foreach ($form_state['values']['interfaces'] as $iid=>$interface) {
+    if (in_array($interface['interface_type'],$ifs)) {
+      form_set_error("interfaces][$iid][interface_type",
+        t('Interface name %name duplicated',
+          array('%name'=>$interface['interface_type'])));
+      break;
+    }
+    $ifs[] = $interface['interface_type'];
   }
 
   // Validates the mac address

@@ -435,6 +435,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
   else 
     $model['interfaces'] = 'Lan';
   $possible = explode('|',$model['interfaces']);
+  $possible[] = 'other';
   $qi = db_query('
     SELECT interface_type
     FROM {guifi_interfaces}
@@ -452,6 +453,10 @@ function guifi_get_free_interfaces($id,$edit = array()) {
     }
 
    $free = array_diff($possible, $used);
+   if (count($free)==0)
+     $free[] = 'other';   
+   
+   
    
 //  print "Possible: ";
 //  print_r($possible);
