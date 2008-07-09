@@ -256,7 +256,8 @@ function guifi_edit_user_validate(&$edit) {
 function guifi_list_users($node) {
 
   $op=$_POST['op'];
-
+  global $user;
+  $owner = $user->uid;
 
   if (!empty($op)) {
     $edit=$_POST['edit'];
@@ -273,24 +274,24 @@ function guifi_list_users($node) {
   
   $rows[] = array();
   if (db_num_rows($query)) {
-    while ($user = db_fetch_object($query)) {
-      $services = unserialize($user->services);
+    while ($guser = db_fetch_object($query)) {
+      $services = unserialize($guser->services);
       if ($node->type == 'guifi-service') {
         if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
           continue;
       }
 
-      if (!empty($user->lastname))
-        $realname = $user->lastname.', '.$user->firstname;
+      if (!empty($guser->lastname))
+        $realname = $guser->lastname.', '.$guser->firstname;
       else
-        $realname = $user->firstname;
-      $rows[] = array(form_radio('','user_checked',$user->id),
+        $realname = $guser->firstname;
+      $rows[] = array(form_radio('','user_checked',$guser->id),
                       $realname,
-                      $user->username);
+                      $guser->username);
     } 
     $output = '<h2>' .t('Users of') .' ' .$node->title.'</h2>';
     $output .= theme('table', array(null,t('real name'),t('username')), array_merge($rows),null);
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
+  if ((user_access('administer guifi users')) or (user_access('manage guifi users')) or ($node->uid == $owner))
     $output .= form_button(t('Edit selected'), 'op');
   } else {
     $output = '<h2>'.t('There is no users to list at').' '.$node->title.'</h2>';
