@@ -115,7 +115,10 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
    // constructing where with primary keys
    $where_data = array(); 
    foreach ($key as $k=>$value)
-     $where_data[$k] = $k.'='.$value;
+     if (is_null($value))
+       $where_data[$k] = $k.' is NULL';
+     else
+       $where_data[$k] = $k.'='.$value;
      
    // check what's being changed
    $sqlqc = 'SELECT '.implode(',',array_keys($data)).

@@ -155,46 +155,50 @@ function guifi_device_load($id,$ret = 'array') {
     foreach($ipdec as $ka=>$foo) {
       $a = $iparr[$ka];
       $device['interfaces'][$i['id']]['ipv4'][$a['id']] = $a;
-    }
-    // get linked devices
-    $ql = db_query('
-      SELECT l2.*
-      FROM {guifi_links} l1
+      
+      // get linked devices
+      $ql = db_query('
+        SELECT l2.*
+        FROM {guifi_links} l1
         LEFT JOIN {guifi_links} l2 ON l1.id=l2.id
-      WHERE l1.link_type NOT IN ("ap/client","wds/p2p")
+        WHERE l1.link_type NOT IN ("ap/client","wds/p2p")
         AND l1.device_id=%d
-        AND l1.interface_id=%d
+        AND l1.interface_id=%d 
+        AND l1.ipv4_id=%d
         AND l2.device_id!=%d',
-      $id,
-      $i['id'],
-      $id);
-    while ($l = db_fetch_array($ql)) {
-      $ipdec2 = array();
-      $iparr2 = array();
-      $qra = db_query('
-        SELECT *
-        FROM {guifi_ipv4}
-        WHERE id=%d
-          AND interface_id=%d',
-        $l['ipv4_id'],
-        $l['interface_id']);
-      while ($ra = db_fetch_array($qra)) {
-        $ipdec2[$ra['id']] = _dec_addr($ra['ipv4']);
-        $lr = $l;
-        $lr['interface'] = db_fetch_array(db_query('
+        $id,
+        $i['id'],
+        $a['id'],
+        $id);
+      while ($l = db_fetch_array($ql)) {
+        $ipdec2 = array();
+        $iparr2 = array();
+        $qra = db_query('
           SELECT *
-          FROM {guifi_interfaces}
-          WHERE id=%d',
-          $l['interface_id']));
-        $lr['interface']['ipv4'] = $ra;
-        $iparr2[$ra['id']] = $lr;
-      }
-      
-      asort($ipdec2);
-      
-      foreach ($ipdec2 as $ka2=>$foo)
-        $device['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$l['id']] = $iparr2[$ka2];
-    }
+          FROM {guifi_ipv4}
+          WHERE id=%d
+          AND interface_id=%d',
+          $l['ipv4_id'],
+          $l['interface_id']);
+        while ($ra = db_fetch_array($qra)) {
+          $ipdec2[$ra['id']] = _dec_addr($ra['ipv4']);
+          $lr = $l;
+          $lr['interface'] = db_fetch_array(db_query('
+            SELECT *
+            FROM {guifi_interfaces}
+            WHERE id=%d',
+            $l['interface_id']));
+          $lr['interface']['ipv4'] = $ra;
+          $iparr2[$ra['id']] = $lr;
+        } // foreach remote interface
+        
+        asort($ipdec2);
+        
+        foreach ($ipdec2 as $ka2=>$foo)
+          $device['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$l['id']] = 
+            $iparr2[$ka2];
+      } // foreach link
+    } // foreach ipv4
   }
 
   if ($ret == 'array')
@@ -246,7 +250,7 @@ function guifi_device_form_submit($form, &$form_state) {
     break;
   default:
 //     drupal_set_message(t('Warning: The will be active only for this session. To confirm the changes you will have to press the save buttons.'));
-    guifi_log(GUIFILOG_BASIC,
+    guifi_log(GUIFILOG_TRACE,
       'exit guifi_device_form_submit without saving...',$form_state['clicked_button']['#value']);
     return;
   }
@@ -932,7 +936,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     $interface['device_id'] = $ndevice['id'];
     $interface['mac'] = $radio['mac'];
 
-    $log .= guifi_device_interface_save($interface,$iid,$ndevice['id'],$to_mail);
+    $log .= guifi_device_interface_save($interface,$iid,$ndevice['nid'],$to_mail);
   }
 
   $to_mail = explode(',',$edit['notification']);
@@ -1002,12 +1006,15 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
         continue;
 
       // links (remote)
-      if ($link['interface'])
+      if ($link['interface']) {
+        if (!isset($link['interface']['device_id']))
+          $link['interface']['device_id'] = $link['device_id'];
         $rinterface = _guifi_db_sql(
           'guifi_interfaces',
           array('id'=>$link['interface']['id'],
             'radiodev_counter'=>$link['interface']['radiodev_counter']),
             $link['interface'],$log,$to_mail);
+      }
       if ($link['interface']['ipv4']) {
         if ($ipv4['netmask'] != $link['interface']['ipv4']['netmask']) {
           $log .= t('Netmask on remote link %nname - %type was adjusted to %mask',
@@ -1016,7 +1023,7 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
               '%mask'=>$ipv4['netmask']));
           $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
         }
-        $link['interface']['ipv4']['interface_id'] = $link['interface']['id'];
+        $link['interface']['ipv4']['interface_id'] = $rinterface['id'];
         guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 remote (id=%d, iid=%d)',
           $link['interface']['ipv4']['id'],
           $link['interface']['ipv4']['interface_id']),

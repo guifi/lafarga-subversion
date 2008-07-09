@@ -424,8 +424,8 @@ function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
   return explode('|',$model[interfaces]);
 }
 
-/* guifi_get_free_interfaces(): Populates a select list with the available cable interfaces */
-function guifi_get_free_interfaces($id,$edit = array()) {
+
+function guifi_get_possible_interfaces($edit = array()) {
   if ($edit[type] == 'radio') 
     $model = db_fetch_array(db_query('
       SELECT m.interfaces
@@ -436,6 +436,16 @@ function guifi_get_free_interfaces($id,$edit = array()) {
     $model['interfaces'] = 'Lan';
   $possible = explode('|',$model['interfaces']);
   $possible[] = 'other';
+ 
+  return $possible;
+}
+
+
+/* guifi_get_free_interfaces(): Populates a select list with the available cable interfaces */
+function guifi_get_free_interfaces($id,$edit = array()) {
+  
+  $possible = guifi_get_possible_interfaces($edit);
+  
   $qi = db_query('
     SELECT interface_type
     FROM {guifi_interfaces}
@@ -455,13 +465,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
    $free = array_diff($possible, $used);
    if (count($free)==0)
      $free[] = 'other';   
-   
-   
-   
-//  print "Possible: ";
-//  print_r($possible);
-//  print "\n<br />Used: ";
-//  print_r($used);
+ 
   return array_combine($free, $free);
 }
 

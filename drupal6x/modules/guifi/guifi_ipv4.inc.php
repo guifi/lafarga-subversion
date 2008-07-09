@@ -343,6 +343,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
   $f['local']['endTable'] = array(
     '#type'=>'hidden',
     '#value'=>-1,
+    '#parents'=>array('null'),
     '#prefix'=>'</tr></table>'
   );
   

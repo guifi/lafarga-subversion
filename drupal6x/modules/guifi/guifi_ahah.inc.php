@@ -150,6 +150,82 @@ function guifi_ahah_add_radio() {
   exit;
 }
 
+function guifi_ahah_add_cable_link() {
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
+  
+  $interface_id = arg(3);
+  $node = explode('-',$_POST['movenode']);
+  $orig_device_id = $_POST['id'];
+  
+  $qry = db_query('SELECT id, nick ' .
+                  'FROM {guifi_devices} ' .
+                  'WHERE nid=%d' .
+                  ' AND type = "radio" ',
+//                  ' AND id<>%d',
+                  $node[0]);
+  
+  while ($value = db_fetch_array($qry)) {
+    if (!($value['id']==$orig_device_id))
+      $list[$value['id']] = $value['nick']; 
+  }
+    
+  if ($cache) {
+    $form = $cache->data;
+    
+    if ($node[0] != $_POST['nid']) {
+      $f['msg'] = array(
+        '#type'=>'item',
+        '#title'=>t('Device node changed. Option not available'),
+        '#description'=>t('Can\'t link this device to another device ' .
+          'since has been changed the assigned node.<br>' .
+          'To link the device to a device defined at another node, ' .
+        'you should save the node of this device before proceeding.')
+      );
+    } else if (count($list)>1) {
+      $f['to_did'] = array(
+        '#type'=>'select',
+        '#parents'=> array('interfaces',$interface_id,'to_did'),        
+        '#title'=>t('Link to device'),
+        '#description'=>t('Select the device which you want to link with'),
+        '#options'=>$list,
+        '#prefix' => '<table style="width: 0"><td align="left">',
+        '#suffix' => '</td>'
+        //        '#default_value'=>$orig_device_id
+      );
+      $f['createLink'] = array(
+        '#type'=>'button',
+        '#default_value' => 'Create',
+        '#parents'=>array('interface',$interface_id,'addLink'),
+        '#submit' => array('guifi_interfaces_add_cable_link_submit'),
+        '#executes_submit_callback' => true,
+        '#prefix' => '<td align="left">',
+        '#suffix' => '</td></table>'
+      );
+    } else {
+      $f['msg'] = array(
+        '#type'=>'item',
+        '#title'=>t('No devices available'),
+        '#description'=>t('Can\'t link this device to another device ' .
+        'since there are no other devices defined on this node.'),
+      );
+    } 
+    
+    $form['if']['interfaces']['ifs'][$interface_id]['addLink'] = $f;
+    
+    cache_set($cid, $form, 'cache_form', $cache->expire);
+    // Build and render the new select element, then return it in JSON format.
+    $form_state = array();
+    $form['#post'] = array();
+    $form = form_builder($form['form_id']['#value'] , $form, $form_state);
+    $output = drupal_render($form['if']['interfaces']['ifs'][$interface_id]['addLink']);
+    drupal_json(array('status' => TRUE, 'data' => $output));
+  } else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
+}
+
 function guifi_ahah_add_subnet_mask() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
@@ -289,6 +365,8 @@ function guifi_ahah_add_interface() {
   $interfaces[] = $newI;
   end($interfaces);
   $delta = key($interfaces);
+  
+  $newI['interface_id'] = $delta;
   
 //  guifi_log(GUIFILOG_TRACE,sprintf('add_interface %d',$delta),$newI);
   

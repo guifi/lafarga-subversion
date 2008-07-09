@@ -315,7 +315,13 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
-
+    $items['guifi/js/add-cable-link/%'] = array(
+      'title' => 'Javascript Add Cable Link',
+      'page callback' => 'guifi_ahah_add_cable_link',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
+    
     // Export formats
     $items['guifi/cnml/%'] = array( 
       'title' => 'export zone in CNML format',

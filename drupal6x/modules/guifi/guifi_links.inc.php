@@ -17,18 +17,21 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
   // creating hidden form elements for non-edited fields
   if ($link['new'])
     $link['id']= -1;
-    
+  
+  // link hidden vars
   $f['storage'] = guifi_form_hidden_var(
     $link,
     array('id','nid','device_id','interface_id','link_type'),
     array_merge($tree,array('links',$link['id']))
   );
   
+  // remote interface hidden vars
   $f['interface'] = guifi_form_hidden_var(
     $link['interface'],
     array('id','interface_type','radiodev_counter'),
     array_merge($tree,array('links',$link['id'],'interface'))
   );
+  
   
   $f['remote_ipv4'] = guifi_form_hidden_var(
     $link['interface']['ipv4'],
@@ -135,6 +138,30 @@ function guifi_device_link_form($link,$ipv4,$tree,$multilink) {
     '#suffix'=>         '</td>',
     '#weight' =>        $lweight++,
   );
+  
+  // remote interface (cable links)
+  if ($link['link_type']=='cable') {
+    $f['l']['remote_interface_type'] =array(
+      '#type' =>          'textfield',
+      '#parents'=>        array_merge(
+                            $tree,
+                            array('links',
+                              $link['id'],
+                              'interface',
+                              'interface_type'
+                            )
+                          ),
+      '#title' =>         t("Remote interface"),
+      '#default_value' => $link['interface']['interface_type'],
+//      '#options' =>       guifi_get_possible_interfaces($remote_did),
+      '#size'=>           10,
+      '#maxzise'=>        60,
+      '#prefix'=>         '<td>',
+      '#suffix'=>         '</td>',
+      '#weight' =>        $lweight++,
+    );
+  }
+  
   // delete link button
   if ($link['deleted'])
     $f['deleted_link'] = array(
@@ -306,13 +333,37 @@ function guifi_link_form($link,$ipv4,$tree,$multilink) {
   $f['l']['status'] = array(
     '#type' =>          'select',
     '#parents'=>        array_merge($tree,array('links',$link['id'],'flag')),
-    '#title' =>         t("Status"),
+    '#title' =>         t("StatusSSS"),
     '#default_value' => $link['flag'],
     '#options' =>       guifi_types('status'),
     '#prefix'=>         '<td>',
     '#suffix'=>         '</td>',
     '#weight' =>        $lweight++,
   );
+  
+  // remote interface (cable links)
+  if ($link['type']=='cable') {
+    $f['l']['remote_interface_type'] =array(
+      '#type' =>          'textfield',
+      '#parents'=>        array_merge(
+                            $tree,
+                            array('links',
+                              $link['id'],
+                              'interface',
+                              'interface_type'
+                            )
+                          ),
+      '#title' =>         t("Remote interface"),
+      '#default_value' => $link['interface']['interface_type'],
+//      '#options' =>       guifi_types('status'),
+      '#size'=>           10,
+      '#maxzise'=>        60,
+      '#prefix'=>         '<td>',
+      '#suffix'=>         '</td>',
+      '#weight' =>        $lweight++,
+    );
+  }
+  
   // delete link button
   $f['l']['delete_link'] = array(
     '#type'=>'image_button',

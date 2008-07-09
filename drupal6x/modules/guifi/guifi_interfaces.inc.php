@@ -44,6 +44,20 @@ function guifi_interfaces_form(&$interface,$ptree) {
       '#description'=>t('Will rename the current interface name.')
     );    
 
+    $f['interface']['AddCableLink'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/addprivatecablelink.png',
+      '#parents'=>array_merge($ptree,array('AddCableLink')),
+      '#attributes'=>array('title'=>t('Link to another device at the node using a private network')), 
+      '#ahah' => array(
+        'path' => 'guifi/js/add-cable-link/'.$interface['id'],
+        'wrapper' => 'editInterface-'.$interface['id'],
+        'method' => 'replace',
+        'effect' => 'fade',
+       )
+//      '#submit' => array('guifi_radio_add_wds_submit'),
+    );    
+
     if (!$interface['new'])
     $f['interface']['AddPublicSubnet'] = array(
       '#type'=>'image_button',
@@ -52,7 +66,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
       '#attributes'=>array('title'=>t('Allocate a Public Subnetwork to the interface')), 
       '#ahah' => array(
         'path' => 'guifi/js/add-subnet-mask/'.$interface['id'],
-        'wrapper' => 'add-subnet-mask-'.$interface['id'],
+        'wrapper' => 'editInterface-'.$interface['id'],
         'method' => 'replace',
         'effect' => 'fade',
        )
@@ -92,7 +106,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
       '#type' => 'hidden',
       '#value' => '255.255.255.224',
       '#parents'=> array_merge($ptree,array('AddPublicSubnetMask')),
-      '#prefix' => '<div id="add-subnet-mask-'.$interface['id'].'"',
+      '#prefix' => '<div id="editInterface-'.$interface['id'].'">',
       '#suffix' => '</div>'
   );
   
@@ -586,6 +600,69 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   return TRUE;
 }
 
+function guifi_interfaces_add_cable_link_submit(&$form,&$form_state) {
+  $values = $form_state['clicked_button']['#parents'];
+  $iid    = $values[1];
+  $to_did = $form_state['values']['interfaces'][$iid]['to_did'];
+  $rdevice = guifi_device_load($to_did);
+  guifi_log(GUIFILOG_BASIC,
+    sprintf('function guifi_interfaces_add_cable_link_submit(%d)',$iid),
+      $to_did);
+      
+  $dlinked = db_fetch_array(db_query(
+    "SELECT d.id, d.type " .
+    "FROM {guifi_devices} d " .
+    "WHERE d.id=%d",
+    $to_did));
+
+  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  
+  // get backbone /30 subnet
+  $mask = '255.255.255.252';
+  $net = guifi_get_subnet_by_nid(
+    $form_state['values']['nid'],
+    $mask,
+    'backbone',
+    $ips_allocated);
+    
+  $ip1 = guifi_ip_op($net);
+  $ip2 = guifi_ip_op($ip1);
+  guifi_merge_ip(array('ipv4'=>$ip1,'netmask'=>$mask),$ips_allocated,false);
+  guifi_merge_ip(array('ipv4'=>$ip2,'netmask'=>$mask),$ips_allocated,true);
+  
+  $newlk['new']=true;
+  $newlk['interface']=array();
+  $newlk['link_type']='cable';
+  $newlk['flag']='Planned';
+  $newlk['nid']=$form_state['values']['nid'];
+  $newlk['device_id'] = $to_did;
+  if ($dlinked['type']=='radio')
+    $newlk['routing'] = 'BGP';
+  else  
+    $newlk['routing'] = 'Gateway';
+    
+  $newlk['interface']['new'] = true;
+  $newlk['interface']['device_id'] = $to_did;
+  $free = guifi_get_free_interfaces($to_did,$rdevice);
+  $newlk['interface']['interface_type']= array_shift($free);
+//  $newlk['interface']['interface_type']= 'ether3';
+  $newlk['interface']['ipv4']['new'] = true;
+  $newlk['interface']['ipv4']['ipv4'] = $ip2;
+  $newlk['interface']['ipv4']['netmask'] = $mask;
+  
+    
+  $ipv4['new']=true;
+  $ipv4['ipv4']=$ip1;
+  $ipv4['netmask']=$mask;
+  $ipv4['interface_id'] = $iid;
+  $ipv4['links'][]=$newlk;
+  
+  $form_state['values']['interfaces'][$iid]['ipv4'][]=$ipv4;
+  $form_state['values']['interfaces'][$iid]['unfold']=true;
+  $form_state['rebuild'] = true;
+  
+  return TRUE;
+}
 
 /* Delete interface */
 function guifi_interfaces_delete_submit(&$form,&$form_state) {

@@ -320,11 +320,11 @@ function guifi_radio_channel_field($rid,$channel,$protocol,$weight = 0) {
 function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
     guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_radio_radio_form(key=%d)',$key),$radio); 
     
-//    $f['storage'] = guifi_form_hidden_var(
-//      $radio,
-//      array('id'),
-//      array('radios',$key)
-//    );
+    $f['storage'] = guifi_form_hidden_var(
+      $radio,
+      array('radiodev_counter'),
+      array('radios',$key)
+    );
     
     $f = array(
       '#type' => 'fieldset',
