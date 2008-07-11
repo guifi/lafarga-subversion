@@ -154,8 +154,13 @@ function guifi_ahah_add_cable_link() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
   
-  $interface_id = arg(3);
+  $values = explode(',',arg(3));
+  if (count($values)==2)
+    $ipv4_id = $values[1];
+  $interface_id = $values[0];
+  
   $node = explode('-',$_POST['movenode']);
+
   $orig_device_id = $_POST['id'];
   
   $qry = db_query('SELECT id, nick ' .
@@ -169,7 +174,14 @@ function guifi_ahah_add_cable_link() {
     if (!($value['id']==$orig_device_id))
       $list[$value['id']] = $value['nick']; 
   }
-    
+  
+  if (count($_POST['interfaces'])) foreach ($_POST['interfaces'] as $iid=>$intf)
+    if (count($intf['ipv4'])) foreach ($intf['ipv4'] as $i=>$ipv4)
+      if (count($ipv4['links'])) foreach ($ipv4['links'] as $l=>$link) {
+        if (isset($list[$link['device_id']]))
+          unset($list[$link['device_id']]);  
+      }
+      
   if ($cache) {
     $form = $cache->data;
     

@@ -909,62 +909,6 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
     return; 
 }
 
-
-/* Delete radio interface link */
-
-function guifi_radio_interface_link_delete_submit(&$form,&$form_state) {
-  $values = $form_state['clicked_button']['#parents'];
-  
-  while (count($values)> 6)
-    array_shift($values);
-
-  list(
-    $radio_id,
-    $interface_id,
-    $ipv4_id,
-    $link_id,
-    $remote_nid,
-    $remote_did
-  ) = $values;
-
-  guifi_log(GUIFILOG_TRACE,
-    sprintf('function guifi_radio_interface_link_delete_submit(radio: %d, interface: %d)',
-      $radio_id,$interface_id),
-    $values);
-  
-  if (!is_null($radio_id)) {
-    $fbase = &$form_state['values']['radios'][$radio_id];
-    $fbase['unfold'] = true;
-  } else
-    $fbase = &$form_state['values'];
-
-  $fbase['interfaces'][$interface_id]['unfold'] = true;
-  $fipv4 = &$fbase['interfaces'][$interface_id]['ipv4'][$ipv4_id];
-  $fipv4['unfold'] = true;
-
-  $flink = &$fipv4['links'][$link_id];
-  $flink['unfold'] = true;
-  $flink['deleted'] = true;
-  
-  $flink['ipv4']['unfold'] = true;
-  
-  if ($flink['ipv4']['netmask'] == '255.255.255.252') {
-    $fipv4['deleted'] = true;
-  }
-          
-  $form_state['rebuild'] = true;   
-  
-  drupal_set_message(t('%type link with %node/%device deleted.',
-    array(
-      '%type' => $fbase['interfaces'][$interface_id]['interface_type'],
-      '%node' =>   guifi_get_nodename($remote_nid),
-      '%device' => guifi_get_hostname($remote_did)
-    )
-  ));
-  
-  return true;
-}
-
 function guifi_radio_delete_submit($form, &$form_state) {
   guifi_log(GUIFILOG_TRACE,"function guifi_radio_delete_submit()",$form_state['clicked_button]']);
   $radio_id = $form_state['clicked_button']['#parents'][1];

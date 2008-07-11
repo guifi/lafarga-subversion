@@ -261,6 +261,24 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
       '#collapsed' => !isset($ipv4['unfold']),
 //      '#weight' => $weight++,
     );
+    
+    $f['local']['AddCableLink'] = array(
+      '#type'=>'image_button',
+      '#src'=>drupal_get_path('module', 'guifi').'/icons/addcable.png',
+      '#parents'=>array_merge($tree,array('AddCableLink')),
+      '#attributes'=>array('title'=>t('Link to another device using a public IPv4 address')), 
+      '#ahah' => array(
+        'path' => 'guifi/js/add-cable-link/'.$ipv4['id'].','.$ipv4['interface_id'],
+        'wrapper' => 'editInterface-'.$ipv4['id'].'-'.$ipv4['interface_id'],
+        'method' => 'replace',
+        'effect' => 'fade',
+       ),
+       '#prefix'=> '<div id="'.
+         'editInterface-'.$ipv4['id'].'-'.$ipv4['interface_id'].'">',
+       '#suffix'=> '</div>',
+//     '#submit' => array('guifi_radio_add_wds_submit'),
+    ); 
+    
     $prefix = '<table style="width: 0"><tr><td align="left">';
     $f['local']['id'] = array(
         '#type'=> 'hidden',
@@ -355,7 +373,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
       
      // linked node-device
     $f['local']['links'][$kl] =
-      guifi_device_link_form(
+      guifi_links_form(
         $link,
         $ipv4,
         $tree,
