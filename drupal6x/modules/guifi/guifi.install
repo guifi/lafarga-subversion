@@ -403,7 +403,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'RouterOSv3.0', 'RouterOS 3.0 from Mikrotik','Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
 
   db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'whiterussian',  'OpenWRT-whiterussian','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
-  db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
+  db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
   db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (type, text, description, relations) VALUES ('firmware', 'AirOsv2.2.1', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5')");
@@ -543,6 +543,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_manufacturer VALUES (8, 'Mikrotik', 'http://mikrotik.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (9, 'Buffalo', 'http://www.buffalotech.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (10, 'Ubiquiti', 'http://www.ubnt.com');");
+  db_query("INSERT INTO guifi_manufacturer VALUES (11, 'Meraki', 'http://meraki.com');");
 
   // -- 
   // -- guifi_model
@@ -576,7 +577,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_model VALUES (27, 8, 'Supertrasto RB600 guifi.net', NULL, 8, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');");
   db_query("INSERT INTO guifi_model VALUES (28, 8, 'Supertrasto RB333 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');");
   db_query("INSERT INTO guifi_model VALUES (29, 8, 'Supertrasto RB411 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');");
-
+db_query("INSERT INTO guifi_model VALUES (30, 11, 'Meraki/Fonera', 'Extern', 1, 60, '802.11/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://meraki.com', NULL,'Yes');");
 
 
 } 

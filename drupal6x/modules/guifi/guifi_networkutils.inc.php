@@ -97,6 +97,26 @@ function _netmask_by_hosts($hosts) {
   return bintoIP(str_repeat("1",$netbits).str_repeat("0",32-$netbits));
 }
 
+function guifi_networks_list($info) {
+
+  $query_nt = db_query("SELECT DISTINCT network_type FROM guifi_networks ORDER BY network_type");
+
+  while ($item_nt = db_fetch_object($query_nt)) {
+    $header = array(t('network'));
+    $query = db_query("SELECT INET_ATON(base) AS nip,INET_ATON(mask) AS nmask,base,mask,network_type FROM guifi_networks WHERE network_type='%s' ORDER BY network_type,nip,nmask", $item_nt->network_type);
+    $rows = array();
+
+    while ($item = db_fetch_object($query)) {
+      $row = array($item->base.'/'.round(32-log(0xffffffff-$item->nmask,2)));
+      $rows = array_merge($rows, array($row));
+    }
+
+    $table = theme('table', $header, $rows);
+    $box .= theme('box', t($item_nt->network_type.' list'), $table);
+  }
+
+  return $row ? $box :"";
+}
 
 
 ?>

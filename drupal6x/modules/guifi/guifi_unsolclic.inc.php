@@ -21,13 +21,10 @@ function guifi_unsolclic($id, $format = 'html') {
 	_outln_comment($dev->variable['firmware']);
   }
 
-  // Mainstream is for Linksys type firmwares, if others, branch
-  // include specific firmware here
-  include_once("firmware/mikrotik-routeros.inc.php");	// RouterOs Firmware
-  include_once("firmware/wrt-sveasoft-dd.inc.php");	// WRT based firmwares (DD-guifi, DD-WRT, Alchemy and Talisman)
-  include_once("firmware/nanostation.inc.php");		// Ubutiqui NanoStation2 and Nanostation5 Firmware
-  include_once("firmware/firmware-todo.inc.php");	// TODO firmwares
- 
+  foreach (glob('modules/guifi/firmware/*.inc.php', GLOB_BRACE) as $firm_inc_php){
+    include_once("$firm_inc_php");
+  }
+
   switch ($dev->variable['firmware']) {
     case 'RouterOSv2.9':
     case 'RouterOSv3.x':
@@ -41,18 +38,17 @@ function guifi_unsolclic($id, $format = 'html') {
       unsolclic_wrt($dev);
       exit;
       break;
-    case 'NanoStation':
-      unsolclic_nano($dev);
-      exit;
-      break;
-    case 'Freifunk-BATMAN':
-    case 'Freifunk-OLSR':
-    case 'whiterussian':
-      unsolclic_todo($dev);
-      exit;
-      break;
   }
 
+  $unsolclic='unsolclic_'.$dev->variable['firmware'];
+      
+  if(function_exists(${unsolclic})){
+    ${unsolclic}($dev);
+    exit;
+  }
+  else
+    unsolclic_todo($dev);
+    
 
  if ($dev->radios[0]->mode == 'client') {
     $links = 0;
@@ -68,6 +64,16 @@ function guifi_unsolclic($id, $format = 'html') {
     }
   }
 }
+
+function _out_file($txt,$file) {
+  global $otype;
+
+  if ($otype == 'html')
+    print '<pre>echo "'.$txt.'" > '.$file.'</pre>';
+  else
+    print 'echo "'.$txt.'" > '.$file;
+}
+
 function _outln($string = '') {
   global $otype;
 
@@ -163,6 +169,5 @@ function guifi_get_ntp($zone) {
   } while ($zone->master > 0); 
 
   return '';
-  
 }
 ?>

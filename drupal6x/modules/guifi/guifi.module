@@ -56,7 +56,7 @@ function guifi_menu() {
      'access callback' => 'user_access',
      'access arguments' => array('administer guifi networks'),
      'type' => MENU_LOCAL_TASK);
-*/   
+*/
    //
    // ZONE menus & tabs
    //
@@ -186,7 +186,22 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
-
+   $items['guifi/service/%'] = array(
+     'title' => 'service',
+     'page callback' => 'guifi_service_list',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_LOCAL_TASK
+   );
+   $items['guifi/networks'] = array(
+     'title' => 'service',
+     'page callback' => 'guifi_networks_list',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_LOCAL_TASK
+   );
 /*
    $items['guifi'] = array( 
      'title' => 'guifi menu page',
@@ -214,7 +229,17 @@ function guifi_menu() {
      'access arguments' => array('access_content'),
 //     'weight' => 3,
      'type' => MENU_NORMAL_ITEM
-   ); 
+   );
+   
+   $items['guifi/device/add'] = array(
+     'title' => t('Add device'),
+     'page callback' => 'guifi_device_add',
+     'access callback' => 'user_access',
+     'access arguments' => array('access_content'),
+//     'weight' => 3,
+     'type' => MENU_SUGGESTED_ITEM
+   );
+ 
    $items['guifi/device/%guifi_device'] = array( 
      'title' => 'view device',
      'page callback' => 'guifi_device_print',
@@ -233,6 +258,15 @@ function guifi_menu() {
      'access arguments' => array('access_content'),
      'weight' => 0,
      'type' => MENU_DEFAULT_LOCAL_TASK
+   );
+   $items['guifi/device/%guifi_device/view/unsolclic'] = array(
+     'title' => 'unsolclic',
+     'page callback' => 'guifi_unsolclic',
+     'page arguments' => array(2),
+     'access callback' => 'guifi_device_access',
+     'access arguments' => array('update',2),
+          'weight' => 10,
+     'type' => MENU_LOCAL_TASK
    );
    $items['guifi/device/%guifi_device/edit'] = array( 
      'title' => 'edit device',
@@ -373,9 +407,8 @@ function guifi_menu() {
       'type' => MENU_CALLBACK
     );
 
-    return $items;
-/*  
-
+    //return $items;
+/*
     $items[] = array('path' => 'admin/guifi/list', 'title' => t('list'),
       'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
     $items[] = array('path' => 'admin/guifi/ipv4/add', 
@@ -635,34 +668,41 @@ function guifi_menu() {
           'callback arguments' => arg(1),
           'access' => user_access('access content'),
           'weight' => 2,
-          'type' => MENU_LOCAL_TASK);
-        if ($node->service_type == 'Proxy') {
-          $items[] = array('path' => 'node/'. arg(1) .'/view/users', 
+          'type' => MENU_LOCAL_TASK);*/
+        //if ($node->service_type == 'Proxy') {
+          /*$items['node/%guifi_service/view/users'] = array(
             'title' => t('users'),
-            'callback' => 'guifi_service_view',
-            'callback arguments' => arg(1),
-            'access' => user_access('access content'),
-            'weight' => 3,
-            'type' => MENU_LOCAL_TASK);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/passwd', 
+            'page callback' => 'guifi_list_users',
+            'page arguments' => array(1),
+            'access callback' => 'user_access',
+	    'access arguments' => user_access('access content'),
+            //'weight' => 3,
+            'type' => MENU_LOCAL_TASK
+	  );
+          $items['node/%guifi_node/view/passwd'] = array(
             'title' => t('passwd'),
-            'callback' => 'guifi_service_view',
-            'callback arguments' => arg(1),
-            'access' => user_access('access content'),
-            'type' => MENU_CUSTOM_ITEM);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/federated', 
+            'page callback' => 'guifi_dump_passwd',
+            'page arguments' => array(1),
+            'access callback' => 'user_access',
+	    'access arguments' => user_access('access content'),
+            'type' => MENU_CUSTOM_ITEM
+	  );*/
+	  $items['node/%guifi_node/view/federated'] = array(
             'title' => t('federated'),
-            'callback' => 'guifi_service_view',
-            'callback arguments' => arg(1),
-            'access' => user_access('access content'),
-            'type' => MENU_CUSTOM_ITEM);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/federated_md5',
+            'page callback' => 'guifi_dump_federated',
+            'page arguments' => array(1),
+            'access callback' => 'user_access',
+            'access arguments' => array('access content'),
+            'type' => MENU_CUSTOM_ITEM,
+          );
+          $items['node/%guifi_node/view/federated_md5'] = array(
             'title' => t('federated_md5'),
-            'callback' => 'guifi_service_view',
-            'callback arguments' => arg(1),
-            'access' => user_access('access content'),
-            'type' => MENU_CUSTOM_ITEM);
-          $items[] = array('path' => 'node/'. arg(1) .'/view/ldif', 
+            'page callback' => 'guifi_service_view',
+            'page arguments' => array(1),
+            'access callback' => 'user_access',
+            'access arguments' => array('access content'),
+	    'type' => MENU_CUSTOM_ITEM);
+          /*$items[] = array('path' => 'node/'. arg(1) .'/view/ldif', 
             'title' => t('ldif'),
             'callback' => 'guifi_service_view',
             'callback arguments' => arg(1),
@@ -671,9 +711,9 @@ function guifi_menu() {
         }
       }
     }
-  
+  */
 
-  return $items;*/
+  return $items;
 }
 
 /* guifi_init(): Initialization hook: Load stylesheet */

@@ -1092,7 +1092,7 @@ function guifi_node_distances_form($form_state,$node) {
     // heywhatsthat.com integration
 //    $height_url = "http://www.heywhatsthat.com/bin/profile.cgi?src=profiler&axes=1&curvature=1&metric=1&" .
 //        "pt0=".$20.96144,-9.84375,ff0000&pt1=42.293564,11.25,00c000";
-    $height_url_long = "/node/".$orig.'/view/distancesmap?lat2='.$node['lat'].'&lon2='.$node['lon'];
+    $height_url_long = base_path().'node/'.$orig.'/view/distancesmap?lat2='.$node['lat'].'&lon2='.$node['lon'];
     $zone = node_load(array('nid'=>$node['zone_id']));
 
     if ($filters['search'])
@@ -1277,5 +1277,34 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
   return NULL;
 }
 
+
+function guifi_node_links($node)
+{
+  if (is_numeric($node)) {
+    $node = node_load($node);
+  }
+
+  $node = node_prepare($node);
+
+  guifi_log(GUIFILOG_TRACE,"guifi_node_links()",$node);
+
+
+  $output .= guifi_node_link_list($node->nid,'cable');
+  $output .= guifi_node_link_list($node->nid,'wds');
+  $output .= guifi_node_link_list($node->nid,'ap/client');
+
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+  drupal_set_title(t('node').': '.$node->title.' ('.t($op).')');
+  //print theme('page', $output,FALSE);
+
+  $node->body .= theme('box', t('node information'), $output);
+
+
+  print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
+
+
+  //return $output;
+}
 
 ?>

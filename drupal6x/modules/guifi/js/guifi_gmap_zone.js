@@ -31,7 +31,7 @@ function xz()
     layer1.baseURL=document.getElementById("guifi-wms").value;
     layer1.layers="Nodes,Links";
     layer1.mercZoomLevel = 0;
-    layer1.opacity = 0.65;
+    layer1.opacity = 1.0;
 
     var myMapTypeLayers=[G_SATELLITE_MAP.getTileLayers()[0],layer1];
     var myCustomMapType = new GMapType(myMapTypeLayers, 

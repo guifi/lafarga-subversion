@@ -1,6 +1,6 @@
 <?php
 
-function unsolclic_nano($dev) {
+function unsolclic_NanoStation($dev) {
   $version = "1.0.2";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));

@@ -49,21 +49,77 @@ function guifi_service_form(&$node, &$param) {
 
   $type = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type='service' AND text='%s'",$node->service_type));
   if ($node->nid > 0)
-    $output = form_item(t('Service type'),$node->service_type,t($type->description));
-  $output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
-  $output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
-//  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
+    $f['service_type'] = array(
+     '#type' => 'item',
+     '#value' => t('Service type'),
+     '#description' => t($type->description),
+    );
+    //$output = form_item(t('Service type'),$node->service_type,t($type->description));
+  
+  $f['nick'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nick'),
+    '#required' => true,
+    '#size' => 20,
+    '#maxlength' => 20,
+    '#default_value' => $param['node']['nick'],
+    '#collapsible' => false,
+    '#tree'=> true,
 
+    '#description' => t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.").($error['nick'] ? $error["nick"] : ''),
+    );
+  
+  //$output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
+  
+  $f['contact'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Contact'),
+    //'#required' => true,
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#default_value' => $param['node']['contact'],
+    '#description' => t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.").($error['contact'] ? $error["contact"] : ''),
+  );
 
-  $params .= guifi_form_column(form_select(t('Device'), "device_id", $node->device_id, guifi_servers_select(),t('Where it runs.')));
+  //$output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
+////  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
+
+  $f['device_id'] = array(
+    '#type' => 'select',
+    '#title' => t("Device"),
+    '#default_value' => $param['node']['device_id'],   // $radio["antenna_angle"],
+    '#options' => guifi_servers_select(), // guifi_ahah_select_device(), //guifi_servers_select(),//guifi_types('antenna'),
+    '#description' => t('Where it runs.'),
+  );
+  //$params .= guifi_form_column(form_select(t('Device'), "device_id", $node->device_id, guifi_servers_select(),t('Where it runs.')));
   if (!$node->nid) {
-    $types = guifi_types('service');
-    array_shift($types);
-    $params.= guifi_form_column(form_select(t('Service'), "service_type", $node->service_type, $types,t('Type of service')));
+    $f['service_type'] = array(
+      '#type' => 'select',
+      '#title' => t("Service"),
+      '#default_value' => $param['node']['service_type'],
+      '#options' => guifi_types('service'),
+      '#description' => t('Type of service'),
+    );
+    //$types = guifi_types('service');
+    //array_shift($types);
+    //$params.= guifi_form_column(form_select(t('Service'), "service_type", $node->service_type, $types,t('Type of service')));
   } else
-    $output .= form_hidden("service_type",$node->service_type);
-  $params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
-  $output .= guifi_form_column_group(t('General parameters'),$params,null);
+    $f['protocol'] = array(
+      '#type' => 'hidden',
+      '#title' => t("service_type"),
+      '#value' => $node->service_type,
+    );
+    //$output .= form_hidden("service_type",$node->service_type);
+  
+    $f['status_flag'] = array(
+      '#type' => 'select',
+      '#title' => t("Status"),
+      '#default_value' => $param['node']['status_flag'],
+      '#options' => guifi_types('status'),
+      '#description' => t('Current status'),
+    );
+  //$params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
+  //$output .= guifi_form_column_group(t('General parameters'),$params,null);
 
   unset($specs);
   if ($node->nid > 0)
@@ -87,17 +143,79 @@ function guifi_service_form(&$node, &$param) {
       $specs .= form_checkboxes(t("Protocols"), "var][protocols", $node->var['protocols'], array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS'));
       break;
     case 'Proxy': case 'ADSL':
-      $specs .= form_textfield(t("Download"), "var][down", $node->var['down'], 60, 60, t('Download bandwidth'));
-      $specs .= form_textfield(t("Upload"), "var][up", $node->var['up'], 60, 60, t('Upload bandwidth'));
+      $f['download'] = array(
+        '#type' => 'textfield',
+        '#id' => 'var][down',
+        '#title' => t('Download'),
+        '#default_value' => $node->var['down'],
+        '#size' => 60,
+	'#maxlength' => 60,
+        '#description' => t('Download bandwidth')
+      );
+      //$specs .= form_textfield(t("Download"), "var][down", $node->var['down'], 60, 60, t('Download bandwidth'));
+      $f['upload'] = array(
+        '#type' => 'textfield',
+        '#id' => 'var][up',
+        '#title' => t('Upload'),
+        '#default_value' => $node->var['up'],
+        '#size' => 60,
+        '#maxlength' => 60,
+        '#description' => t('Upload bandwidth')
+      );
+      //$specs .= form_textfield(t("Upload"), "var][up", $node->var['up'], 60, 60, t('Upload bandwidth'));
       if ($node->service_type == 'ADSL')
         break;
-      $specs .= form_checkboxes(t("Proxy federation"), "var][fed", $node->var['fed'], array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys')));  
-      $specs .= form_textfield(t("Name"), "var][proxy", $node->var['proxy'], 60, 60, null);
-      $specs .= form_textfield(t("Port"), "var][port", $node->var['port'], 60, 60, null);
-      $specs .= form_select(t("Type"), "var][type", $node->var['type'], array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP'), null);
+      
+      $f['proxy_federation'] = array(
+        '#type' => 'checkboxes',
+        '#id' => 'var][fed',
+        '#title' => t('Proxy federation'),
+        '#default_value' => $node->var['fed'],
+        '#options' => array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys'))
+      );
+      //$specs .= form_checkboxes(t("Proxy federation"), "var][fed", $node->var['fed'], array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys')));  
+      
+      $f['name'] = array(
+        '#type' => 'textfield',
+        '#id' => 'var][proxy',
+        '#title' => t("Name"),
+        '#default_value' => $node->var['proxy'],
+        '#size' => 60,
+        '#maxlength' => 60,
+      );
+      //$specs .= form_textfield(t("Name"), "var][proxy", $node->var['proxy'], 60, 60, null);
+      
+      $f['port'] = array(
+        '#type' => 'textfield',
+        '#id' => 'var][port',
+        '#title' => t("Port"),
+        '#default_value' => $node->var['port'],
+        '#size' => 60,
+        '#maxlength' => 60,
+      );
+      //$specs .= form_textfield(t("Port"), "var][port", $node->var['port'], 60, 60, null);
+      
+      $f['type'] = array(
+        '#type' => 'select',
+	'#id' => 'var][type',
+	'#title' => t("Type"),
+	'#default_value' => $node->var['type'],
+	'#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP')
+      );
+      //$specs .= form_select(t("Type"), "var][type", $node->var['type'], array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP'), null);
        break;
     default:
-      $specs .= form_textfield(t("url"), "var][url", $node->var['url'], 60, 250, null);
+      $f['contact'] = array(
+        '#type' => 'textfield',
+        '#title' => t('url'),
+        '#size' => 60,
+        '#maxlength' => 250,
+        '#default_value' => $node->var['url'],
+        //      '#collapsible' => false,
+        //            '#tree'=> TRUE,
+        //'#description' => t("Who"),
+      );
+      //$specs .= form_textfield(t("url"), "var][url", $node->var['url'], 60, 250, null);
       break;
   }
   if (isset($specs))
@@ -151,9 +269,17 @@ function guifi_service_form(&$node, &$param) {
   if (isset($ircservers))
     $output .= form_group(t('IRC servers'),$ircservers,t('Press "Preview" to get more rows'));
 
-  $output .= form_textarea(t("Body"), "body", $node->body, 60, 20, t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''));
+  $f['body'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Body'),
+    '#default_value' => $param['node']['body'],
+    '#description' => t('Textual description of the wifi') . ($error['body'] ? $error['body'] : ''),
+    '#cols' => 60,
+    '#rows' => 20,
+  );
+  //$output .= form_textarea(t("Body"), "body", $node->body, 60, 20, t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''));
 
-  return $output;
+  return $f;
 }
 
 /**
@@ -395,5 +521,31 @@ function guifi_service_view(&$node) {
   if ($op != 'default')
     print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
 }
+
+
+
+function guifi_service_list($service) {
+  $header = array(t('name'),t('status'));
+
+  $query = db_query("SELECT id,extra,status_flag FROM {guifi_services} WHERE service_type='%s'",$service);
+  $rows = array();
+
+  while ($item = db_fetch_object($query)) {
+    $p_node = node_load(array('nid' => $item->id));
+    $row = array(l($p_node->title,'node/'.$item->id.''),array('data' => t($item->status_flag),'class' => $item->status_flag));
+    $rows = array_merge($rows, array($row));
+	  
+  }
+
+  if ($row) { 
+    $table = theme('table', $header, $rows);
+    return theme('box', t($service.' list'), $table);
+  }
+  else {
+    return '';
+  }
+
+}
+
 
 ?>

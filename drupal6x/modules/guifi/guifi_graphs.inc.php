@@ -199,8 +199,7 @@ function guifi_get_graph_server($nid) {
  * guifi_node_graph_overview
  * outputs an overiew graph of the node
 **/
-function guifi_node_graph_overview($node) {
-  
+function guifi_node_graphs($node) { //function guifi_node_graph_overview($node) {
 /**
 *	Get the zone 
 **/
@@ -221,17 +220,18 @@ function guifi_node_graph_overview($node) {
         $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
         $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
       }
-	 return array_merge($rows);
     }else{
       $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
-      return array_merge($rows);
+      $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
     }
   } else {
     $radio = db_fetch_array($query);
-    return guifi_device_graph_overview($radio);
+    $rows = guifi_device_graph_overview($radio);
   }
+  $table = theme('table',NULL,$rows);
+  $box = theme('box',t('traffic overview'),$table);
+  return $box;
 }
 
 /**
