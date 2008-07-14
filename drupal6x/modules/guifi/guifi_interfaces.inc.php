@@ -3,7 +3,7 @@
 function guifi_interfaces_form(&$interface,$ptree) {
   global $hotspot;
   
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_interface_form()',$interface);
+  guifi_log(GUIFILOG_TRACE,'function guifi_interfaces_form()',$interface);
 
   // Interface type shoudn't be null
   if ($interface['interface_type'] == null)
@@ -315,156 +315,6 @@ function guifi_interfaces_cable_form(&$edit) {
   );
   
   return $form;
-
-  
-  $f = array();           // Variable to store temporary form
-  $interfaces_count = 0;  // Interfaces counter
-  $ipv4_count = array();  // ipv4 addresses counter
-  $links_count = array(); // links counter
-  $ilist = array();       // Per interface_type, stores the interface id's
-  
-  foreach ($edit['interfaces'] as $ki => $interface) {
-    if ($interface['interface_type'] == null)
-      continue;
-
-    if ($interface['deleted'])
-      continue;
-
-    guifi_log(GUIFILOG_TRACE,sprintf('cable interface %d',$ki),$interface);
-    $interfaces_count++;
-
-    $it = $interface['interface_type'];
-    $ilist[$it] = $ki;
-
-    if (count($interface['ipv4']) > 0)
-    foreach ($interface['ipv4'] as $ka => $ipv4) {
-
-//      if ($ipv4['deleted'])
-//        continue;
-        
-      $ipv4_count[$it] ++;
-      
-      $links_count[$it] += guifi_ipv4_link_form(
-        $f[$it][$ki]['ipv4'][$ka],
-        $ipv4,
-        $interface,
-        array('interfaces',$ki,'ipv4',$ka),
-        $fw);
-
-    }   // foreach ipv4
-    $f[$it][$ki]['addCableConnection'] = array(
-      '#type'=>'button',
-      '#parents'=>array('interfaces',$ki,'addCableConnection'),
-      '#value'=>t('Add cable connection'),
-      '#name'=>'_action,_guifi_add_cable_link,'.$ki,
-//      '#weight'=>$fw++
-    );
-    $f[$it][$ki]['addPublicSubnet'] = array(
-      '#type'=>'button',
-      '#parents'=>array('interfaces',$ki,'addPublicSubnet'),
-      '#value'=>t('Add public subnetwork'),
-      '#name'=>'_action,_guifi_add_subnet,'.$ki,
-//      '#weight'=>$fw++
-    );
-    if ($interface['interface_type'] != 'wLan/Lan')
-      $f[$it][$ki]['deleteInterface'] = array(
-        '#type'=>'button',
-        '#parents'=>array('interfaces',$ki,'deleteInterface'),
-        '#value'=>t('Delete Interface'),
-        '#name'=>'_action,_guifi_delete_interface,,'.$ki,
-//        '#weight'=>$fw++
-      );
-
-  }    // foreach interface
-
-  
-  foreach ($f as $it => $value) {
-    
-    //    guifi_log(GUIFILOG_FULL,'building form for: ',$value);
-    switch ($it) {
-    case 'wLan/Lan':
-    case 'wds/p2p':
-      $title = $it.' - '.$links_count[$it].' '.t('link(s)');
-      break;
-    case 'wLan':
-      $title = $it.' - '.
-        count($value).' '.t('interface(s)').' - '.
-        $links_count[$it].' '.t('link(s)');
-      break;
-    default:
-      $title = $it;
-    }
-    
-    if ($ipv4_count[$it])
-       $title .= ' - '.$ipv4_count[$it].' '.t('address(es)');
-    
-        
-    $form['interfaces'][$ilist[$it]] = array(
-      '#type' => 'fieldset',
-      '#title' => $title,
-      '#weight' => $fw++,
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-
-    if (!empty($value)) {
-      foreach ($value as $ki => $fin)
-        if (empty($form['interfaces'][$ki]))
-          $form['interfaces'][$ki] = $fin;
-        else
-          $form['interfaces'][$ki] = array_merge($form['interfaces'][$ki],$fin);
-    } else {
-      if ((!$edit['interfaces'][$ilist[$it]]['new']) and
-        ($it != 'wds/p2p') and 
-        ($it != 'wLan/Lan'))
-        $form['interfaces'][$ki]['delete_address'] = array(
-          '#type' => 'button',
-          '#parents'=>array('interfaces',$ilist[$it],'delete_interface'),
-          '#value'=>t('Delete interface'),
-          '#executes_submit_function' => true,
-//          '#weight' => $fw++,
-        );
-    }
-    $form['interfaces'][$ki]['id'] = array(
-      '#type'=>'hidden',
-      '#parents'=>array('interfaces',$ki,'id'),
-//      '#value'=>$interface['id']);
-      '#value'=>$ki);
-    $form['interfaces'][$ki]['interface_type'] = array(
-      '#type'=>'hidden',
-      '#parents'=>array('interfaces',$ki,'interface_type'),
-      '#value'=>$interface['interface_type']);
-  }
-  $form['interfaces']['#title'] .= ' - '.
-    $interfaces_count.' '.t('interface(s)').' - '.
-    array_sum($links_count).' '.t('link(s)').' - '.
-    array_sum($ipv4_count).' '.t('address(es)');
-    
-  $form['interfaces']['NewInterfaceName'] = array(
-    '#type'=>'select',
-    '#parents'=>array('NewInterfaceName'),
-    '#value'=> '0',
-    '#options'=>array_merge(
-//       array('0'=>t('Select interface name')),
-      guifi_get_free_interfaces($edit['id'],$edit),
-      array('other'=>t('other'))
-    ),
-    '#prefix'=>'<table style="width: 0"><tr><td>',
-    '#suffix'=>'</td>',
- //   '#weight'=>$fw++,
-  );
-  $form['interfaces']['AddCableInterface'] = array(
-    '#type'=>'submit',
-    '#parents'=>array('AddCableInterface'),
-    '#value'=>t('Add interface'),
-    '#name'=>'_action,_guifi_add_interface,',
-    '#prefix'=>'<td>',
-    '#suffix'=>'</td></tr></table>',
-//    '#weight'=>$fw++
-  );
-  
-  return $form;
-
 }
 
 /* Add cable interface */
@@ -533,46 +383,6 @@ function _guifi_add_interface_submit(&$form,&$edit,$action) {
   return TRUE;
 }
 
-/* Add wlan */
-/* _guifi_add_subnet(): Cofirmation dialog */
-function _guifi_add_subnet(&$form,&$edit,$action) {
-  $iid = $action[2];
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_add_subnet(%d)',$iid));
-  $fw = 0;
-  guifi_form_hidden($form,$edit,$fw);
-  
-  if (user_access('administer guifi networks'))
-    $form['newSubnetMask'] = array(
-      '#type' => 'select',
-      '#title' => t('Select the network capacity (netmask)'),
-      '#default_value' => '255.255.255.224',
-      '#options'=>guifi_types('netmask',30,23),
-      '#description' => t('To avoid unused addresses, choose a realistic value, you can always add more capacity later.'),
-      '#weight' => $fw++,
-    );
-  else {
-    $form['help'] = array(
-      '#type' => 'item',
-      '#title' => t('Are you sure that you want to allocate a new public subnetwork at this interface?'),
-      '#value' => $edit['interfaces'][$iid]['interface_type'],
-//       '#description' => t('To avoid unused addresses, choose a realistic value, you can always add more capacity later.'),
-      '#weight' => $fw++,
-    );
-    $form['newSubnetMask'] = array(
-      '#type' => 'hidden',
-      '#value' => '255.255.255.224',
-      '#weight' => $fw++,
-    );
-  }
-  
-  drupal_set_title(t(
-    'Create a public subnetwork at %name',
-    array('%name'=>$edit['interfaces'][$iid]['interface_type'])));
-  _guifi_device_buttons($form,$action,$fw,TRUE);
-
-  return FALSE;
-}
-
 /* _guifi_add_subnet_submit(): Action */
 function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   $values = $form_state['clicked_button']['#parents'];
@@ -600,15 +410,16 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   return TRUE;
 }
 
-function guifi_interfaces_add_cable_link_submit(&$form,&$form_state) {
+function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
   $values = $form_state['clicked_button']['#parents'];
   $iid    = $values[1];
   $to_did = $form_state['values']['interfaces'][$iid]['to_did'];
   $rdevice = guifi_device_load($to_did);
   guifi_log(GUIFILOG_BASIC,
-    sprintf('function guifi_interfaces_add_cable_link_submit(%d)',$iid),
-      $to_did);
-      
+    sprintf('function guifi_interfaces_add_cable_p2p_link_submit(%d)',$iid),
+//      $to_did);
+      $form_state['values']['interfaces'][$iid]);
+    
   $dlinked = db_fetch_array(db_query(
     "SELECT d.id, d.type " .
     "FROM {guifi_devices} d " .
@@ -659,6 +470,53 @@ function guifi_interfaces_add_cable_link_submit(&$form,&$form_state) {
   
   $form_state['values']['interfaces'][$iid]['ipv4'][]=$ipv4;
   $form_state['values']['interfaces'][$iid]['unfold']=true;
+  $form_state['rebuild'] = true;
+  
+  return TRUE;
+}
+
+function guifi_interfaces_add_cable_public_link_submit(&$form,&$form_state) {
+  $values = $form_state['clicked_button']['#parents'];
+  $iid    = $values[1];
+  $ipv4_id= $values[3];
+  $to_did = $form_state['values']['interfaces'][$iid]['ipv4'][$ipv4_id]['to_did'];
+  $rdevice = guifi_device_load($to_did);
+  
+  guifi_log(GUIFILOG_BASIC,
+    sprintf('function guifi_interfaces_add_cable_public_link_submit(%d)',$iid),
+//      $form_state['values']);
+      $form_state['clicked_button']['#parents']);
+
+  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  
+  // get next available ip address
+  $base_ip=
+    $form_state['values']['interfaces'][$iid]['ipv4'][$ipv4_id];
+  $item = _ipcalc($base_ip['ipv4'],$base_ip['netmask']);
+  $ip= guifi_next_ip($item['netid'],$base_ip['netmask'],$ips_allocated);
+
+  $newlk['new']=true;
+  $newlk['interface']=array();
+  $newlk['link_type']='cable';
+  $newlk['flag']='Planned';
+  $newlk['nid']=$form_state['values']['nid'];
+  $newlk['device_id'] = $to_did;
+  if ($rdevice['type']=='radio')
+    $newlk['routing'] = 'BGP';
+  else  
+    $newlk['routing'] = 'Gateway';
+    
+  $newlk['interface']['new'] = true;
+  $newlk['interface']['device_id'] = $to_did;
+  $free = guifi_get_free_interfaces($to_did,$rdevice);
+  $newlk['interface']['interface_type']= array_shift($free);
+  $newlk['interface']['ipv4']['new'] = true;
+  $newlk['interface']['ipv4']['ipv4'] = $ip;
+  $newlk['interface']['ipv4']['netmask'] = $base_ip['netmask'];
+  
+  $form_state['values']['interfaces'][$iid]['ipv4'][$ipv4_id]['links'][]=$newlk;
+  $form_state['values']['interfaces'][$iid]['unfold']=true;
+//  print_r($form_state['values']); 
   $form_state['rebuild'] = true;
   
   return TRUE;

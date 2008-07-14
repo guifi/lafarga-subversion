@@ -240,8 +240,8 @@ function guifi_device_form_submit($form, &$form_state) {
   case t('Save & exit'):
     // save
 //    print_r($_POST);
-//    print_r($form_state['values']);
-//    exit;
+////    print_r($form_state['values']);
+////    exit;
     $id = guifi_device_save($form_state['values']);
 //    exit;
     if ($form_state['clicked_button']['#value'] == t('Save & exit'))

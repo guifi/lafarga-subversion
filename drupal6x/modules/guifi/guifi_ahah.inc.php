@@ -155,9 +155,18 @@ function guifi_ahah_add_cable_link() {
   $cache = cache_get($cid, 'cache_form');
   
   $values = explode(',',arg(3));
-  if (count($values)==2)
-    $ipv4_id = $values[1];
   $interface_id = $values[0];
+  if (count($values)==2) {
+    // create the cable link on an already allocated subnetwork
+    $ipv4_id = $values[1];
+    $submit =  array('guifi_interfaces_add_cable_public_link_submit');
+    $parents = array('interfaces',$interface_id,'ipv4',$ipv4_id);
+  } else {
+    // create the cable link over an interface, with a backbone p2p network
+    $submit =  array('guifi_interfaces_add_cable_p2p_link_submit');  
+    $parents = array('interfaces',$interface_id);  
+  }
+  
   
   $node = explode('-',$_POST['movenode']);
 
@@ -195,9 +204,11 @@ function guifi_ahah_add_cable_link() {
         'you should save the node of this device before proceeding.')
       );
     } else if (count($list)>1) {
+      $tree = $parents;
+      $tree[] = 'to_did';
       $f['to_did'] = array(
         '#type'=>'select',
-        '#parents'=> array('interfaces',$interface_id,'to_did'),        
+        '#parents'=> $tree,        
         '#title'=>t('Link to device'),
         '#description'=>t('Select the device which you want to link with'),
         '#options'=>$list,
@@ -205,11 +216,13 @@ function guifi_ahah_add_cable_link() {
         '#suffix' => '</td>'
         //        '#default_value'=>$orig_device_id
       );
+      $tree = $parents;
+      $tree[] = 'addLink';
       $f['createLink'] = array(
         '#type'=>'button',
         '#default_value' => 'Create',
-        '#parents'=>array('interface',$interface_id,'addLink'),
-        '#submit' => array('guifi_interfaces_add_cable_link_submit'),
+        '#parents'=>$tree,
+        '#submit' => $submit,
         '#executes_submit_callback' => true,
         '#prefix' => '<td align="left">',
         '#suffix' => '</td></table>'

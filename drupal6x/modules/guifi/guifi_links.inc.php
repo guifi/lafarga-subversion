@@ -4,7 +4,7 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
   $lweight = 0;
 
   // edit link details
-  guifi_log(GUIFILOG_TRACE,'guifi_device_link_form()',$link);
+  guifi_log(GUIFILOG_TRACE,'guifi_links_form()',$link);
 
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];

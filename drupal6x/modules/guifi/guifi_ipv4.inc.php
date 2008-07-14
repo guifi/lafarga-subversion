@@ -236,6 +236,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
     $rk = null;
 
   guifi_log(GUIFILOG_TRACE,'guifi_device_ipv4_link_form()',$ipv4);
+//  print_r($ipv4);
       
   $f['storage']['ipv4_local'] = guifi_form_hidden_var(
     $ipv4,
@@ -245,7 +246,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
     
   if ((count($ipv4['links']) > 1)
     or (($ipv4['netmask'] != '255.255.255.252') 
-      and (count($ipv4['links']) == 0) ) 
+      and (count($ipv4['links']) < 2) ) 
     )
   {
     // multilink set
@@ -268,13 +269,13 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
       '#parents'=>array_merge($tree,array('AddCableLink')),
       '#attributes'=>array('title'=>t('Link to another device using a public IPv4 address')), 
       '#ahah' => array(
-        'path' => 'guifi/js/add-cable-link/'.$ipv4['id'].','.$ipv4['interface_id'],
-        'wrapper' => 'editInterface-'.$ipv4['id'].'-'.$ipv4['interface_id'],
+        'path' => 'guifi/js/add-cable-link/'.$ipv4['interface_id'].','.$ipv4['id'],
+        'wrapper' => 'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'],
         'method' => 'replace',
         'effect' => 'fade',
        ),
        '#prefix'=> '<div id="'.
-         'editInterface-'.$ipv4['id'].'-'.$ipv4['interface_id'].'">',
+         'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'].'">',
        '#suffix'=> '</div>',
 //     '#submit' => array('guifi_radio_add_wds_submit'),
     ); 
