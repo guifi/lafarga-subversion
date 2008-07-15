@@ -316,27 +316,61 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   
     if (!$cascade)
       break;   
+      
     // cascade to remote link
     $qc = db_query('SELECT id, ipv4_id, interface_id, device_id ' .
         'FROM {guifi_links} ' .
         'WHERE id=%d ' .
         '  AND device_id !=%d',
         $key['id'],$key['device_id']);
+        
     while ($link = db_fetch_array($qc)) {
       $log .= '<br>'._guifi_db_delete('guifi_links',$link,$to_mail,$depth,false);
 
       // cleanup of remote ipv4 addresses when appropriate
-      // WDS links, clean both IPv4 addresses
-     if ($item->link_type == 'wds') 
-        $log .= '<br>'._guifi_db_delete(
+      $qar = db_query('SELECT * ' .
+          'FROM {guifi_ipv4} '.
+          'WHERE id=%d AND interface_id=%d',
+          $link['ipv4_id'],$link['interface_id']);
+      while ($ripv4 = db_fetch_array($qar)) {
+        $item = _ipcalc($ripv4['ipv4'],$ripv4['netmask']);
+        // if the addres is a /30 (single p2p link)
+        // or the remote ip is not the router address
+        if ( ($ripv4['netmask'] == '255.255.255.252') or
+             ($ripv4['ipv4'] != $item['netstart'])
+           )
+          $log .= '<br>'._guifi_db_delete(
             'guifi_ipv4',
             array('id'=>$link['ipv4_id'],
-                'interface_id'=>$link['interface_id']),
+              'interface_id'=>$link['interface_id']),
             $to_mail,
             $depth,
             false);
+            
+         // cleanup remote interface when appropriate
+         $qir = db_query('SELECT i.id, i.interface_type, count(a.id) na ' .
+            'FROM {guifi_interfaces} i ' .
+            '  LEFT OUTER JOIN {guifi_ipv4} a ' .
+            '  ON i.id=a.intreface_id ' .
+            'WHERE i.id=%d ' .
+            'GROUP BY i.id, i.interface_type',
+            $link['interface_id']);
+         $na = db_fetch_array($qar);
+         
+         // delete the interface, if has no other ipv4 address and is not 
+         // in the list Wan, wLan/Lan, Lan or wds
+         if ((!in_array($na['interface_type'],array('Wan','wLan/Lan','Lan','wds')))
+            and ($na['na'] != 0)
+            )
+           continue;
+         $log .= '<br>'._guifi_db_delete(
+            'guifi_interfaces',
+            array('id'=>$na['id']),
+            $to_mail,
+            $depth,
+            false);
+      }
     }
-    break;
 
   // delete services
   case 'guifi_services':
