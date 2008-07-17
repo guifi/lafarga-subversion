@@ -21,7 +21,7 @@ function guifi_unsolclic($id, $format = 'html') {
 	_outln_comment($dev->variable['firmware']);
   }
 
-  foreach (glob('modules/guifi/firmware/*.inc.php', GLOB_BRACE) as $firm_inc_php){
+  foreach (glob(drupal_get_path('module', 'guifi') .'/firmware/*.inc.php', GLOB_BRACE) as $firm_inc_php){
     include_once("$firm_inc_php");
   }
 

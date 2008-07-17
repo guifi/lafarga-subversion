@@ -437,9 +437,9 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
       $current_service = $service->service_type;
     } 
   
-    $rows[] = array('<a href="node/'.$service->id.'">'.$node->title.'</a>', 
-                    '<a href="node/'.$service->zone_id.'">'.$service->zonename.'</a>',
-                    '<a href="guifi/device/'.$service->device_id.'">'.guifi_get_hostname($service->device_id).'</a>',
+    $rows[] = array('<a href="' .base_path() .'node/'.$service->id.'">'.$node->title.'</a>', 
+                    '<a href="' .base_path() .'node/'.$service->zone_id.'">'.$service->zonename.'</a>',
+                    '<a href="' .base_path() .'guifi/device/'.$service->device_id.'">'.guifi_get_hostname($service->device_id).'</a>',
                     array('data' => t($node->status_flag),'class' => $node->status_flag));
   }
 
@@ -456,7 +456,7 @@ function guifi_list_services($node,$service = '%') {
   if (is_numeric($node)) {
     $typestr = t('by device');
   } else {
-    if ($node->type == 'guifi-node')
+    if ($node->type == 'guifi_node')
       $typestr = t('by node');
     else
       $typestr = t('by zone');

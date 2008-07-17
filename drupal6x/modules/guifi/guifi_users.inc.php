@@ -99,7 +99,7 @@ function guifi_edit_user($id = 0) {
         $item = arg(1);
         if (is_numeric($item)) {
           $node = node_load(array('nid'=>$item));
-          if ($node->type == 'guifi-node')
+          if ($node->type == 'guifi_node')
             $edit['nid'] = $item;
         } 
       }
@@ -253,10 +253,15 @@ function guifi_edit_user_validate(&$edit) {
 /**
  * outputs the user information data
 **/
-function guifi_list_users($node) {
+function guifi_node_list_users($node) {
+
+  if (is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+  }
 
   $op=$_POST['op'];
-
+  global $user;
+  $owner = $user->uid;
 
   if (!empty($op)) {
     $edit=$_POST['edit'];
@@ -266,37 +271,44 @@ function guifi_list_users($node) {
       return guifi_edit_user($edit['user_checked']);
   }
 
-  if ($node->type == 'guifi-node') {
+  if ($node->type == 'guifi_node') {
     $query = db_query("SELECT id, firstname, lastname, username, services FROM {guifi_users} WHERE nid = %d ORDER BY lastname, firstname",$node->nid);
   } else
     $query = db_query("SELECT id, firstname, lastname, username, services FROM {guifi_users} ORDER BY lastname, firstname");
-  
+
   $rows[] = array();
-  if (db_num_rows($query)) {
-    while ($user = db_fetch_object($query)) {
-      $services = unserialize($user->services);
-      if ($node->type == 'guifi-service') {
+  $num_rows = FALSE;
+
+    while ($guser = db_fetch_object($query)) {
+      $services = unserialize($guser->services);
+      if ($node->type == 'guifi_service') {
         if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
           continue;
       }
 
-      if (!empty($user->lastname))
-        $realname = $user->lastname.', '.$user->firstname;
+      if (!empty($guser->lastname))
+        $realname = $guser->lastname.', '.$guser->firstname;
       else
-        $realname = $user->firstname;
-      $rows[] = array(form_radio('','user_checked',$user->id),
+        $realname = $guser->firstname;
+     $rows[] = array(('*** TODO *** FORM RADIO<br />'),     
+//$rows[] = array(form_radio('','user_checked',$guser->id),
                       $realname,
-                      $user->username);
+                      $guser->username);
+    $num_rows = TRUE;
     } 
+  if ($num_rows) {
     $output = '<h2>' .t('Users of') .' ' .$node->title.'</h2>';
     $output .= theme('table', array(null,t('real name'),t('username')), array_merge($rows),null);
-    $output .= form_button(t('Edit selected'), 'op');
+  if ((user_access('administer guifi users')) or (user_access('manage guifi users')) or ($node->uid == $owner))
+//    $output .= form_button(t('Edit selected'), 'op');
+    $output .= '*** TODO *** BUTTON EDIT SELECTED<br />';
   } else {
     $output = '<h2>'.t('There is no users to list at').' '.$node->title.'</h2>';
   }
   if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
-    $output .= form_button(t('Add user'), 'op');
-  return form($output);
+//    $output .= form_button(t('Add user'), 'op');
+    $output .= '*** TODO *** BUTTON ADD USER<br />';
+  return $output;
 }
 
 
