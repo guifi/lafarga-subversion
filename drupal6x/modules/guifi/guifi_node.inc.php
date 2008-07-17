@@ -149,7 +149,7 @@ function guifi_node_form_supernode($node, $param) {
   $form['title']['nick'] = array(
     '#type' => 'textfield',
     '#title' => t('Nick'),
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#size' => 20,
     '#maxlength' => 20, 
     '#element_validate' => array('guifi_node_nick_validate'),
@@ -424,18 +424,23 @@ function guifi_node_agreement_validate($element, &$form_state) {
   }  
 }
 
-function guifi_node_nick_validate($element, &$form_state) {
+function guifi_node_nick_validate($element, &$form_state) { 
+  if (empty($element['#value'])) {
+    $nick = guifi_abbreviate($form_state['values']['title']);
+    drupal_set_message(t('Zone nick has been set to:').' '.$nick);
+    $form_state['values']['nick'] = $nick;
+    
+    return;
+  }
   guifi_validate_nick($element['#value']);
 
-  if (!empty($element['#value'])) { 
-    $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",
-      strtolower($element['#value']),$form_state['values']['nid']);
-    if (db_result($query)){
-      form_set_error('nick', t('Nick already in use.'));
-    }
+  $query = db_query("SELECT nick FROM {guifi_location} WHERE lcase(nick)='%s' AND id <> %d",
+    strtolower($element['#value']),$form_state['values']['nid']);
+  if (db_result($query)){
+    form_set_error('nick', t('Nick already in use.'));
   }
-  
 }
+
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
  
   guifi_node_validate($node:obj-node,$form:obj-form):void si hi ha un error cancela la gravacio
