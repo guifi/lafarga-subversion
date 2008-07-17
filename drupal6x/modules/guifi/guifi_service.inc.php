@@ -26,9 +26,20 @@ function guifi_service_access($op, $node) {
 }
 
 
-/**
- * zone editing functions
-**/
+function guifi_service_load($node) {
+
+  if (is_object($node))
+    $k = $node->nid;
+  else
+    $k = $node;
+  
+  $node = db_fetch_object(db_query("SELECT * FROM {guifi_services} WHERE id = '%d'", $k));
+
+  if (!$node->id == null)
+    return $node;
+
+  return false;
+}
 
 /**
  * Present the guifi zone editing form.
@@ -62,7 +73,7 @@ function guifi_service_form(&$node, &$param) {
     '#required' => true,
     '#size' => 20,
     '#maxlength' => 20,
-    '#default_value' => $param['node']['nick'],
+    '#default_value' => $node->nick,
     '#collapsible' => false,
     '#tree'=> true,
 
@@ -77,7 +88,7 @@ function guifi_service_form(&$node, &$param) {
     //'#required' => true,
     '#size' => 60,
     '#maxlength' => 128,
-    '#default_value' => $param['node']['contact'],
+    '#default_value' => $node->contact,
     '#description' => t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.").($error['contact'] ? $error["contact"] : ''),
   );
 
@@ -87,7 +98,7 @@ function guifi_service_form(&$node, &$param) {
   $f['device_id'] = array(
     '#type' => 'select',
     '#title' => t("Device"),
-    '#default_value' => $param['node']['device_id'],   // $radio["antenna_angle"],
+    '#default_value' => $node->device_id,   // $radio["antenna_angle"],
     '#options' => guifi_servers_select(), // guifi_ahah_select_device(), //guifi_servers_select(),//guifi_types('antenna'),
     '#description' => t('Where it runs.'),
   );
@@ -96,7 +107,7 @@ function guifi_service_form(&$node, &$param) {
     $f['service_type'] = array(
       '#type' => 'select',
       '#title' => t("Service"),
-      '#default_value' => $param['node']['service_type'],
+      '#default_value' => $node->service_type,
       '#options' => guifi_types('service'),
       '#description' => t('Type of service'),
     );
@@ -114,13 +125,13 @@ function guifi_service_form(&$node, &$param) {
     $f['status_flag'] = array(
       '#type' => 'select',
       '#title' => t("Status"),
-      '#default_value' => $param['node']['status_flag'],
+      '#default_value' => $node->status_flag,
       '#options' => guifi_types('status'),
       '#description' => t('Current status'),
     );
   //$params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
   //$output .= guifi_form_column_group(t('General parameters'),$params,null);
-
+  $node->var = unserialize($node->extra);
   unset($specs);
   if ($node->nid > 0)
   switch ($node->service_type) {
@@ -272,7 +283,7 @@ function guifi_service_form(&$node, &$param) {
   $f['body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
-    '#default_value' => $param['node']['body'],
+    '#default_value' => $node->body,
     '#description' => t('Textual description of the wifi') . ($error['body'] ? $error['body'] : ''),
     '#cols' => 60,
     '#rows' => 20,
@@ -324,7 +335,7 @@ function guifi_service_update($node) {
  * outputs the zone information data
 **/
 function guifi_service_print_data($node) {
-  
+
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id = %d', $node->zone_id));
@@ -333,11 +344,13 @@ function guifi_service_print_data($node) {
   $rows[] = array(t('service'),$node->nid .'-' .$node->nick,'<b>' .$node->title .'</b>'); 
   $rows[] = array(t('type'),$node->service_type,t($type->description)); 
   if ($node->device_id > 0) {
-    $device       = db_fetch_object(db_query('SELECT nick FROM {guifi_devices} WHERE id = %d', $node->device_id));
-    $url = url('guifi/device/'.$node->device_id,null, null, false);
-    $rows[] = array(t('device &#038; status'),'<a href='.$url.'>'.$device->nick.'</a>',array('data' => t($node->status_flag),'class' => $node->status_flag)); 
+    $device = db_fetch_object(db_query('SELECT nick FROM {guifi_devices} WHERE id = %d', $node->device_id));
+    $url = url('guifi/device/'.$node->device_id);
+    $rows[] = array(t('device &#038; status'),'<a href='.$url.'>'.$device->nick.'</a>',
+              array('data' => t($node->status_flag),'class' => $node->status_flag)); 
   }
-
+  
+  $node->var = unserialize($node->extra);
   switch ($node->service_type) {
     case 'mail':
       $rows[] = array(t('inbound and outbound servers'),$node->var['in'],$node->var['out']);
@@ -469,58 +482,31 @@ function guifi_list_services($node,$service = '%') {
 /**
  * outputs the node information
 **/
-function guifi_service_view(&$node) {
+function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
+  node_prepare($node);
+  if ($teaser)
+    return $node;
+  if ($block)
+    return $node;
   
-  $output = '<div id="guifi">';
-  if ($node->zone_id > 0)
-    $output .= guifi_zone_ariadna($node->zone_id);
+      if ($page) {
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+        $node->content['data'] = array(
+          array(
+            '#value' => theme('box', t('service information')),
+            '#weight' => 2,
+          ),
+          array(
+            '#value' => theme('table', NULL, guifi_service_print_data($node)),
+            '#weight' => 3,
+          )
+        );
+      }
 
-  switch (arg(3)) {
-    case 'data':
-    case 'view':
-    case 'users': 
-    case 'passwd': 
-    case 'federated':
-    case 'federated_md5':
-    case 'ldif':
-      $op = arg(3);
-      break;
-    default: 
-      $op = "default";
-      break;
+        
+    return $node;
   }
-  switch ($op) {
-    case 'all': case 'data': case 'default':
-      // node details
-      $output .= theme('table', NULL, guifi_service_print_data($node));
-      if ($op == 'data') break;
-      break;
-    case 'users': 
-      $output .= theme('box', NULL, guifi_list_users($node));
-      break;
-    case 'passwd': 
-      $output .= theme('box', NULL, guifi_dump_passwd($node));
-      break;
-    case 'federated': 
-      $output .= theme('box', NULL, guifi_dump_federated($node));
-      break;
-    case 'federated_md5': 
-      $output .= theme('box', NULL, guifi_dump_federated_md5($node));
-      break;
-    case 'ldif': 
-      $output .= theme('box', NULL, guifi_dump_ldif($node));
-      break;
-    case 'view':
-      $output .= $node->body;
-      break;
-  }
-  $output .= "</div>";
 
-  $node->body .= theme('box', t('service information'), $output);
-
-  if ($op != 'default')
-    print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
-}
 
 
 

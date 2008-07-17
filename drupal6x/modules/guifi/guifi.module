@@ -198,28 +198,9 @@ function guifi_menu() {
    );
 
       // service menus
-
-   $items['node/%guifi_service/view'] = array( 
-     'title' => 'view service',
-     'page callback' => 'guifi_service_view',
-     'page arguments' => array(1),
-     'access callback' => 'user_access',
-     'access arguments' => array('access content'),
-         // 'weight' => -10,
-     'type' => MENU_DEFAULT_LOCAL_TASK
-   );
-   $items['node/%guifi_service/view/all'] = array( 
-     'title' => 'all',
-     'page callback' => 'guifi_service_view',
-     'page arguments' => array(1),
-     'access callback' => 'user_access',
-     'access arguments' => array('access content'),
-         // 'weight' => -10,
-     'type' => MENU_DEFAULT_LOCAL_TASK
-   );
-   $items['node/%guifi_service/view/data'] = array( 
+   $items['node/%guifi_service/view/sdata'] = array( 
      'title' => 'data',
-     'page callback' => 'guifi_service_view',
+     'page callback' => 'guifi_service_print_data',
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
@@ -227,9 +208,9 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK
    );
        //if ($node->service_type == 'Proxy') {
-   $items['node/%guifi_service/view/users'] = array( 
+   $items['node/%guifi_service/view/susers'] = array( 
      'title' => 'users',
-     'page callback' => 'guifi_service_view',
+     'page callback' => 'guifi_node_list_users',
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
@@ -238,7 +219,7 @@ function guifi_menu() {
    );
    $items['node/%guifi_service/view/passwd'] = array( 
      'title' => 'passwd',
-     'page callback' => 'guifi_service_view',
+     'page callback' => 'guifi_dump_passwd',
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
@@ -255,7 +236,7 @@ function guifi_menu() {
    );
     $items['node/%guifi_service/view/federated_md5'] = array(
        'title' => 'federated_md5',
-       'page callback' => 'guifi_service_view',
+       'page callback' => 'guifi_dump_federated_md5',
        'page arguments' => array(1),
        'access callback' => 'user_access',
        'access arguments' => array('access content'),
@@ -263,7 +244,7 @@ function guifi_menu() {
    );
     $items['node/%guifi_service/view/ldif'] = array(
        'title' => 'ldif',
-       'page callback' => 'guifi_service_view',
+       'page callback' => 'guifi_dump_ldif',
        'page arguments' => array(1),
        'access callback' => 'user_access',
        'access arguments' => array('access content'),
