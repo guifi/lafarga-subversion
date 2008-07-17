@@ -45,6 +45,7 @@ function guifi_device_load($id,$ret = 'array') {
       $device['radios'][$radio['radiodev_counter']] = $radio;
 
       // get interface
+      $listi = array();
       $qi = db_query('
         SELECT *
         FROM {guifi_interfaces}
@@ -53,6 +54,13 @@ function guifi_device_load($id,$ret = 'array') {
         $device['id'],
         $radio['radiodev_counter']);
       while ($i = db_fetch_array($qi)) {
+        
+        // can't have 2 wLan/Lan bridges
+        if (in_array($i['interface_type'],$listi))
+          if (($i['interface_type']) == 'wLan/Lan')
+            $i['interface_type']='wLan';     
+        $listi[] = $i['interface_type']; 
+        
         if ($device['radios'][$radio['radiodev_counter']]['mac'] == '')
           $device['radios'][$radio['radiodev_counter']]['mac'] = $i['mac'];
         $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']] = $i;
@@ -133,8 +141,17 @@ function guifi_device_load($id,$ret = 'array') {
       OR interface_type NOT IN ("wLan","wds/p2p","Wan","Hotspot"))
     ORDER BY interface_type, id',
     $id);
-    
+  
+  
+  $listi = array();
   while ($i = db_fetch_array($qi)) {
+    
+    // can't have 2 wLan/Lan bridges
+    if (in_array($i['interface_type'],$listi))
+      if (($i['interface_type']) == 'wLan/Lan')
+        continue;     
+    $listi[] = $i['interface_type'];    
+    
     $device['interfaces'][$i['id']] = $i;
 
     // get ipv4
