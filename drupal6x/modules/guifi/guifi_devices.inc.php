@@ -1549,8 +1549,8 @@ function guifi_device_links_print($device,$ltype = '%') {
         $from = '&nbsp';
 
       $wrow = array($from,array('data'=>$link_id,'align'=>'right'),
-                    '<a href="/guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
-                    '<a href="/node/'.$link['nid'].'">'.$loc2->nick.'</a>',
+                    '<a href="'.base_path().'/guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
+                    '<a href="'.base_path().'/node/'.$link['nid'].'">'.$loc2->nick.'</a>',
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                     array('data' => t($link['flag']).$img_url,
                           'class' => $link['flag']),
@@ -1580,7 +1580,7 @@ function guifi_device_links_print($device,$ltype = '%') {
         $img_url = NULL;
       $rows_cable[] = array($interface['interface_type'].'/'.$link['interface']['interface_type'],
                        array('data'=>$link_id,'align'=>'right'),
-                       '<a href="/guifi/device/'.$link['device_id'].'">'.guifi_get_hostname($link['device_id']).'</a>',
+                       '<a href="'.base_path().'/guifi/device/'.$link['device_id'].'">'.guifi_get_hostname($link['device_id']).'</a>',
                        array('data'=>'-','align'=>'center'),
                        $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                        array('data' => t($link['flag']). $img_url,

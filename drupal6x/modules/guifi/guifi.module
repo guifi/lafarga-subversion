@@ -94,7 +94,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%guifi_zone/view/services'] = array( 
+   $items['node/%/view/services'] = array( 
      'title' => 'services',
      'page callback' => 'guifi_list_services',
      'page arguments' => array(1),
@@ -102,6 +102,14 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 6,
      'type' => MENU_LOCAL_TASK);   
+   $items['node/%/view/services/%'] = array(
+     'title' => t('services'),
+     'page callback' => 'guifi_list_services',
+     'page arguments' => array(1,4),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_LOCAL_TASK
+   );
    $items['node/%guifi_zone/view/ipv4'] = array( 
      'title' => 'networks',
      'page callback' => 'guifi_zone_ipv4',
@@ -226,7 +234,7 @@ function guifi_menu() {
          // 'weight' => -10,
      'type' => MENU_CUSTOM_ITEM
    );
-	  $items['node/%guifi_service/view/federated'] = array(
+   $items['node/%guifi_service/view/federated'] = array(
        'title' => 'federated',
        'page callback' => 'guifi_dump_federated',
        'page arguments' => array(1),
@@ -478,6 +486,22 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK
     );
+    $items['guifi/networks'] = array(
+      'title' => 'service',
+      'page callback' => 'guifi_networks_list',
+      'page arguments' => array(2),
+      'access callback' => 'user_access',
+      'access arguments' => array('access content'),
+      'type' => MENU_LOCAL_TASK
+    );
+    $items['guifi/graph_detail'] = array(
+      'title' => t('display detailed node graphs'),
+      'page callback' => 'guifi_graph_detail',
+      'page arguments' => array(1),
+      'access callback' => 'user_access',
+      'access arguments' => array('access content'),
+      'type' => MENU_SUGGESTED_ITEM,
+     );
 
     return $items;
 /*  
