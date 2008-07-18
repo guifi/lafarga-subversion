@@ -930,7 +930,6 @@ function guifi_node_distances($node) {
 function guifi_node_distances_form($form_state,$node) {
   global $base_url;
   
-  $orig = $node->id;
   guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$form_state);
 
   $form = array();
@@ -941,30 +940,45 @@ function guifi_node_distances_form($form_state,$node) {
     'dmin'   => 0,
     'dmax'   => 30,
     'search' => null,
-    'max'    => 50,
+    'max'    => 25,
     'skip'   => 0,
     'status' => "All",
-    'from_node' => $node->nid,
+    'from_node' => $node->id,
     'azimuth' => "0,360",
   );
+  
   // initialize filters using default values or passed by form
   if (!empty($form_state['values']['filters'])) 
     $form_state['values']['filters'] = 
       array_merge($filters,$form_state['values']['filters']);
     else
       $form_state['values']['filters'] = $filters;
-      
-  $filters = $form_state['values']['filters'];
+    
+  $form['filters_region'] = guifi_devices_select_filter($form_state,'guifi_node_distances');
+  
+  $form['devices-list'] = guifi_node_distances_list($form_state['values']['filters'],$node);
+  
+  return $form;
+}
 
+function guifi_node_distances_list($filters,$node) {
+
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_node_distances_list(%d)',$node->id),
+    $_POST);
+
+  $orig = $node->id;
+  
   // storing lat/lon from the current node to be user for computing
   // distances with the other nodes
   $lat1 = $node->lat;
   $long1 = $node->lon;
   
   // store the node nickname to be used for literal at the profiles
-  $node1 = $node->nick;  
+  $node1 = $node->nick;
+       
+//  $filters = $form_state['values']['filters'];  
 
-  // get the notes and compute distances
+  // get the nodes and compute distances
   $result = db_query(
       "SELECT " .
         "n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id  " .
@@ -981,18 +995,20 @@ function guifi_node_distances_form($form_state,$node) {
   $rows = array();
   $totals[] = NULL;
   
-  if ($form_state['clicked_button']['#value'] == t('Next page'))
-     $filters['skip'] = $filters['skip'] + $filters['max'];
-  if ($form_state['clicked_button']['#value'] == t('Previous page'))
-     $filters['skip'] = $filters['skip'] - $filters['max'];
+  if (isset($_POST['op'])) {
+    if ($_POST['op'] == t('Next page'))
+       $filters['skip'] = $filters['skip'] + $filters['max'];
+    if ($_POST['op'] == t('Previous page'))
+       $filters['skip'] = $filters['skip'] - $filters['max'];
 
-  $nc = 0;
+    $nc = 0;
   
-  $allow_next = false;
-  if ($filters['skip'])
-    $allow_prev = true;
-  else
-    $allow_prev = false;
+    $allow_next = false;
+    if ($filters['skip'])
+      $allow_prev = true;
+    else
+      $allow_prev = false;
+  }
 
   while ($node = db_fetch_array($result)) {
      $distance = round($oGC->EllipsoidDistance($lat1, $long1, $node["lat"], $node["lon"]),3);
@@ -1008,13 +1024,24 @@ function guifi_node_distances_form($form_state,$node) {
 
   // Filter form
   $fw = 0;
-  guifi_devices_select_filter($form,$form_state,$fw);
+//  guifi_devices_select_filter($form,$form_state,$fw);
+
+  $form = array(
+    '#type' => 'fieldset',
+ //   '#title' => t('filters'),
+ //   '#weight' => 0,
+    '#collapsible' => false, 
+    '#collapsed' => false,
+ //   '#weight' => $fweight++,
+    '#prefix' => '<div id="list-devices">',
+    '#suffix' => '</div>',
+  );
 
 
   if (count($nodes)==0) {
     $form['empty'] = array(
       '#type'=> 'item',
-      '#title'=> t('The list is empty'),
+      '#title'=> t('No nodes found. The list is empty'),
       '#value'=> t('Th given query has returned no rows.'),
       '#description'=> t('Use the filters to get some results'),
       '#weight'=>$fw++,

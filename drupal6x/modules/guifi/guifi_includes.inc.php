@@ -545,7 +545,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#ahah' => $ahah,
     '#weight' => $fweight++
   );
-  if (isset($filters['status'])) {
+  if (isset($form_state['values']['filters']['status'])) {
     $choices =array_merge(array('All'=>t('All')),guifi_types('status'));
     $form['f']['status'] = array(
       '#type' => 'select',

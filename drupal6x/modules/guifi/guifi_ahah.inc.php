@@ -111,8 +111,13 @@ function guifi_ahah_select_device() {
     
   if ($cache) {
     $form = $cache->data;
-
-    $form['list-devices'] = 
+    
+    if ($action == 'guifi_node_distances') {
+      $node = guifi_node_load($_POST['filters']['from_node']);
+      $form['list-devices'] = 
+        guifi_node_distances_list($_POST['filters'],$node);
+    } else
+      $form['list-devices'] = 
         guifi_devices_select($_POST['filters'],$action);
           
     cache_set($cid, $form, 'cache_form', $cache->expire);
