@@ -376,7 +376,10 @@ function guifi_device_form($form_state, $params = array()) {
 //  guifi_form_hidden($form,$form_state['values']);
 
   if ($params['add'] != null){
-    drupal_set_title(t('adding a new device at %node',array('%node' => $node->nick)));
+    drupal_set_title(t('adding a new %device at %node',
+      array('%node' => $node->nick,
+            '%device' => $form_state['values']['type']
+           )));
   } else {
     drupal_set_title(t('edit device %dname',array('%dname' => $form_state['values']['nick'])));
   } 

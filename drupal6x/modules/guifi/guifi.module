@@ -269,7 +269,7 @@ function guifi_menu() {
    ); */
 
    // Devices menus
-   $items['guifi/device/add/%guifi_node/radio'] = array( 
+   $items['guifi/device/add/%guifi_node/%'] = array( 
      'title' => 'add device',
      'page callback' => 'guifi_device_add',
 //     'page arguments' => array(1),
