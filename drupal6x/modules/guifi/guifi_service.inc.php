@@ -257,20 +257,22 @@ function guifi_service_form(&$node, &$param) {
       break;
     case 'Proxy': case 'ADSL':
       $f['var']['down'] = array(
-        '#type' => 'textfield',
+        '#type' => 'select',
         '#title' => t('Download'),
         '#default_value' => $node->var['down'],
-        '#size' => 60,
-	    '#maxlength' => 60,
+        '#options'=>guifi_bandwidth_types(),
+//        '#size' => 60,
+//	      '#maxlength' => 60,
         '#description' => t('Download bandwidth')
       );
       //$specs .= form_textfield(t("Download"), "var][down", $node->var['down'], 60, 60, t('Download bandwidth'));
       $f['var']['up'] = array(
-        '#type' => 'textfield',
+        '#type' => 'select',
         '#title' => t('Upload'),
+        '#options'=>guifi_bandwidth_types(),
         '#default_value' => $node->var['up'],
-        '#size' => 60,
-        '#maxlength' => 60,
+//        '#size' => 60,
+//        '#maxlength' => 60,
         '#description' => t('Upload bandwidth')
       );
       //$specs .= form_textfield(t("Upload"), "var][up", $node->var['up'], 60, 60, t('Upload bandwidth'));
@@ -303,9 +305,8 @@ function guifi_service_form(&$node, &$param) {
       );
       //$specs .= form_textfield(t("Port"), "var][port", $node->var['port'], 60, 60, null);
       
-      $f['type'] = array(
+      $f['var']['type'] = array(
         '#type' => 'select',
-        '#id' => 'var][type',
         '#title' => t("Type"),
         '#default_value' => $node->var['type'],
         '#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP')
@@ -438,6 +439,8 @@ function guifi_service_insert($node) {
   $to_mail = explode(',',$node->contact);
   $node->extra = serialize($node->var);
 
+  guifi_log(GUIFILOG_TRACE,'function guifi_service_insert()',$node);
+
   $node->new = true;
   $nnode = _guifi_db_sql(
     'guifi_services',
@@ -459,7 +462,7 @@ function guifi_service_update($node) {
   $log = '';
   $to_mail = explode(',',$node->contact);
   
-  guifi_log(GUIFILOG_BASIC,'function guifi_service_update()',$node);
+  guifi_log(GUIFILOG_TRACE,'function guifi_service_update()',$node);
 
   $node->extra = serialize($node->var);
   $nnode = _guifi_db_sql(
