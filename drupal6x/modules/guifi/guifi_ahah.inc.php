@@ -410,6 +410,63 @@ function guifi_ahah_move_device() {
   exit;
 }
 
+function guifi_ahah_add_dns() {
+  $interfaces = $_POST['interfaces'];
+
+  // Build our new form element.
+  $free = guifi_get_free_interfaces($_POST['id'],$_POST);
+
+  $newI['interface_type'] = array_shift($free);
+  $newI['new'] = true;
+  $newI['unfold'] = true;
+  
+  $interfaces[] = $newI;
+  end($interfaces);
+  $delta = key($interfaces);
+  
+  $newI['interface_id'] = $delta;
+  
+//  guifi_log(GUIFILOG_TRACE,sprintf('add_interface %d',$delta),$newI);
+  
+  $form_element = 
+    guifi_interfaces_form($newI,array('interfaces',$delta));
+//  drupal_alter('form', $form_element, array(), 'guifi_ahah_add_interface');
+
+  // Build the new form.
+  $form_state = array('submitted' => FALSE);
+  $form_build_id = $_POST['form_build_id'];
+  // Add the new element to the stored form. Without adding the element to the
+  // form, Drupal is not aware of this new elements existence and will not
+  // process it. We retreive the cached form, add the element, and resave.
+  $form = form_get_cache($form_build_id, $form_state);
+//  $choice_form = $form['if']['interfaces']['ifs'];
+  $form['if']['interfaces']['ifs'][$newI['interface_type']][$delta] = $form_element;
+  form_set_cache($form_build_id, $form, $form_state);
+  $form += array(
+    '#post' => $_POST,
+    '#programmed' => FALSE,
+  );
+
+  // Rebuild the old form.
+  $form = form_builder('guifi_device_form', $form, $form_state);
+
+  // Render the new output.
+  $choice_form = $form['if']['interfaces']['ifs'];
+  unset($choice_form['#prefix'], $choice_form['#suffix']); // Prevent duplicate wrappers.
+  unset($choice_form[$newI['interface_type']][$delta]);
+  // build new form
+  $fs = array();
+  $form_element['#post'] = array();
+  $form_element = form_builder($form_element['form_id']['#value'] , $form_element, $fs);
+  $newfield = drupal_render($form_element);
+//  guifi_log(GUIFILOG_BASIC,sprintf('choice_form %d',$delta),htmlspecialchars($newfield));
+  $output = theme('status_messages') . drupal_render($choice_form) .
+    $newfield;
+
+  drupal_json(array('status' => TRUE, 'data' => $output));
+  exit;
+}
+
 function guifi_ahah_add_interface() {
   $interfaces = $_POST['interfaces'];
 

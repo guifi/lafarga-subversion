@@ -153,15 +153,16 @@ function guifi_service_form(&$node, &$param) {
   //$params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
   //$output .= guifi_form_column_group(t('General parameters'),$params,null);
   $node->var = unserialize($node->extra);
+  
+  if ($node->nid > 0)
   $f['var'] = array(
       '#type' => 'fieldset',
-      '#title' => $node->service_type.' '.t("variable settings"),
-      '#default_value' => $node->status_flag,
+      '#title' => $node->service_type.' '.t("settings"),
       '#tree'=>true,
       '#collapsible'=>true,
       '#collapsed'=>false
     );
-//  unset($specs);
+    
   if ($node->nid > 0)
   switch ($node->service_type) {
     case 'mail':
@@ -176,7 +177,6 @@ function guifi_service_form(&$node, &$param) {
         //'#tree'=> true,
         '#description' => t('Where email clients have to be configured for getting email messages')
       );
-      //$specs = form_textfield(t("Inbound mail server"), "var][in", $node->var['in'], 60, 60, t('Where email clients have to be configured for getting email messages'));
       $f['var']['out'] = array(
         '#type' => 'textfield',
         '#title' => t('Outbound mail server'),
@@ -186,7 +186,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['out'],
         '#description' => t('Where email clients have to be configured for sending email messages')
       );
-      //$specs .= form_textfield(t("Outbound mail server"), "var][out", $node->var['out'], 60, 60, t('Where email clients have to be configured for sending email messages'));
       $f['var']['webmail'] = array(
         '#type' => 'textfield',
         '#title' => t('Webmail url'),
@@ -196,7 +195,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['webmail'],
         '#description' => t('URL for accessing to this mail server, if there is')
       );
-      //$specs .= form_textfield(t("Webmail url"), "var][webmail", $node->var['webmail'], 60, 60, t('URL for accessing to this mail server, if there is'));
       $f['var']['admin'] = array(
         '#type' => 'textfield',
         '#title' => t('Admin web interface'),
@@ -206,7 +204,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['admin'],
         '#description' => t('Where to create/edit/delete users, change passwords, etc...')
       );
-      //$specs .= form_textfield(t("Admin web interface"), "var][admin", $node->var['admin'], 60, 60, t('Where to create/edit/delete users, change passwords, etc...'));
       break;
     case 'asterisk':
       $f['var']['prefix'] = array(
@@ -218,7 +215,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['prefix'],
         '#description' => t('Dial prefix for calling this server extensions')
       );
-      //$specs .= form_textfield(t("Dial prefix"), "var][prefix", $node->var['prefix'], 60, 60, t('Dial prefix for calling this server extensions'));
       $f['var']['incoming'] = array(
         '#type' => 'textfield',
         '#title' => t('Incoming calls'),
@@ -228,7 +224,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['incoming'],
         '#description' => t('Server or IP address where the calls have to be sent')
       );
-      //$specs .= form_textfield(t("Incoming calls"), "var][incoming", $node->var['incoming'], 60, 60, t('Server or IP address where the calls have to be sent'));
       $f['var']['protocols'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Protocols'),
@@ -236,7 +231,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['protocols'],
         '#options' => array('IAX'=>'IAX','SIP'=>'SIP')
       );
-      //$specs .= form_checkboxes(t("Protocols"), "var][protocols", $node->var['protocols'], array('IAX'=>'IAX','SIP'=>'SIP'));
       break;
     case 'NTP':
       $f['var']['ntp'] = array(
@@ -247,7 +241,6 @@ function guifi_service_form(&$node, &$param) {
         '#maxlength' => 60,
         '#default_value' => $node->var['ntp']
       );
-      //$specs .= form_textfield(t("IP address or hostname"), "var][ntp", $node->var['ntp'], 60, 60, null);
       break;
     case 'ftp':
       $f['var']['ftphost'] = array(
@@ -258,7 +251,6 @@ function guifi_service_form(&$node, &$param) {
         '#maxlength' => 60,
         '#default_value' => $node->var['ftphost']
       );
-      //$specs .= form_textfield(t("IP address or hostname"), "var][ftphost", $node->var['ftphost'], 60, 60, null);
       $f['var']['protocols'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Protocols'),
@@ -266,7 +258,6 @@ function guifi_service_form(&$node, &$param) {
         '#default_value' => $node->var['protocols'],
         '#options' => array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS')
       );
-      //$specs .= form_checkboxes(t("Protocols"), "var][protocols", $node->var['protocols'], array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS'));
       break;
     case 'Proxy': case 'ADSL':
       $f['var']['down'] = array(
@@ -274,32 +265,23 @@ function guifi_service_form(&$node, &$param) {
         '#title' => t('Download'),
         '#default_value' => $node->var['down'],
         '#options'=>guifi_bandwidth_types(),
-//        '#size' => 60,
-//	      '#maxlength' => 60,
         '#description' => t('Download bandwidth')
       );
-      //$specs .= form_textfield(t("Download"), "var][down", $node->var['down'], 60, 60, t('Download bandwidth'));
       $f['var']['up'] = array(
         '#type' => 'select',
         '#title' => t('Upload'),
         '#options'=>guifi_bandwidth_types(),
         '#default_value' => $node->var['up'],
-//        '#size' => 60,
-//        '#maxlength' => 60,
         '#description' => t('Upload bandwidth')
       );
-      //$specs .= form_textfield(t("Upload"), "var][up", $node->var['up'], 60, 60, t('Upload bandwidth'));
       if ($node->service_type == 'ADSL')
         break;
-      
       $f['var']['fed'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Proxy federation'),
         '#default_value' => $node->var['fed'],
         '#options' => array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys'))
       );
-      //$specs .= form_checkboxes(t("Proxy federation"), "var][fed", $node->var['fed'], array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys')));  
-      
       $f['var']['proxy'] = array(
         '#type' => 'textfield',
         '#title' => t("Name"),
@@ -307,8 +289,6 @@ function guifi_service_form(&$node, &$param) {
         '#size' => 60,
         '#maxlength' => 60,
       );
-      //$specs .= form_textfield(t("Name"), "var][proxy", $node->var['proxy'], 60, 60, null);
-      
       $f['var']['port'] = array(
         '#type' => 'textfield',
         '#title' => t("Port"),
@@ -316,15 +296,12 @@ function guifi_service_form(&$node, &$param) {
         '#size' => 60,
         '#maxlength' => 60,
       );
-      //$specs .= form_textfield(t("Port"), "var][port", $node->var['port'], 60, 60, null);
-      
       $f['var']['type'] = array(
         '#type' => 'select',
         '#title' => t("Type"),
         '#default_value' => $node->var['type'],
         '#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP')
       );
-      //$specs .= form_select(t("Type"), "var][type", $node->var['type'], array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP'), null);
       break;
     default:
       $f['contact'] = array(
@@ -333,50 +310,38 @@ function guifi_service_form(&$node, &$param) {
         '#size' => 60,
         '#maxlength' => 250,
         '#default_value' => $node->var['url'],
-        //      '#collapsible' => false,
-        //            '#tree'=> TRUE,
-        //'#description' => t("Who"),
       );
-      //$specs .= form_textfield(t("url"), "var][url", $node->var['url'], 60, 250, null);
       break;
   }
-  if (isset($specs))
-    $output .= form_group(t('Specific %type parameters',array('%type' => theme('placeholder',$type->description))),$specs,null);
 
-  unset($domains);
   if ($node->nid > 0)
   switch ($node->service_type) {
-  case 'mail': case 'DNS': 
-    $key = 0;
-    if (isset($node->var['domains']))  
-    if (count($node->var['domains']) > 0)  
-    foreach ($node->var['domains'] as $key => $domain)
-      if ($node->var['domains'][$key] != '')
-        $domains .= array(
+  case 'mail': case 'DNS':
+    $f['var']['domains'] = array(
+      '#type' => 'fieldset',
+      '#tree' => true,
+      '#collapsible' => false,
+      '#title' => t('Managed domains'),
+      //'#description' => t('Press "Preview" to get more rows'),
+    );
+    
+    $delta = 0;
+    if (count($node->var['domains']))
+    foreach ($node->var['domains'] as $delta => $domain)
+      if (!empty($domain))
+        $f['var']['domains'][$delta] = array(
           '#type' => 'textfield',
-          '#id' => 'var][domains]['.$key,
           '#size' => 60,
           '#maxlength' => 60,
-          '#default_value' => $node->var['domains'][$key],
+          '#default_value' => $domain,
         );
-	//$domains .= form_textfield(null, "var][domains][".$key, $node->var['domains'][$key], 60, 60, null);
     for ($i = 0; $i < 2; $i++)
-      $domains .= array(
+      $f['var']['domains'][$i + $delta + 1]= array(
         '#type' => 'textfield',
-        '#id' => 'var][domains]['.($i + $key + 1),
         '#size' => 60,
         '#maxlength' => 60,
       );
-      //$domains .= form_textfield(null, "var][domains][".($i + $key + 1), null, 60, 60, null);
   }
-  if (isset($domains))
-    $output .= array(
-      '#type' => 'group',
-      '#title' => t('Managed domains'),
-      //=> $domains;
-      '#description' => t('Press "Preview" to get more rows'),
-    );
-    //$output .= form_group(t('Managed domains'),$domains,t('Press "Preview" to get more rows'));
 
   unset($homepages);
   if ($node->nid > 0)
@@ -414,7 +379,7 @@ function guifi_service_form(&$node, &$param) {
     '#type' => 'textarea',
     '#title' => t('Body'),
     '#default_value' => $node->body,
-    '#description' => t('Textual description of the wifi') . ($error['body'] ? $error['body'] : ''),
+    '#description' => t('Description of the service'),
     '#cols' => 60,
     '#rows' => 20,
   );
@@ -422,7 +387,6 @@ function guifi_service_form(&$node, &$param) {
 
   return $f;
 }
-
 
 function guifi_service_nick_validate($element, &$form_state) { 
   if (empty($element['#value'])) {
@@ -476,7 +440,13 @@ function guifi_service_update($node) {
   
   guifi_log(GUIFILOG_TRACE,'function guifi_service_update()',$node);
 
+  if (isset($node->var['domains']))
+  foreach($node->var['domains'] as $k => $v)
+    if (empty($v))
+      unset($node->var['domains'][$k]);
+      
   $node->extra = serialize($node->var);
+  
   $nnode = _guifi_db_sql(
     'guifi_services',
     array('id'=>$node->id),
