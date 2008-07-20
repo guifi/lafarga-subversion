@@ -245,7 +245,7 @@ function guifi_edit_user_validate(&$edit) {
       $result = db_query("SELECT nick FROM {guifi_services} WHERE id = %d",$services['proxy']);
       $proxy_name = db_fetch_object($result);
     
-    form_set_error('username', t('The user ').$edit['username'].t(' is already taken on proxy:').' <a href="/node/'.$services['proxy'].'/">'.$proxy_name->nick.' (http://www.guifi.net/node/' .$services['proxy']. ').</a>'. t(' If the user is a different person, please write the name in this format: In the field "Firstname" type proxy_name.user_name and in the field "Lastname", just type the the lastname. Example: Firstname: ausa.pol , Lastname: sucarrats. The result will be the username: ausa.pol.sucarrats'));
+    form_set_error('username', t('The user ').$edit['username'].t(' is already taken on proxy:').' <a href="'.base_path().'node/'.$services['proxy'].'/">'.$proxy_name->nick.' (http://www.guifi.net/node/' .$services['proxy']. ').</a>'. t(' If the user is a different person, please write the name in this format: In the field "Firstname" type proxy_name.user_name and in the field "Lastname", just type the the lastname. Example: Firstname: ausa.pol , Lastname: sucarrats. The result will be the username: ausa.pol.sucarrats'));
       }
   }
 }

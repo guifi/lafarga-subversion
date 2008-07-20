@@ -1384,7 +1384,7 @@ function guifi_device_print_data($device) {
     $qgs = db_query(sprintf('SELECT nick FROM {guifi_services} WHERE id=%d',$device['graph_server']));
     $gs = db_fetch_object($qgs);
     if (!empty($gs->nick)) {
-      $graphtxt = '<a href="/node/'.$device['graph_server'].'">'.$gs->nick.'</a>';
+      $graphtxt = '<a href="'.base_path().'node/'.$device['graph_server'].'">'.$gs->nick.'</a>';
     } else
       $graphtxt = t('invalid');
   }
@@ -1552,8 +1552,8 @@ function guifi_device_links_print($device,$ltype = '%') {
         $from = '&nbsp';
 
       $wrow = array($from,array('data'=>$link_id,'align'=>'right'),
-                    '<a href="'.base_path().'/guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
-                    '<a href="'.base_path().'/node/'.$link['nid'].'">'.$loc2->nick.'</a>',
+                    '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
+                    '<a href="'.base_path().'node/'.$link['nid'].'">'.$loc2->nick.'</a>',
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                     array('data' => t($link['flag']).$img_url,
                           'class' => $link['flag']),
@@ -1583,7 +1583,7 @@ function guifi_device_links_print($device,$ltype = '%') {
         $img_url = NULL;
       $rows_cable[] = array($interface['interface_type'].'/'.$link['interface']['interface_type'],
                        array('data'=>$link_id,'align'=>'right'),
-                       '<a href="'.base_path().'/guifi/device/'.$link['device_id'].'">'.guifi_get_hostname($link['device_id']).'</a>',
+                       '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.guifi_get_hostname($link['device_id']).'</a>',
                        array('data'=>'-','align'=>'center'),
                        $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                        array('data' => t($link['flag']). $img_url,
@@ -1675,7 +1675,7 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
         else
           $dname = $loc2->device_nick;
 
-        $rows[] = array($loc1->id.'-'.$loc1->link_type.' ('.$loc1->itype.'-'.$loc2->itype.')','<a href="guifi/device/'.$loc2->device_id.'">'.$dname.'</a>',
+        $rows[] = array($loc1->id.'-'.$loc1->link_type.' ('.$loc1->itype.'-'.$loc2->itype.')','<a href="'.base_path().'guifi/device/'.$loc2->device_id.'">'.$dname.'</a>',
                      $loc1->ip.'/'.$loc2->ip,
                    array('data' => t($loc1->flag), 'class' => $loc1->flag),
                    array('data' => $gDist,'class' => 'number'),

@@ -398,7 +398,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'firmware', 'kamikaze',  'OpenWRT kamikaze','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'firmware', 'RouterOSv3.0', 'RouterOS 3.0 from Mikrotik','Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'firmware', 'AirOsv2.2.1', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5')");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'firmware', 'NanoStation', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5')");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('12', 'firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR','WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
 
   // --
@@ -677,6 +677,14 @@ function guifi_update_389() {
     $items[] = update_sql("UPDATE `guifi_types` SET `text` = 'AirOsv2.2.1' WHERE `id` =11 AND `type` = 'firmware'");
     $items[] = update_sql("DELETE FROM `guifi_manufacturer` WHERE `fid` = 0");
     $items[] = update_sql("DELETE FROM `guifi_model` WHERE `fid` = 0");
+return $items;
+}
+//
+// Database update from SVN revision 389
+//
+function guifi_update_406() {
+  $items = array();
+    $items[] = update_sql("UPDATE `guifi_types` SET `text` = 'NanoStation' WHERE `id` =11 AND `type` = 'firmware'");
 return $items;
 }
 

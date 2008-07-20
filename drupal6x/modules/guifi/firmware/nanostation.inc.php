@@ -12,8 +12,8 @@ function unsolclic_NanoStation($dev) {
 
   $ap_macs = array();
      foreach ($dev->radios[0]['interfaces'] as $interface_id => $interface) 
-     foreach ($interface[ipv4] as $ipv4_id => $ipv4) 
-     if (isset($ipv4[links])) foreach ($ipv4[links] as $key => $link) {
+     foreach ($interface['ipv4'] as $ipv4_id => $ipv4) 
+     if (isset($ipv4['links'])) foreach ($ipv4['links'] as $key => $link) {
        if ($link['link_type'] == 'ap/client') {
        $ap_macs[] = $link['interface']['mac'];
        
@@ -176,7 +176,7 @@ radio.1.tx_antenna=$radiotx
 ";
 
   fwrite($Handle, $Data);
-  print "<br/><a href='/files/nanostation/$dev->nick.cfg'> Click here to download configuration file for: $dev->nick </a><br />";
+  print '<br/><a href="'.base_path().'files/nanostation/'.$dev->nick.'.cfg"> Click here to download configuration file for: '.$dev->nick.' </a><br />';
   print 'Put the mouse cursor over the link. Right click the link and select "Save Link/Target As..." to save to your Desktop.<br /><br />';
   fclose($Handle);
 

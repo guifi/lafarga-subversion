@@ -695,6 +695,7 @@ function guifi_get_zone_parents($id) {
 **/
 function guifi_zone_ariadna($id = 0, $link = 'node/') {
   $ret = array();
+$ret[] = l(t('Home'), NULL);
   foreach (array_reverse(guifi_get_zone_parents($id)) as $parent) 
   if ($parent > 0) {
     $parentData = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
@@ -906,12 +907,12 @@ function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
         if (db_result($qdevices) > 0) 
           while ($radio = db_fetch_object($qdevices)) {
             if ($i == 0) 
-              $nnick = '<a href="node/'.$loc->id.'">'.$loc->nick.'</a>';
+              $nnick = '<a href="'.base_path().'node/'.$loc->id.'">'.$loc->nick.'</a>';
             else
               $nnick = null; 
             $i++;
 
-            $url_device = url('guifi/device/'.$radio->id, NULL, NULL, FALSE);
+            $url_device = url('guifi/device/'.$radio->id);
 
 
             $graph_url = guifi_radio_get_url_mrtg($radio->id,FALSE);

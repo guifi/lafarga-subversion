@@ -36,13 +36,13 @@ function guifi_graph_detail() {
   $help = t('Here you have a detailed view of the available information for several periods of time (daily, weekly, monthly and yearly). You can obtain a detailed graph for a given period of time by entering the period in the boxes below.');
   switch ($type) {
     case 'clients':
-      $title = '<a href="/guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href=node/'.$radio->nid.'>'.$radio->title.'</a>';
+      $title = '<a href="'.base_path().'guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
       $args = sprintf('<img src="%s?type=clients&node=%d&radio=%d&direction=%s',$server_mrtg,$radio->nid,$_GET['radio'],$_GET['direction']);
       $help .= '<br />'.t('The clients graph show the top clients by transit.');
       break;
     case 'supernode':
       $zid = $node->zone_id;
-      $title = '<a href=node/'.$_GET['node'].'>'.$node->title.'</a>';
+      $title = '<a href='.base_path().'node/'.$_GET['node'].'>'.$node->title.'</a>';
       $args = sprintf('<img src="%s?type=supernode&node=%d&direction=%s',$server_mrtg,$_GET['node'],$_GET['direction']);
       $help .= '<br />'.t('Supernode graph show the transif of each radio.');
       break;
@@ -52,7 +52,7 @@ function guifi_graph_detail() {
       if ($type != 'radio')
         $help= '<br />'.t('The ping graph show the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
       $args = sprintf('<img src="%s?type=%s&node=%d&radio=%d',$server_mrtg,$_GET['type'],$radio->nid,$_GET['radio']);
-      $title = $radio->nick.' '.t('at').' '.'<a href=node/'.$radio->nid.'>'.$radio->title.'</a>';
+      $title = $radio->nick.' '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
       break;
   }
 
@@ -271,16 +271,16 @@ function guifi_device_graph_overview($radio) {
       if (db_result($query) > 1)  // several clients, Totals In & Out	
       { 
         $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
-        $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
-        $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$radio['id']));
+        $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
+        $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$radio['id']));
       } 
       else 
       {
         $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
-        $rows[] = array('<a href=guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
+        $rows[] = array('<a href='.base_path().'guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
       }
       $args = sprintf('type=pings&node=%d&radio=%d',$radio['nid'],$radio['id']);
-      $rows[] = array('<a href=guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
+      $rows[] = array('<a href='.base_path().'guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
       return array_merge($rows);
     }
 

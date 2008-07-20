@@ -642,7 +642,7 @@ function guifi_node_print_data($node) {
     $qgs = db_query(sprintf('SELECT nick FROM {guifi_services} WHERE id=%d',$node->graph_server));
     $gs = db_fetch_object($qgs);
     if (!empty($gs->nick)) 
-      $graphtxt = '<a href=/node/'.$node->graph_server.'>'.$gs->nick.'</a>';
+      $graphtxt = '<a href='.base_path().'node/'.$node->graph_server.'>'.$gs->nick.'</a>';
     else
       $graphtxt = t('invalid');
   }
@@ -903,7 +903,7 @@ function guifi_node_distances_map($node) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
     $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight'),'align'=>'center'));
-    $rows[] = array(array('data'=>'<img id="profile" src="/modules/guifi/js/marker_start.png" />','align'=>"center"));
+    $rows[] = array(array('data'=>'<img id="profile" src="'.drupal_get_path('module', 'guifi').'/js/marker_start.png" />','align'=>"center"));
     $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
     $output = theme('table',null,$rows);
     $output .=  '<form>' .
@@ -1278,10 +1278,10 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
           else
             $dname = $loc2->device_nick;
            
-          $linkname = $loc1->id.'-'.'<a href=node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href=guifi/device/'.$loc2->device_id.'>'.$dname.'</a>)';
+          $linkname = $loc1->id.'-'.'<a href='.base_path().'node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$dname.'</a>)';
         }
         else
-          $linkname = $loc1->id.'-'.'<a href=guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href=guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
+          $linkname = $loc1->id.'-'.'<a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
 
         $graph_url = guifi_node_get_url_mrtg($id,FALSE);
         if ($graph_url != NULL)
@@ -1291,7 +1291,7 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
 
         if ($devant != $devact) {
           $devant = $devact;
-          $rows[] = array(array('data'=> '<b><a href=/guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
+          $rows[] = array(array('data'=> '<b><a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
         }
         $rows[] = array($linkname,
                      $loc1->ip.'/'.$loc2->ip, 
