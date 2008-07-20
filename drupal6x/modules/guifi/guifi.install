@@ -92,7 +92,7 @@ function guifi_schema() {
          'miny' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
          'maxx' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
          'maxy' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not null' => FALSE),
-         'local' => array('comment'=>'Res, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
+         'local' => array('comment'=>'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
          'nodexchange_url' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
          'refresh' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11'),
          'remote_server_id' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
@@ -473,41 +473,42 @@ function guifi_install() {
   // --
   // -- Time zones
   // --
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'channel','0','Auto 2.4GHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'channel','1','1.- 2412 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'channel','2','2-. 2417 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'channel','3','3.- 2422 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'channel','4','4.- 2422 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'channel','5','5.- 2432 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('7', 'channel','6','6.- 2437 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'channel','7','7.- 2442 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'channel','8','8.- 2447 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'channel','9','9.- 2452 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'channel','10','10.- 2457 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('12', 'channel','11','11.- 2462 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('13', 'channel','12','12.- 2467 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('14', 'channel','13','13.- 2472 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('15', 'channel','14','14.- 2477 MHz','802.11b|802.11g|802.11n');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('16', 'channel','5000','Auto 5GHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('17', 'channel','5180','1.- 5180 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('18', 'channel','5200','2.- 5200 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('19', 'channel','5220','3.- 5220 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('20', 'channel','5240','4.- 5240 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('21', 'channel','5260','5.- 5260 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('22', 'channel','5280','6.- 5280 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('23', 'channel','5300','7.- 5300 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('24', 'channel','5320','8.- 5320 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('25', 'channel','5500','9.- 5500 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('26', 'channel','5520','10.- 5520 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('27', 'channel','5540','11.- 5540 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('28', 'channel','5560','12.- 5560 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('29', 'channel','5580','13.- 5580 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('30', 'channel','5600','14.- 5600 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('31', 'channel','5620','15.- 5620 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('32', 'channel','5640','16.- 5640 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('33', 'channel','5660','17.- 5660 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('34', 'channel','5680','18.- 5680 MHz','802.11a');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('35', 'channel','5700','19.- 5700 MHz','802.11a');");
+  db_query("DELETE FROM `guifi_types` WHERE `type` = 'channel'");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'channel','0','Auto 2.4GHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'channel','1','1.- 2412 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'channel','2','2-. 2417 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'channel','3','3.- 2422 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'channel','4','4.- 2422 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'channel','5','5.- 2432 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('7', 'channel','6','6.- 2437 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'channel','7','7.- 2442 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'channel','8','8.- 2447 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'channel','9','9.- 2452 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'channel','10','10.- 2457 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('12', 'channel','11','11.- 2462 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('13', 'channel','12','12.- 2467 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('14', 'channel','13','13.- 2472 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('15', 'channel','14','14.- 2477 MHz','802.11b|802.11g|802.11abg|802.11bg|802.11g+|802.11n');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('16', 'channel','5000','Auto 5GHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('17', 'channel','5180','1.- 5180 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('18', 'channel','5200','2.- 5200 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('19', 'channel','5220','3.- 5220 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('20', 'channel','5240','4.- 5240 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('21', 'channel','5260','5.- 5260 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('22', 'channel','5280','6.- 5280 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('23', 'channel','5300','7.- 5300 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('24', 'channel','5320','8.- 5320 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('25', 'channel','5500','9.- 5500 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('26', 'channel','5520','10.- 5520 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('27', 'channel','5540','11.- 5540 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('28', 'channel','5560','12.- 5560 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('29', 'channel','5580','13.- 5580 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('30', 'channel','5600','14.- 5600 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('31', 'channel','5620','15.- 5620 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('32', 'channel','5640','16.- 5640 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('33', 'channel','5660','17.- 5660 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('34', 'channel','5680','18.- 5680 MHz','802.11a|802.11abg');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('35', 'channel','5700','19.- 5700 MHz','802.11a|802.11abg');");
 
   // --
   // -- Routing methods
@@ -525,7 +526,7 @@ function guifi_install() {
   // -- 
   // -- Volcant dades de la taula guifi_manufacturer
   // -- 
-  db_query("INSERT INTO guifi_manufacturer VALUES (0, 'Other', null);");
+  db_query("INSERT INTO guifi_manufacturer VALUES (99, 'Other', null);");
   db_query("INSERT INTO guifi_manufacturer VALUES (1, 'D-Link', 'http://www.dlink.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (2, 'Linksys', 'http://www.linksys.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (3, 'Conceptonic', 'http://www.conceptronic.net/');");
@@ -541,7 +542,7 @@ function guifi_install() {
   // -- 
   // -- guifi_model
   // -- 
-  db_query("INSERT INTO guifi_model VALUES (0, 0, 'Other', NULL, 1, NULL, '802.11a/b/g', 'Si', 'No', 'Si', 'Si', 'Si', NULL, NULL, 'Si', 'Si', NULL, NULL, NULL, 'wLan/Lan', NULL, 'To be used for unknown or not listed devices', 'Yes'); ");
+  db_query("INSERT INTO guifi_model VALUES (99, 99, 'Other', NULL, 1, NULL, '802.11a/b/g', 'Si', 'No', 'Si', 'Si', 'Si', NULL, NULL, 'Si', 'Si', NULL, NULL, NULL, 'wLan/Lan', NULL, 'To be used for unknown or not listed devices', 'Yes'); ");
   db_query("INSERT INTO guifi_model VALUES (1, 2, 'WRT54Gv1-4', 'Extern', 1, 251, '802.11b/g', 'Si', 'No', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT...','Yes');");
   db_query("INSERT INTO guifi_model VALUES (2, 4, 'USR5450', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-5450&page=overview&loc=span', 'suporta snmp, 108...','Deprectated');");
   db_query("INSERT INTO guifi_model VALUES (3, 4, 'USR8054', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'No', 'No', 'No', 'RP-SMA', '2', 'Si', 'Si', 'No', 'Si', 'No', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-8054&page=overview&loc=span', 'suporta snmp, 108...','Deprecated');");
@@ -589,9 +590,23 @@ function guifi_update_1() {
     $items[] = update_sql("ALTER TABLE `guifi_model`
                            CHANGE `mid` `mid` INT( 11 ) NOT NULL AUTO_INCREMENT ,
                            CHANGE `model` `model` VARCHAR( 40 ) NOT NULL DEFAULT '' ,
+                           CHANGE `tipus` `tipus` VARCHAR( 10 ) NULL COMMENT 'Extern, PCI, PCMCIA' ,
                            CHANGE `radiodev_max` `radiodev_max` TINYINT( 2 ) NOT NULL DEFAULT '1' ,
+                           CHANGE `modes` `modes` VARCHAR( 20 ) NOT NULL DEFAULT '802.11b/g' COMMENT '802.11b/g,802.11b,802.11a,802.11a/b/g,WiMax,802.11n' ,
+                           CHANGE `AP` `AP` VARCHAR( 5 ) NULL COMMENT 'Yes, No' ,
+                           CHANGE `virtualAP` `virtualAP` VARCHAR( 5 ) NOT NULL DEFAULT 'no' COMMENT 'Yes, No' ,
+                           CHANGE `WDS` `WDS` VARCHAR( 5 ) NULL COMMENT 'Si,No,Hack' ,
+                           CHANGE `bridge` `bridge` VARCHAR( 5 ) NULL COMMENT 'Si,No,Hack' ,
+                           CHANGE `client` `client` VARCHAR( 5 ) NULL COMMENT 'Si,No,Hack' ,
+                           CHANGE `antenes` `antenes` VARCHAR( 5 ) NULL DEFAULT '2' COMMENT '2,1,0' ,
+                           CHANGE `router` `router` VARCHAR( 5 ) NULL DEFAULT NULL COMMENT 'Si,No' ,
+                           CHANGE `firewall` `firewall` VARCHAR( 5 ) NULL DEFAULT NULL COMMENT 'Si,No' ,
+                           CHANGE `QoS` `QoS` VARCHAR( 5 ) NULL DEFAULT NULL COMMENT 'Si,No,Hack' ,
+                           CHANGE `snmp` `snmp` VARCHAR( 5 ) NULL DEFAULT NULL COMMENT 'Si,No,Hack' ,
+                           CHANGE `hack` `hack` VARCHAR( 5 ) NULL DEFAULT NULL COMMENT 'Si,No' ,
                            CHANGE `interfaces` `interfaces` VARCHAR( 240 ) NULL ,
                            CHANGE `supported` `supported` VARCHAR( 25 ) NOT NULL DEFAULT 'Yes'");
+
     $items[] = update_sql("ALTER TABLE `guifi_location`
                            CHANGE `nick` `nick` VARCHAR(40) NOT NULL DEFAULT '',
                            CHANGE `contact` `notification` VARCHAR( 1024 ) NOT NULL,
@@ -622,7 +637,8 @@ function guifi_update_1() {
                            CHANGE `nid` `nid` INT( 11 ) NOT NULL ,
                            CHANGE `model_id` `model_id` INT( 10 ) NOT NULL ,
                            CHANGE `ssid` `ssid` VARCHAR( 20 ) NOT NULL DEFAULT '',
-                           CHANGE `antmode` `antmode` VARCHAR( 5 ) NOT NULL");
+                           CHANGE `antmode` `antmode` VARCHAR( 5 ) NOT NULL ,
+                           CHANGE `clients_accepted` `clients_accepted` VARCHAR( 5 ) NULL DEFAULT 'Yes' COMMENT 'Yes,No'");
     $items[] = update_sql("ALTER TABLE `guifi_services`
                            CHANGE `nick` `nick` VARCHAR( 40 ) NOT NULL DEFAULT '' ,
                            CHANGE `service_type` `service_type` VARCHAR( 40 ) NOT NULL DEFAULT ''");
@@ -639,8 +655,8 @@ function guifi_update_1() {
     $items[] = update_sql("ALTER TABLE `guifi_zone`
                            CHANGE `title` `title` VARCHAR( 255 ) NOT NULL DEFAULT '',
                            CHANGE `image` `image` VARCHAR( 255 ) NOT NULL DEFAULT '',
-                           CHANGE `notification` `notification` VARCHAR( 1024 ) NOT NULL");
-
+                           CHANGE `notification` `notification` VARCHAR( 1024 ) NOT NULL ,
+                           CHANGE `local` `local` VARCHAR( 5 ) NULL DEFAULT 'Yes' COMMENT 'Yes,No'");
 
 
 // Update node/type fileds with the new types
@@ -659,8 +675,8 @@ function guifi_update_389() {
 
     $items[] = update_sql("UPDATE `guifi_types` SET `relations` = 'WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|NanoStation2|NanoStation5' WHERE `id` =8 AND `type` = 'firmware'");
     $items[] = update_sql("UPDATE `guifi_types` SET `text` = 'AirOsv2.2.1' WHERE `id` =11 AND `type` = 'firmware'");
-    $items[] = update_sql("INSERT INTO guifi_manufacturer VALUES (11, 'Meraki', 'http://meraki.com')");
-    $items[] = update_sql("INSERT INTO guifi_model VALUES (30, 11, 'Meraki/Fonera', 'Extern', 1, 60, '802.11/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://meraki.com', NULL,'Yes')");  
+    $items[] = update_sql("DELETE FROM `guifi_manufacturer` WHERE `fid` = 0");
+    $items[] = update_sql("DELETE FROM `guifi_model` WHERE `fid` = 0");
 return $items;
 }
 
