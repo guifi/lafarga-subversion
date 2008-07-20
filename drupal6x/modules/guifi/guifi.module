@@ -405,6 +405,13 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
+    $items['guifi/js/select-server/%'] = array(
+      'title' => 'Javascript Select Server',
+      'page callback' => 'guifi_ahah_select_server',
+      'page_arguments'=>array(1),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
     $items['guifi/js/move-device/%'] = array(
       'title' => 'Javascript Move Device',
       'page callback' => 'guifi_ahah_move_device',

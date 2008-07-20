@@ -87,10 +87,11 @@ function guifi_service_form(&$node, &$param) {
   $f['nick'] = array(
     '#type' => 'textfield',
     '#title' => t('Nick'),
-    '#required' => true,
+    '#required' => false,
     '#size' => 20,
     '#maxlength' => 20,
     '#default_value' => $node->nick,
+    '#element_validate' => array('guifi_service_nick_validate'),
     '#collapsible' => false,
     '#tree'=> true,
     '#description' => t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only."),
@@ -101,7 +102,7 @@ function guifi_service_form(&$node, &$param) {
   $f['contact'] = array(
     '#type' => 'textfield',
     '#title' => t('Contact'),
-    '#required' => true,
+    '#required' => false,
     '#size' => 60,
     '#maxlength' => 128,
     '#default_value' => $node->contact,
@@ -112,11 +113,14 @@ function guifi_service_form(&$node, &$param) {
   //$output .= form_textfield(t("Contact"), "contact", $node->contact, 60, 128, t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page.") . ($error['contact'] ? $error["contact"] : ''));
 ////  $output .= form_select(t('Zone'), 'zone_id', $node->zone_id, guifi_zones_listbox(), t('The zone where this node where this node belongs to.'));
 
-  $f['device_id'] = array(
-    '#type' => 'select',
+  $f['server'] = array(
+    '#type' => 'textfield',
     '#title' => t("Device"),
-    '#default_value' => $node->device_id,   // $radio["antenna_angle"],
-    '#options' => guifi_servers_select(), // guifi_ahah_select_device(), //guifi_servers_select(),//guifi_types('antenna'),
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#default_value' => guifi_server_descr($node->device_id),
+    '#element_validate' => array('guifi_servername_validate'),
+    '#autocomplete_path'=> 'guifi/js/select-server',
     '#description' => t('Where it runs.'),
   );
   //$params .= guifi_form_column(form_select(t('Device'), "device_id", $node->device_id, guifi_servers_select(),t('Where it runs.')));
@@ -419,23 +423,22 @@ function guifi_service_form(&$node, &$param) {
   return $f;
 }
 
-/**
- * Confirm that an edited guifi item has fields properly filled in.
- */
-function guifi_edit_service_validate(&$node) {
-  guifi_validate_nick($node->nick);
 
-  if (!empty($node->nick)) { 
-    $query = db_query("SELECT nick FROM {guifi_services} WHERE lcase(nick)='%s' AND id <> %d",strtolower($node->nick),$node->nid);
-    if (db_num_rows($query))
-      form_set_error('nick', t('Nick already in use.'));
+function guifi_service_nick_validate($element, &$form_state) { 
+  if (empty($element['#value'])) {
+    $nick = guifi_abbreviate($form_state['values']['title']);
+    drupal_set_message(t('Service nick has been set to:').' '.$nick);
+    $form_state['values']['nick'] = $nick;
+    
+    return;
   }
+  guifi_validate_nick($element['#value']);
 
-  if ($node->device_id > 0) {
-    $zone = db_fetch_object(db_query("SELECT zone_id FROM {guifi_location} l LEFT JOIN {guifi_devices} d ON d.nid=l.id WHERE d.id=%d",$node->device_id));
-    $node->zone_id = $zone->zone_id;
+  $query = db_query("SELECT nick FROM {guifi_services} WHERE lcase(nick)='%s' AND id <> %d",
+    strtolower($element['#value']),$form_state['values']['nid']);
+  if (db_result($query)){
+    form_set_error('nick', t('Nick already in use.'));
   }
-
 }
 
 /**

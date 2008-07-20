@@ -200,14 +200,17 @@ function guifi_url($url,$text = null) {
   return '<a href="'.$url.'">'.$text.'</a>';
 }
 
-function guifi_servers_select() {
-  $query = db_query("SELECT d.id, d.nick FROM {guifi_devices} d WHERE d.type IN ('server','cam')");
+function guifi_server_descr($did) {
+  $query = db_query("SELECT CONCAT(d.id,'-',z.nick,', ',l.nick,' ',d.nick) descr " .
+      "FROM {guifi_devices} d, {guifi_location} l, {guifi_zone} z " .
+      "WHERE d.id=%d " .
+      " AND d.type IN ('server','cam') ".
+      " AND d.nid=l.id" .
+      " AND l.zone_id=z.id",
+      $did);
 
-  $var[0] = t('Not assigned');
-  while ($device = db_fetch_object($query)) {
-    $var[$device->id] = $device->nick;
-  } 
-  return $var;
+  $server = db_fetch_object($query);
+  return $server->descr;
 }
 
 /***
@@ -1612,6 +1615,35 @@ function guifi_mac_validate($mac,&$form_state) {
   }
     
   return $mac;
+}
+
+function guifi_servername_validate($serverstr,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+    
+  if ($serverstr['#value'] == t('Not assigned')){
+    $form_state['values']['device_id']='';    
+    $form_state['values']['zone_id']='';    
+    return;
+  }
+  
+  $sid = explode('-',$serverstr['#value']);
+  $qry = db_query(
+    'SELECT d.id,l.zone_id ' .
+    'FROM {guifi_devices} d, {guifi_location} l ' .
+    'WHERE d.id="%d" ' .
+    ' AND d.nid=l.id '.
+    ' AND d.type IN ("cam","server") ',
+    $sid[0]);
+  while ($server = db_fetch_array($qry)) {
+    $form_state['values']['device_id']=$server['id'];
+    $form_state['values']['zone_id']=$server['zone_id'];
+    return $serverstr;
+  }
+  form_error($serverstr,
+    t('Server name %name not valid.',array('%name'=>$serverstr['#value'])),'error');
+
+  return $serverstr;
 }
 
 function guifi_nodename_validate($nodestr,&$form_state) {

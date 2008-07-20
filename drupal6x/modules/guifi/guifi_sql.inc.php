@@ -51,6 +51,7 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
         $next_id['id'] = 1;
       $data['id'] = $next_id['id'];
   case 'guifi_zone':
+  case 'guifi_services':
   case 'guifi_location':
       $data['user_created'] = $user->id;
       $data['timestamp_created'] = time();
@@ -87,6 +88,7 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
     case 'guifi_zone':
     case 'guifi_location':
     case 'guifi_devices':
+    case 'guifi_services':
       $data['user_changed'] = $user->uid;
       $data['timestamp_changed'] = time();
     // TODO: update node status here

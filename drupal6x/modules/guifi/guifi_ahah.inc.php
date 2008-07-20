@@ -50,6 +50,34 @@ function guifi_ahah_render_field($field){
   exit;
 }
 
+function guifi_ahah_select_server(){
+  $matches = array();
+  
+  $string = arg(3);
+  
+  $qry = db_query('SELECT ' .
+                  '  CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) str '. 
+                  'FROM {guifi_devices} d, {guifi_location} l, {guifi_zone} z ' .
+                  'WHERE d.type IN ("server","cam") ' .
+                  '  AND d.nid=l.id AND l.zone_id=z.id ' .
+                  '  AND ((CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) LIKE "%'.
+                       $string.'%")'.
+                  '  OR (l.id like "%'.$string.'%"'.
+                  '  OR l.nick like "%'.$string.'%"'.
+                  '  OR d.nick like "%'.$string.'%"'.
+                  '  OR z.nick like "%'.$string.'%"))'
+                 );
+  $c = 0;
+  $na = t('Not assigned');
+  $matches[$na] = $na;
+  while (($value = db_fetch_array($qry)) and ($c < 50)) {
+    $c++;
+    $matches[$value['str']] = $value['str'];
+  }
+  print drupal_to_js($matches);
+  exit();
+}
+
 function guifi_ahah_select_node(){
   $matches = array();
   
