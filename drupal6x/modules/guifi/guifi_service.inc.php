@@ -74,6 +74,15 @@ function guifi_service_form(&$node, &$param) {
      '#description' => t($type->description),
     );
     //$output = form_item(t('Service type'),$node->service_type,t($type->description));
+    
+    
+  $f['title']['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight'=>0
+  );
   
   $f['nick'] = array(
     '#type' => 'textfield',
