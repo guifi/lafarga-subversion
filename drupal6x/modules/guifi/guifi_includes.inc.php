@@ -548,6 +548,20 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#ahah' => $ahah,
     '#weight' => $fweight++
   );
+    if (isset($form_state['values']['filters']['sn']))
+  $form['f']['sn'] = array(
+    '#type' => 'checkbox',
+    '#parents'=>array('filters','sn'),
+    '#title' => t('Only Supernodes'),
+    '#size' => 1,
+    '#maxlength' => 1,
+    '#default_value' => $form_state['values']['filters']['sn'],
+    '#description' => t("Search only for supernodes?"),
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+    '#ahah' => $ahah,
+    '#weight' => $fweight++
+  );
   if (isset($form_state['values']['filters']['status'])) {
     $choices =array_merge(array('All'=>t('All')),guifi_types('status'));
     $form['f']['status'] = array(

@@ -938,6 +938,7 @@ function guifi_node_distances_form($form_state,$node) {
   // default values
   $filters = array(
     'dmin'   => 0,
+    'sn' => 1,
     'dmax'   => 30,
     'search' => null,
     'max'    => 25,
@@ -979,6 +980,7 @@ function guifi_node_distances_list($filters,$node) {
 //  $filters = $form_state['values']['filters'];  
 
   // get the nodes and compute distances
+/***  
   $result = db_query(
       "SELECT " .
         "n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id  " .
@@ -989,7 +991,10 @@ function guifi_node_distances_list($filters,$node) {
         "AND (n.lat != 0 " .
         "AND n.lon != 0)",
       $node->id);
+***/
 
+  $result = db_query("SELECT n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id, count(*) radios FROM {guifi_location} n LEFT JOIN {guifi_radios} r ON n.id = r.nid WHERE n.id !=%d AND (n.lat != '' AND n.lon != '')AND (n.lat != 0 AND n.lon != 0) GROUP BY 1",$node->id);
+  
   $oGC = new GeoCalc();
   $nodes = array();
   $rows = array();
@@ -1014,6 +1019,8 @@ function guifi_node_distances_list($filters,$node) {
      $distance = round($oGC->EllipsoidDistance($lat1, $long1, $node["lat"], $node["lon"]),3);
 
      // Apply filters
+     if ( $filters['sn'] and $node["radios"] < 2) continue;
+     
      if ($distance <=  $filters['dmax'])
      if ($distance >=  $filters['dmin'])
      if (($filters['status'] == 'All') or ($filters['status'] == $node['status_flag'])) 
