@@ -418,6 +418,12 @@ function guifi_menu() {
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
+    $items['guifi/js/mfield/%'] = array(
+      'title' => 'Javascript Add Choices to Multiple-field',
+      'page callback' => 'guifi_ahah_add_choices',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
     $items['guifi/js/add-interface'] = array(
       'title' => 'Javascript Add Interface',
       'page callback' => 'guifi_ahah_add_interface',

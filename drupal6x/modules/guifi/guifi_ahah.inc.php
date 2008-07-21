@@ -410,27 +410,35 @@ function guifi_ahah_move_device() {
   exit;
 }
 
-function guifi_ahah_add_dns() {
-  $interfaces = $_POST['interfaces'];
+function guifi_ahah_add_choices() {
+  $fname = arg(3);
+  
+  function _locate_fname(&$var,$fname) {
+    foreach ($var as $k=>$v) {
+      if ($k == $fname)
+        return $var[$k];    
+      if (is_array($var[$k]))
+        $ret = _locate_fname($var[$k],$fname);
+      if ($ret != null)
+        return $ret;
+    }
+    return null;
+  }
+  
+  // locate the field name
+  $field = _locate_fname($_POST,$fname);
+  
+  if ($field == null)
+    return;
 
   // Build our new form element.
-  $free = guifi_get_free_interfaces($_POST['id'],$_POST);
+  $delta = count($field);
 
-  $newI['interface_type'] = array_shift($free);
-  $newI['new'] = true;
-  $newI['unfold'] = true;
-  
-  $interfaces[] = $newI;
-  end($interfaces);
-  $delta = key($interfaces);
-  
-  $newI['interface_id'] = $delta;
-  
-//  guifi_log(GUIFILOG_TRACE,sprintf('add_interface %d',$delta),$newI);
-  
-  $form_element = 
-    guifi_interfaces_form($newI,array('interfaces',$delta));
-//  drupal_alter('form', $form_element, array(), 'guifi_ahah_add_interface');
+  $form_element = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#maxlength' => 60,
+  );  
 
   // Build the new form.
   $form_state = array('submitted' => FALSE);
@@ -439,8 +447,8 @@ function guifi_ahah_add_dns() {
   // form, Drupal is not aware of this new elements existence and will not
   // process it. We retreive the cached form, add the element, and resave.
   $form = form_get_cache($form_build_id, $form_state);
-//  $choice_form = $form['if']['interfaces']['ifs'];
-  $form['if']['interfaces']['ifs'][$newI['interface_type']][$delta] = $form_element;
+  $mfieldform = _locate_fname($form,$fname);
+  $mfieldform[$delta] = $form_element;
   form_set_cache($form_build_id, $form, $form_state);
   $form += array(
     '#post' => $_POST,
@@ -448,19 +456,18 @@ function guifi_ahah_add_dns() {
   );
 
   // Rebuild the old form.
-  $form = form_builder('guifi_device_form', $form, $form_state);
+  $form = form_builder('guifi_service_form', $form, $form_state);
 
   // Render the new output.
-  $choice_form = $form['if']['interfaces']['ifs'];
-  unset($choice_form['#prefix'], $choice_form['#suffix']); // Prevent duplicate wrappers.
-  unset($choice_form[$newI['interface_type']][$delta]);
+  $mfieldform = _locate_fname($form,$fname);
+  unset($mfieldform['#prefix'], $mfieldform['#suffix']); // Prevent duplicate wrappers.
+  unset($mfieldform[$delta]);
   // build new form
   $fs = array();
   $form_element['#post'] = array();
   $form_element = form_builder($form_element['form_id']['#value'] , $form_element, $fs);
   $newfield = drupal_render($form_element);
-//  guifi_log(GUIFILOG_BASIC,sprintf('choice_form %d',$delta),htmlspecialchars($newfield));
-  $output = theme('status_messages') . drupal_render($choice_form) .
+  $output = theme('status_messages') . drupal_render($mfieldform) .
     $newfield;
 
   drupal_json(array('status' => TRUE, 'data' => $output));

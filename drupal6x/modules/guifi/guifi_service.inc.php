@@ -314,67 +314,28 @@ function guifi_service_form(&$node, &$param) {
       break;
   }
 
+
+  // multiple fields
+  $delta = 0;  
   if ($node->nid > 0)
   switch ($node->service_type) {
   case 'mail': case 'DNS':
-    $f['var']['domains'] = array(
-      '#type' => 'fieldset',
-      '#tree' => true,
-      '#collapsible' => false,
-      '#title' => t('Managed domains'),
-      //'#description' => t('Press "Preview" to get more rows'),
-    );
-    
-    $delta = 0;
-    if (count($node->var['domains']))
-    foreach ($node->var['domains'] as $delta => $domain)
-      if (!empty($domain))
-        $f['var']['domains'][$delta] = array(
-          '#type' => 'textfield',
-          '#size' => 60,
-          '#maxlength' => 60,
-          '#default_value' => $domain,
-        );
-    for ($i = 0; $i < 2; $i++)
-      $f['var']['domains'][$i + $delta + 1]= array(
-        '#type' => 'textfield',
-        '#size' => 60,
-        '#maxlength' => 60,
-      );
-  }
-
-  unset($homepages);
-  if ($node->nid > 0)
-  switch ($node->service_type) {
+    $f['var']['domains'] =
+      guifi_service_multiplefield($node->var['domains'],'domains',
+        t('Managed domains'));
+    break; 
   case 'web':
-    $key = 0;
-    if (isset($node->var['homepages']))  
-    if (count($node->var['homepages']) > 0)  
-    foreach ($node->var['homepages'] as $key => $homepage)
-      if ($node->var['homepages'][$key] != '')
-        $homepages .= form_textfield(null, "var][homepages][".$key, $node->var['homepages'][$key], 60, 60, null);
-    for ($i = 0; $i < 2; $i++)
-      $homepages .= form_textfield(null, "var][homepages][".($i + $key + 1), null, 60, 60, null);
+    $f['var']['homepages'] =
+      guifi_service_multiplefield($node->var['homepages'],'homepages',
+        t('URL pointing to the website homepage'));
+    break; 
+  case 'irc':
+    $f['var']['irc'] =
+      guifi_service_multiplefield($node->var['irc'],'irc',
+        t('IRC server hostname'));
+    break; 
   }
-  if (isset($homepages))
-    $output .= form_group(t('Homepages'),$homepages,t('Press "Preview" to get more rows'));
-
-  unset($ircservers);
-  if ($node->nid > 0)
-  switch ($node->service_type) {
-  case 'irc': 
-    $key = 0;
-    if (isset($node->var['irc']))  
-    if (count($node->var['irc']) > 0)  
-    foreach ($node->var['irc'] as $key => $irc)
-      if ($node->var['irc'][$key] != '')
-        $ircservers .= form_textfield(null, "var][irc][".$key, $node->var['irc'][$key], 60, 60, null);
-    for ($i = 0; $i < 2; $i++)
-      $ircservers .= form_textfield(null, "var][irc][".($i + $key + 1), null, 60, 60, null);
-  }
-  if (isset($ircservers))
-    $output .= form_group(t('IRC servers'),$ircservers,t('Press "Preview" to get more rows'));
-
+  
   $f['body'] = array(
     '#type' => 'textarea',
     '#title' => t('Body'),
@@ -385,6 +346,45 @@ function guifi_service_form(&$node, &$param) {
   );
   //$output .= form_textarea(t("Body"), "body", $node->body, 60, 20, t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''));
 
+  return $f;
+}
+
+function guifi_service_multiplefield($field, $fname, $descr) {
+  $f = array(
+    '#type' => 'fieldset',
+    '#tree' => true,
+    '#collapsible' => false,
+    '#title' => $descr,
+    '#prefix' => '<div id="mfield-'.$fname.'">',
+    '#suffix' => '</div>'
+  );
+  if (count($field))
+    foreach ($field as $delta => $value)
+    if (!empty($value))
+      $f[$delta] = array(
+        '#type' => 'textfield',
+        '#size' => 60,
+        '#maxlength' => 60,
+        '#default_value' => $value,
+      );
+  for ($i = 0; $i < 2; $i++)
+    $f[$i + $delta + 1]= array(
+      '#type' => 'textfield',
+      '#size' => 60,
+      '#maxlength' => 60,
+    );
+  $f['more'] = array(
+    '#type'=>'image_button',
+    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
+    '#attributes'=>array('title'=>t('Add more choices')), 
+    '#ahah' => array(
+      'path' => 'guifi/js/mfield/'.$fname,
+      'wrapper' => 'mfield-'.$fname,
+      'method' => 'replace',
+      'effect' => 'fade',
+    )
+  );
+    
   return $f;
 }
 
@@ -433,6 +433,13 @@ function guifi_service_insert($node) {
 // Refresh maps?
 }
 
+function guifi_service_multiplefield_clean(&$mfield) {
+  if (!empty($mfield))
+    foreach($mfield as $k=>$value)
+      if (empty($value))
+        unset($mfield[$k]);
+}
+
 function guifi_service_update($node) {
   global $user;
   $log = '';
@@ -440,10 +447,9 @@ function guifi_service_update($node) {
   
   guifi_log(GUIFILOG_TRACE,'function guifi_service_update()',$node);
 
-  if (isset($node->var['domains']))
-  foreach($node->var['domains'] as $k => $v)
-    if (empty($v))
-      unset($node->var['domains'][$k]);
+  guifi_service_multiplefield_clean($node->var['domains']);
+  guifi_service_multiplefield_clean($node->var['homepages']);
+  guifi_service_multiplefield_clean($node->var['irc']);
       
   $node->extra = serialize($node->var);
   
