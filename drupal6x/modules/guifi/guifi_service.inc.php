@@ -34,6 +34,7 @@ function guifi_service_load($node) {
     $k = $node;
   
   $node = db_fetch_object(db_query("SELECT * FROM {guifi_services} WHERE id = '%d'", $k));
+  $node->var = unserialize($node->extra);
 
   if (!$node->id == null)
     return $node;
@@ -44,9 +45,11 @@ function guifi_service_load($node) {
 /**
  * Present the guifi zone editing form.
  */
-function guifi_service_form(&$node, &$param) {
+function guifi_service_form($node, $param) {
   
   global $user;
+  
+  guifi_log(GUIFILOG_TRACE,'guifi_service_form()',$node);
   
  // $f = guifi_form_hidden_var($node,array('id'));
 
@@ -65,7 +68,6 @@ function guifi_service_form(&$node, &$param) {
     '#type'=>'hidden',
     '#value'=>$node->id
   );
-
   $type = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type='service' AND text='%s'",$node->service_type));
   if ($node->nid > 0)
     $f['service_type'] = array(
@@ -152,7 +154,7 @@ function guifi_service_form(&$node, &$param) {
     );
   //$params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
   //$output .= guifi_form_column_group(t('General parameters'),$params,null);
-  $node->var = unserialize($node->extra);
+  // $node->var = unserialize($node->extra);
   
   if ($node->nid > 0)
   $f['var'] = array(
@@ -355,35 +357,37 @@ function guifi_service_multiplefield($field, $fname, $descr) {
     '#tree' => true,
     '#collapsible' => false,
     '#title' => $descr,
-    '#prefix' => '<div id="mfield-'.$fname.'">',
-    '#suffix' => '</div>'
+//    '#prefix' => '<div id="mfield-'.$fname.'">',
+//    '#suffix' => '</div>',
+    '#description' => t('Save or press "Preview" to get more entries')
   );
   if (count($field))
     foreach ($field as $delta => $value)
     if (!empty($value))
-      $f[$delta] = array(
+      $f[] = array(
         '#type' => 'textfield',
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $value,
       );
   for ($i = 0; $i < 2; $i++)
-    $f[$i + $delta + 1]= array(
+    $f[] = array(
       '#type' => 'textfield',
       '#size' => 60,
       '#maxlength' => 60,
     );
-  $f['more'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
-    '#attributes'=>array('title'=>t('Add more choices')), 
-    '#ahah' => array(
-      'path' => 'guifi/js/mfield/'.$fname,
-      'wrapper' => 'mfield-'.$fname,
-      'method' => 'replace',
-      'effect' => 'fade',
-    )
-  );
+//  $f[99] = array(
+//    '#type'=>'image_button',
+//    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
+//    '#attributes'=>array('title'=>t('Add more choices')),
+//    '#prefix'=>'</div>', 
+//    '#ahah' => array(
+//      'path' => 'guifi/js/mfield/'.$fname,
+//      'wrapper' => 'mfield-'.$fname,
+//      'method' => 'replace',
+//      'effect' => 'fade',
+//    )
+//  );
     
   return $f;
 }
