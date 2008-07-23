@@ -145,11 +145,11 @@ function guifi_user_reset_password($edit) {
 /**
  * Get user information 
 **/
-function guifi_get_user($id) {
+function guifi_user_load($id) {
 
-  $item = db_fetch_object(db_query('SELECT * FROM {guifi_users} WHERE id = %d', $id));
-  $item->services = unserialize($item->services);
-  $item->vars = unserialize($item->extra);
+  $item = db_fetch_array(db_query('SELECT * FROM {guifi_users} WHERE id = %d', $id));
+  $item['services'] = unserialize($item['services']);
+  $item['vars'] = unserialize($item['extra']);
 
   return $item;
 }
@@ -207,6 +207,131 @@ function guifi_edit_user_form($edit) {
   return form($form);
 }
 
+function guifi_user_form($form_state, $params = array()) {
+  _user_password_dynamic_validation();
+  
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_form()',$form_state);
+  
+  guifi_validate_js("#guifi-user-form");
+
+  if (empty($form_state['values'])) {
+    if (is_numeric($params)) 
+      $form_state['values'] = guifi_user_load($params);
+    else
+      $form_state['values'] = $params;
+  }  
+  
+  $f['firstname'] = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#title' => t('Firstname'),
+    '#required' => TRUE,
+    '#attributes' => array('class'=>'required'),
+    '#default_value' => $form_state['values']['firstname'],
+    '#description' => t('The real user name (Firstname), ' .
+        'will be used while building the username.<br>' .
+        'If username results duplicated, add more words ' .
+        '(i.e. middle initial).<br>' .
+        'Please enter real data, if fake information is entered, ' .
+        'administrators might <strong>remove</strong> this user')
+  );
+  $f['lastname'] = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#title' => t('Lastname'),
+    '#required' => TRUE,
+    '#attributes' => array('class'=>'required'),
+    '#default_value' => $form_state['values']['lastname'],
+    '#description' => t('The real user name (Lastname).')
+  );
+  if (!empty($form_state['values']['username']))
+    $f['username'] = array(
+      '#type' => 'item',
+      '#value' => $form_state['values']['username'],
+      '#description' => t('The resulting username.')
+    );
+  $f['node'] = array(
+    '#type'=>'textfield',
+    '#title'=>t('Node'),
+    '#maxlength'=>60,
+    '#default_value'=>$form_state['values']['nid'].'-'.
+        guifi_get_zone_nick(guifi_get_zone_of_node(
+          $form_state['values']['nid'])).', '.
+        guifi_get_nodename($form_state['values']['nid']),
+    '#autocomplete_path'=> 'guifi/js/select-node',
+    '#element_validate' => array('guifi_nodename_validate'),
+    '#description'=>t('Select the node where the user is.<br>' .
+        'You can find the node by introducing part of the node id number, ' .
+        'zone name or node name. A list with all matching values ' .
+        'with a maximum of 50 values will be created.<br>' .
+        'You can refine the text to find your choice.')
+  );
+  $f['nid'] = array(
+    '#type'=>'hidden',
+    '#value'=> $form_state['values']['nid'],
+  );
+  $f['pass'] = array(
+    '#type' => 'password_confirm',
+    '#description' => t('To change the current user password, enter the new password in both fields.'),
+    '#size' => 25,
+  );
+  $f['email'] = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#maxlength' => 1024,
+    '#title' => t('contact'),
+    '#required' => TRUE,
+    '#element_validate' => array('guifi_emails_validate'),
+    '#default_value' => $form_state['values']['email'],
+    '#description' =>  t('Mailid where changes on this user will be notified, ' .
+        'if many, separated by \',\'<br />' .
+        'Also where the user can be contacted.')
+  );
+  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
+  
+  return $f;
+
+
+  $cpwd = form_password(t('Old password'), 'old_pwd', $edit['old_pwd'], 60, 128, t('The current password for this user. Mandatory to submit any change'), NULL, TRUE);
+  $cpwd .= form_submit(t('Reset password'));
+  if (($edit['id'] > 0) and (user_access('administer guifi users') == false))
+    $form.= form_group(t('Validate current password'),$cpwd,null);
+  
+  $fpwd = form_password(t('New password'), 'pwd1', $edit['pwd1'], 60, 128, t('New password, if wants to change it'), NULL, TRUE);
+  $fpwd .= form_password(t('Confirm'), 'pwd2', $edit['pwd2'], 60, 128, t('Retype the new password'), NULL, TRUE);
+  $form.= form_group(t('Set password'),$fpwd,null);
+
+  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
+    $form .= form_select(t('Proxy'), 'services][proxy', $edit['services']['proxy'], $proxy_list, t('The proxy where this user has default acces to.'));
+  else {
+    $form .= form_hidden('services][proxy',$edit['services']['proxy']);
+    $form .= form_item(t('Proxy'),$proxy_list[$edit['services']['proxy']]);
+  }
+
+  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_created']));
+  if ($edit['user_changed'] > 0)
+    $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_changed']));
+
+  $form .= form_item(t('Created by'),$name_created->name.' '.t('at').' '.format_date($edit['timestamp_created']));
+  if ($edit['user_changed'] > 0)
+    $form .= form_item(t('Modified by'),$name_changed->name.' '.t('at').' '.format_date($edit['timestamp_changed']));
+
+  $form .= form_hidden('user_created',$edit['user_created']);
+  $form .= form_hidden('user_changed',$edit['user_changed']);
+  $form .= form_hidden('timestamp_created',$edit['timestamp_created']);
+  $form .= form_hidden('timestamp_changed',$edit['timestamp_changed']);
+
+  $form .= form_submit(t('Submit'));
+  $form .= form_submit(t('Delete user'));
+
+  $form .= form_hidden('id', $edit['id']);
+  $form .= form_hidden('password', $edit['password']);
+  $form .= form_hidden('username', $edit['username']);
+
+}
+
 /**
  * Confirm that an edited user fields properly filled in.
  */
@@ -250,65 +375,119 @@ function guifi_edit_user_validate(&$edit) {
   }
 }
 
+function guifi_users_node_list($node) {
+  $output = drupal_get_form('guifi_users_node_list_form',$node);
+  
+  // To gain space, save bandwith and CPU, omit blocks
+  print theme('page', $output, FALSE);
+}
+
 /**
  * outputs the user information data
 **/
-function guifi_node_list_users($node) {
-
-  if (is_numeric(arg(1))) {
-    $node = node_load(arg(1));
-  }
-
-  $op=$_POST['op'];
+function guifi_users_node_list_form($form_state, $params = array()) {
   global $user;
   $owner = $user->uid;
 
-  if (!empty($op)) {
-    $edit=$_POST['edit'];
-    if ((empty($edit['user_checked'])) and ($op == t('Edit selected')))
-      form_set_error('',t('You must select a user checkbox for editing it'));
+  guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list_form()',$form_state);
+
+  if (empty($form_state['values'])) {
+    if (is_numeric($params)) 
+      $node = node_load($params);
     else
-      return guifi_edit_user($edit['user_checked']);
+      $node = $params;
   }
+    
+//  $form_state['#redirect'] = FALSE;
+
+//  if (!empty($op)) {
+//    $edit=$_POST['edit'];
+//    if ((empty($edit['user_checked'])) and ($op == t('Edit selected')))
+//      form_set_error('',t('You must select a user checkbox for editing it'));
+//    else
+//      return guifi_edit_user($edit['user_checked']);
+//  }
 
   if ($node->type == 'guifi_node') {
-    $query = db_query("SELECT id, firstname, lastname, username, services FROM {guifi_users} WHERE nid = %d ORDER BY lastname, firstname",$node->nid);
+    $query = db_query(
+      "SELECT id, firstname, lastname, username, services " .
+      "FROM {guifi_users} " .
+      "WHERE nid = %d " .
+      "ORDER BY lastname, firstname",
+      $node->nid);
   } else
-    $query = db_query("SELECT id, firstname, lastname, username, services FROM {guifi_users} ORDER BY lastname, firstname");
+    $query = db_query(
+      "SELECT id, firstname, lastname, username, services " .
+      "FROM {guifi_users} " .
+      "ORDER BY lastname, firstname");
 
   $rows[] = array();
   $num_rows = FALSE;
+  
+  $f = array(
+    '#type'=> 'fieldset',
+    '#collapsible' => false,
+    '#title' => t('Users')
+  );
 
-    while ($guser = db_fetch_object($query)) {
-      $services = unserialize($guser->services);
-      if ($node->type == 'guifi_service') {
-        if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
-          continue;
-      }
+  $options = array();
 
-      if (!empty($guser->lastname))
-        $realname = $guser->lastname.', '.$guser->firstname;
-      else
-        $realname = $guser->firstname;
-     $rows[] = array(('*** TODO *** FORM RADIO<br />'),     
-//$rows[] = array(form_radio('','user_checked',$guser->id),
-                      $realname,
-                      $guser->username);
-    $num_rows = TRUE;
-    } 
-  if ($num_rows) {
-    $output = '<h2>' .t('Users of') .' ' .$node->title.'</h2>';
-    $output .= theme('table', array(null,t('real name'),t('username')), array_merge($rows),null);
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')) or ($node->uid == $owner))
-//    $output .= form_button(t('Edit selected'), 'op');
-    $output .= '*** TODO *** BUTTON EDIT SELECTED<br />';
-  } else {
-    $output = '<h2>'.t('There is no users to list at').' '.$node->title.'</h2>';
+  while ($guser = db_fetch_object($query)) {
+    $services = unserialize($guser->services);
+    if ($node->type == 'guifi_service') {
+      if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
+        continue;
+    }
+    if (!empty($guser->lastname))
+      $realname = $guser->lastname.', '.$guser->firstname;
+    else
+      $realname = $guser->firstname;
+    
+    $options[$guser->id] = $realname.' ('.$guser->username.')';
+    if (!isset($default_user))
+      $default_user = $guser->id;
   }
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
-//    $output .= form_button(t('Add user'), 'op');
-    $output .= '*** TODO *** BUTTON ADD USER<br />';
-  return $output;
+  
+  if (count($options)) {
+    $f['user_id'] = array(
+      '#type'=>'radios',
+      '#title'=>t('Users @') .' ' .$node->title,
+      '#options'=>$options,
+      '#default_value'=>$default_user
+    );
+    if ((user_access('administer guifi users')) or (user_access('manage guifi users')) or ($node->uid == $owner))
+      $f['editUser'] = array(
+        '#type'=>'submit',
+        '#value'=>t('Edit selected user')
+      );
+  } else
+    $f['empty'] = array(
+      '#type'=> 'item',
+      '#title'=> t('There are no users to list at').' '.$node->title
+    ); 
+    if ((user_access('administer guifi users')) or (user_access('manage guifi users')) or ($node->uid == $owner))
+      $f['addUser'] = array(
+        '#type'=>'submit',
+        '#value'=>t('Add user')
+      );
+  return $f;
+}
+
+function guifi_users_node_list_form_submit($form, &$form_state) {
+  guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list_form_submit()',$form_state);  
+  
+  switch ($form_state['clicked_button']['#value']) {
+    case t('Edit selected user'):
+      if (empty($form_state['values']['user_id'])) {
+        drupal_set_message(t('You must select a user from the list'));
+        break;
+      }
+      print theme('page', 
+        drupal_get_form('guifi_user_form',$form_state['values']['user_id']), 
+        FALSE);
+      break;
+    case t('Add user'):
+  }
 }
 
 

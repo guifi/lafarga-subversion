@@ -216,9 +216,9 @@ function guifi_menu() {
      'type' => MENU_LOCAL_TASK
    );
        //if ($node->service_type == 'Proxy') {
-   $items['node/%guifi_service/view/susers'] = array( 
+   $items['node/%/view/users'] = array( 
      'title' => 'users',
-     'page callback' => 'guifi_node_list_users',
+     'page callback' => 'guifi_users_node_list',
      'page arguments' => array(1),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
