@@ -1,99 +1,174 @@
 <?php
 // $Id: budgets.module x$
 
+
+
+
+
+
+
+
+
+include_once("budgets_semi_todo.inc.php");
+include_once("budgets_todo.inc.php");
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * @file
  * allow to create budgets, allocated to projects, and then collect funds for them
  */
 
 /**
- * Implementation of node hooks.
- */
-
-function budgets_menu($may_cache) {
+* Implementation of hook_menu().
+*/
+function budgets_menu() {
   $items = array();
-
-  if ($may_cache) {
-
-    $items[] = array('path' => 'node/add/budgets', 'title' => t('budget'),
-      'access' => user_access('create budgets'));
-
-    // budgets module menus
-    $items[] = array('path' => 'budgets', 'title' => t('budget and funding'),
-      'callback' => 'budgets_page',
-      'access' => user_access('access content'),
-      'type' => MENU_SUGGESTED_ITEM);
-
-  }
-  else {
-    $items[] = array(
-      'path' => 'admin/settings/budgets',
-      'title' => t('Budgets'),
-      'description' => t('Administer Budget defaults.'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('budgets_admin_settings'),
-      'access' => user_access('administer site configuration'),
+   
+    $items['admin/settings/budgets'] = array(
+      'title' => 'Budgets',
+      'description' => 'Administer Budget defaults.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('budgets_admin_settings'),
+      'access arguments' => array('access administration pages'),
       'type' => MENU_NORMAL_ITEM);
-     
-    $items[] = array('path' => 'budgets', 'title' => t('budget and funding'),
-      'callback' => 'budgets_page',
-      'access' => user_access('access content'),
+  
+    $items['budgets'] = array(
+      'title' => 'budget and funding',
+      'page callback' => 'budgets_page',
+      'access callback' => 'user_access',
+      'access arguments' => array('access content'),
       'type' => MENU_SUGGESTED_ITEM);
-
-    if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(arg(1));
-
-      // budget menus
-      if (($node->nid) && ($node->type == 'budgets')) {
-        $items[] = array('path' => 'node/'. arg(1) .'view', 'title' => t('view'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
+    $items['node/%budgets/view/page'] = array(
+          'title' => 'page',
+          'page callback' => 'budgets_view',
+          'page arguments' => array(1),
+          'access callback' => 'user_access',
+          'access arguments' => array('access content'),
+          'weight' => -9,
           'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/all', 'title' => t('all'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => -10,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/page', 'title' => t('page'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 1,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/items', 'title' => t('budget details'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 2,
-          'type' => MENU_LOCAL_TASK);
-        $items[] = array('path' => 'node/'. arg(1) .'/view/funds', 'title' => t('funds report'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 3,
-          'type' => MENU_LOCAL_TASK);
-        if ($node->budget_status == 'Open')
-        $items[] = array('path' => 'node/'. arg(1) .'/view/contribute', 'title' => t('make your donation'),
-          'callback' => 'budgets_view',
-          'callback arguments' => arg(1),
-          'access' => user_access('access content'),
-          'weight' => 4,
+    $items['node/%budgets/view/items'] = array(
+          'title' => 'budget details',
+          'page callback' => 'budgets_view',
+          'page arguments' => array(1),
+          'access callback' => 'user_access',
+          'access arguments' => array('access content'),
+          'weight' => -8,
           'type' => MENU_LOCAL_TASK);
 
-      }
-    }
-  }
+    $items['node/%budgets/view/funds'] = array( 
+          'title' => 'funds report',
+          'page callback' => 'budgets_view',
+          'page arguments' => array(1),
+          'access callback' => 'user_access',
+          'access arguments' => array('access content'),
+          'weight' => -7,
+          'type' => MENU_LOCAL_TASK);
 
-  drupal_add_css(drupal_get_path('module', 'budgets') .'/budgets.css');
-
+     $items['node/%budgets/view/contribute'] = array( 
+          'title' => 'make your donation',
+          'page callback' => 'budgets_view',
+          'page arguments' => array(1),
+          'access callback' => 'user_access',
+          'access arguments' => array('access content'),
+          'weight' => -6,
+          'type' => MENU_LOCAL_TASK);
+      
   return $items;
 }
 
+/**
+* Implementation of hook_init().
+*/
+function budgets_init() {
+  drupal_add_css(drupal_get_path('module', 'budgets') .'/budgets.css');
+}
 
-function _budgets_variable($var) {
+/**
+* Implementation of hook_node_info().
+*/
+function budgets_node_info() {
+  return array(
+    'budgets' => array(
+      'name' => 'Budget',
+      'module' => 'budgets',
+      'description' => t('Create a budget. A budget is an itemized project with allocated due costs. Therefore, contributors can donate funds to it.'),
+    )
+  );
+}
+
+/**
+* Implementation of hook_perm().
+*/
+function budgets_perm() {
+  return array('administer budgets', 'create budgets');
+}
+
+/**
+* Implementation of hook_access().
+*/
+function budgets_access($op, $node) {
+
+  switch($op) {
+    case 'create':
+      return user_access('create budgets');
+    case 'update':
+      if ($node->type == 'budget') {
+        if ((user_access('administer budgets')) || ($node->uid == $user->uid)) {
+          return TRUE;
+        }
+        else {
+          return FALSE;
+        }
+      }
+      else {
+        return user_access('create budgets');
+      }
+  }
+}
+
+/**
+ * Implementation of hook_help().
+ */
+function budgets_help($path, $arg) {
+  switch ($path) {
+    case 'node/add#budgets':
+      return t("<p>Create a budget. A budget is an itemized project with allocated due costs. Therefore, contributors can donate funds to it.</p>");
+  }
+}
+
+/**
+ * Implementation of hook_link().
+ */
+ 
+function budgets_link($type, $node = 0, $main) {
+  $links = array();
+
+  if (($node->type == 'budgets') and ($node->budget_status == 'Open')) {
+    $links[] = 
+               array(
+               'title' => t('make your donation'),
+               'href'=> 'node/'. $node->nid.'/view/contribute',
+               'attributes'=>array(
+               'title' => t('make your donation to this project')
+               ));
+  }      
+  return $links;
+}
+
+/**
+* Implementation of hook_variable().
+*/
+function budgets_variable($var) {
 
   $payment_default = t("
 To contribute to this budget, please allocate your desired contribution and:
@@ -102,7 +177,8 @@ To contribute to this budget, please allocate your desired contribution and:
 <li>... or if you wish, make a money transfer to the account EEEE OOOO DD CCCCCC specifying clearly your name for validation purposes.</li>
 </ul>
 Your contribution will be in 'Submitted' status. Once is verified, the promoter will update the status of your contibution to <i>'Approved'<i/> if accepts it, <i>'Declined'</i> if for any reason this contribution can't be acceped, or <i>'Paid'</i> to confirm that the money has arrived.");
-  $terms_default = t("<ol>
+  
+$terms_default = t("<ol>
 <li>An open project budget may change without advice depending in how many funds is receiving. Contributors may ask for a return of their funds if they not agree with those changes.</li>
 <li>Once a budget is closed, promoters are responsible to execute it, and contributors are not longer allowed to ask for a return.</li>
 <li>Promoters are not liable for the results of the project, just for spending the funds in a similar way as described in the budget.</li>
@@ -117,44 +193,9 @@ Your contribution will be in 'Submitted' status. Once is verified, the promoter 
       return variable_get($var, $terms_default);
   }
 }
-
 /**
- * Implementation of hook_help().
- */
-function budgets_help($section) {
-  switch ($section) {
-    case 'admin/modules#description':
-      return t('Manage the guifi.net, a mesh network community.');
-    case 'admin/guifi':
-      return t('<p>Select an operation from the menus to manage zones.</p>');
-    case 'admin/guifi/zone/add':
-      return t('<p>Enter de zone information.</p>');
-    case 'node/add#budgets':
-      return t("<p>Create a budget. A budget is an itemized project with allocated due costs. Therefore, contributors can donate funds to it.</p>");
-  }
-}
-
-/**
- * Implementation of hook_link().
- */
-function budgets_link($type, $node = 0, $main) {
-  $links = array();
-
-  if (($node->type == 'budgets') and ($node->budget_status == 'Open')) {
-    $links[] = l(t('make your donation'), 'node/'. $node->nid .'/view/contribute', array('title' => t('make your donation to this project')));
-  }
-  return $links;
-}
-
-/** Implementation of hook_perm(). */
-function budgets_perm() {
-  return array('administer budgets', 'create budgets');
-}
-
-function _budget_expires_list() {
-  return array('1w' => t('One week'), '2w' => t('Two weeks'), '1m' => t('One month'), '2m' => t('Two months'), '1q' => t('One quarter'), '4m' => t('4 months'), '1h' => t('Half year'), '1y' => t('One year'));
-}
-
+* Implementation of hook_admin_seetings().
+*/
 function budgets_admin_settings() {
   global $user;
 
@@ -174,7 +215,7 @@ function budgets_admin_settings() {
   $form['budget_payment'] = array(
     '#type' => 'textarea', 
     '#title' => t('Default payment instructions'), 
-    '#default_value' => _budgets_variable("budget_payment"), 
+    '#default_value' => budgets_variable("budget_payment"),
     '#cols' => 60, 
     '#rows' => 10, 
     '#description' => t("Default text for payment instructions."),
@@ -184,7 +225,7 @@ function budgets_admin_settings() {
   $form['budget_terms'] = array(
     '#type' => 'textarea', 
     '#title' => t('Default terms & conditions'), 
-    '#default_value' => _budgets_variable("budget_terms"), 
+    '#default_value' => budgets_variable("budget_terms"),
     '#cols' => 60, 
     '#rows' => 10, 
     '#description' => t("Default text for budget 'Terms & Conditions' box."),
@@ -195,8 +236,8 @@ function budgets_admin_settings() {
     '#type' => 'select',
     '#title' => t('Default expiration'),
     '#required' => FALSE,
-    '#default_value' => variable_get("guifi_notify_period", 86400),
-    '#options' => array(variable_get("budget_expires", 12), _budget_expires_list()),
+    '#default_value' => variable_get("budget_expires", '1h'),
+    '#options' => _budget_expires_list(),
     '#description' => t('By default, how many weeks the budget will expire (closed if not covered)'),
     '#weight' => $form_weight++,
   );
@@ -205,7 +246,7 @@ function budgets_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Default currency text'),
     '#required' => FALSE,
-    '#default_value' => variable_get("budget_currency_symbol", "â‚¬"),
+    '#default_value' => variable_get("budget_currency_symbol", "€"),
     '#size' => 5,
     '#maxlength' => 5,
     '#description' => t('By default, currency symbol'),
@@ -233,253 +274,105 @@ function budgets_admin_settings() {
     '#description' => t('By default, minimum amount of each single contribution'),
     '#weight' => $form_weight++,
   );
+  $form['budget_maximum'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default maximum contribution'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("budget_maximum", "50000"),
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#description' => t('By default, maximum amount of each single contribution'),
+    '#weight' => $form_weight++,
+  );
 
   return system_settings_form($form);
 }
 
-
-//function budgets_system($field){
-//  $system["description"] = t("Budgets & Fundings");
-//  return $system[$field];
-//}
-
-
-function budgets_node_types() {
-  $types = array();
-  $types[] = 'budgets';
-  return $types;
-}
-
-function budgets_node_name($node) {
-  if (!empty($node->title))
-  return t('budget: %title', array('%title' => theme('placeholder', $node->title )));
-  return t('budget');
-}
-
-function budgets_block($op = "list", $delta = 0) {
-  if ($op == "list") {
+/**
+* Implementation of hook_block().
+*/
+function budgets_block($op = "list", $delta = 0, $edit = array()) {
+ switch ($op) {
+    case 'list':
     $blocks[0]["info"] = variable_get("budget_block_title", t("Open budgets"));
     return $blocks;
+
+  case 'configure':
+    $form['items'] = array(
+      '#type' => 'select',
+      '#title' => t('Number of items'),
+      '#default_value' => variable_get('budgets_block_items', 0),
+      '#options' => array('1', '2', '3'),
+    );
+    return $form;
+    case 'save':
+    variable_set('budgets_block_items', $edit['items']);
+    
+  case 'view':
+    switch($delta) {
+      case 0:
+    $block['subject'] = variable_get('budget_block_title', t("budgets"));
+    $block['content'] = budgets_display_block_1($content);
+        break;
+    }
+    return $block;
   }
-  else {
-    $block['subject'] = variable_get("budget_block_title", "<a href=\"budgets\">" .t("budgets") ."</a>");
+}
+
+function budgets_display_block_1() {
     $content .= t("Help raising the green bars with your donations!") ."<br />";
     $qbudgets = db_query("SELECT n.nid, title, currency_symbol FROM {budgets} b, {node} n WHERE n.nid=b.nid AND budget_status = 'Open' ORDER BY changed DESC");
     while ($budget = db_fetch_object($qbudgets)) {
-      $content .= '<div>&middot;&nbsp;<a href="node/' .$budget->nid .'">' .$budget->title .'</a></div>';
+      $content .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->nid .'">' .$budget->title .'</a></div>';
       $t = db_fetch_object(db_query("SELECT sum(quantity * cost) amount FROM {budget_items} WHERE nid = %d", $budget->nid));
       $s = db_fetch_object(db_query("SELECT sum(amount) amount FROM {budget_funds} WHERE fund_status != 'Declined' AND nid = %d", $budget->nid));
       $content .= budgets_bar($t->amount,$s->amount,$budget->currency_symbol);
     }
     $content .= '<div style="text-align: right;">' .l(t('view all open projects'), 'budgets') .'</div>';
-    $block['content'] = $content;
-    return $block;
-  }
+    return $content;
 }
 
-
-function budgets_access($op, $node) {
-  global $user;
-
-  switch($op) {
-    case 'create':
-      return user_access("create budgets");
-    case 'update':
-      if ($node->type == 'budget') {
-        if ((user_access('administer budgets')) || ($node->uid == $user->uid)) {
-          return TRUE;
-        }
-        else {
-          return FALSE;
-        }
-      }
-      else {
-        return user_access("create budgets");
-      }
-  }
-}
-
+/**
+* Implementation of hook_load().
+*/
 function budgets_load($node) {
-  $budget = db_fetch_object(db_query("SELECT * FROM {budgets} WHERE nid = '%d'", $node->nid));
-  $budget->txtexpire = date('Y-n-j', $budget->expires);
-  $budget->zones = explode(',', $budget->guifi_zones);
-  $qitems = db_query("SELECT * FROM {budget_items} WHERE nid = '%d' ORDER BY weight, item_id", $node->nid);
-  $budget->total = 0;
-  while ($item = db_fetch_array($qitems)) {
-    $budget->items[] = $item;
-    $budget->total = $budget->total + ($item['quantity'] * $item['cost']);
-  }
-  $budget->next_fund = 1;
-  $budget->covered = 0;
-  $qfunds = db_query("SELECT * FROM {budget_funds} WHERE nid = '%d' ORDER BY fund_id", $node->nid);
-  while ($fund = db_fetch_array($qfunds)) {
-    if ($budget->next_fund <= $fund['fund_id'])
-    $budget->next_fund = $fund['fund_id'] + 1;
-    if ($fund['fund_status'] != 'Declined')
-    $budget->covered = $budget->covered + $fund['amount'];
-    $budget->funds[] = $fund;
-  }
+  if (is_object($node))
+    $k = $node->nid;
+  else
+    $k = $node;
+  $node = db_fetch_object(db_query("SELECT * FROM {budgets} WHERE nid = '%d'", $k));
 
-  return $budget;
-}
-
-function budgets_edit_form($node) {
-
-  $output = '<div class="extras">';
-  $output .= form_group(t('General'),
-  form_select(t("Status"), "budget_status", $node->budget_status, array('Preparation' => t('Preparation'), 'Open' => t('Open'), 'Closed' => t('Closed')), null).
-  form_textfield(t("Expiration"), "txtexpire", $node->txtexpire, 10, 10, t('Date when this budget will expire (format: YYYY-MM-YY)')));
-  $output .= form_group(t('Currency'),
-  form_textfield(t('Text'), "currency_txt", $node->currency_txt, 10, 10, t('abbreviation')).
-  form_textfield(t('Symbol'), "currency_symbol", $node->currency_symbol, 5, 5));
-  $output .= form_group(t('Contributions'),
-  form_textfield(null, "min_contribution", $node->min_contribution, 10, 10, t('Under this amount, contributions will not be accepted')));
-  $output .= "</div>\n";
-   
-  
-  // List all budget items.
-  if( is_array($node->items) && !empty($node->items)) {
-    $nocomponents = count($node->items);
-
-    // sorting array by weight
-    foreach ($node->items as $item_id => $item)
-    $items_sorted[$item_id] = $item['weight'];
-    asort($items_sorted);
-
-    $total = 0;
-    foreach($items_sorted as $item_id => $weight) {
-      $subtotal = $node->items[$item_id]['quantity']* $node->items[$item_id]['cost'];
-      $total = $total + $subtotal;
-      $rows[] = array(
-      form_radio('', 'item_checked', $item_id),
-      form_hidden("items][".$item_id.'][description', $node->items[$item_id]['description']).
-      $node->items[$item_id]['description'],
-      form_hidden("items][".$item_id.'][comments', $node->items[$item_id]['comments']).
-      $node->items[$item_id]['comments'],
-      form_textfield('', "items][".$item_id.'][quantity', $node->items[$item_id]['quantity'], 6, 12),
-      form_textfield('', "items][".$item_id.'][cost', $node->items[$item_id]['cost'], 10, 11),
-      array('data'=>number_format($subtotal,2,',','.'),'align'=>'right'),
-      form_weight('',"items][".$item_id.'][weight', $node->items[$item_id]['weight'],20));
-    }
-    $rows[] = array(null, '<strong>'. t('Total'). '</strong>', null, null, null,
-    array('data' => '<strong>'. number_format($total, 2, ',', '.').'</strong>', 'align' => 'right'), null);
-
-    $help_text = theme_item_list(array(
-    t('To edit an item description or comment, check its box and press "Edit selected".'),
-    t('To delete an item, check its box and press "Delete selected".'),
-    t('You can edit units, cost and weight values directly in the form.'),
-    t('Remember to set weight on the components or they will be added to the budget in a random order.'),
-    t('The components are sorted first by weight and then by name.')
-    )
-    );
-    $output .= form_item(t('Budget items'), $help_text);
-    $headers = array(
-    //                     '<span>&nbsp;&nbsp;'.t('Select').'</span>',
-                     '&nbsp;',
-                     '<span>'.t('Description').'</span>',
-    t('Comments'),
-                     '<span>'.t('Units').'</span>',
-                     '<span>'.t('Cost').'</span>',
-                     '<span>'.t('Total').'</span>',
-                     '<span>'.t('Weight').'</span>'
-                     );
-                     $output .= theme('table', $headers, $rows);
-                     $output .= form_button(t('Edit selected'), 'form_item[edit]');
-                     $output .= form_button(t('Delete selected'), 'form_item[delete]');
-  } else {
-    $output .= form_item(t('Budget items'),t('There is no budget items yet for this project'),t('Add values by pressing the "Add budget item" button'));
-  }
-
-  $output .= form_button(t('Add budget item'), 'form_item[add]');
-
-  if (!empty($node->budget_items)) {
-  }
-
-  $output .= form_textarea(t("Body"), "body", $node->body, 60, 10, t("Description of the project. Describe here it's purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the &lt;!-- header --&gt; tag") . ($error['body'] ? $error['body'] : ''));
-
-
-  $output .= form_select(t("Zones"), "zones", $node->zones, guifi_zones_listbox(), t("If there are, zones where this budget apply specifically."),null,1);
-
-  $output .= form_textarea(t("Promoter(s)"),
-                            "promoter",
-  $node->promoter,
-  60, 3,
-  t('Explain here who are you, how to contact you, why people have to trust you, what you have already done...'));
-  $output .= form_textarea(t("Payment instructions"),
-                            "payment_instructions",
-  $node->payment_instructions,
-  60, 7, t("Explain here how to send money funds for this project, it can be an account for money transfers, ask for contact information, links to paypal or similar online applications..."));
-  $output .= form_textarea(t("Terms & Conditions"),
-                            "terms",
-  $node->terms,
-  60, 7, t("Explain here the terms and conditions of this project or use the default text provided"));
-  return $output;
-
+    return $node;
 }
 
 
+
+
+function _budget_expires_list() {
+  return array('1w' => t('One week'), '2w' => t('Two weeks'), '1m' => t('One month'), '2m' => t('Two months'), '1q' => t('One quarter'), '4m' => t('4 months'), '1h' => t('Half year'), '1y' => t('One year'));
+}
+
+
+/**
+* Implementation of hook_form().
+*/
 function budgets_form(&$node, &$param) {
   return budgets_edit_form($node);
 }
 
-function budgets_edit_item($node,$op = null) {
-
-  // hidden all values with no field at this forms to continue with the freamework
-  foreach ($node as $key => $value) {
-    if (is_array($value)) {
-      if ($key != 'items')
-      foreach ($value as $k_id => $k_value)
-      $output .= form_hidden($key.']['.$k_id,$k_value);
-    } else
-    $output .= form_hidden($key,$value);
-  }
-
-  // the budget items fields, setting the hidden values (not edited items)
-  $next_item_id = 0;
-  if (!empty($node->items)) foreach ($node->items as $item_id => $item) {
-    if ($item_id >= $next_item_id)
-    $next_item_id = $item_id + 1;
-    if ((isset($node->item_checked)) and ($node->item_checked == $item_id)) {
-      $description = $item['description'];
-      $comments = $item['comments'];
-      $quantity = $item['quantity'];
-      $cost = $item['cost'];
-      $weight = $item['weight'];
-      $edit_item_id = $item_id;
-    } else {
-      foreach ($item as $field=>$value)
-      $output .= form_hidden('items]['.$item_id.']['.$field,$value);
-    }
-  }
-  // going to edit the selected item
-  if ($op == 'add')
-  $edit_item_id = $next_item_id;
-
-  $output .= form_textarea(t('Description'),'items]['.$edit_item_id.'][description',$description,60,10,t('Description of this item'));
-  $output .= form_textarea(t('Comments'),'items]['.$edit_item_id.'][comments',$comments,60,10,t('Additional comments about this item'));
-  $output .= form_textfield(t('Quantity'),'items]['.$edit_item_id.'][quantity',$quantity,11,11,t('Number of items units'));
-  $output .= form_textfield(t('Cost'),'items]['.$edit_item_id.'][cost',$cost,11,11,t('Due cost per each unit').'('.variable_get('budget_currency_long','Euros').')');
-  $output .= form_weight(t('Weight'),'items]['.$edit_item_id.'][weight',$weight,20,t('Item weight: Lower values are displayed first, larger last'));
-  $output .= form_hidden('items]['.$edit_item_id.'][item_id',$edit_item_id);
-  $output .= form_hidden('items]['.$edit_item_id.'][nid',$edit["nid"]);
-
-  $output .= form_button(t('Back to budget form'),'back_to_form');
-  $output .= t("<br />Warning: This button will accept your changes as sub-part of the edit.  You will still have to select <b>'submit'</b> on the next screen to make your changes permanent.");
-
-  print theme('page', form($output));
-}
-
-function budgets_validate(&$node) {
-
+/**
+* Implementation of hook_validate().
+*/
+function budgets_validate($node) {
   if (empty($node->nid)) {
     // Fill default values
     if (empty($node->payment_instructions))
-    $node->payment_instructions = _budgets_variable("budget_payment");
+      $node->payment_instructions = budgets_variable("budget_payment");
     if (empty($node->terms))
-    $node->terms = _budgets_variable("budget_terms");
+      $node->terms = budgets_variable("budget_terms");
     if (empty($node->expires)) {
       switch (variable_get("budget_expires",'1q')) {
-        case '1w': $dexp = mktime(0, 0, 0, date("m"),  date("d")+7,  date("Y")); break;
+        case '1w': $dexp = mktime(0, 0, 0, date("m"),  date("d")+7,  date("Y")); break; 
         case '2w': $dexp = mktime(0, 0, 0, date("m"),  date("d")+14,  date("Y")); break;
         case '1m': $dexp = mktime(0, 0, 0, date("m")+1,  date("d"),  date("Y")); break;
         case '2m': $dexp = mktime(0, 0, 0, date("m")+2,  date("d"),  date("Y")); break;
@@ -491,14 +384,14 @@ function budgets_validate(&$node) {
       $node->txtexpire = date('Y-n-j',$dexp);
     }
     if (empty($node->currency_txt))
-    $node->currency_txt = variable_get("budgets_currency_txt",'Euros');
+      $node->currency_txt = variable_get("budgets_currency_txt",'Euros');
     if (empty($node->currency_symbol))
-    $node->currency_symbol = variable_get("budgets_currency_symbol",'€');
+      $node->currency_symbol = variable_get("budgets_currency_symbol",'€');
     if (empty($node->min_contribution))
-    $node->min_contribution = variable_get("budgets_minimum",0);
+      $node->min_contribution = variable_get("budgets_minimum",0);
+    if (empty($node->max_contribution))
+      $node->max_contribution = variable_get("budgets_maximum",50000);
   }
-
-
   // Follow the framework if going to edit other forms
   if (isset($_POST['form_item'])) {
     // If we are adding a new componenet or removing a old one
@@ -511,15 +404,15 @@ function budgets_validate(&$node) {
 
     // if not adding an item and no item selected, set error
     // else, goes to item form
-    if (($action[0] != 'add') and (!isset($node->item_checked)))
-    form_set_error('', t('You must select an item to perform this action'));
+    if (($action[0] != 'add') and (!isset($node->item_checked)))  
+      form_set_error('', t('You must select an item to perform this action'));
     else switch ($action[0]) {
-      case 'delete':
-        unset($node->items[$node->item_checked]);
-        break;
-      default:
-        budgets_edit_item($node,$action[0]);
-        exit(0);
+        case 'delete': 
+          unset($node->items[$node->item_checked]);
+          break;
+        default:
+          budgets_edit_item($node,$action[0]);
+          exit(0);
     }
   }
   if( isset($_POST['back_to_form']) ) {
@@ -529,38 +422,47 @@ function budgets_validate(&$node) {
   // validate budget items
   if (!empty($node->items)) foreach ($node->items as $item_id=>$item) {
     if (empty($item['description']))
-    form_set_error('items]['.$item_id.'][quantity', t('Item description is mandatory'));
+      form_set_error('items]['.$item_id.'][quantity', t('Item description is mandatory'));
     $item['quantity'] = str_replace(',','.',$item['quantity']);
-    if (!is_numeric($item['quantity']))
-    form_set_error('items]['.$item_id.'][quantity', t('Quantity must be numeric'));
+    if (!is_numeric($item['quantity'])) 
+      form_set_error('items]['.$item_id.'][quantity', t('Quantity must be numeric'));
     $item['cost'] = str_replace(',','.',$item['cost']);
-    if (!is_numeric($item['cost']))
-    form_set_error('items]['.$item_id.'][cost', t('Cost must be numeric'));
+    if (!is_numeric($item['cost'])) 
+      form_set_error('items]['.$item_id.'][cost', t('Cost must be numeric'));
   }
 
   if (!empty($node->txtexpire)) {
     if (strtotime($node->txtexpire) != -1) {
       $node->expires = strtotime($node->txtexpire);
       if ($node->expires < time())
-      form_set_error('txtexpire',t('Expiration must be in the future'));
-    } else
-    form_set_error('txtexpire', t('Invalid date, use format YYYY-MM-DD'));
+        form_set_error('txtexpire',t('Expiration must be in the future'));
+    } else 
+      form_set_error('txtexpire', t('Invalid date, use format YYYY-MM-DD'));
   } else
-  form_set_error('txtexpire', t('You must specify a date when this budget will expire'));
-
+    form_set_error('txtexpire', t('You must specify a date when this budget will expire'));
+    
 }
 
 function budgets_insert($node) {
-  db_query("INSERT INTO {budgets} ( nid, budget_status, promoter, expires, terms, payment_instructions, guifi_zones, currency_symbol, currency_txt, min_contribution) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)", $node->nid, $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution);
+    if (empty($node->payment_instructions))
+      $node->payment_instructions = budgets_variable("budget_payment");
+    if (empty($node->terms))
+      $node->terms = budgets_variable("budget_terms");
+    $node->expires = strtotime($node->txtexpire);
+
+  db_query("INSERT INTO {budgets} ( nid, budget_status, promoter, expires, terms, payment_instructions, guifi_zones, currency_symbol, currency_txt, min_contribution, max_contribution) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)", $node->nid, $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->max_contribution);
   budgets_insert_items($node->nid,$node->items);
 }
 
 function budgets_update($node) {
-  db_query("UPDATE {budgets} SET budget_status = '%s', promoter ='%s', expires = '%s', terms = '%s', payment_instructions = '%s', guifi_zones = '%s', currency_symbol = '%s', currency_txt = '%s', min_contribution = %d WHERE nid = '%d'", $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->nid);
+    $node->expires = strtotime($node->txtexpire);
+  db_query("UPDATE {budgets} SET budget_status = '%s', promoter ='%s', expires = '%s', terms = '%s', payment_instructions = '%s', guifi_zones = '%s', currency_symbol = '%s', currency_txt = '%s', min_contribution = %d, max_contribution = %d WHERE nid = '%d'", $node->budget_status, $node->promoter, $node->expires, $node->terms, $node->payment_instructions, implode(',',$node->zones), $node->currency_symbol, $node->currency_txt, $node->min_contribution, $node->max_contribution, $node->nid);
   budgets_insert_items($node->nid,$node->items);
 }
 
-
+/**
+* Implementation of hook_delete().
+*/
 function budgets_delete(&$node) {
   db_query("DELETE FROM {budgets} WHERE nid = '%s'", $node->nid);
   db_query("DELETE FROM {budget_items} WHERE nid = '%s'", $node->nid);
@@ -576,20 +478,21 @@ function budgets_insert_items($nid, $items) {
   }
 }
 
+/**
+* Implementation of hook_page().
+*/
 function budgets_page($zone = NULL) {
   $result = pager_query("SELECT n.nid,b.guifi_zones FROM {node} n, {budgets} b WHERE n.nid=b.nid ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), n.changed DESC", variable_get('default_nodes_main', 10));
-
-  if (db_num_rows($result)) {
-    //    drupal_set_html_head('<link rel="alternate" type="application/rss+xml" title="RSS" href="'. url('node/feed', NULL, NULL, TRUE) .'" />');
+  if ($result > 0) {
 
     $output = '';
     while ($node = db_fetch_object($result)) {
-      if ($zone == null)
+      if ($zone == null) 
       $output .= node_view(node_load($node->nid), 1);
       else {
         $zones = explode(",",$node->guifi_zones);
         if (in_array($zone,$zones))
-        $output .= node_view(node_load($node->nid), 1);
+          $output .= node_view(node_load($node->nid), 1);
       }
     }
     $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
@@ -600,20 +503,31 @@ function budgets_page($zone = NULL) {
   print theme('page', $output);
 }
 
-function budgets_view(&$node, $teaser = 0, $page = 0) {
-
-  if (!is_object($node))  {
-    $nid = $node;
-    unset($node);
-    $node = node_load($nid);
+function budgets_node_loads($node) {
+  $node->txtexpire = date('Y-n-j', $node->expires);
+  $node->zones = explode(',',$node->guifi_zones);
+  $qitems = db_query("SELECT * FROM {budget_items} WHERE nid = '%d' ORDER BY weight, item_id", $node->nid);
+  $node->total = 0;
+  while ($item = db_fetch_array($qitems)) {
+    $node->items[] = $item;
+    $node->total = $node->total + ($item['quantity'] * $item['cost']);
   }
-
-
-  $output .= '</div></font><hr>';
-  $output .= "<div id=budgets>";
-  $node->body .= '<hr>'.budgets_bar($node->total,$node->covered,$node->currency_symbol);
-  $node->teaser .= '<hr>'.budgets_bar($node->total,$node->covered,$node->currency_symbol);
-
+  $node->next_fund = 1;
+  $node->covered = 0;
+  $qfunds = db_query("SELECT * FROM {budget_funds} WHERE nid = '%d' ORDER BY fund_id", $node->nid);
+  while ($fund = db_fetch_array($qfunds)) {
+    if ($node->next_fund <= $fund['fund_id'])
+    $node->next_fund = $fund['fund_id'] + 1;
+    if ($fund['fund_status'] != 'Declined')
+    $node->covered = $node->covered + $fund['amount'];
+    $node->funds[] = $fund;
+  }
+}
+/**
+* Implementation of hook_view().
+*/
+function budgets_view($node, $teaser = FALSE, $page = FALSE) {
+  node_prepare($node, $teaser);
   switch (arg(3)) {
     case 'page':
     case 'items':
@@ -623,39 +537,65 @@ function budgets_view(&$node, $teaser = 0, $page = 0) {
       break;
     default:
       if (!isset($_POST['form_item']))
-      $op = "default";
+        $op = "default";
       else
-      return;
+        return;
       break;
-  }
+  } 
   switch ($op) {
-    case 'all': case 'page': case 'default':
-      // budget details
-      $output .= budgets_print_data($node);
+    case 'page': case 'default':
+     budgets_node_loads($node);
+      $show_bar = budgets_bar($node->total,$node->covered,$node->currency_symbol);
+
+      if ($teaser) {
+        $node->content['data'] = array(
+          '#value' => $show_bar,
+          '#weight' => 1,
+        );
+        return $node;
+      }
+      if ($block)
+        return $node;
+      if ($page) {
+
+        $node->content['body'] = array(
+          array(
+            '#value' => $teaser ? $node->teaser : $node->body,
+            '#weight' => 0,
+          ),
+          array(
+            '#value' => $show_bar,
+             '#weight' => 1,
+          ),
+          array(
+            '#value' => theme('box', t('budget information')),
+            '#weight' => 2,
+          ),
+          array(
+            '#value' => budgets_print_data($node),
+            '#weight' => 3,
+          )
+        );
+      }
+    return $node;
       break;
     case 'items':
-      // budget items
-      // $output .= theme('table', array(t('traffic overview')), guifi_node_graph_overview($node->nid));
-      $output .= budgets_print_items($node);;
-      break;
+  budgets_node_loads($node);
+      return budgets_print_items($node);
+    break;
     case 'funds':
-      // budget funds
-      // $output .= theme('table', array(t('traffic overview')), guifi_node_graph_overview($node->nid));
-      $output .= budgets_print_funds($node);;
-      break;
+  budgets_node_loads($node);
+      return budgets_print_funds($node);
+    break;
     case 'contribute':
-      $output .= budgets_contribute($node);;
+  budgets_node_loads($node);
+      return budgets_contribute($node);
       break;
   }
-
-  $node->body .= theme('box', t('budget information'), $output);
-
-  if ($op != 'default')
-  print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
-
 }
 
 function budgets_print_data($node) {
+
   if (!empty($node->zones)) {
     $output = '<div class="breadcumb"><font size=3>';
     $output .= t('Zones').': ';
@@ -667,7 +607,6 @@ function budgets_print_data($node) {
     }
     $output .= '</div>';
   }
-
   $output .= '<h2>'.t('Status').'</h2>'.t($node->budget_status);
   if ($node->budget_status == 'Open') {
     $output .= '&nbsp;'.t('until').'&nbsp;'.format_date($node->expires);
@@ -683,7 +622,9 @@ function budgets_print_data($node) {
   $output .= '<small>';
   $output .= $node->terms;
   $output .= "</small>\n";
+
   return $output;
+
 }
 
 function budgets_bar($total,$subtotal,$currency = '€') {
@@ -703,8 +644,8 @@ function budgets_bar($total,$subtotal,$currency = '€') {
 }
 
 function budgets_print_items($node) {
-  $output .= '<h2>'.t('Budget details').'</h2>';
 
+  $output = '<h2>'.t('Budget details').'</h2>';
   $total = 0;
   if (!empty($node->items)) foreach ($node->items as $item_id => $item) {
     $subtotal = $item['quantity'] * $item['cost'];
@@ -729,7 +670,6 @@ function budgets_print_items($node) {
   return $output.theme('table', $header, $rows);
 }
 
-
 function budgets_print_funds($node) {
 
   drupal_set_title(t('Contribuitions to').': '.$node->title);
@@ -738,26 +678,30 @@ function budgets_print_funds($node) {
     $edit = $_POST['edit'];
     switch ($op) {
       case t('Delete selected'):
-        if (!isset($edit ['fund_checked']))
-        form_set_error(null,t('A fund must be selected for its deletion'));
-        else {
-          if ($edit['confirm']) {
+         if (!isset($edit ['fund_checked'])) 
+          form_set_error(null,t('A fund must be selected for its deletion'));
+         else {
+           if ($edit['confirm']) {
             db_query("DELETE FROM {budget_funds} WHERE nid = %d AND fund_id = %d",$node->nid,$edit['fund_checked']);
             drupal_set_message(t('Fund deleted'));
             drupal_goto('node/'.$node->nid.'/view/funds');
-          } else {
-            $f = db_fetch_object(db_query("SELECT contributor_name, amount FROM {budget_funds} WHERE nid = %d AND fund_id = %d",$node->nid, $edit['fund_checked']));
-            $output .= form_hidden('fund_checked',$edit['fund_checked']);;
-            $output .= theme('confirm',   t('This action cannot be undone.'),  'node/'.$node->nid.'/view/funds/', t('Are you sure that you want to delete the fund from %name of %amount?',array('%name'=>$f->contributor_name,'%amount'=>$f->amount)), t('Delete selected'));
-          }
-        }
-        break;
+           } else {
+           $form['fund_checked'] = array(
+                '#type' => 'hidden',
+                '#value' => $edit['fund_checked'],
+                 );
+             $f = db_fetch_object(db_query("SELECT contributor_name, amount FROM {budget_funds} WHERE nid = %d AND fund_id = %d",$node->nid, $edit['fund_checked']));
+             $output .= drupal_render($form['fund_checked']);
+             $output .= theme('confirm',   t('This action cannot be undone.'),  'node/'.$node->nid.'/view/funds/', t('Are you sure that you want to delete the fund from %name of %amount?',array('%name'=>$f->contributor_name,'%amount'=>$f->amount)), t('Delete selected'));
+           }
+         }
+         break;
       case t('Submit'):
-        //        $output = var_export($node->funds);
+
         foreach ($edit['fund_status'] as $fund_id=>$new_status) {
-          //          $output .= sprintf("\n<br />FundID: %d NewStatus: %s Status:%s\n<br />",$fund_id,$new_status,$node->funds[$fund_id - 1]['fund_status']);
+
           if ($node->funds[$fund_id - 1]['fund_status'] != $new_status) {
-            //            $output .= sprintf("UPDATE {budget_funds} SET fund_status = '%s' WHERE nid = %d AND fund_id =%d",$new_status,$node->nid,$fund_id);
+
             db_query("UPDATE {budget_funds} SET fund_status = '%s' WHERE nid = %d AND fund_id =%d",$new_status,$node->nid,$fund_id);
           }
         }
@@ -768,92 +712,56 @@ function budgets_print_funds($node) {
   }
 
   $output .= '<h2>'.t('Fundings').'</h2>';
-
-  $total = 0;
+  
+  $total = 0; 
 
   // Going to report the funds
   $rows = array();
+
   if (empty($node->funds)) {
     $rows[] = array(t('There is no contributions to this project yet'),
-    array('data'=>0,'align'=>'right'));
+                    array('data'=>0,'align'=>'right'));
   } else
-  foreach ($node->funds as $fund_id => $fund) {
-    if ($fund['fund_status'] != 'Declined')
-    $total = $total + $fund['amount'];
-    if (budgets_access('update',$node))
-    $rows[] = array(
-    format_date($fund['timestamp_created']),
-    $fund['contributor_name'],
-    number_format($fund['amount'],2,',','.').$node->currency_symbol,
-    form_select('','fund_status]['.$fund['fund_id'],$fund['fund_status'],array('Submitted'=>t('Submitted'),'Accepted'=>t('Accepted'),'Declined'=>t('Declined'),'Paid'=>t('Paid'))),
-    $fund['contributor_email'],
-    $fund['contributor_telf'],
-    $fund['comments'],
-    form_radio('','fund_checked',$fund['fund_id'])
-    );
-    else
-    $rows[] = array(
-    format_date($fund['timestamp_created']),
-    $fund['contributor_name'],
-    number_format($fund['amount'],2,',','.').$node->currency_symbol,
-    array('data'=>$fund['fund_status'],'align'=>'right'),
-    $fund['comments']);
-  }
+    foreach ($node->funds as $fund_id => $fund) {
+      if ($fund['fund_status'] != 'Declined')
+        $total = $total + $fund['amount'];
+      if (budgets_access('update',$node)) {
+
+        $rows[] = array(
+                   format_date($fund['timestamp_created']),
+                   $fund['contributor_name'],
+                   number_format($fund['amount'],2,',','.').$node->currency_symbol,
+                   //form_select('','fund_status]['.$fund['fund_id'],$fund['fund_status'],array('Submitted'=>t('Submitted'),'Accepted'=>t('Accepted'),'Declined'=>t('Declined'),'Paid'=>t('Paid'))),
+                     $fund['fund_status'],
+                   //form_radio('','fund_checked',$fund['fund_id'])
+                    );
+     }  else{ 
+        $rows[] = array(
+                   format_date($fund['timestamp_created']),
+                   $fund['contributor_name'],
+                   number_format($fund['amount'],2,',','.').$node->currency_symbol,
+                   array('data'=>$fund['fund_status'],'align'=>'right'),
+                   $fund['comments']);
+  }}
   $rows[] = array(
                  '<strong>Total</strong',null,
-  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right'),
-  null,null);
+                 array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right'),
+                 null,null);
   $header = array(t('Date'),t('Name'),t('Amount'),t('Status'));
   if (budgets_access('update',$node)) {
-    $header = array_merge($header,array(t('Email'),t('Telf'),t('Comments'),'&nbsp;'));
+    $header = array_merge($header);
     $output .= theme('table', $header, $rows);
-    $output .= form_button(t('Submit'),'op');
-    $output .= form_button(t('Delete selected'),'op');
-    return form($output);
+
+    return $output;
   } else
-  return $output.theme('table', $header, $rows);
-
-}
-
-function budgets_contribute(&$node) {
-  drupal_set_title(t('Contribute to').': '.$node->title);
-  if ($node->budget_status != 'Open') {
-    drupal_set_message(t('Budget must be open to accept contributions'));
-    return;
-  }
-
-  if (isset($_POST['submit_fund'])) {
-    $fund = $_POST['edit'];
-    budgets_validate_fund($fund);
-    if (form_get_errors() == null) {
-      db_query("INSERT INTO {budget_funds} (nid, fund_id, contributor_name, contributor_email, contributor_telf, amount, fund_status, comments, timestamp_created) VALUES (%d, %d, '%s', '%s', '%s', %.10f, 'Submitted', '%s', %d)",$node->nid, $node->next_fund, $fund['contributor_name'], $fund['contributor_email'], $fund['contributor_telf'], $fund['amount'], $fund['comments'], time());
-      drupal_set_message(t('<b>Your contribution has been succesfully submitted.</b> Thanks for contributing to this project. Here you have a list of the current contributions'));
-      cache_clear_all();
-      drupal_goto('node/'.$node->nid.'/view/funds');
-    } else {
-      form_set_error(null,t('<b>WARNING:</b> Your contribution has <b><u>NOT</b></u> been sent. There was errors while validating, please read the error messages'));
-    }
-  }
-
-  $form  = form_textfield(t('Name'),'contributor_name',$fund['contributor_name'], 60,60,t('Your full name, or if your contribution wants to be anonyomous, something that will identify that the money comes from this donation once is verified.'));
-  $form .= form_textfield(t('Email'),'contributor_email',$fund['contributor_email'], 60,60,t('Your email-id. Will be available just to promoters and not published in the reports.'));
-  $form .= form_textfield(t('Telf'),'contributor_telf',$fund['contributor_telf'], 60,60,t('How promoters can contact you by phone. Will be available just to them and not published at the reports'));
-  $form .= form_textfield(t('Amount'),'amount',$fund['amount'], 15,15,t('Amount of the contribution').'&nbsp;('.$node->currency_txt.').'.
-                          '<br />'.$node->payment_instructions);
-  $form .= form_textarea(t('Comments'),'comments',$fund['comments'], 60,3,t('Write here any additional comments about your contribution. Note that in some cases you may donate other things, like reused material, availability to work...'));
-  $form .= form_checkbox(t('I do agree with the <i>Terms & Conditions</i> expressed below').':','agree',true,false,$node->terms);
-
-  $form .= form_button(t('Submit'),'submit_fund');
-  $form .= form_hidden('min_contribution',$node->min_contribution);
-
-  $output .= form($form);
-
   return $output;
 }
 
 function budgets_validate_fund(&$fund) {
   if (($fund['amount'] < $fund['min_contribution']) or (empty($fund['amount'])) )
   form_set_error('amount',t('Minimum donation is').'&nbsp;'.$fund['min_contribution']);
+  if (($fund['amount'] > $fund['max_contribution']) or (empty($fund['amount'])) )
+    form_set_error('amount',t('Maximum donation is').'&nbsp;'.$fund['max_contribution']);
   $fund['amount'] = str_replace(',','.',$fund['amount']);
   $fund['amount'] = str_replace('€',null,$fund['amount']);
   $fund['amount'] = str_replace('$',null,$fund['amount']);
@@ -874,28 +782,11 @@ function budgets_validate_fund(&$fund) {
     form_set_error('contributor_email',t('You must use a valid email address'));
   }
 }
-
-function budgets_edit(&$node, $teaser = 0, $page = 0) {
-
-  if (!is_object($node))  {
-    $nid = $node;
-    unset($node);
-    $node = node_load($nid);
-  }
-
-  switch ($node->type) {
-    case 'guifi-zone':
-      guifi_zone_edit($node);
-      break;
-    case 'guifi-node':
-      //      guifi_node_view($node);
-      break;
-    case 'guifi-service':
-      //      guifi_service_view($node);
-  }
-}
-
+/**
+* Implementation of hook_cron().
+*/
 function budgets_cron() {
 }
+
 
 ?>

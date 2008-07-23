@@ -1,12 +1,57 @@
 <?php
 
+function budgets_schema() {
+
+$schema['budgets'] = array(
+    'fields' => array(
+         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'budget_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+         'promoter' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'payment_instructions' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'terms' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'expires' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+         'guifi_zones' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
+         'currency_txt' => array('type' => 'varchar', 'length' => '10', 'not null' => TRUE, 'default' => 'Euros'),
+         'currency_symbol' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => '€'),
+         'min_contribution' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2')),
+    'primary key' => array('nid'),
+);
+
+$schema['budget_funds'] = array(
+    'fields' => array(
+         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'fund_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'contributor_name' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE),
+         'contributor_telf' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
+         'contributor_email' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
+         'fund_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+         'date' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+         'amount' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+         'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
+    'primary key' => array('nid', 'fund_id'),
+);
+$schema['budget_items'] = array(
+    'fields' => array(
+         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'item_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+         'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+         'quantity' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
+         'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+         'weight' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '3')),
+    'primary key' => array('nid', 'item_id'),
+);
+   return $schema;
+}
+
+function budgets_install() {
+    drupal_install_schema('budgets');
+}
+
 function budgets_uninstall() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("DROP TABLE {budget_funds}");
-      db_query("DROP TABLE {budget_items}");
-      db_query("DROP TABLE {budgets}");
+    drupal_uninstall_schema('budgets');
+
       variable_del('budget_block_title');
       variable_del('budget_payment');
       variable_del('budget_terms');
@@ -16,59 +61,21 @@ function budgets_uninstall() {
       variable_del('budget_minimum');
       variable_del('budget_block_title');
       variable_del('budget_currency_long');
-      break;
-    case 'pgsql':
-      break;
-  }
+}
+//
+// Database update from SVN revision 413
+//
+function budgets_update_413() {
+  $items = array();
+
+    $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_payment'");
+    $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_expires'");
+    $items[] = update_sql("ALTER TABLE `budgets` 
+                           CHANGE `budget_status` `budget_status` VARCHAR( 15 ) NULL DEFAULT 'Preparation' COMMENT 'Preparation , Open , Closed'");
+    $items[] = update_sql("ALTER TABLE `budget_funds`
+                           CHANGE `fund_status` `fund_status` VARCHAR( 20 ) NULL DEFAULT 'Submitted' COMMENT 'Submitted, Accepted, Declined, Paid'");
+return $items;
 }
 
-function budgets_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {budget_funds} (
-        nid int(10) NOT NULL default '0',
-        fund_id int(10) NOT NULL default '0',
-        contributor_name varchar(255) NOT NULL,
-        contributor_telf varchar(64) default NULL,
-        contributor_email varchar(64) default NULL,
-        fund_status enum('Submitted','Accepted','Declined','Paid') NOT NULL default 'Submitted',
-        date int(11) NOT NULL default '0',
-        amount decimal(10,2) NOT NULL default '0.00',
-        comments longtext NOT NULL,
-        timestamp_created int(11) NOT NULL default '0',
-        PRIMARY KEY  (nid, fund_id))"
-        );
-
-      db_query("CREATE TABLE {budget_items} (
-        nid int(10) NOT NULL default '0',
-        item_id int(10) NOT NULL default '0',
-        description longtext NOT NULL,
-        comments longtext NOT NULL,
-        quanity int(4) NOT NULL default '0',
-        cost decimal(10,2) NOT NULL default '0.00',
-        weight int(3) NOT NULL default '0',
-        PRIMARY KEY  (nid , item_id))"
-        );
-
-      db_query("CREATE TABLE {budgets} (
-        nid int(10) NOT NULL default '0',
-        budget_status enum('Preparation','Open','Closed') NOT NULL default 'Preparation',
-        promoter longtext NOT NULL,
-        payment_instructions longtext NOT NULL,
-        terms longtext NOT NULL,
-        expires int(11) NOT NULL default '0',
-        guifi_zones varchar(255) NOT NULL default '',
-        currency_txt varchar(10) NOT NULL default 'Euros',
-        currency_symbol varchar(5) NOT NULL default '€',
-        min_contribution decimal(10,2) NOT NULL default '0.00',
-        PRIMARY KEY  (nid))"
-        );
-
-        break;
-    case 'pgsql':
-      break;
-  }
-}
 
 ?>
