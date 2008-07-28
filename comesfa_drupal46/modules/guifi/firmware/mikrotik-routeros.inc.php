@@ -54,7 +54,7 @@ function unsolclic_routeros($dev) {
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
-  _outln_comment(t('Configuration for RouterOS > 2.9.50 or 3.4'));
+  _outln_comment(t('Configuration for RouterOS > 2.9.51 or 3.11'));
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
   _outln_comment(t('WARNING: Beta version'));
@@ -116,7 +116,7 @@ function unsolclic_routeros($dev) {
   _outln_comment('NTP (client &#038; server cache) zone: '.$node->zone_id);
   list($primary_ntp,$secondary_ntp) = explode(' ',guifi_get_ntp($zone));
   if ($secondary_ntp != null)
-    _outln(sprintf('/system ntp client set enabled=yes mode=unicast primary-ntp=%s secondary-ntp=%s',$primary_ntp,$secondary_ntp));
+    _outln(sprintf('/system ntp client set enabled=yes mode=unicast primary-ntp=%s secondary-ntp=%s',$primary_ntp, $secondary_ntp));
   else if ($primary_ntp != null)
     _outln(sprintf('/system ntp client set enabled=yes mode=unicast primary-ntp=%s',$primary_ntp));
   if ($dev->variable[firmware] == 'RouterOSv2.9')
@@ -485,9 +485,14 @@ function unsolclic_routeros($dev) {
   _outln(':foreach i in [/ip firewall nat find src-address="172.25.0.0/16"] do={/ip firewall nat remove $i;}');
   _outln(':foreach i in [/ip firewall nat find src-address="192.168.0.0/16"] do={/ip firewall nat remove $i;}');
   _outln('/ip firewall nat');
+  if ($dev->variable[firmware] == 'RouterOSv2.9') {
   _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
   _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
-
+  }
+  if ($dev->variable[firmware] == 'RouterOSv3.x') {
+  _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s comment="" disabled=no',$ospf_routerid));
+  }
   // BGP
   _outln_comment();
   _outln_comment(t('BGP Routing'));

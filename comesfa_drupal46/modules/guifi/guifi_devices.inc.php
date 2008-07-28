@@ -92,7 +92,7 @@ function guifi_delete_device($id) {
     case t('Confirm delete'):
       guifi_log(GUIFILOG_BASIC,sprintf('device (%s) %d-%s deleted.',$guifi->type,$id,$guifi->name));
       while ($interface = db_fetch_object('SELECT id FROM {guifi_interfaces} WHERE device_id=%d',$id))  {
-        db_query('DELETE FROM {guifi_ipv4} WHERE id = %d', $interface->id);
+        db_query('DELETE FROM {guifi_ipv4} WHERE interface_id = %d', $interface->id);
       }
       db_query('DELETE FROM {guifi_devices} WHERE id = %d', $id);
       db_query('DELETE FROM {guifi_radios} WHERE id = %d', $id);
