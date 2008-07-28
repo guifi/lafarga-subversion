@@ -548,6 +548,7 @@ INSERT INTO `guifi_model` VALUES (26, 10, 'NanoStation5', 'Extern', 1, 400, '802
 INSERT INTO `guifi_model` VALUES (27, 8, 'Supertrasto RB600 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
 INSERT INTO `guifi_model` VALUES (28, 8, 'Supertrasto RB333 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3', 'http://www.routerboard.com', NULL,'Yes');
 INSERT INTO `guifi_model` VALUES (29, 8, 'Supertrasto RB411 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
+INSERT INTO `guifi_model` VALUES (31, 8, 'Supertrasto RB433 guifi.net', NULL, 6, 400, '802.11a/b/g', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan', 'http://www.routerboard.com', NULL,'Yes');
 
 CREATE TABLE `guifi_ipv4` (
   `id` int(11) NOT NULL,
