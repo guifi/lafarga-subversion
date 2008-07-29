@@ -583,10 +583,10 @@ function guifi_install() {
   // --
   // -- user status types
   // --
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('0', 'user_status', 'New',  'New');");  
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'Pending',  'Pending');");
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Approved', 'Approved');");
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Rejected', 'Rejected');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'New',  'New');");  
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Pending',  'Pending');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Approved', 'Approved');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('4', 'user_status', 'Rejected', 'Rejected');");
   
   // --
   // -- content filter types
@@ -724,7 +724,7 @@ function guifi_update_412() {
   db_drop_field($items,'guifi_zone','mrtg_servers'); 
   db_drop_field($items,'guifi_zone','image');  
   db_drop_field($items,'guifi_zone','map_poly');
-  db_drop_field($items,'guifi_zone','map_cood');
+  db_drop_field($items,'guifi_zone','map_coord');
 
   // changes @ guifi_services
   db_change_field($items, 'guifi_services', 'contact', 'notification', array('type' => 'varchar', 'length' => 1024));
@@ -759,10 +759,10 @@ function guifi_update_412() {
   // --
   // -- user status types
   // --
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('0', 'user_status', 'New',  'New');");
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'Pending',  'Pending');");
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Approved', 'Approved');");
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Rejected', 'Rejected');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'New',  'New');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Pending',  'Pending');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Approved', 'Approved');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('4', 'user_status', 'Rejected', 'Rejected');");
   
   // --
   // -- content filter types
