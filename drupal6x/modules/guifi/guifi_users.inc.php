@@ -375,7 +375,7 @@ function guifi_user_form($form_state, $params = array()) {
         'which have enabled this feature, ' .
         'so don\'t think that is safe to rely on this.')
   );
-    return $f;
+
   $f['submit'] = array (
     '#type'=>'submit',
     '#value'=>t('Save')
