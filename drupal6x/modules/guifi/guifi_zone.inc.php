@@ -33,6 +33,7 @@ function guifi_zone_load($node) {
 
   if ($loaded->id != null)
     return $loaded;
+    
   return false;
 }
 
@@ -145,6 +146,7 @@ function guifi_zone_select_field($zid,$fname) {
 /** guifi_zone_form(): Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node, &$param) {
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
   $form_weight = -20; 
   
   $form['title'] = array(
@@ -171,7 +173,7 @@ function guifi_zone_form(&$node, &$param) {
     '#weight' => $form_weight++,
   );
   
-  // Els que no són administradors ja en tenen prou amb aquestes dades.
+  // That's it for non-admin users, they don't need to edit more information
   if (!user_access('administer guifi zones'))
     return $form;
 
@@ -184,6 +186,24 @@ function guifi_zone_form(&$node, &$param) {
     '#maxlength' => 10, 
     '#element_validate' => array('guifi_zone_nick_validate'),
     '#description' => t('Single word, 7-bits characters. Used while default values as hostname, SSID, etc...'),
+    '#weight' => $form_weight++,
+  );
+  $form['zone_mode'] = array(
+    '#type' => 'select',
+    '#title' => t('Zone dynamic mesh mode'),
+    '#required' => TRUE,
+    '#default_value' => $node->zone_mode,
+    '#options' => drupal_map_assoc(array(t('infrastructure'),t('ad-hoc'))),
+    '#description' => t('<ul><li>Select <strong>Infrastructure</strong> ' .
+        'for traditional dynamic protocols in infrastructure mode ' .
+        'like OSPF, BGP, etc. This mode is very much used on static nodes ' .
+        'with known and permanent links already planned or backbones, ' .
+        'point-to-point links...</li>' .
+        '<li>Select <strong>Ad-hoc</strong> for dynamic mesh routing protocols ' .
+        'like BATMAN or OLSR. This mode doesn\'t require planned ' .
+        'and known links, and can grow spontaneously just by density. ' .
+        'I.e. appropiated for networks deployed at street level ' .
+        'in urban areas.</li></ul>'),   
     '#weight' => $form_weight++,
   );
   $form['time_zone'] = array(
@@ -214,6 +234,60 @@ function guifi_zone_form(&$node, &$param) {
     '#element_validate' => array('guifi_emails_validate'),
     '#description' => t('Mails where changes at the zone will be notified. Usefull for decentralized administration. If more than one, separated by \',\''),
     '#weight' => $form_weight++,
+  );
+  
+  // Service parameters
+  $form['zone_services'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Zone services'),
+    '#weight' => $form_weight++,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+ 
+  $proxystr = guifi_service_str($node->proxy_id);
+  
+  function _service_descr($type) {
+    return t('Select the default %type for to be used at this ' .
+        'zone.<br>' .
+        'You can find the %type by introducing part of the id number, ' .
+        'zone name or proxy name. A list with all matching values ' .
+        'with a maximum of 50 values will be created.<br>' .
+        'You can refine the text to find your choice.',
+        array('%type'=>$type));
+  }
+  
+  $form['zone_services']['proxystr'] = array(
+    '#type'=>'textfield',
+    '#title'=>t('default proxy'),
+    '#maxlength'=>60,
+    '#default_value'=> $proxystr,
+    '#autocomplete_path'=> 'guifi/js/select-service/proxy',
+    '#element_validate' => array('guifi_service_name_validate',
+      'guifi_zone_service_validate'),
+    '#description'=>_service_descr('proxy')
+  );
+  $form['zone_services']['proxy_id'] = array(
+    '#type'=>'hidden',
+    '#value'=> $node->proxy_id,
+  );
+
+  $graphstr = guifi_service_str($node->graph_server);
+
+  $form['zone_services']['graph_serverstr'] = array(
+    '#type' => 'textfield',
+    '#title' => t('default graphs server'),
+    '#maxlength'=>60,
+    '#required' => FALSE,
+    '#default_value' => $graphstr,
+    '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
+    '#element_validate' => array('guifi_service_name_validate',
+      'guifi_zone_service_validate'),
+    '#description'=>_service_descr('graph server')
+  );
+  $form['zone_services']['graph_server'] = array(
+    '#type'=>'hidden',
+    '#value'=> $node->graph_server,
   );
   
   // Separació Paràmetre globals de xarxa
@@ -259,29 +333,6 @@ function guifi_zone_form(&$node, &$param) {
     '#description' => t('The id that will be used when creating configuration files for the OSPF routing protocol so all the routhers within the zone will share a dynamic routing table.'),
     '#weight' => $form_weight++,
   );
-  $form['zone_network_settings']['mrtg_servers'] = array(
-    '#type' => 'textfield',
-    '#title' => t('MRTG zone url'),
-    '#required' => FALSE,
-    '#default_value' => $node->mrtg_servers,
-    '#size' => 60,
-    '#maxlength' => 128, 
-    '#description' => t('This URL will be used for the obtaining of graphs from external servers to guifi.'),
-    '#weight' => $form_weight++,
-  );
-  
-  // Aquesta condició sempre es complirà, doncs ja s'ha fet anteriorment
-  if (user_access('administer guifi zones')) 
-    $form['zone_network_settings']['graph_server'] = array(
-      '#type' => 'select',
-      '#title' => t("Server which collects traffic and availability data"),
-      '#required' => FALSE,
-      '#default_value' => ($node->graph_server ? $node->graph_server : 0),
-      '#options' => array('0'=>'Default','-1'=>'None') + guifi_services_select('SNPgraphs'),
-      '#description' => t("If not specified, inherits parent zone properties."),
-      '#weight' => $form_weight++,
-    );
-  
     
   // Separació Paràmetres dels mapes
   $form['zone_mapping'] = array(
@@ -373,6 +424,28 @@ function guifi_zone_form(&$node, &$param) {
 
   return $form;
 }
+
+function guifi_zone_service_validate($element, &$form_state) {
+  switch ($element['#name']) {
+    case 'proxystr': 
+      $s = &$form_state['values']['proxy_id']; break;
+    case 'graph_serverstr':
+      $s = &$form_state['values']['graph_server']; break;
+  }
+  switch ($element['#value']) {
+  case t('No service'):
+    $s = '-1';
+    break;
+  case t('Take from parents'):
+    $s = '';
+    break;
+  default:
+    $nid = explode('-',$element['#value']);
+    $s = $nid[0];
+  }
+}
+
+
 
 /** guifi_zone_prepare(): Default values
  */
@@ -671,9 +744,9 @@ function guifi_zone_delete(&$node) {
 
   return;
 }
-/** guifi_get_zone_parents(): Get the guifi zone parents
+/** guifi_zone_get_parents(): Get the guifi zone parents
  */
-function guifi_get_zone_parents($id) {
+function guifi_zone_get_parents($id) {
  
   $parent=$id;
   $parents[] = $id;
@@ -696,7 +769,7 @@ function guifi_get_zone_parents($id) {
 function guifi_zone_ariadna($id = 0, $link = 'node/') {
   $ret = array();
 $ret[] = l(t('Home'), NULL);
-  foreach (array_reverse(guifi_get_zone_parents($id)) as $parent) 
+  foreach (array_reverse(guifi_zone_get_parents($id)) as $parent) 
   if ($parent > 0) {
     $parentData = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
     $ret[] = l($parentData['title'],$link.$parentData['id']);
@@ -726,12 +799,20 @@ function guifi_zone_print_data($zone) {
   if ($zone->homepage)
     $rows[] = array(t('homepage'),l($zone->homepage,$zone->homepage)); 
   if (($zone->notification) and (user_access('administer guifi zones')))
-    $rows[] = array(t('changes notified to (visible only if you are privileged):'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>'); 
+    $rows[] = array(t('changes notified to (visible only if you are privileged):'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>');
+  $rows[] = array(t('default proxy'),
+              l(guifi_service_str($zone->proxy_id),
+                guifi_zone_get_service($zone,'proxy_id',true))
+              );
+  $rows[] = array(t('default graph server'),
+              l(guifi_service_str($zone->graph_server),
+                guifi_zone_get_service($zone,'graph_server',true))
+              );
   $rows[] = array(t('network global information').':',null);
+  $rows[] = array(t('Mode'),$zone->zone_mode); 
   $rows[] = array(t('DNS Servers'),$zone->dns_servers); 
   $rows[] = array(t('NTP Servers'),$zone->ntp_servers); 
   $rows[] = array(t('OSPF zone'),$zone->ospf_zone);
-  $rows[] = array(t('MRTG Servers'),$zone->mrtg_servers); 
   $tz = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type = 'tz' AND text = '%s'",$zone->time_zone));
   $rows[] = array(t('Time zone'),$tz->description); 
   $rows[] = array(t('log information').':',null);
@@ -741,6 +822,26 @@ function guifi_zone_print_data($zone) {
     $rows[] = array(t('updated by'),l($name_changed->name,'user/'.$zone->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($zone->timestamp_changed)); 
 
   return array_merge($rows);
+}
+
+function guifi_zone_get_service($id, $type ,$path = false) {
+  if (is_numeric($id))
+    $z = guifi_zone_load($id);
+  else 
+    $z = $id;
+  
+  $ret = null;  
+  if (!empty($z->$type))
+    $ret = $z->$type;
+  else
+    if ($z->master)
+      $ret = guifi_zone_get_service($z->master,$type);
+   
+  if ($path)
+    if ($ret)
+      $ret = 'node/'.$ret;  
+      
+  return $ret;
 }
 
 /** guifi_zone_print():  outputs the zone information

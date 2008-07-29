@@ -296,7 +296,7 @@ function guifi_devices_select($filters,$action = '') {
     $query = sprintf("
       SELECT
         l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id,
-        r.radiodev_counter, r.ssid, r.mode, r.antmode
+        r.radiodev_counter, r.ssid, r.mode, r.antenna_mode
       FROM {guifi_radios} r,{guifi_location} l, {guifi_zone} z
       WHERE l.id<>%d
         AND r.nid=l.id
@@ -646,9 +646,13 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
 
 function _guifi_set_namelocation($location) {
   $prefix = '';
-  foreach (array_reverse(guifi_get_zone_parents($location->zone_id)) as $parent) {
+  foreach (array_reverse(guifi_zone_get_parents($location->zone_id)) as $parent) {
     if ($parent > 0) {
-      $result = db_fetch_array(db_query('SELECT z.id, z.title, z.master FROM {guifi_zone} z WHERE z.id = %d',$parent));
+      $result = db_fetch_array(db_query(
+        'SELECT z.id, z.title, z.master ' .
+        'FROM {guifi_zone} z ' .
+        'WHERE z.id = %d',
+        $parent));
       if ($result['master']) {
         $prefix .= $result['title'].', ';
       }
@@ -679,20 +683,23 @@ function guifi_nodes_select() {
 }
 
 function guifi_services_select($stype) {
-
   $var = array();
-
   $found = false;
 
-  $query = db_query(sprintf('SELECT s.id, n.title nick, z.id zone_id FROM {node} n,{guifi_services} s, {guifi_zone} z WHERE s.id=n.nid AND s.service_type="%s" AND s.zone_id=z.id ORDER BY z.id, s.id, s.nick',$stype));
-
+  $query = db_query(sprintf(
+    'SELECT s.id, n.title nick, z.id zone_id ' .
+    'FROM {node} n,{guifi_services} s, {guifi_zone} z ' .
+    'WHERE s.id=n.nid ' .
+    '  AND s.service_type="%s" ' .
+    '  AND s.zone_id=z.id ' .
+    'ORDER BY z.id, s.id, s.nick',
+    $stype));
   
   while ($service = db_fetch_object($query)) {
     $var[$service->id] = _guifi_set_namelocation($service,$new_pointer,$found);
   } // eof while query service,zone
 
   asort($var);
-
   return $var;
 }
 
@@ -752,6 +759,11 @@ function guifi_get_nodename($id) {
 function guifi_get_zone_of_node($id) {
   $node = db_fetch_object(db_query("SELECT d.zone_id FROM {guifi_location} d WHERE d.id=%d",$id));
   return $node->zone_id;
+}
+
+function guifi_get_zone_of_service($id) {
+  $node = db_fetch_object(db_query("SELECT s.zone_id FROM {guifi_services} s WHERE s.id=%d",$id));
+  return $node->zone_id;  
 }
 
 function guifi_get_zone_nick($id) {

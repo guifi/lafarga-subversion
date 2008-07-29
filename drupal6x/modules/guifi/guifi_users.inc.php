@@ -7,57 +7,61 @@
 /**
  * Menu callback; handle the adding of a new user.
  */
-function guifi_add_user() {
-  $op = $_POST['op'];
-  $edit = $_POST['edit'];
-  $output = '';
-
-  switch ($op) {
-    case t('Submit'):
-      guifi_edit_user_validate($edit);
-      if (!form_get_errors()) {
-        guifi_edit_user_save($edit);
-        drupal_goto($_GET['q']);
-      }
-      // Fall through.
-    default:
-      $edit['valid'] = 1;
-      $output .= guifi_edit_user_form($edit);
-  }
-
-  print theme('page', $output);
+function guifi_user_add($node) {
+  global $user;
+  
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_edit()',$node);
+   
+  $guser['services']['proxy'] = guifi_zone_get_service($node->zone_id,'proxy_id');
+  $guser['nid'] = $node->id;
+  $guser['notification']=$node->notification;
+  $guser['status']='New';
+  $guser['content_filters']=array();
+  
+  return drupal_get_form('guifi_user_form',$guser);
 }
 
 /**
  * Menu callback; delete a single user.
  */
-function guifi_delete_user($edit) {
-  $op = $_POST['op'];
-  $result = db_query('SELECT username, nid FROM {guifi_users} WHERE id = %d', $edit['id']);
+ function guifi_user_delete($id) {
+  $result = db_query(
+      'SELECT username, nid ' .
+      'FROM {guifi_users} ' .
+      'WHERE id = %d', 
+      $id);
   $guifi = db_fetch_object($result);
-  if (!$guifi) {
-    drupal_goto($_GET['q']);
+
+  if ($_POST['confirm']) {
+    db_query('DELETE FROM {guifi_users} WHERE id = %d', $id);
+    drupal_set_message(t('User %username deleted.',array('%username'=>$guifi->username)));
+    drupal_goto('node/'.$guifi->nid.'/view/users');
   }
-  switch ($op) {
-    case t('Delete'):
-      db_query('DELETE FROM {guifi_users} WHERE id = %d', $edit['id']);
-      drupal_set_message(t('User deleted.'));
-      cache_clear_all();
-      drupal_goto($_GET['q']);
-      break;
-    default:
-      $message = t('Are you sure you want to delete the user %user?', array('%user' => theme('placeholder', $guifi->username)));
-      $hidden = form_hidden('id',$edit['id']);
-      $hidden .= form_hidden('nid',$edit['nid']);
-      $output = theme('confirm', $message, 'node/'.$edit['nid'].'/view/users', t('This action cannot be undone.'), t('Delete'), null, $hidden );
-      print theme('page', $output);
-  }
+  return drupal_get_form('guifi_user_delete_confirm',$guifi->username,$guifi->nid);
+}
+
+/**
+ * Hook callback; delkete a network 
+ */
+function guifi_user_delete_confirm($form_state,$username,$nid) {
+  return confirm_form(array(), 
+                     t('Are you sure you want to delete the user %username?', array('%username' => $username)),
+                     'node/'.$nid.'/view/users', 
+                     t('This action cannot be undone.'), 
+                     t('Delete'),
+                     t('Cancel'));
 }
 
 /**
  * Menu callback; dispatch to the appropriate user edit function.
  */
-function guifi_edit_user($id = 0) {
+function guifi_user_edit($id = 0) {
+  
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_edit()',$id);
+  
+  $output = drupal_get_form('guifi_user_form',$id);
+  
+  return $output;
 
   $op = $_POST['op'];
   $edit = $_POST['edit'];
@@ -111,35 +115,71 @@ function guifi_edit_user($id = 0) {
 }
 
 function guifi_user_reset_password($edit) {
-  $user = guifi_get_user($edit['id']);
-  $edit = object2array($user);
+  global $user;
+  
+  if (is_numeric($edit))
+    $edit = guifi_user_load($edit);
+  else
+    $edit = guifi_user_load($edit['id']);
 
-  if (empty($user->email)) {
-    form_set_error('email', t('Don\'t know where to email a new password. You need to have an email properly filled to get a new password. You should contact network administrators for getting a new password.'));
+  if (empty($edit['notification'])) {
+    form_set_error('notification', t('Don\'t know where to email a new password. ' .
+        'You need to have an email properly filled to get a new password. ' .
+        'You should contact network administrators ' .
+        'for getting a new password.'));
     return;
   }
 
-  $edit['pwd1'] = user_password();
+  $edit['pass'] = user_password();
 
-  // Mail new password:
-  $subject = t('New password for user').' '.$edit['username'].' '.t('at guifi.net');
-  $body = t('New passord:').' '.$edit['pwd1'];
-  $headers = "From: guifi.net\nReply-to: guifi.net\nX-Mailer: Drupal\nReturn-path: guifi.net\nErrors-to: guifi.net";
-  $mail_success = drupal_mail(null, $edit['email'], $subject, $body, null, $headers);
+  $params['account']=$user;
+  $params['username']=$edit['username'];
+  $params['pass']=$edit['pass'];
+  $mail_success = drupal_mail(
+    'guifi_user_password', 
+    'reset', 
+    $edit['notification'], 
+    user_preferred_language($user), 
+    $params);
 
     if ($mail_success) {
-      watchdog('user', 'Password mailed to %name at %email.', array('%name' => theme('placeholder', $edit['username']), '%email' => theme('placeholder', $edit['email'])));
-      drupal_set_message(t('Your password and further instructions have been sent to your e-mail address.'));
-      guifi_edit_user_save($edit);
+      watchdog('user', 
+        'Password mailed to %name for %email.', 
+        array('%name' => $edit['notification'], '%email' => $edit['username']));
+      drupal_set_message(t('Your password and further instructions ' .
+          'have been sent to your e-mail address.'));
+      $edit['password'] = crypt($edit['pass']);
+      guifi_user_save($edit);
     }
     else {
-      watchdog('user', 'Error mailing password to %name at %email.', array('%name' => theme('placeholder', $email['username']), '%email' => theme('placeholder', $edit['email'])), WATCHDOG_ERROR);
-      drupal_set_message(t('Unable to send mail. Please contact the site admin.'));
+      watchdog('user', 
+        'Error mailing password to %name at %email.', 
+        array('%name' => $edit['username'], '%email' => $edit['notification']), 
+        WATCHDOG_ERROR);
+      drupal_set_message(t('Unable to send mail to %email. ' .
+          'Please contact the site admin.',
+          array('%email'=>$edit['notification'])));
     }
-//  drupal_goto('node/'.$user->nid.'/view/users');
-  drupal_goto($_GET['q']);
+  drupal_goto('node/'.$edit['nid'].'/view/users');
+}
 
-
+function guifi_user_password_mail($key, &$message, $params) { 
+  $language = $message['language']; 
+  $variables = user_mail_tokens($params['account'], $language); 
+  switch($key) { 
+    case 'reset': 
+      $message['subject'] = t('New password for user !username at guifi.net',
+        array('!username'=>$params['username']),
+        $language->language);
+      $message['body'] = t(
+          "!loggeduser has requested to change the password for the account " .
+          "!username, and has been set to:\n\t !pass",
+        array('!username'=>$params['username'],
+          '!pass'=>$params['pass'],
+          '!loggeduser'=>$params['account']->name),
+        $language->language);
+      break; 
+  } 
 }
 
 /**
@@ -150,62 +190,11 @@ function guifi_user_load($id) {
   $item = db_fetch_array(db_query('SELECT * FROM {guifi_users} WHERE id = %d', $id));
   $item['services'] = unserialize($item['services']);
   $item['vars'] = unserialize($item['extra']);
+  $item['content_filters'] = unserialize($item['content_filters']);
 
   return $item;
 }
 
-/**
- * Present the guifi user editing form.
- */
-function guifi_edit_user_form($edit) {
-
-  $proxy_list = array('0'=>t('None')) + guifi_services_select('Proxy');
-
-  $form .= form_textfield(t('Firstname'), 'firstname', $edit['firstname'], 60, 128, t('The real user name (Firstname), will be used while building the username. If username results duplicated, add more words (i.e. middle initial).'), NULL, TRUE);
-  $form .= form_textfield(t('Lastname'), 'lastname', $edit['lastname'], 60, 128, t('The real user name (Lastname).'), NULL, TRUE);
-  $form .= form_item(t('Username'), $edit['username'], t('The resulting username.'));
-  $form .= form_select(t('Node'), 'nid', $edit['nid'], guifi_nodes_select(), t('The node where this user belongs to.'));
-
-  $cpwd = form_password(t('Old password'), 'old_pwd', $edit['old_pwd'], 60, 128, t('The current password for this user. Mandatory to submit any change'), NULL, TRUE);
-  $cpwd .= form_submit(t('Reset password'));
-  if (($edit['id'] > 0) and (user_access('administer guifi users') == false))
-    $form.= form_group(t('Validate current password'),$cpwd,null);
-  
-  $fpwd = form_password(t('New password'), 'pwd1', $edit['pwd1'], 60, 128, t('New password, if wants to change it'), NULL, TRUE);
-  $fpwd .= form_password(t('Confirm'), 'pwd2', $edit['pwd2'], 60, 128, t('Retype the new password'), NULL, TRUE);
-  $form.= form_group(t('Set password'),$fpwd,null);
-
-  $form .= form_textfield(t('Email'), 'email', $edit['email'], 60, 128, t('Email address. Needed to reset passwords'), NULL, TRUE);
-  
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
-    $form .= form_select(t('Proxy'), 'services][proxy', $edit['services']['proxy'], $proxy_list, t('The proxy where this user has default acces to.'));
-  else {
-    $form .= form_hidden('services][proxy',$edit['services']['proxy']);
-    $form .= form_item(t('Proxy'),$proxy_list[$edit['services']['proxy']]);
-  }
-
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_created']));
-  if ($edit['user_changed'] > 0)
-    $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_changed']));
-
-  $form .= form_item(t('Created by'),$name_created->name.' '.t('at').' '.format_date($edit['timestamp_created']));
-  if ($edit['user_changed'] > 0)
-    $form .= form_item(t('Modified by'),$name_changed->name.' '.t('at').' '.format_date($edit['timestamp_changed']));
-
-  $form .= form_hidden('user_created',$edit['user_created']);
-  $form .= form_hidden('user_changed',$edit['user_changed']);
-  $form .= form_hidden('timestamp_created',$edit['timestamp_created']);
-  $form .= form_hidden('timestamp_changed',$edit['timestamp_changed']);
-
-  $form .= form_submit(t('Submit'));
-  $form .= form_submit(t('Delete user'));
-
-  $form .= form_hidden('id', $edit['id']);
-  $form .= form_hidden('password', $edit['password']);
-  $form .= form_hidden('username', $edit['username']);
-
-  return form($form);
-}
 
 function guifi_user_form($form_state, $params = array()) {
   _user_password_dynamic_validation();
@@ -220,7 +209,15 @@ function guifi_user_form($form_state, $params = array()) {
     else
       $form_state['values'] = $params;
   }  
-  
+   
+  if (isset($form_state['values']['id'])) {
+    $f['id'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
+    drupal_set_title(t('edit user').' '.$form_state['values']['username']);
+  } else {
+    $f['new'] = array('#type'=>'hidden','#value'=>true);
+    drupal_set_title(t('add user').' @ '.guifi_get_nodename($form_state['values']['nid']));
+  }
+ 
   $f['firstname'] = array(
     '#type' => 'textfield',
     '#size' => 60,
@@ -252,95 +249,185 @@ function guifi_user_form($form_state, $params = array()) {
       '#value' => $form_state['values']['username'],
       '#description' => t('The resulting username.')
     );
-  $f['node'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Node'),
-    '#maxlength'=>60,
-    '#default_value'=>$form_state['values']['nid'].'-'.
+      
+  if ((user_access('administer guifi users')) or 
+      (user_access('manage guifi users'))) {
+    $f['status'] = array(
+      '#type'=>'select',
+      '#title'=>t('Status'),
+      '#options'=>guifi_types('user_status'),
+      '#default_value'=>$form_state['values']['status']
+    );
+    $f['node'] = array(
+      '#type'=>'textfield',
+      '#title'=>t('Node'),
+      '#maxlength'=>60,
+      '#default_value'=>$form_state['values']['nid'].'-'.
         guifi_get_zone_nick(guifi_get_zone_of_node(
-          $form_state['values']['nid'])).', '.
+        $form_state['values']['nid'])).', '.
         guifi_get_nodename($form_state['values']['nid']),
-    '#autocomplete_path'=> 'guifi/js/select-node',
-    '#element_validate' => array('guifi_nodename_validate'),
-    '#description'=>t('Select the node where the user is.<br>' .
-        'You can find the node by introducing part of the node id number, ' .
-        'zone name or node name. A list with all matching values ' .
-        'with a maximum of 50 values will be created.<br>' .
+        '#autocomplete_path'=> 'guifi/js/select-node',
+        '#element_validate' => array('guifi_nodename_validate'),
+        '#description'=>t('Select the node where the user is.<br>' .
+          'You can find the node by introducing part of the node id number, ' .
+          'zone name or node name. A list with all matching values ' .
+          'with a maximum of 50 values will be created.<br>' .
         'You can refine the text to find your choice.')
-  );
+    );
+  } else {
+    $f['status'] = array(
+      '#type'=>'item',
+      '#title'=>t('Status'),
+      '#value'=>$form_state['values']['status']
+    );
+    $f['node'] = array (
+      '#type'=>'item',
+      '#title'=>t('Node'),
+      '#value'=>$form_state['values']['nid'].'-'.
+        guifi_get_zone_nick(guifi_get_zone_of_node(
+        $form_state['values']['nid'])).', '.
+        guifi_get_nodename($form_state['values']['nid']),
+    );
+    if (!isset($f['new']))
+      $f['previous_pwd'] = array(
+        '#type'=>'password',
+        '#title'=>t('Current password'),
+        '#description'=>t('To proceed for any change, you have to ' .
+          'know the current password.')
+      );
+    if (!isset($f['new']))
+      $f['resetPwd'] = array (
+        '#type'=>'submit',
+        '#value'=>t('Reset password')
+      );
+  }
+   
   $f['nid'] = array(
     '#type'=>'hidden',
     '#value'=> $form_state['values']['nid'],
   );
+   
   $f['pass'] = array(
     '#type' => 'password_confirm',
-    '#description' => t('To change the current user password, enter the new password in both fields.'),
+    '#required' => isset($f['new']),
+    '#title' => t('Set a new password'),
+    '#description' => t('To change/set the current user password, enter the new password in both fields.'),
     '#size' => 25,
   );
-  $f['email'] = array(
+  $f['notification'] = array(
     '#type' => 'textfield',
     '#size' => 60,
     '#maxlength' => 1024,
     '#title' => t('contact'),
     '#required' => TRUE,
     '#element_validate' => array('guifi_emails_validate'),
-    '#default_value' => $form_state['values']['email'],
+    '#default_value' => $form_state['values']['notification'],
     '#description' =>  t('Mailid where changes on this user will be notified, ' .
         'if many, separated by \',\'<br />' .
         'Also where the user can be contacted.')
   );
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
-  
-  return $f;
-
-
-  $cpwd = form_password(t('Old password'), 'old_pwd', $edit['old_pwd'], 60, 128, t('The current password for this user. Mandatory to submit any change'), NULL, TRUE);
-  $cpwd .= form_submit(t('Reset password'));
-  if (($edit['id'] > 0) and (user_access('administer guifi users') == false))
-    $form.= form_group(t('Validate current password'),$cpwd,null);
-  
-  $fpwd = form_password(t('New password'), 'pwd1', $edit['pwd1'], 60, 128, t('New password, if wants to change it'), NULL, TRUE);
-  $fpwd .= form_password(t('Confirm'), 'pwd2', $edit['pwd2'], 60, 128, t('Retype the new password'), NULL, TRUE);
-  $form.= form_group(t('Set password'),$fpwd,null);
-
-  if ((user_access('administer guifi users')) or (user_access('manage guifi users')))
-    $form .= form_select(t('Proxy'), 'services][proxy', $edit['services']['proxy'], $proxy_list, t('The proxy where this user has default acces to.'));
-  else {
-    $form .= form_hidden('services][proxy',$edit['services']['proxy']);
-    $form .= form_item(t('Proxy'),$proxy_list[$edit['services']['proxy']]);
+    
+  // services
+  $f['services'] = array(
+   '#type'=>'fieldset',
+   '#title'=>t('services'),
+   '#collapsible'=>true,
+   '#collapsed'=>false,
+   '#tree'=>true,
+  );
+    
+  if ((user_access('administer guifi users')) 
+      or (user_access('manage guifi users'))) {
+    
+    $f['services']['proxystr'] = array(
+      '#type'=>'textfield',
+      '#title'=>t('proxy'),
+      '#maxlength'=>60,
+      '#default_value'=> guifi_service_str($form_state['values']['services']['proxy']),
+      '#autocomplete_path'=> 'guifi/js/select-service/proxy',
+      '#element_validate' => array('guifi_service_name_validate',
+        'guifi_user_proxy_validate'),
+      // '#description'=>_service_descr('proxy')
+    );
+  } else {
+    $f['services']['proxystr'] = array(
+      '#type'=>'item',
+      '#title'=>t('proxy'),
+      '#value'=>guifi_service_str($form_state['values']['services']['proxy'])         
+    );
   }
 
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_created']));
-  if ($edit['user_changed'] > 0)
-    $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $edit['user_changed']));
+  $f['services']['proxy'] = array(
+    '#type'=>'hidden',
+    '#value'=> $form_state['values']['services']['proxy'],
+  );
+  
+  $f['services']['filters'] = array(
+    '#type'=>'checkboxes',
+    '#parents'=>array('content_filters'),
+    '#title'=>t('content filters'),
+    '#options'=> guifi_types('filter'),
+    '#multiple'=>true,
+    '#default_value'=> $form_state['values']['content_filters'],
+    '#description'=>t('Content to be filtered.<br>Check the type of content ' .
+        'which will be filtered to this user. ' .
+        'Note that this filters will work only on those sites ' .
+        'which have enabled this feature, ' .
+        'so don\'t think that is safe to rely on this.')
+  );
+    return $f;
+  $f['submit'] = array (
+    '#type'=>'submit',
+    '#value'=>t('Save')
+  );
+  if (!isset($f['new']))
+    $f['delete'] = array (
+      '#type'=>'submit',
+      '#value'=>t('Delete')
+    );
+  
+  
+  return $f;
+}
 
-  $form .= form_item(t('Created by'),$name_created->name.' '.t('at').' '.format_date($edit['timestamp_created']));
-  if ($edit['user_changed'] > 0)
-    $form .= form_item(t('Modified by'),$name_changed->name.' '.t('at').' '.format_date($edit['timestamp_changed']));
 
-  $form .= form_hidden('user_created',$edit['user_created']);
-  $form .= form_hidden('user_changed',$edit['user_changed']);
-  $form .= form_hidden('timestamp_created',$edit['timestamp_created']);
-  $form .= form_hidden('timestamp_changed',$edit['timestamp_changed']);
-
-  $form .= form_submit(t('Submit'));
-  $form .= form_submit(t('Delete user'));
-
-  $form .= form_hidden('id', $edit['id']);
-  $form .= form_hidden('password', $edit['password']);
-  $form .= form_hidden('username', $edit['username']);
-
+function guifi_user_proxy_validate($element, &$form_state) {
+  $s = &$form_state['values']['services']['proxy'];
+  switch ($element['#value']) {
+  case t('No service'):
+    $s = '-1';
+    break;
+  case t('Take from parents'):
+    $n = node_load($form_state['values']['nid']);
+    $s = guifi_zone_get_service($n->zone_id,'proxy_id');
+    break;
+  default:
+    $nid = explode('-',$element['#value']);
+    $s = $nid[0];
+  }
 }
 
 /**
  * Confirm that an edited user fields properly filled in.
  */
-function guifi_edit_user_validate(&$edit) {
-  if (($edit['id'] > 0) and (user_access('administer guifi users') == false))
-  if (crypt($edit['old_pwd'],$edit['password']) != $edit['password']) {
-    form_set_error('old_pwd', t('Unable to submit changes: Password failure.'));
+function guifi_user_form_validate($form, &$form_state) {
+  
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_form_validate()',$form_state);
+    
+  $edit = &$form_state['values'];
+  
+  if ((isset($edit['id'])) and (isset($edit['previous_pwd']))) {
+    if ($form_state['clicked_button']['#value'] != t('Reset password')) {
+      if (empty($edit['previous_pwd']))
+        form_set_error('previous_pwd',
+          t('You need to specify the current password to submit any change'));
+      $prevUser = guifi_user_load($edit['id']);
+      if ((crypt($edit['previous_pwd'],$prevUser['password']) != $prevUser['password'])) {
+        form_set_error('previous_pwd',t('Unable to submit changes: Password failure.'));     
+      }
+    }
   }
-
+  
   if (empty($edit['firstname'])) {
    form_set_error('firstname', t('Firstname field cannot be blank .'));
   }
@@ -348,34 +435,54 @@ function guifi_edit_user_validate(&$edit) {
    form_set_error('lastname', t('Lastname field cannot be blank .'));
   }
     
-  if (!empty($edit['pwd1'])) 
-  if ($edit['pwd1'] != $edit['pwd2']) {
-    form_set_error('pwd1', t('Unable to set the password: Does not match.'));
-  } 
-
-  if (!empty($edit['email'])) {
-  if (!valid_email_address($edit['email']))
-    form_set_error('email', t('This is not a valid email address.'));
-  } else {
-    form_set_error('email', t('Email address field cannot be blank.'));
-  }
- 
-  $edit['username'] = str_replace(" ",".",strtolower(guifi_to_7bits($edit['firstname'].'.'.$edit['lastname'])));
+  $edit['firstname']=trim($edit['firstname']);
+  $edit['lastname']=trim($edit['lastname']);
+  $edit['username']=str_replace(" ",".",strtolower(guifi_to_7bits($edit['firstname']).'.'.guifi_to_7bits($edit['lastname'])));
+//  $edit['username'] = str_replace(" ",".",strtolower(guifi_to_7bits($edit['firstname'].'.'.$edit['lastname'])));
   
   if (!empty($edit['username'])) {
-    $query = db_query("SELECT username, services FROM {guifi_users} WHERE username ='%s' AND id <> %d",$edit['username'], $edit['id']);
-    $proxy_id = db_fetch_object($query);
-    $services = unserialize($proxy_id->services);
-      if (db_num_rows($query)) {
-      $result = db_query("SELECT nick FROM {guifi_services} WHERE id = %d",$services['proxy']);
-      $proxy_name = db_fetch_object($result);
+    if (isset($edit['id']))
+      $query = db_query(
+        "SELECT username, services " .
+        "FROM {guifi_users} " .
+        "WHERE username ='%s' " .
+        " AND id <> %d",
+        $edit['username'], $edit['id']);
+    else
+      $query = db_query(
+        "SELECT username, nid, services " .
+        "FROM {guifi_users} " .
+        "WHERE username ='%s'",
+        $edit['username']);
     
-    form_set_error('username', t('The user ').$edit['username'].t(' is already taken on proxy:').' <a href="'.base_path().'node/'.$services['proxy'].'/">'.$proxy_name->nick.' (http://www.guifi.net/node/' .$services['proxy']. ').</a>'. t(' If the user is a different person, please write the name in this format: In the field "Firstname" type proxy_name.user_name and in the field "Lastname", just type the the lastname. Example: Firstname: ausa.pol , Lastname: sucarrats. The result will be the username: ausa.pol.sucarrats'));
-      }
+    while ($proxy_id = db_fetch_object($query)) {
+      $services = unserialize($proxy_id->services);
+      $qry2 = db_query(
+        "SELECT nick " .
+        "FROM {guifi_services} " .
+        "WHERE id = %d",
+        $services['proxy']);
+      $proxy_name = db_fetch_object($qry2);     
+    
+      form_set_error('username', t('The user %username is already defined ' .
+        'at the node %nodename ' .
+        'for service %servicename. Use middle initial, 2nd lastname or a prefix ' .
+        'with the proxy to get a unique username.',
+        array('%username'=>$edit['username'],
+          '%nodename'=>guifi_get_nodename($edit['nid']),
+          '%servicename'=>$proxy_name->nick
+        ))
+      );  
+    }
   }
+  
+  if (!empty($edit['pass']))
+    $edit['password'] = crypt($edit['pass']);
+    
 }
 
 function guifi_users_node_list($node) {
+  
   $output = drupal_get_form('guifi_users_node_list_form',$node);
   
   // To gain space, save bandwith and CPU, omit blocks
@@ -397,7 +504,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
     else
       $node = $params;
   }
-    
+
 //  $form_state['#redirect'] = FALSE;
 
 //  if (!empty($op)) {
@@ -408,16 +515,20 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 //      return guifi_edit_user($edit['user_checked']);
 //  }
 
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+  $title = t('Users @') .' ' .$node->title;
+  drupal_set_title($title);
+
   if ($node->type == 'guifi_node') {
     $query = db_query(
-      "SELECT id, firstname, lastname, username, services " .
+      "SELECT id, firstname, lastname, username, services, status " .
       "FROM {guifi_users} " .
       "WHERE nid = %d " .
       "ORDER BY lastname, firstname",
       $node->nid);
   } else
     $query = db_query(
-      "SELECT id, firstname, lastname, username, services " .
+      "SELECT id, firstname, lastname, username, services, status " .
       "FROM {guifi_users} " .
       "ORDER BY lastname, firstname");
 
@@ -443,7 +554,8 @@ function guifi_users_node_list_form($form_state, $params = array()) {
     else
       $realname = $guser->firstname;
     
-    $options[$guser->id] = $realname.' ('.$guser->username.')';
+    $options[$guser->id] = $realname.' ('.$guser->username.')'.' '.
+      $guser->status;
     if (!isset($default_user))
       $default_user = $guser->id;
   }
@@ -451,7 +563,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
   if (count($options)) {
     $f['user_id'] = array(
       '#type'=>'radios',
-      '#title'=>t('Users @') .' ' .$node->title,
+      '#title'=>$title,
       '#options'=>$options,
       '#default_value'=>$default_user
     );
@@ -482,11 +594,30 @@ function guifi_users_node_list_form_submit($form, &$form_state) {
         drupal_set_message(t('You must select a user from the list'));
         break;
       }
-      print theme('page', 
-        drupal_get_form('guifi_user_form',$form_state['values']['user_id']), 
-        FALSE);
+      drupal_goto('guifi/user/'.$form_state['values']['user_id'].'/edit');
       break;
     case t('Add user'):
+      drupal_goto('node/'.arg(1).'/user/add');
+      break;
+  }
+}
+
+function guifi_user_form_submit($form, &$form_state) {
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_form_submit()',$form_state);  
+  
+  switch ($form_state['clicked_button']['#value']) {
+    case t('Save'):
+      guifi_user_save($form_state['values']);
+      drupal_goto("node/".$form_state['values']['nid']."/view/users");
+//        drupal_set_message(t('User save.'));
+      break;
+    case t('Reset password'):
+      guifi_user_reset_password($form_state['values']);
+      drupal_goto("node/".$form_state['values']['nid']."/view/users");
+      break;
+    case t('Delete'):
+      drupal_goto("guifi/user/".$form_state['values']['id']."/delete");
+      break;
   }
 }
 
@@ -494,23 +625,35 @@ function guifi_users_node_list_form_submit($form, &$form_state) {
 /**
  * Save changes to the database.
  */
-function guifi_edit_user_save($edit) {
-
+function guifi_user_save($edit) {
   global $user;
-
-  if (!empty($edit['pwd1'])) {
-    $edit['password'] = crypt($edit['pwd1'],chr(rand(65,97)).chr(rand(90,122)));
+  
+  $n = node_load($edit['nid']);
+  
+  $to_mail = $n->notification;  
+  $log ='';
+  
+  if (isset($edit['services'])) {
+    if (isset($edit['services']['proxystr']))
+      unset($edit['services']['proxystr']);
+    $edit['services'] = serialize($edit['services']);
   }
-
-  if ($edit['id']) {
-    db_query("UPDATE {guifi_users} SET firstname = '%s', lastname = '%s', username = '%s', password = '%s', email = '%s', services = '%s', extra = '%s', nid = %d, timestamp_changed = %d, user_changed = %d WHERE id = %d", $edit['firstname'], $edit['lastname'], $edit['username'], $edit['password'], $edit['email'], serialize($edit['services']), serialize($edit['vars']), $edit['nid'], time(), $user->uid, $edit['id']);
-    drupal_set_message(t('Updated guifi user %user. Change will be efective from now to a couple of hours.', array('%user' => theme('placeholder', $edit['username']))));
-  }
-  else {
-    db_query("INSERT INTO {guifi_users} ( firstname, lastname, username, password, email, services, extra, nid, timestamp_created, user_created) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d)", $edit['firstname'], $edit['lastname'], $edit['username'], $edit['password'], $edit['email'], serialize($edit['services']),  serialize($edit['vars']), $edit['nid'], time(), $user->uid);
-    drupal_set_message(t('Created new user %user. Change will be efective from now to a couple of hours.', array('%user' => theme('placeholder', $edit['username']))));
-  }
-  cache_clear_all();
+  if (isset($edit['var']))
+    $edit['extra'] = serialize($edit['var']);
+  if (isset($edit['content_filters']))
+    $edit['content_filters'] = serialize($edit['content_filters']);
+        
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_save()',$edit);
+  
+  _guifi_db_sql('guifi_users',array('id'=>$edit['id']),$edit,$log,$to_mail);
+  
+//  drupal_set_message($log);
+//  drupal_set_message($to_mail);
+  drupal_set_message(t('%user saved. Note that in some cases the change will not take effect until after some time.', array('%user' => $edit['username'])));
+  guifi_notify(
+    $to_mail,
+    t('The user !username has been UPDATED by !user.',array('!username' => $edit['username'], '!user' => $user->name)),
+    $log);
 }
 
 function guifi_dump_passwd($node) {
@@ -546,10 +689,10 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
     $node_zones[$item->id] = $item->zone_id;
        
   // query ALL users, kept in memory users array
-  $query = db_query("SELECT * FROM {guifi_users}");
+  $query = db_query("SELECT * FROM {guifi_users} WHERE status='Approved'");
   $users = array();
   while ($item = db_fetch_object($query)) {
-    unset($user);
+    $user = object();
     $user->username = $item->username;
     $user->password = $item->password;
     $user->nid = $item->nid;
@@ -613,9 +756,8 @@ function _guifi_dump_federated($node) {
 
 
 if (is_array($node->var[fed]))
-  if (in_array('IN',$node->var[fed])) {
-    unset($head);	
-    $head .= "#\n";	
+  if (in_array('IN',$node->var[fed])) {	
+    $head  = "#\n";	
     $head .= '# Federated User &#038; password list for Proxy : "'.$node->title.'"'."\n";
     $head .= "#\n";
     $head .= "#  Includes users from the following proxys :\n";

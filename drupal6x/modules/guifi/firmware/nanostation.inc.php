@@ -1,6 +1,6 @@
 <?php
 
-function unsolclic_NanoStation($dev) {
+function unsolclic_AirOs211($dev) {
   $version = "1.0.2";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
@@ -22,14 +22,14 @@ function unsolclic_NanoStation($dev) {
   }
 
   $apssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
-    if (empty($dev->radios[0][antmode]))
-         $dev->radios[0][antmode]= 'Main';
-        if ($dev->radios[0][antmode] != 'Main') 
-          $dev->radios[0][antmode]= '1';
+    if (empty($dev->radios[0][antenna_mode]))
+         $dev->radios[0][antenna_mode]= 'Main';
+        if ($dev->radios[0][antenna_mode] != 'Main') 
+          $dev->radios[0][antenna_mode]= '1';
         else
-          $dev->radios[0][antmode]= '2';
-  $radiorx = $dev->radios[0][antmode];
-  $radiotx = $dev->radios[0][antmode];
+          $dev->radios[0][antenna_mode]= '2';
+  $radiorx = $dev->radios[0][antenna_mode];
+  $radiotx = $dev->radios[0][antenna_mode];
 
   switch ($dev->variable['model_id']) {
       case "25":

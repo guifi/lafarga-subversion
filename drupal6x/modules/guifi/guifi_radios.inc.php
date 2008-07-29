@@ -524,12 +524,12 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
       '#suffix'=>'</td>',
 //      '#weight' => $fw2++,
     );
-    $f['antenna']['antmode'] = array(
+    $f['antenna']['antenna_mode'] = array(
       '#type' => 'select',
       '#title' => t("Connector"),
-      '#parents' => array('radios',$key,'antmode'),        
+      '#parents' => array('radios',$key,'antenna_mode'),        
   //    '#required' => TRUE,
-      '#default_value' =>  $radio["antmode"],
+      '#default_value' =>  $radio["antenna_mode"],
       '#options' => array(
         ''=> 'Don\'t change',
         'Main'=>'Main/Right/Internal',
@@ -854,7 +854,7 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
     $radio['channel']=0;
     $radio['antenna_gain']=14;
     $radio['antenna_azimuth']=0;
-    $radio['antmode']='Main';
+    $radio['antenna_mode']='Main';
     $radio['interfaces']=array();
     $radio['interfaces'][0]=array();
     $radio['interfaces'][0]['new']=true;

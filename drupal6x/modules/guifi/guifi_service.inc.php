@@ -101,13 +101,13 @@ function guifi_service_form($node, $param) {
   
   //$output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
   
-  $f['contact'] = array(
+  $f['notification'] = array(
     '#type' => 'textfield',
     '#title' => t('Contact'),
     '#required' => false,
     '#size' => 60,
     '#maxlength' => 128,
-    '#default_value' => $node->contact,
+    '#default_value' => $node->notification,
     '#element_validate' => array('guifi_emails_validate'),    
     '#description' => t("Who did possible this service or who to contact with regarding this service if it is distinct of the owner of this page."),
   );
@@ -306,7 +306,7 @@ function guifi_service_form($node, $param) {
       );
       break;
     default:
-      $f['contact'] = array(
+      $f['url'] = array(
         '#type' => 'textfield',
         '#title' => t('url'),
         '#size' => 60,
@@ -409,6 +409,49 @@ function guifi_service_nick_validate($element, &$form_state) {
   }
 }
 
+function guifi_service_str($id,$emptystr = 'Take from parents') {
+  if (empty($id))
+    return t($emptystr);
+  if ($id == -1)
+    return t('No service');
+  
+  // there is a value, create the string
+  $proxy = guifi_service_load($id);
+  $proxystr = $id.'-'.
+    guifi_get_zone_nick($proxy->zone_id).', '.
+    $proxy->nick;
+    
+  return $proxystr;
+}
+
+function guifi_service_url($id) {
+  if (empty($id))
+    // get from parents
+  
+  return l(guifi_service_str($id),
+     'node/'.$id);
+}
+
+function guifi_service_name_validate($nodestr,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+  
+  if ($nodestr['#value'] == t('No service') or 
+     ($nodestr['#value'] == t('Take from parents')))
+    return;
+    
+  $nid = explode('-',$nodestr['#value']);
+  $qry = db_query('SELECT id FROM {guifi_services} WHERE id="%s"',$nid[0]);
+  while ($node = db_fetch_array($qry)) 
+    return $nodestr;
+  
+  form_error($nodestr,
+    t('Service %name not valid.',array('%name'=>$nodestr['#value'])),'error');
+
+  return $nodestr;
+}
+
+
 /**
  * Save changes to a guifi item into the database.
  */
@@ -416,7 +459,7 @@ function guifi_service_nick_validate($element, &$form_state) {
 function guifi_service_insert($node) {
   global $user;
   $log = '';
-  $to_mail = explode(',',$node->contact);
+  $to_mail = explode(',',$node->notification);
   $node->extra = serialize($node->var);
 
   guifi_log(GUIFILOG_TRACE,'function guifi_service_insert()',$node);
@@ -447,7 +490,7 @@ function guifi_service_multiplefield_clean(&$mfield) {
 function guifi_service_update($node) {
   global $user;
   $log = '';
-  $to_mail = explode(',',$node->contact);
+  $to_mail = explode(',',$node->notification);
   
   guifi_log(GUIFILOG_TRACE,'function guifi_service_update()',$node);
 
@@ -466,8 +509,6 @@ function guifi_service_update($node) {
     $to_mail,
     t('The service %name has been UPDATED by %user.',array('%name' => $node->nick, '%user' => $user->name)),
     $log);
-//  db_query("UPDATE {guifi_services} SET zone_id = %d, nick = '%s', device_id = %d, contact = '%s', status_flag = '%s', extra = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $node->zone_id, $node->nick, $node->device_id, $node->contact, $node->status_flag, serialize($node->var), time(), $user->uid, $node->nid);
-
 }
 
 /**

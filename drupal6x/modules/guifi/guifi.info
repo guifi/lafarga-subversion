@@ -3,5 +3,5 @@ name = guifi.net
 description = Main module for guifi.net provisioning system for wireless networks and communities.
 package = guifi.net
 core = 6.x
-version = 6.x-dev6.x
+version = 6.3-dev6.3
 

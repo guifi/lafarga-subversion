@@ -204,6 +204,28 @@ function guifi_menu() {
 //     'weight' => 3,
      'type' => MENU_LOCAL_TASK
    );
+   $items['node/%guifi_node/user/add'] = array( 
+     'page callback' => 'guifi_user_add',
+     'page arguments' => array(1),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_CALLBACK
+   );
+   $items['guifi/user/%/edit'] = array( 
+     'page callback' => 'guifi_user_edit',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_CALLBACK
+   );
+      $items['guifi/user/%/delete'] = array( 
+     'page callback' => 'guifi_user_delete',
+     'page arguments' => array(2),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+     'type' => MENU_CALLBACK
+   );
+   
 
       // service menus
    $items['node/%guifi_service/view/sdata'] = array( 
@@ -256,7 +278,7 @@ function guifi_menu() {
        'page arguments' => array(1),
        'access callback' => 'user_access',
        'access arguments' => array('access content'),
-	     'type' => MENU_CUSTOM_ITEM
+	     'type' => MENU_CALLBACK
    );
 /*
    $items['guifi'] = array( 
@@ -401,14 +423,21 @@ function guifi_menu() {
     $items['guifi/js/select-node/%'] = array(
       'title' => 'Javascript Select Node',
       'page callback' => 'guifi_ahah_select_node',
-      'page_arguments'=>array(1),
+      'page_arguments'=>array(3),
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
+    $items['guifi/js/select-service/%/%'] = array(
+      'title' => 'Javascript Select Service',
+      'page callback' => 'guifi_ahah_select_service',
+      'page_arguments'=>array(3),
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );
     $items['guifi/js/select-server/%'] = array(
       'title' => 'Javascript Select Server',
       'page callback' => 'guifi_ahah_select_server',
-      'page_arguments'=>array(1),
+      'page_arguments'=>array(3),
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );

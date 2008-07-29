@@ -78,6 +78,32 @@ function guifi_ahah_select_server(){
   exit();
 }
 
+function guifi_ahah_select_service(){
+  $matches = drupal_map_assoc(array(t('No service'),t('Take from parents')));
+  
+  $service_type = arg(3);
+  $string = arg(4);
+  
+  $qry = db_query('SELECT ' .
+                  '  CONCAT(s.id,"-",z.nick,", ",s.nick) str '. 
+                  'FROM {guifi_services} s, {guifi_zone} z ' .
+                  'WHERE s.service_type like "%'.$service_type.'%" ' .
+                  '  AND s.zone_id=z.id ' .
+                  '  AND ((CONCAT(s.id,"-",z.nick,", ",s.nick) LIKE "%'.
+                       $string.'%")'.
+                  '  OR (s.id like "%'.$string.'%"'.
+                  '  OR s.nick like "%'.$string.'%"'.
+                  '  OR z.nick like "%'.$string.'%"))'
+                 );
+  $c = 0;
+  while (($value = db_fetch_array($qry)) and ($c < 50)) {
+    $c++;
+    $matches[$value['str']] = $value['str'];
+  }
+  print drupal_to_js($matches);
+  exit();
+}
+
 function guifi_ahah_select_node(){
   $matches = array();
   

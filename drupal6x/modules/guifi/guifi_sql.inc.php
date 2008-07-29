@@ -46,14 +46,15 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
   if ($insert) 
   switch ($table) {
   case 'guifi_devices':
-      $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_devices}'));
+  case 'guifi_users': 
+       $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
       if (is_null($next_id['id']))
         $next_id['id'] = 1;
       $data['id'] = $next_id['id'];
   case 'guifi_zone':
   case 'guifi_services':
   case 'guifi_location':
-      $data['user_created'] = $user->id;
+      $data['user_created'] = $user->uid;
       $data['timestamp_created'] = time();
     break;
 //  case 'guifi_radios':
@@ -89,12 +90,18 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
     case 'guifi_location':
     case 'guifi_devices':
     case 'guifi_services':
+    case 'guifi_users':
       $data['user_changed'] = $user->uid;
       $data['timestamp_changed'] = time();
     // TODO: update node status here
     break;
   }
 
+// // set numeric & refix if ipv4
+// if ($table == 'guifi_ipv4') {
+//   if (isset($data['ipv4']))
+//     $data['lipv4'] = ip2long($data['ip4']);
+// }
 
  $sql_str = '';
  $values_data = array();
