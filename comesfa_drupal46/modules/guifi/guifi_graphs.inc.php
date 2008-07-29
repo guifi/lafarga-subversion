@@ -404,7 +404,7 @@ function guifi_mrtg() {
    $query_linksys_buffalo = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('WRT54Gv1-4','WRT54GSv1-2','WRT54GSv4','WRT54GL','WHR-HP-G54, WHR-G54S')",$row['id']);
    if (db_num_rows($query_linksys_buffalo) > 0)  
       print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
-   $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
+   $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net', 'Supertrasto RB133C guifi.net' , 'Supertrasto RB133 guifi.net' , 'Supertrasto RB112 guifi.net' , 'Supertrasto RB153 guifi.net' , 'Supertrasto RB600 guifi.net' , 'Supertrasto RB333 guifi.net' , 'Supertrasto RB412 guifi.net', 'Supertrasto RB433 guifi.net')",$row['id']);
    if (db_num_rows($query_routeros) > 0)   {
      $dev = guifi_get_device($row[id]);
      if (isset($dev[radios])) foreach ($dev[radios] as $radio_id=>$radio) {
