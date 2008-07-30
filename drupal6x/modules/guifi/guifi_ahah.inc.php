@@ -4,7 +4,7 @@
  *
  * Functions for Asynchrnous HTTP and HTML (AHAH) at some forms
  */
- 
+
 function guifi_ahah_render_newfields($fields, $name) {
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
@@ -23,13 +23,13 @@ function guifi_ahah_render_newfields($fields, $name) {
 
   // Render the new output.
   $new_form = $form[$name];
-  return drupal_render($new_form); 
+  return drupal_render($new_form);
 }
 
 function guifi_ahah_render_field($field){
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   if ($cache) {
     $form = $cache->data;
 
@@ -52,11 +52,11 @@ function guifi_ahah_render_field($field){
 
 function guifi_ahah_select_server(){
   $matches = array();
-  
+
   $string = arg(3);
-  
+
   $qry = db_query('SELECT ' .
-                  '  CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) str '. 
+                  '  CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) str '.
                   'FROM {guifi_devices} d, {guifi_location} l, {guifi_zone} z ' .
                   'WHERE d.type IN ("server","cam") ' .
                   '  AND d.nid=l.id AND l.zone_id=z.id ' .
@@ -80,20 +80,20 @@ function guifi_ahah_select_server(){
 
 function guifi_ahah_select_service(){
   $matches = drupal_map_assoc(array(t('No service'),t('Take from parents')));
-  
+
   $service_type = arg(3);
   $string = arg(4);
-  
+
   $qry = db_query('SELECT ' .
-                  '  CONCAT(s.id,"-",z.nick,", ",s.nick) str '. 
+                  '  CONCAT(s.id,"-",z.title,", ",s.nick) str '.
                   'FROM {guifi_services} s, {guifi_zone} z ' .
                   'WHERE s.service_type like "%'.$service_type.'%" ' .
                   '  AND s.zone_id=z.id ' .
-                  '  AND ((CONCAT(s.id,"-",z.nick,", ",s.nick) LIKE "%'.
+                  '  AND ((CONCAT(s.id,"-",z.title,", ",s.nick) LIKE "%'.
                        $string.'%")'.
                   '  OR (s.id like "%'.$string.'%"'.
                   '  OR s.nick like "%'.$string.'%"'.
-                  '  OR z.nick like "%'.$string.'%"))'
+                  '  OR z.title like "%'.$string.'%"))'
                  );
   $c = 0;
   while (($value = db_fetch_array($qry)) and ($c < 50)) {
@@ -106,11 +106,11 @@ function guifi_ahah_select_service(){
 
 function guifi_ahah_select_node(){
   $matches = array();
-  
+
   $string = arg(3);
-  
+
   $qry = db_query('SELECT ' .
-                  '  CONCAT(l.id,"-",z.nick,", ",l.nick) str '. 
+                  '  CONCAT(l.id,"-",z.nick,", ",l.nick) str '.
                   'FROM {guifi_location} l, {guifi_zone} z ' .
                   'WHERE l.zone_id=z.id ' .
                   '  AND ((CONCAT(l.id,"-",z.nick,", ",l.nick) LIKE "%'.
@@ -131,25 +131,25 @@ function guifi_ahah_select_node(){
 function guifi_ahah_select_zone() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   $fname = arg(3);
-  
+
   $zid = $_POST[$fname];
-  
+
   if ($cache) {
     $form = $cache->data;
 
     // zid field
-    $form[$fname] = 
+    $form[$fname] =
         guifi_zone_select_field($zid,$fname);
-          
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
     $form['#post'] = array();
     $form = form_builder($form['form_id']['#value'] , $form, $form_state);
     $output = drupal_render($form[$fname]);
-    
+
     drupal_json(array('status' => TRUE, 'data' => $output));
   } else {
     drupal_json(array('status' => FALSE, 'data' => ''));
@@ -160,20 +160,20 @@ function guifi_ahah_select_zone() {
 function guifi_ahah_select_device() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
-  $action = arg(3);  
-    
+
+  $action = arg(3);
+
   if ($cache) {
     $form = $cache->data;
-    
+
     if ($action == 'guifi_node_distances') {
       $node = guifi_node_load($_POST['filters']['from_node']);
-      $form['list-devices'] = 
+      $form['list-devices'] =
         guifi_node_distances_list($_POST['filters'],$node);
     } else
-      $form['list-devices'] = 
+      $form['list-devices'] =
         guifi_devices_select($_POST['filters'],$action);
-          
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
@@ -190,12 +190,12 @@ function guifi_ahah_select_device() {
 function guifi_ahah_add_radio() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   if ($cache) {
     $form = $cache->data;
 
     $form['r']['newRadio'] = guifi_radio_add_radio_form($_POST);
-          
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
@@ -212,7 +212,7 @@ function guifi_ahah_add_radio() {
 function guifi_ahah_add_cable_link() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   $values = explode(',',arg(3));
   $interface_id = $values[0];
   if (count($values)==2) {
@@ -222,37 +222,37 @@ function guifi_ahah_add_cable_link() {
     $parents = array('interfaces',$interface_id,'ipv4',$ipv4_id);
   } else {
     // create the cable link over an interface, with a backbone p2p network
-    $submit =  array('guifi_interfaces_add_cable_p2p_link_submit');  
-    $parents = array('interfaces',$interface_id);  
+    $submit =  array('guifi_interfaces_add_cable_p2p_link_submit');
+    $parents = array('interfaces',$interface_id);
   }
-  
-  
+
+
   $node = explode('-',$_POST['movenode']);
 
   $orig_device_id = $_POST['id'];
-  
+
   $qry = db_query('SELECT id, nick ' .
                   'FROM {guifi_devices} ' .
                   'WHERE nid=%d' .
                   ' AND type = "radio" ',
 //                  ' AND id<>%d',
                   $node[0]);
-  
+
   while ($value = db_fetch_array($qry)) {
     if (!($value['id']==$orig_device_id))
-      $list[$value['id']] = $value['nick']; 
+      $list[$value['id']] = $value['nick'];
   }
-  
+
   if (count($_POST['interfaces'])) foreach ($_POST['interfaces'] as $iid=>$intf)
     if (count($intf['ipv4'])) foreach ($intf['ipv4'] as $i=>$ipv4)
       if (count($ipv4['links'])) foreach ($ipv4['links'] as $l=>$link) {
         if (isset($list[$link['device_id']]))
-          unset($list[$link['device_id']]);  
+          unset($list[$link['device_id']]);
       }
-      
+
   if ($cache) {
     $form = $cache->data;
-    
+
     if ($node[0] != $_POST['nid']) {
       $f['msg'] = array(
         '#type'=>'item',
@@ -267,7 +267,7 @@ function guifi_ahah_add_cable_link() {
       $tree[] = 'to_did';
       $f['to_did'] = array(
         '#type'=>'select',
-        '#parents'=> $tree,        
+        '#parents'=> $tree,
         '#title'=>t('Link to device'),
         '#description'=>t('Select the device which you want to link with'),
         '#options'=>$list,
@@ -293,10 +293,10 @@ function guifi_ahah_add_cable_link() {
         '#description'=>t('Can\'t link this device to another device ' .
         'since there are no other devices defined on this node.'),
       );
-    } 
-    
+    }
+
     $form['if']['interfaces']['ifs'][$interface_id]['addLink'] = $f;
-    
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
@@ -313,7 +313,7 @@ function guifi_ahah_add_cable_link() {
 function guifi_ahah_add_subnet_mask() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   $interface_id = arg(3);
 
   if ($cache) {
@@ -338,7 +338,7 @@ function guifi_ahah_add_subnet_mask() {
       '#prefix' => '<td align="left">',
       '#suffix' => '</td></table>'
     );
-          
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
@@ -355,27 +355,27 @@ function guifi_ahah_add_subnet_mask() {
 function guifi_ahah_move_device() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
-  
+
   $radio_id = arg(3);
   $node = explode('-',$_POST['movenode']);
   $orig_device_id = $_POST['id'];
-  
+
   $qry = db_query('SELECT id, nick ' .
                   'FROM {guifi_devices} ' .
                   'WHERE nid=%d' .
                   ' AND type = "radio" ',
 //                  ' AND id<>%d',
                   $node[0]);
-  
+
   $list[$orig_device_id] = t('To move this radio to another device, ' .
       'select it from the list');
   while ($value = db_fetch_array($qry)) {
     if ($value['id']==$orig_device_id)
       $value['nick'] = t('To move this radio to another device, ' .
         'select it from the list');
-    $list[$value['id']] = $value['nick']; 
+    $list[$value['id']] = $value['nick'];
   }
-    
+
   if ($cache) {
     $form = $cache->data;
 
@@ -396,11 +396,11 @@ function guifi_ahah_move_device() {
         '#type'=>'hidden',
         '#parents'=> array('radios',$radio_id,'to_did'),
         '#value'=>$orig_device_id,
-      );            
+      );
     } else if (count($list)>1) {
       $form['r'][$radio_id]['moveradio']['to_did'] = array(
         '#type'=>'select',
-        '#parents'=> array('radios',$radio_id,'to_did'),        
+        '#parents'=> array('radios',$radio_id,'to_did'),
         '#title'=>t('Move radio to device'),
         '#description'=>t('Select the device which you want to assign this radio.<br>' .
             'Note that the change will not take effect until the device has been saved.'),
@@ -420,9 +420,9 @@ function guifi_ahah_move_device() {
         '#type'=>'hidden',
         '#parents'=> array('radios',$radio_id,'to_did'),
         '#value'=>$orig_device_id,
-      );      
-    } 
-          
+      );
+    }
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
@@ -445,16 +445,16 @@ function guifi_ahah_add_interface() {
   $newI['interface_type'] = array_shift($free);
   $newI['new'] = true;
   $newI['unfold'] = true;
-  
+
   $interfaces[] = $newI;
   end($interfaces);
   $delta = key($interfaces);
-  
+
   $newI['interface_id'] = $delta;
-  
+
 //  guifi_log(GUIFILOG_TRACE,sprintf('add_interface %d',$delta),$newI);
-  
-  $form_element = 
+
+  $form_element =
     guifi_interfaces_form($newI,array('interfaces',$delta));
 //  drupal_alter('form', $form_element, array(), 'guifi_ahah_add_interface');
 
@@ -495,18 +495,18 @@ function guifi_ahah_add_interface() {
 
 
 function guifi_ahah_select_firmware_by_model(){
-  
+
   $cid = 'form_'. $_POST['form_build_id'];
 //  $bid = $_POST['book']['bid'];
   $cache = cache_get($cid, 'cache_form');
   $mid = $_POST['variable']['model_id'];
-  
+
   if ($cache) {
     $form = $cache->data;
 
     // Validate the firmware.
     if (isset($form['radio_settings']['variable']['model_id'])) {
-      $form['radio_settings']['variable']['firmware'] = 
+      $form['radio_settings']['variable']['firmware'] =
         guifi_radio_firmware_field($_POST['variable']['firmware'],
           $mid);
       cache_set($cid, $form, 'cache_form', $cache->expire);

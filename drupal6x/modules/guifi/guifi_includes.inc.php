@@ -67,7 +67,7 @@ function _guifi_tostrunits($num) {
   $base = array('B','KB','MB','GB','TB','PB');
   $str = sprintf("%3d B",$num);
   foreach ($base as $key => $unit) {
-    if ($num > pow(1024,$key)) 
+    if ($num > pow(1024,$key))
       $str = sprintf("%7.2f %s",$num/pow(1024,$key),$unit);
     else
       return $str;
@@ -78,7 +78,7 @@ function _guifi_tostrunits($num) {
  *
 **/
 function guifi_availabilitystr($device) {
-  $pings = guifi_get_pings($device->nick);
+  $pings = guifi_graphs_get_pings($device->nick);
   if ($pings['samples'] > 0) {
     $available = sprintf("%.2f%%",$pings['succeed']);
     if ($pings['last_succeed'] == 0)
@@ -169,11 +169,11 @@ function guifi_get_mac($id,$itype) {
 /*
  * guifi_type_relation()
  * Validates if a relationship is valid or not
- * 
+ *
  * @type type code
  * @subject type code of the subject to check
  * @related type code of the relationship to be checked
- * 
+ *
  * @return true if relation is valid,m false if is invalid
 */
 function guifi_type_relation($type,$subject,$related) {
@@ -220,20 +220,20 @@ function guifi_server_descr($did) {
 function _set_value($device,$node,&$var,$id,$rid,$search) {
   $prefix = '';
 
-  if (isset($device->radiodev_counter)) 
+  if (isset($device->radiodev_counter))
     $ql = db_query('SELECT l1.id FROM {guifi_links} l1 LEFT JOIN {guifi_interfaces} i1 ON l1.interface_id=i1.id LEFT JOIN {guifi_links} l2 ON l1.id=l2.id LEFT JOIN {guifi_interfaces} i2 ON l2.interface_id=i2.id WHERE l1.device_id=%d AND i1.radiodev_counter=%d AND l2.device_id=%d AND i2.radiodev_counter=%d',$device->id, $device->radiodev_counter,$id,$rid);
   else
     $ql = db_query('SELECT l1.id FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id=%d AND l2.device_id=%d',$device->id, $id);
 
-  if (db_result($ql) > 0)  
+  if (db_result($ql) > 0)
     // link already exists
     return;
 
-  if ((!user_access('administer guifi zones') and ($device->clients_accepted=='No'))) 
+  if ((!user_access('administer guifi zones') and ($device->clients_accepted=='No')))
     // backhaul and not zone administrator, can't link to backhaul nodes
     return;
 
-  if ($device->clients_accepted == 'No') 
+  if ($device->clients_accepted == 'No')
     $backhaul = '**'.t('backbone').'**';
 
   $zone = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id=%d',$device->zone_id));
@@ -248,10 +248,10 @@ function _set_value($device,$node,&$var,$id,$rid,$search) {
   } else
     $value= $zone->title.', '.$device->ssid;
 
-  if (($search != null) and 
+  if (($search != null) and
      (!stristr($value,$search)))
     return;
-    
+
 
   if (isset($device->radiodev_counter))
     $var[$device->nid.','.$device->id.','.$device->radiodev_counter] = $value;
@@ -268,13 +268,13 @@ function _set_value($device,$node,&$var,$id,$rid,$search) {
 function guifi_devices_select($filters,$action = '') {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_devices_select()',$filters);
-  
+
   $var = array();
   $found = false;
 
   if ($filters['type'] == 'cable') {
     if ($filters['mode'] != 'cable-router')
-      $query = sprintf(" 
+      $query = sprintf("
         SELECT
           l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id
         FROM {guifi_devices} r,{guifi_location} l, {guifi_zone} z
@@ -304,10 +304,10 @@ function guifi_devices_select($filters,$action = '') {
         $filters['from_node']);
 
   $devdist = array();
-  $devarr = array(); 
+  $devarr = array();
   $k = 0;
   $devsq = db_query($query);
-  
+
   while ($device = db_fetch_object($devsq)) {
     $k++;
     $l = false;
@@ -321,8 +321,8 @@ function guifi_devices_select($filters,$action = '') {
       $distance = round($oGC->EllipsoidDistance(
         $device->lat, $device->lon,
         $node->lat, $node->lon),3);
-      if (($distance > $filters['dmax']) or  
-        ($distance < $filters['dmin'])) 
+      if (($distance > $filters['dmax']) or
+        ($distance < $filters['dmin']))
         continue;
       if ($filters['azimuth']) {
         foreach (explode('-',$filters['azimuth']) as $minmax) {
@@ -332,8 +332,8 @@ function guifi_devices_select($filters,$action = '') {
             $node->lat, $node->lon));
           if (($Az <= $max) and ($Az >= $min))
             $l = true;
-        } 
-      } else 
+        }
+      } else
         $l = true;
     }
     if ($l) {
@@ -343,15 +343,15 @@ function guifi_devices_select($filters,$action = '') {
     }
   }
   asort($devdist);
- 
+
 //  ob_start();
 //  print "Query: $query \n<br>";
 //  print_r($devdist);
 //  $txt = ob_get_contents();
 //  ob_end_clean();
-  
-  
-  if (!empty($devdist)) foreach ($devdist as $id=>$foo) {    
+
+
+  if (!empty($devdist)) foreach ($devdist as $id=>$foo) {
     $device = $devarr[$id];
 
     switch ($filters['type']) {
@@ -360,17 +360,17 @@ function guifi_devices_select($filters,$action = '') {
             $cr = guifi_count_radio_links($device->id);
             if ($cr[ap] < 1)
               _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
-          } else 
-          if (($filters['mode'] == 'client') and ($device->mode == 'ap')) 
+          } else
+          if (($filters['mode'] == 'client') and ($device->mode == 'ap'))
             _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
-        break; 
+        break;
       case 'wds':
         if ($device->mode == 'ap')
           _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
-        break; 
+        break;
       case 'cable':
           _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
-        break; 
+        break;
       } // eof switch link_type
   } // eof while query device,node,zone
 
@@ -378,13 +378,13 @@ function guifi_devices_select($filters,$action = '') {
     '#type' => 'fieldset',
  //   '#title' => t('filters'),
  //   '#weight' => 0,
-    '#collapsible' => false, 
+    '#collapsible' => false,
     '#collapsed' => false,
  //   '#weight' => $fweight++,
     '#prefix' => '<div id="list-devices">',
     '#suffix' => '</div>',
   );
-  
+
   if (count($var) == 0) {
     $form['d'] = array(
       '#type' => 'item',
@@ -406,49 +406,49 @@ function guifi_devices_select($filters,$action = '') {
     '#title' => t('select the device which do you like to link with'),
     '#options' => $var,
 //    '#description' => $txt.'<br>'.$action,
-    '#attributes' => array('class'=>'required'),    
-    
+    '#attributes' => array('class'=>'required'),
+
 //    '#description' => t('If you save at this point, link will be created and information saved.'),
 //    '#prefix'=>'<div id="list-devices">',
 //    '#suffix'=>'</div>',
   );
-  
+
   $form['dbuttons'] = guifi_device_buttons(true,$action,1);
-  
+
   return $form;
-  
+
 }
 
 function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
-  if (($db) and ($type == 'radio')) 
+  if (($db) and ($type == 'radio'))
     $model = db_fetch_array(db_query('SELECT m.interfaces FROM {guifi_radios} r LEFT JOIN {guifi_model} m ON m.mid=r.model_id WHERE r.id=%d',$id));
-  else 
+  else
     $model[interfaces] = 'Lan';
   return explode('|',$model[interfaces]);
 }
 
 
 function guifi_get_possible_interfaces($edit = array()) {
-  if ($edit[type] == 'radio') 
+  if ($edit[type] == 'radio')
     $model = db_fetch_array(db_query('
       SELECT m.interfaces
       FROM {guifi_model} m
       WHERE mid=%d',
     $edit['variable']['model_id']));
-  else 
+  else
     $model['interfaces'] = 'Lan';
   $possible = explode('|',$model['interfaces']);
   $possible[] = 'other';
- 
+
   return $possible;
 }
 
 
 /* guifi_get_free_interfaces(): Populates a select list with the available cable interfaces */
 function guifi_get_free_interfaces($id,$edit = array()) {
-  
+
   $possible = guifi_get_possible_interfaces($edit);
-  
+
   $qi = db_query('
     SELECT interface_type
     FROM {guifi_interfaces}
@@ -458,7 +458,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
   while ($i = db_fetch_object($qi)) {
     $used[] = $i->interface_type;
   }
-  if ($edit != null) 
+  if ($edit != null)
   if (count($edit['interfaces']) > 0)
     foreach ($edit['interfaces'] as $k=>$value) {
       if ($value['deleted']) continue;
@@ -467,8 +467,8 @@ function guifi_get_free_interfaces($id,$edit = array()) {
 
    $free = array_diff($possible, $used);
    if (count($free)==0)
-     $free[] = 'other';   
- 
+     $free[] = 'other';
+
   return array_combine($free, $free);
 }
 
@@ -484,12 +484,12 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
           'event' => 'change',
           'effect' => 'fade',
          );
-  
+
   $form['f'] = array(
     '#type' => 'fieldset',
     '#title' => t('Filters'),
     '#weight' => 0,
-    '#collapsible' => true, 
+    '#collapsible' => true,
     '#collapsed' => false,
     '#weight' => $fweight++,
   );
@@ -499,7 +499,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#title' => t('Distance from'),
     '#size' => 5,
     '#maxlength' => 5,
-    '#attributes' => array('class'=>'digits min(0)'),    
+    '#attributes' => array('class'=>'digits min(0)'),
     '#default_value' => $form_state['values']['filters']['dmin'],
     '#description' => t("List starts at this distance"),
     '#prefix' => '<table><tr><td>',
@@ -514,7 +514,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#size' => 5,
     '#maxlength' => 5,
     '#default_value' => $form_state['values']['filters']['dmax'],
-    '#attributes' => array('class'=>'digits min(0)'),    
+    '#attributes' => array('class'=>'digits min(0)'),
     '#description' => t("...and finishes at this distance"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -610,7 +610,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
          ),
     '#weight' => $fweight++,
   );*/
-  
+
   if (isset($form_state['values']['filters']['type']))
   $form['f']['type'] = array(
      '#type'  => 'hidden',
@@ -660,7 +660,7 @@ function _guifi_set_namelocation($location) {
 
   }
   return $prefix.$location->nick;
-} // eof function 
+} // eof function
 
 
 
@@ -672,7 +672,7 @@ function guifi_nodes_select() {
 
   $query = db_query("SELECT l.id, l.nick, z.id zone_id FROM {guifi_location} l, {guifi_zone} z WHERE l.zone_id=z.id ORDER BY z.id, l.id, l.nick");
 
-  
+
   while ($location = db_fetch_object($query)) {
     $var[$location->id] = _guifi_set_namelocation($location,$new_pointer,$found);
   } // eof while query node,zone
@@ -694,7 +694,7 @@ function guifi_services_select($stype) {
     '  AND s.zone_id=z.id ' .
     'ORDER BY z.id, s.id, s.nick',
     $stype));
-  
+
   while ($service = db_fetch_object($query)) {
     $var[$service->id] = _guifi_set_namelocation($service,$new_pointer,$found);
   } // eof while query service,zone
@@ -718,17 +718,17 @@ function guifi_validate_nick($nick) {
 function guifi_validate_ip($ip,&$form_state) {
   if ($form_state['clicked_button']['#value'] == t('Reset'))
     return;
-    
+
   $longIp = ip2long($ip['#value']);
-  
+
   if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
     form_error($ip,
       t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
         array('%addr'=>$ip['#value'])),'error');
   else
     $ip['#value'] = long2ip($longIp);
-    
-  return $ip;  
+
+  return $ip;
 }
 
 function guifi_device_loaduser($id) {
@@ -763,13 +763,22 @@ function guifi_get_zone_of_node($id) {
 
 function guifi_get_zone_of_service($id) {
   $node = db_fetch_object(db_query("SELECT s.zone_id FROM {guifi_services} s WHERE s.id=%d",$id));
-  return $node->zone_id;  
+  return $node->zone_id;
 }
 
 function guifi_get_zone_nick($id) {
-  $node = db_fetch_object(db_query("SELECT nick FROM {guifi_zone} d WHERE id=%d",$id));
-  return $node->nick;
+  $node = db_fetch_object(db_query("SELECT nick, title FROM {guifi_zone} WHERE id=%d",$id));
+  if (!empty($node->nick))
+    return $node->nick;
+  else
+    return $node->title;
 }
+
+function guifi_get_zone_name($id) {
+  $node = db_fetch_object(db_query("SELECT title FROM {guifi_zone} WHERE id=%d",$id));
+  return $node->title;
+}
+
 function guifi_get_interface_descr($iid) {
   $interface = db_fetch_object(db_query("SELECT device_id, interface_type, radiodev_counter  FROM {guifi_interfaces} WHERE id=%d",$iid));
   if ($interface->radiodev_counter != null) {
@@ -807,20 +816,20 @@ function guifi_abbreviate($str,$len = 5) {
 /**
  * guifi_get_ips
  *  gets a the allocated ips
- * @return ordered array 
+ * @return ordered array
 **/
 function guifi_get_ips($start = '0.0.0.0', $mask = '0.0.0.0',$edit = null) {
- 
-  $start_dec = _dec_addr($start); 
+
+  $start_dec = _dec_addr($start);
   $item = _ipcalc($start,$mask);
-  $end_dec = _dec_addr($item['broadcast']);  
+  $end_dec = _dec_addr($item['broadcast']);
 
   $ips = array();
   $query = db_query("SELECT ipv4, netmask FROM {guifi_ipv4}");
   while ($ip = db_fetch_array($query)) {
     if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
       $ip_dec = _dec_addr($ip['ipv4']);
-      if ( ($ip_dec >= $start_dec) and ($ip_dec <= $end_dec) ) 
+      if ( ($ip_dec >= $start_dec) and ($ip_dec <= $end_dec) )
         guifi_merge_ip($ip, $ips,false);
     }
   }
@@ -831,18 +840,18 @@ function guifi_get_ips($start = '0.0.0.0', $mask = '0.0.0.0',$edit = null) {
 
   sort($ips);
 
-  return $ips; 
+  return $ips;
 }
 
 function _ips_recurse($var,&$ips) {
   foreach ($ips as $ip)
     $ipK[$ip[ipv4]] = $ip[ipv4];
- 
+
 //  print_r($ipK);
 
   foreach ($var as $k=>$value) {
 //    print "K: $k\n<br />";
-    if ($k == 'ipv4')  
+    if ($k == 'ipv4')
     if (is_string($value)) {
 //      print "Net: $value ".print_r($ips[_dec_addr($value)])."\n<br />";
       if (($ipK[$value] == null)  and ($value != null)) {
@@ -854,8 +863,8 @@ function _ips_recurse($var,&$ips) {
 //        print "Dec addr: "._dec_addr($ip['ipv4'])."\n<br />";
 //        print_r($ip);
         guifi_merge_ip($ip, $ips, false);
-      } 
-    } 
+      }
+    }
     if (is_array($value))
       _ips_recurse($value,$ips);
   }
@@ -871,14 +880,14 @@ function guifi_merge_ip($ip, &$ips_allocated, $sort = true) {
 /**
  * guifi_get_nets
  *  gets a the allocated networks for a given range
- * @return ordered array 
+ * @return ordered array
 **/
 function guifi_get_nets($start = '0.0.0.0', $mask = '255.255.0.0') {
-  
-  $start_dec = _dec_addr($start); 
+
+  $start_dec = _dec_addr($start);
   $item = _ipcalc($start,$mask);
-  $end_dec = _dec_addr($item['broadcast']);  
-  
+  $end_dec = _dec_addr($item['broadcast']);
+
   $nets = array();
   $query = db_query("SELECT base, mask from {guifi_networks}");
   while ($net = db_fetch_array($query)) {
@@ -888,7 +897,7 @@ function guifi_get_nets($start = '0.0.0.0', $mask = '255.255.0.0') {
     }
   }
   sort($nets);
-  
+
   return $nets;
 }
 
@@ -896,7 +905,7 @@ function guifi_get_nets($start = '0.0.0.0', $mask = '255.255.0.0') {
  * guifi_find_subnetcontact
  *  finds in the given range, the next free range to allocate a subnet
  *  without allocated ip's
- * @base_ip 
+ * @base_ip
  *   base ip address of the subnet to look into
  * @mask_range
  *   range of the subnet to look into
@@ -917,29 +926,29 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
   }
 //  print_r($ips_allocated);
 
-  $net_dec = _dec_addr($base_ip); 
+  $net_dec = _dec_addr($base_ip);
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;  
+  $end_dec = _dec_addr($item['broadcast']) + 1;
   $item = _ipcalc($base_ip,$mask_allocated);
   $increment = $item['hosts'] + 2;
 
   $key = 0;
   $elem = count($ips_allocated);
   reset($ips_allocated);
- 
+
 //  print "Going 2 find the subnet bucle for ".$base_ip."/".$mask_range." - ".$mask_allocated."\n<br />";
- 
+
   // Shifts until reaches the searched zone
   while (($ips_allocated[$key]['dec'] < $net_dec) and ($key < $elem))
     $key++;
-  
+
   if ($key == $elem)
    return false;
 
   while ($net_dec < $end_dec) {
 
     // is there any ip allocated in the range net_dec-increment?
-    $found = false; 
+    $found = false;
     $last  = $net_dec + $increment;
     do {
       $ip = $ips_allocated[$key];
@@ -952,7 +961,7 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
         // if ip's broadcast > checked range, jumps to it's broadcast
         $net_ends = _dec_addr($ip['broadcast']);
         if ($net_ends > $last)
-          $last = $net_ends + 1;          
+          $last = $net_ends + 1;
         break;
       }
       // ip is already higher
@@ -967,19 +976,19 @@ function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocate
     }
 
     // going to look next range
-    $net_dec = $last;    
+    $net_dec = $last;
 
   }
 
-  // No space available 
+  // No space available
   return false;
-  
+
 }
 
 /**
  * guifi_next_subnet
  *  finds in the given range, the next free range to allocate a new subnet
- * @base_ip 
+ * @base_ip
  *   base ip address of the subnet to look into
  * @mask_range
  *   range of the subnet to look into
@@ -994,9 +1003,9 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
 
   $nets_allocated = guifi_get_nets($base_ip,$mask_range);
 
-  $net_dec = _dec_addr($base_ip); 
+  $net_dec = _dec_addr($base_ip);
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;  
+  $end_dec = _dec_addr($item['broadcast']) + 1;
   $item = _ipcalc($base_ip,$mask_allocated);
   $increment = $item['hosts'] + 2;
 
@@ -1005,7 +1014,7 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
   $elem = count($nets_allocated);
   while ($net_dec < $end_dec) {
     // is there any ip allocated in the range net_dec-increment?
-    $found = false; 
+    $found = false;
     $last  = $net_dec + $increment;
     $net = $nets_allocated[$key];
 //    print "\n<br />Checking: ".$net_dec. ' ('._dec_to_ip($net_dec).') with '.$net['dec'].' ('._dec_to_ip($net['dec']).")\n";
@@ -1014,48 +1023,48 @@ function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
       // if net's broadcast > checked range, jumps to it's broadcast
       $net_ends = _dec_addr($net['broadcast']);
       if ($net_ends > $last)
-        $last = $net_ends + 1;          
-    } 
-      
+        $last = $net_ends + 1;
+    }
+
     // There was space for the subnet here, search ends
     if (!$found)
       return _dec_to_ip($net_dec);
 
     // going to look next range
-    $net_dec = $last;    
+    $net_dec = $last;
     while (($nets_allocated[$key]['dec'] < $net_dec) and ($key < $elem))
       $key++;
   }
 
-  // No space available 
+  // No space available
   return false;
-  
+
 }
 
 /**
  * guifi_next_ip
  *  finds the next available ip within a subnet
- * @base_ip: 
+ * @base_ip:
  *   network base ip to look at
  * @netmask_range
  *   mask range to look at
  * @ips_allocated
  *   array with a list of current ip's, if ommited
  *   will take a look into the databass
- * 
- * @ @return 
+ *
+ * @ @return
  *   the next available IP or false if none available
 */
-function guifi_next_ip($base_ip = '0.0.0.0', 
+function guifi_next_ip($base_ip = '0.0.0.0',
   $mask_range = '0.0.0.0', $ips_allocated = null) {
-  
+
   if ($ips_allocated == null) {
     $ips_allocated = guifi_get_ips($base_ip,$mask_range);
   }
 
-  $ip_dec = _dec_addr($base_ip) + 1; 
+  $ip_dec = _dec_addr($base_ip) + 1;
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;  
+  $end_dec = _dec_addr($item['broadcast']) + 1;
 
   $key = 0;
   $elem = count($ips_allocated);
@@ -1064,7 +1073,7 @@ function guifi_next_ip($base_ip = '0.0.0.0',
   while (($ips_allocated[$key]['dec'] < $ip_dec) and ($key < $elem)) {
     $key++;
   }
-  while (($ips_allocated[$key]['dec'] == $ip_dec) and ($key < $elem) 
+  while (($ips_allocated[$key]['dec'] == $ip_dec) and ($key < $elem)
     and ($ips_allocated[$key]['dec'] < $end_dec ) ) {
       $key++;
       $ip_dec++;
@@ -1086,9 +1095,9 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
   global $user;
 
   $zone_fetch = db_fetch_object(db_query(
-      "SELECT l.zone_id id, z.master 
-       FROM {guifi_location} l 
-         LEFT JOIN {guifi_zone} z ON l.zone_id=z.id 
+      "SELECT l.zone_id id, z.master
+       FROM {guifi_location} l
+         LEFT JOIN {guifi_zone} z ON l.zone_id=z.id
        WHERE l.id=%d",
        $nid));
   $zone = guifi_zone_load($zone_fetch->id);
@@ -1109,7 +1118,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
     $tnets = 0;
-    
+
     while ($net = db_fetch_object($result)) {
       $tnets++;
       //  print "Going to find a slot ".$mask_allocate." at: ".$net->base."/".$net->mask."\n<br />";
@@ -1133,7 +1142,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
             db_query("INSERT INTO {guifi_networks} (base, mask, zone, network_type, user_created, timestamp_created, valid) VALUES ('%s', '%s', %d, '%s', %d, %d, 1)", $ip, $mask_allocate, $root_zone, $network_type, $user->uid, time());
         }
 //         print "IP found: $ip[ipv4]";
-        return $ip; 
+        return $ip;
       }
     }
 
@@ -1166,7 +1175,7 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
       $mitem = _ipcalc_by_netbits($net->base,$maskbits);
       $mask_allocate = $mitem[netmask];
 
-//      if ($depth == 1) 
+//      if ($depth == 1)
 //       $mask_allocate = '255.255.254.0';
 //      else
 //       $mask_allocate = '255.255.252.0';
@@ -1258,12 +1267,12 @@ function guifi_set_node_flag($id) {
 
   $status = 'Planned';
   $query = db_query("SELECT d.id, d.flag FROM {guifi_devices} d WHERE d.nid = %d",$id);
-  if ($query > 0) 
+  if ($query > 0)
   while ($device = db_fetch_object($query)) {
-    if ($status != 'Working') 
+    if ($status != 'Working')
       $status = $device->flag;
   } // eof while devices
-  db_query("UPDATE {guifi_location} SET status_flag = '%s' WHERE id = %d",$status,$id);   
+  db_query("UPDATE {guifi_location} SET status_flag = '%s' WHERE id = %d",$status,$id);
 }
 
 define('GUIFILOG_NONE',0);
@@ -1278,11 +1287,11 @@ function guifi_log($level, $var, $var2 = null) {
     return;
 
   $output = $var;
-  if ($var2 != null) 
+  if ($var2 != null)
   if (gettype($var2) != 'string') {
-    $output .= ": ".print_r($var2,true); 
+    $output .= ": ".print_r($var2,true);
   } else {
-    $output .= ": ".$var2; 
+    $output .= ": ".$var2;
   }
 
   switch ($level) {
@@ -1312,7 +1321,7 @@ function guifi_zone_childs_recurse($id, $childs, $children) {
         $childs = guifi_zone_childs_recurse($zone->id, $childs, $children);
     }
   }
-  
+
 
   return $childs;
 }
@@ -1330,7 +1339,7 @@ function guifi_zone_childs($zid) {
   }
 
   $childs = guifi_zone_childs_recurse($zid, $childs, $children);
-  
+
   return $childs;
 }
 
@@ -1342,7 +1351,7 @@ function guifi_zone_tree_recurse($zid, $children) {
       $childs[$id]->childs = guifi_zone_tree_recurse($id,$children);
     }
   }
-  
+
   return $childs;
 }
 
@@ -1409,17 +1418,17 @@ function guifi_cnml_tree($zid) {
 }
 
 function guifi_form_hidden_var($var,$keys = array(),$parents = array()) {
-  
+
   $keys = array_merge($keys,array('new','deleted'));
-  
+
   foreach ($keys as $kvalue) {
     if (isset($var[$kvalue]))
       $form[$kvalue] = array(
         '#type'=>'hidden','#value'=>$var[$kvalue],
         '#parents'=> array_merge($parents,array($kvalue))
-      ); 
+      );
   }
-  
+
   return $form;
 }
 
@@ -1466,7 +1475,7 @@ function guifi_count_radio_links($radio) {
   } else {
     if (isset($radio[interfaces])) foreach ($radio[interfaces] as $ki=>$interface)
     if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ka=>$ipv4)
-    if (isset($ipv4[links])) foreach ($ipv4[links] as $kl=>$link) 
+    if (isset($ipv4[links])) foreach ($ipv4[links] as $kl=>$link)
     if (!$link[deleted]) {
       if ($link[link_type] = 'wds/p2p')
         $ret[wds]++;
@@ -1526,7 +1535,7 @@ function guifi_array_combine($arr1, $arr2) {
   if ((count($arr1) == count($arr2)) and count($arr1)) {
     foreach ($arr1 as $key=>$kvalue) {
      $result[$kvalue] = current($arr2);
-     next($arr2); 
+     next($arr2);
     }
   }
   return $result;
@@ -1539,10 +1548,10 @@ function guifi_refresh($parameter) {
 
 /***
  * Process notifications emails
- * Returns 
+ * Returns
  *    (return) message in HTML format
  *    $to_mail with valid emails and not unique
- *    $message in text format 
+ *    $message in text format
 ***/
 
 /** Notification engine
@@ -1554,11 +1563,11 @@ function guifi_refresh($parameter) {
 */
 function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = true) {
   global $user;
-  
+
   guifi_log(GUIFILOG_TRACE,'function guifi_notify()');
   if (variable_get('guifi_notify_period',86400) == -1)
     return;
-    
+
   if (!is_array($to_mail))
     $to_mail = explode(',',$to_mail);
   $to_mail[] = $user->mail;
@@ -1594,7 +1603,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
         $user->name,
         serialize($to_mail),
         $msubject,
-        $message); 
+        $message);
       drupal_set_message(
         t('A notification will be sent to: %to',
           array('%to'=>implode(',',$to_mail))));
@@ -1629,30 +1638,30 @@ function guifi_notification_validate($to) {
 function guifi_mac_validate($mac,&$form_state) {
   if ($form_state['clicked_button']['#value'] == t('Reset'))
     return;
-    
+
   $pmac = _guifi_validate_mac($mac['#value']);
   if ($pmac == FALSE) {
     form_error($mac,
       t('Error in MAC address (%mac), use 99:99:99:99:99:99 format.',
         array('%mac'=>$mac['#value'])),'error');
-  } else { 
+  } else {
     form_set_value($mac,$pmac,$form_state);
     $mac['#value'] = $pmac;
   }
-    
+
   return $mac;
 }
 
 function guifi_servername_validate($serverstr,&$form_state) {
   if ($form_state['clicked_button']['#value'] == t('Reset'))
     return;
-    
+
   if ($serverstr['#value'] == t('Not assigned')){
-    $form_state['values']['device_id']='';    
-    $form_state['values']['zone_id']='';    
+    $form_state['values']['device_id']='';
+    $form_state['values']['zone_id']='';
     return;
   }
-  
+
   $sid = explode('-',$serverstr['#value']);
   $qry = db_query(
     'SELECT d.id,l.zone_id ' .
@@ -1675,7 +1684,7 @@ function guifi_servername_validate($serverstr,&$form_state) {
 function guifi_nodename_validate($nodestr,&$form_state) {
   if ($form_state['clicked_button']['#value'] == t('Reset'))
     return;
-  
+
   $nid = explode('-',$nodestr['#value']);
   $qry = db_query('SELECT id FROM {guifi_location} WHERE id="%s"',$nid[0]);
   while ($node = db_fetch_array($qry)) {
@@ -1729,7 +1738,7 @@ function guifi_notify_send() {
       $body,
       variable_get('guifi_contact','webmestre@guifi.net')
     );
-    
+
     if ($error)
       watchdog('guifi','Report of changes sent to %name',
         array('%name'=>$to));
@@ -1777,7 +1786,7 @@ function guifi_gmap_key() {
   if ($gmap_key != '') {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/wms-gs-1_1_1.js','module');
     drupal_set_html_head('<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key='.
-           $gmap_key. 
+           $gmap_key.
          '" type="text/javascript"></script>');
     return TRUE;
   }
@@ -1785,7 +1794,7 @@ function guifi_gmap_key() {
 }
 
 function guifi_validate_js($form_name) {
-  drupal_add_js(drupal_get_path('module', 'guifi').'/js/jquery.validate.pack.js','module');   
+  drupal_add_js(drupal_get_path('module', 'guifi').'/js/jquery.validate.pack.js','module');
   drupal_add_js (
     '$(document).ready(function(){$("'.$form_name.'").validate()}); ',
     'inline');

@@ -3,13 +3,13 @@
 
 /**
  * @file guifi_node.incp.php
- * Manage guifi_node 
+ * Manage guifi_node
  * rroca
  */
 
 /* main node (locations) hooks */
 /** guifi_node_access(): construct node permissions
- 
+
   guifi_node_access($op:string,$node:Obj-node):boolean
   globals
     $user:Obj-user
@@ -17,8 +17,8 @@
     ???->user_access(p1:string):boolean
 */
 function guifi_node_access($op, $node) {
-  global $user; 
-  
+  global $user;
+
   if ($op == 'create') {
     return user_access('create guifi nodes');
   }
@@ -55,7 +55,7 @@ function guifi_node_load($node) {
     $k = $node->nid;
   else
     $k = $node;
-  
+
   $node = db_fetch_object(db_query("SELECT * FROM {guifi_location} WHERE id = '%d'", $k));
 
   if (!$node->id == null)
@@ -71,7 +71,7 @@ function guifi_node_load($node) {
   *                   modifica el objecte $node pasat per parametro reomplint camps buits
   *                   crida a la funcio guifi_node_form_supernode que presenta el formulari
   *                   i retorna la form que retorna dita funcio.
- 
+
   guifi_node_form($node:obj-node,$param:Not_use):form
   globals
     $user:Obj-user
@@ -79,9 +79,9 @@ function guifi_node_load($node) {
     guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
     guifi_includes.inc->guifi_coord_dtodms($coord:float):Array($deg:int,$min:int,$seg:int) or NULL
 */
-function guifi_node_form($node, $param){   
+function guifi_node_form($node, $param){
   global $user;
-  
+
   if(empty($node->nid)){
     if(is_numeric($node->title)){
       $zone = guifi_zone_load($node->title);
@@ -101,7 +101,7 @@ function guifi_node_form($node, $param){
   if (isset($_GET['lon'])){$node->lon = $_GET['lon'];}
   if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
   if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
-  
+
   $coord=guifi_coord_dtodms($node->lat);
   if($coord != NULL) {
     $node->latdeg = $coord[0];
@@ -120,12 +120,12 @@ function guifi_node_form($node, $param){
 }
 
 /** guifi_node_form_supernode(): Present the node editing form.
- 
+
   guifi_node_form($node:obj-node,$param:Not_use):form
   globals
     $user:Obj-user
 */
-function guifi_node_form_supernode($node, $param) {   
+function guifi_node_form_supernode($node, $param) {
   global $user;
 
 
@@ -151,7 +151,7 @@ function guifi_node_form_supernode($node, $param) {
     '#title' => t('Nick'),
     '#required' => FALSE,
     '#size' => 20,
-    '#maxlength' => 20, 
+    '#maxlength' => 20,
     '#element_validate' => array('guifi_node_nick_validate'),
     '#default_value' => $node->nick,
     '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc."),
@@ -162,17 +162,17 @@ function guifi_node_form_supernode($node, $param) {
     '#title' => t('Contact'),
     '#required' => FALSE,
     '#size' => 60,
-    '#maxlength' => 1024, 
+    '#maxlength' => 1024,
     '#element_validate' => array('guifi_emails_validate'),
     '#default_value' => $node->notification,
     '#description' => t("Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'"),
     '#weight' => 2,
   );
-  
+
   // ----
   // El títol settings
   // ------------------------------------------------
-  
+
   $form['title']['settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Node settings'),
@@ -181,12 +181,12 @@ function guifi_node_form_supernode($node, $param) {
     '#collapsed' => TRUE,
   );
     // Si ets administrador pots definir el servidor de dades
-  if (user_access('administer guifi zones')){ 
+  if (user_access('administer guifi zones')){
     $form['title']['settings']['graph_server'] = array(
       '#type' => 'select',
       '#title' => t("Server which collects traffic and availability data"),
       '#required' => FALSE,
-      '#default_value' => 
+      '#default_value' =>
         ($node->graph_server ? $node->graph_server : 0),
       '#options' => array(
         '0'=>t('Default'),
@@ -201,9 +201,9 @@ function guifi_node_form_supernode($node, $param) {
     '#required' => FALSE,
     '#default_value' => ($node->stable ? $node->stable : 'Yes'),
     '#options' => array(
-      'Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'), 
+      'Yes' => t('Yes, is intended to be kept always on,  avalable for extending the mesh'),
       'No' => t("I'm sorry. Will be connected just when I'm online")),
-    '#description' => 
+    '#description' =>
       t("That helps while planning a mesh network. We should know which locations are likely available to provide stable links."),
     '#weight' => 1,
   );
@@ -212,7 +212,7 @@ function guifi_node_form_supernode($node, $param) {
   // license si es un node nou
   // agreement
   // ------------------------------------------------
-  
+
   if (empty($node->nid)) {
     $form['license'] = array(
       '#type' => 'item',
@@ -239,8 +239,8 @@ function guifi_node_form_supernode($node, $param) {
 
   $form['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
   $form['zone_id']['#weight'] = 3;
-  
-  
+
+
   // ----
   // position
   // ------------------------------------------------
@@ -252,7 +252,7 @@ function guifi_node_form_supernode($node, $param) {
     '#collapsible' => false,
 //    '#collapsed' => FALSE,
   );
-  
+
   /*
   $form['position']['zone_id'] = array(
     '#type' => 'select',
@@ -280,7 +280,7 @@ function guifi_node_form_supernode($node, $param) {
     $form['lat'] = array(
       '#type' => 'hidden',
       '#value' => $node->lat,
-    );    
+    );
     $form['lon'] = array(
       '#type' => 'hidden',
       '#value' => $node->lon,
@@ -298,12 +298,12 @@ function guifi_node_form_supernode($node, $param) {
         '</th><tr><td>',
     '#suffix' => '</td>',
     '#weight' => 1,
-  );  
+  );
   $form['position']['londeg'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->londeg,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#element_validate' => array('guifi_lon_validate'),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -312,8 +312,8 @@ function guifi_node_form_supernode($node, $param) {
   $form['position']['lonmin'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->lonmin,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#prefix' => '<td>',
     '#suffix' => '</td>',
     '#weight' => 3,
@@ -321,8 +321,8 @@ function guifi_node_form_supernode($node, $param) {
   $form['position']['lonseg'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->lonseg,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr>',
     '#weight' => 4,
@@ -337,8 +337,8 @@ function guifi_node_form_supernode($node, $param) {
   $form['position']['latdeg'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->latdeg,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#element_validate' => array('guifi_lat_validate'),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -347,8 +347,8 @@ function guifi_node_form_supernode($node, $param) {
   $form['position']['latmin'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->latmin,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#prefix' => '<td>',
     '#suffix' => '</td>',
     '#weight' => 7,
@@ -356,19 +356,19 @@ function guifi_node_form_supernode($node, $param) {
   $form['position']['latseg'] = array(
     '#type' => 'textfield',
     '#default_value' => $node->latseg,
-    '#size' => 12, 
-    '#maxlength' => 24, 
+    '#size' => 12,
+    '#maxlength' => 24,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
     '#weight' => 8,
   );
-  
+
   $form['position']['zone_description'] = array(
     '#type' => 'textfield',
     '#title' => t('Zone description'),
     '#required' => FALSE,
     '#size' => 60,
-    '#maxlength' => 128, 
+    '#maxlength' => 128,
     '#default_value' => $node->zone_description,
     '#description' => t("Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street."),
     '#weight' => 9,
@@ -380,27 +380,27 @@ function guifi_node_form_supernode($node, $param) {
     '#required' => FALSE,
     '#size' => 5,
     '#length' => 20,
-    '#maxlength' => 20, 
+    '#maxlength' => 20,
     '#default_value' => $node->elevation,
     '#description' => t("Antenna height over the floor level."),
     '#weight' => 10,
   );
-  
+
   // ----
-  // body 
+  // body
   // ------------------------------------------------
- 
+
   $form['body'] = array(
-    '#type' => 'textarea', 
-    '#title' => t('Body'), 
-    '#default_value' => $node->body, 
-    '#cols' => 60, 
-    '#rows' => 20, 
+    '#type' => 'textarea',
+    '#title' => t('Body'),
+    '#default_value' => $node->body,
+    '#cols' => 60,
+    '#rows' => 20,
     '#required' => FALSE,
     '#description' => t("Textual description of the wifi node"),
     '#weight' => 11,
   );
-  
+
   // ----
   // flags
   // ------------------------------------------------
@@ -412,24 +412,24 @@ function guifi_node_form_supernode($node, $param) {
     '#default_value' => $node->status_flag,
     '#weight' => $form_weight++,
   );
-  
+
   return $form;
   //return $output;
 }
 
 function guifi_node_agreement_validate($element, &$form_state) {
   if ($element['#value'] != 'Yes'){
-    form_error($element, 
+    form_error($element,
       t('You must read and accept the license terms and conditions to be allowed to create nodes.'));
-  }  
+  }
 }
 
-function guifi_node_nick_validate($element, &$form_state) { 
+function guifi_node_nick_validate($element, &$form_state) {
   if (empty($element['#value'])) {
     $nick = guifi_abbreviate($form_state['values']['title']);
     drupal_set_message(t('Zone nick has been set to:').' '.$nick);
     $form_state['values']['nick'] = $nick;
-    
+
     return;
   }
   guifi_validate_nick($element['#value']);
@@ -441,8 +441,72 @@ function guifi_node_nick_validate($element, &$form_state) {
   }
 }
 
+/**
+ * guifi_node_graph_overview
+ * outputs an overiew graph of the node
+**/
+function guifi_node_graph_overview($node) {
+
+  /**
+   *   Get the zone
+   **/
+
+  $server_mrtg = guifi_graphs_get_node_url($node->id);
+
+  // print "server_mrtg: ".$server_mrtg."\n<br>";
+  $radios = array();
+  $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
+  while ($radio = db_fetch_array($query)) {
+    $radios[] = $radio;
+  }
+  // print "Count radios: ".count($radios)."\n<br>";
+  if (count($radios)) {
+    if (substr($server_mrtg,0,3)=="fot"){
+      //  graph all devices.about a node. Ferran Ot
+      while ($radio = db_fetch_object($query)){
+        $ssid=get_SSID_radio($radio->id);
+        $ssid=strtolower($ssid);
+        $mrtg_url=substr($server_mrtg,3);
+        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
+        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
+      }
+      $ret = array_merge($rows);
+    }else{
+      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
+      $ret = array_merge($rows);
+    }
+  } else {
+    $radio = db_fetch_array($query);
+    $ret = guifi_device_graph_overview($radio);
+  }
+
+  return theme('table',null,$ret);
+}
+
+
+function guifi_node_get_service($id, $type ,$path = false) {
+  if (is_numeric($id))
+    $z = guifi_node_load($id);
+  else
+    $z = $id;
+
+  $ret = null;
+  if (!empty($z->$type))
+    $ret = $z->$type;
+  else
+    $ret = guifi_zone_get_service($z->zone_id,$type);
+
+  if ($path)
+    if ($ret)
+      $ret = 'node/'.$ret;
+
+  return $ret;
+}
+
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
- 
+
   guifi_node_validate($node:obj-node,$form:obj-form):void si hi ha un error cancela la gravacio
   functions
     ???->guifi_validate_nick($nick:string):????
@@ -453,24 +517,24 @@ function guifi_node_validate($node,$form) {
 
   // not at root zone
   if (($node->zone_id == 0) && (!empty($node->nick))){
-    form_set_error('zone_id', 
+    form_set_error('zone_id',
       t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
   }
-  
+
   if ($node->elevation == 0){$node->elevation = NULL;}
   if (($node->elevation < -1) && ($node->elevation != NULL)){
-    form_set_error('elevation', 
+    form_set_error('elevation',
       t('Elevation must be above the floor! :)'));
   }
   if (($node->elevation > 100) && ($node->elevation != NULL)){
-    form_set_error('elevation', 
+    form_set_error('elevation',
       t('Do you mean that you are flying over the earth??? :)'));
   }
 
 }
- 
+
 /** guifi_node_insert(): Create a new node in the database
- 
+
   guifi_node_insert($node:Obj-node):void
   functions
     ???->_guifi_db_sql(???):????
@@ -492,7 +556,7 @@ function guifi_node_insert($node) {
 
   if ($node->lat == 0){$node->lat = NULL;}
   if ($node->lon == 0){$node->lon = NULL;}
-  
+
   $to_mail = explode(',',$node->notification);
   $node->new=true;
   $node->id  = $node->nid;
@@ -514,7 +578,7 @@ function guifi_node_insert($node) {
 }
 
 /** guifi_node_update(): Update a node in the database
- 
+
   guifi_node_update($node:Obj-node):void
   functions
     ???->_guifi_db_sql(???):????
@@ -524,7 +588,7 @@ function guifi_node_insert($node) {
 function guifi_node_update($node) {
   global $user;
   $log = '';
-  
+
   $coord=guifi_coord_dmstod($node->latdeg,$node->latmin,$node->latseg);
   if($coord!=NULL){
     $node->lat=$coord;
@@ -542,10 +606,10 @@ function guifi_node_update($node) {
 
   // Refresh maps?
   $pn = db_fetch_object(db_query(
-    'SELECT * 
-    FROM {guifi_location} l 
+    'SELECT *
+    FROM {guifi_location} l
     WHERE l.id=%d',
-    $node->nid));  
+    $node->nid));
   if (($pn->lat != $node->lat) || ($pn->lon != $node->lon) || ($pn->status_flag != $node->status_flag)) {
   // touch(variable_get('guifi_rebuildmaps','/tmp/ms_tmp/REBUILD'));
     variable_set('guifi_refresh_cnml',time());
@@ -568,7 +632,7 @@ function guifi_node_update($node) {
 }
 
 /** guifi_node_delete(): deletes a given node
- 
+
   guifi_node_delete($node:Obj-node):void
   functions
     ???->_guifi_db_delete(???):????
@@ -577,12 +641,12 @@ function guifi_node_update($node) {
 function guifi_node_delete($node) {
   global $user;
   $depth = 0;
-  
+
   $to_mail = explode(',',$node->notification);
   $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
   drupal_set_message($log);
   guifi_notify(
-           $to_mail, 
+           $to_mail,
            t('The node %name has been DELETED by %user.',array('%name' => $node->title, '%user' => $user->name)),
            $log);
   cache_clear_all();
@@ -598,29 +662,29 @@ function guifi_node_print($node) {
 
   $table = theme('table', null, guifi_node_print_data($node));
   $output .= theme('box', t('Node information'), $table);
-  
+
   return $output;
 }
 
 /** node visualization (view) function calls */
 
 /** guifi_node_print_data(): outputs the node information (d)ata
- 
+
   guifi_node_print_data($node:Obj-node):array
   functions
     ???->user_access(p1:string):boolean
 **/
 function guifi_node_print_data($node) {
-  
+
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
-  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>'); 
-  $rows[] = array(t('zone'),$zone->title,$node->zone_description); 
+  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
+  $rows[] = array(t('zone'),$zone->title,$node->zone_description);
   $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
-                   $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground')); 
-  $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag)); 
+                   $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
+  $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
 
   if (($node->notification) and (user_access('administer guifi networks')))
     $rows[] = array(
@@ -629,26 +693,14 @@ function guifi_node_print_data($node) {
         'data'=>
           '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
           'colspan'=>2));
-      
-  switch ($node->graph_server) {
-  case -1: 
-    $graphtxt = t('Graphs disabled.'); 
-    break;
-  case 0: 
-  case NULL:
-    $graphtxt = t('Default: Obtained from parents'); 
-    break;
-  default:
-    $qgs = db_query(sprintf('SELECT nick FROM {guifi_services} WHERE id=%d',$node->graph_server));
-    $gs = db_fetch_object($qgs);
-    if (!empty($gs->nick)) 
-      $graphtxt = '<a href='.base_path().'node/'.$node->graph_server.'>'.$gs->nick.'</a>';
-    else
-      $graphtxt = t('invalid');
-  }
-  $rows[] = array(t('graphs provided from'),array('data'=>$graphtxt,'colspan'=>2)); 
 
-  
+
+  $rows[] = array(t('graphs provided from'),array(
+    'data'=>l(guifi_service_str($node->graph_server),
+              guifi_node_get_service($node->id,'graph_server',true)),
+     'colspan'=>2));
+
+
   $rows[] = array(null,null,null);
   $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
   if ($node->timestamp_created > 0)
@@ -659,37 +711,38 @@ function guifi_node_print_data($node) {
     $rows[] = array(t('updated by'),
       array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
       'colspan'=>2));
-    
+
   return array_merge($rows);
 }
 
 /** guifi_node_view(): outputs the node information
- 
+
   guifi_node_view($node:obj-node*,$teaser:boolean,$page:boolean):obj-node*
   functions
     ???->node_load($node:obj-node):obj-node
     ???->node_prepare($node:obj-node):obj-node
 **/
 function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
-  
+
   node_prepare($node);
   if ($teaser)
     return $node;
   if ($block)
     return $node;
-  
+
   if ($page) {
-    $node->content['body']['#value'] = 
+    $node->content['body']['#value'] =
       theme_table(null,array(
           array($node->body),
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
                                              array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
+          array(guifi_node_graph_overview($node)),
           array(guifi_node_radio_list($node)),        )
       );
-        
+
     return $node;
   }
-  
+
 }
 
 function guifi_node_hidden_map_fileds($node) {
@@ -698,7 +751,7 @@ function guifi_node_hidden_map_fileds($node) {
   $output .= '<input type="hidden" id="lon" value="'.$node->lon.'"/>';
   $output .= '<input type="hidden" id="zone_id" value="'.$node->zone_id.'"/>';
   $output .= '<input type="hidden" id="guifi-wms" value="'.variable_get('guifi_wms_service','').'"/></form>';
-  return $output;  
+  return $output;
 }
 
 /** guifi_zone_simple_map(): Print de page show de zone map and nodes without zoom.
@@ -721,7 +774,7 @@ function guifi_node_simple_map($node) {
   if (is_numeric($node)) {
     $node = node_load($node);
   }
-  
+
   $output = '<div id="guifi">';
 
   $node = node_prepare($node);
@@ -739,7 +792,7 @@ function guifi_node_simple_map($node) {
     case 'distances':
       $op = arg(3);
       break;
-    default: 
+    default:
       $op = "default";
       break;
   }
@@ -789,7 +842,7 @@ function guifi_node_simple_map($node) {
 
   drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
   if ($op == 'default') {
-    $node->content['body']['#value'] .= $output; 
+    $node->content['body']['#value'] .= $output;
     return $node;
   }
   drupal_set_title(t('node').': '.$node->title.' ('.t($op).')');
@@ -808,28 +861,29 @@ function guifi_node_simple_map($node) {
 }
 */
 /** guifi_node_radio_list(): list of node devices
- 
+
   guifi_node_radio_list($id:int):form
   functions
     ???->guifi_device_load(???):????
     ???->guifi_availabilitystr(???):????
     ???->guifi_device_access(???):????
     ???->guifi_main_ip(???):????
-    ???->guifi_node_get_url_mrtg(???):????
+    ???->guifi_graphs_get_node_url(???):????
 **/
 function guifi_node_radio_list($node) {
-  
+
   function _guifi_line_edit_device_form($node,$id) {
     $form['id'] = array('#type' => 'hidden', '#value' => $id);
     $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
     $form['#action'] = url('guifi/device/'. $id.'/edit');
-    return $form; 
+    return $form;
   }
-  
+
   $id = $node->id;
   $rows = array();
-  
-  $header = array('<h2>'.t('device').'</h2>', t('type'), t('status'),t('available'),t('last'));
+
+  $header = array('<h2>'.t('device').'</h2>', t('type'), t('ip'), t('status'),
+                  array('data'=>t('last available'),'align'=>'right'));
 
   // Form for adding a new device
   $form = drupal_get_form('guifi_device_create_form',$id);
@@ -848,16 +902,16 @@ function guifi_node_radio_list($node) {
        $unsolclic = '<td><a href="'.url('guifi/device/' .$device[id] .'/view/unsolclic').'" title="' .t("Get radio configuration with singleclick") .'">' .$device[variable]['firmware'] .'</a></td>';
      }
      $ip = guifi_main_ip($device[id]);
-     $graph_url = guifi_node_get_url_mrtg($id,FALSE);
+     $graph_url = guifi_graphs_get_node_url($id,FALSE);
      if ($graph_url != NULL)
        $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
      else
        $img_url = NULL;
-     $rows[] = array('<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',$device[type],
+     $rows[] = array('<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
+                 $device[type],
                  array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
                  array('data' => t($device[flag]),'class' => $device['flag']),
-                 array('data' => $img_url, 
-                                 'class' => $device['flag']),
+                 array('data' => $img_url,'class' => $device['flag']),
                  $edit_radio,
                  $unsolclic
                     );
@@ -869,7 +923,7 @@ function guifi_node_radio_list($node) {
 }
 
 /** guifi_node_print_distances(): list of neighbors
- 
+
   guifi_node_distances($id:int,$edit:???):form
   functions
     ???->guifi_log(???):????
@@ -879,12 +933,12 @@ function guifi_node_radio_list($node) {
 
 function guifi_node_distances_map($node) {
   $rows = array();
-  
+
   $lat2='';
   $lon2='';
   if (!empty($_GET['lat2']))
     $lat2 = $_GET['lat2'];
-  else 
+  else
     $lat2 = "NA";
   if (!empty($_GET['lon2']))
     $lon2 = $_GET['lon2'];
@@ -894,8 +948,8 @@ function guifi_node_distances_map($node) {
     $name2 = $_GET['name2'];
   else
     $name2 = "NA";
-    
-  
+
+
   drupal_set_title(t('distances map from').' '.
     guifi_get_zone_nick($node->zone_id).
     '-'.$node->nick);
@@ -914,7 +968,7 @@ function guifi_node_distances_map($node) {
       '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
       '</form>';
   }
-      
+
   return $output;
 }
 
@@ -929,7 +983,7 @@ function guifi_node_distances($node) {
 
 function guifi_node_distances_form($form_state,$node) {
   global $base_url;
-  
+
   guifi_log(GUIFILOG_TRACE,'function guifi_node_distances_form()',$form_state);
 
   $form = array();
@@ -947,18 +1001,18 @@ function guifi_node_distances_form($form_state,$node) {
     'from_node' => $node->id,
     'azimuth' => "0,360",
   );
-  
+
   // initialize filters using default values or passed by form
-  if (!empty($form_state['values']['filters'])) 
-    $form_state['values']['filters'] = 
+  if (!empty($form_state['values']['filters']))
+    $form_state['values']['filters'] =
       array_merge($filters,$form_state['values']['filters']);
     else
       $form_state['values']['filters'] = $filters;
-    
+
   $form['filters_region'] = guifi_devices_select_filter($form_state,'guifi_node_distances');
-  
+
   $form['devices-list'] = guifi_node_distances_list($form_state['values']['filters'],$node);
-  
+
   return $form;
 }
 
@@ -968,19 +1022,19 @@ function guifi_node_distances_list($filters,$node) {
     $_POST);
 
   $orig = $node->id;
-  
+
   // storing lat/lon from the current node to be user for computing
   // distances with the other nodes
   $lat1 = $node->lat;
   $long1 = $node->lon;
-  
+
   // store the node nickname to be used for literal at the profiles
   $node1 = $node->nick;
-       
-//  $filters = $form_state['values']['filters'];  
+
+//  $filters = $form_state['values']['filters'];
 
   // get the nodes and compute distances
-/***  
+/***
   $result = db_query(
       "SELECT " .
         "n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id  " .
@@ -994,12 +1048,12 @@ function guifi_node_distances_list($filters,$node) {
 ***/
 
   $result = db_query("SELECT n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id, count(*) radios FROM {guifi_location} n LEFT JOIN {guifi_radios} r ON n.id = r.nid WHERE n.id !=%d AND (n.lat != '' AND n.lon != '')AND (n.lat != 0 AND n.lon != 0) GROUP BY 1",$node->id);
-  
+
   $oGC = new GeoCalc();
   $nodes = array();
   $rows = array();
   $totals[] = NULL;
-  
+
   if (isset($_POST['op'])) {
     if ($_POST['op'] == t('Next page'))
        $filters['skip'] = $filters['skip'] + $filters['max'];
@@ -1007,7 +1061,7 @@ function guifi_node_distances_list($filters,$node) {
        $filters['skip'] = $filters['skip'] - $filters['max'];
 
     $nc = 0;
-  
+
     $allow_next = false;
     if ($filters['skip'])
       $allow_prev = true;
@@ -1020,10 +1074,10 @@ function guifi_node_distances_list($filters,$node) {
 
      // Apply filters
      if ( $filters['sn'] and $node["radios"] < 2) continue;
-     
+
      if ($distance <=  $filters['dmax'])
      if ($distance >=  $filters['dmin'])
-     if (($filters['status'] == 'All') or ($filters['status'] == $node['status_flag'])) 
+     if (($filters['status'] == 'All') or ($filters['status'] == $node['status_flag']))
      {
        $nodes[] = array_merge(array('distance'=>$distance),$node);
      }
@@ -1037,7 +1091,7 @@ function guifi_node_distances_list($filters,$node) {
     '#type' => 'fieldset',
  //   '#title' => t('filters'),
  //   '#weight' => 0,
-    '#collapsible' => false, 
+    '#collapsible' => false,
     '#collapsed' => false,
  //   '#weight' => $fweight++,
     '#prefix' => '<div id="list-devices">',
@@ -1059,7 +1113,7 @@ function guifi_node_distances_list($filters,$node) {
   asort($nodes);
 
   // header
-  
+
   $form['z'] = array(
     '#type'=>'fieldset',
     '#tree'=>true,
@@ -1094,7 +1148,7 @@ function guifi_node_distances_list($filters,$node) {
 
   $nc = 0;
   $tc = count($nodes);
-    
+
   foreach ($nodes as $key => $node) {
 
     $dAz = round($oGC->GCAzimuth($lat1, $long1, $node["lat"], $node["lon"]));
@@ -1111,12 +1165,12 @@ function guifi_node_distances_list($filters,$node) {
 //    $output .=  _wifi_state_class($rows[$key]["state"]) .t($rows[$key]["state"]) ."</td>";
 
     // conversio de les coordenades a UTM
-    
+
     $UTMnode1 = guifi_WG842UTM($long1,$lat1,5,31,1);
     $UTMnode2 = guifi_WG842UTM($node["lon"],$node["lat"],5,31,1);
-    
+
     // genero URL del Perfil
-    
+
     $height_url = base_path(). drupal_get_path('module', 'guifi') .'/guifi_heights.php?x1='
       .$UTMnode1[0]."&y1=".$UTMnode1[1]."&x2=".$UTMnode2[0]."&y2=".$UTMnode2[1];
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
@@ -1155,7 +1209,7 @@ function guifi_node_distances_list($filters,$node) {
      break;
     }
     $nc++;
-    if ($nc < $filters['skip']) 
+    if ($nc < $filters['skip'])
         continue;
 
     $suffix = '</td></tr>';
@@ -1193,14 +1247,14 @@ function guifi_node_distances_list($filters,$node) {
       '#value'=> '<a href="'.$height_url_long.'" alt="'.t('Click to view in large format').'" target="_blank">' .
 //          '<img src="'.$height_url_small.'"></a>',
           '<img src="'.$height_url_small.'"></a>',
-          
+
 //      '#prefix'=> '<td><img src="'.$height_url_small.'">',
       '#prefix'=> '<td>',
       '#suffix'=>$suffix,
       '#weight'=>$fw++,
     );
   } // eof while distance < max:distance
-  if (!$allow_next) 
+  if (!$allow_next)
     $suffix = '</td></tr></table>';
   else
     $suffix = '<td>';
@@ -1235,7 +1289,7 @@ function guifi_node_distances_form_submit($form, &$form_state) {
 }
 
 /** guifi_node_link_list(): list of node links
- 
+
   guifi_node_link_list($id:int,$ltype:???):form
   functions
 **/
@@ -1243,12 +1297,12 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
   $oGC = new GeoCalc();
 
   $total = 0;
-  if ($ltype == '%') 
-    $output = '<h4>'.t('links').'</h4>'; 
+  if ($ltype == '%')
+    $output = '<h4>'.t('links').'</h4>';
   else
-    $output = '<h4>'.t('links').' ('.$ltype.')</h4>'; 
+    $output = '<h4>'.t('links').' ('.$ltype.')</h4>';
   $header = array(t('linked nodes (device)'), t('ip'), t('status'), t('kms.'),t('az.'));
-  
+
   $listed = array('0');
   $queryloc1 = db_query("SELECT c.id, l.id nid, l.nick, c.device_id, d.nick device_nick, a.ipv4 ip, c.flag, l.lat, l.lon, r.ssid FROM {guifi_links} c LEFT JOIN {guifi_devices} d ON c.device_id=d.id LEFT JOIN {guifi_interfaces} i ON c.interface_id = i.id LEFT JOIN {guifi_location} l ON d.nid = l.id LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id AND a.id=c.ipv4_id LEFT JOIN {guifi_radios} r ON d.id=r.id AND i.radiodev_counter=r.radiodev_counter WHERE d.nid = %d AND link_type like '%s' ORDER BY c.device_id, i.id",$id,$ltype);
   if (db_result($queryloc1)) {
@@ -1280,17 +1334,17 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
           $gDist = 'n/a';
         if ($loc1->nid <> $loc2->nid) {
           $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$loc2->device_id));
-          if ($cr->count > 1) 
+          if ($cr->count > 1)
             $dname = $loc2->device_nick.'/'.$loc2->ssid;
           else
             $dname = $loc2->device_nick;
-           
+
           $linkname = $loc1->id.'-'.'<a href='.base_path().'node/'.$loc2->nid.'>'.$loc2->nick.'</a> (<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$dname.'</a>)';
         }
         else
           $linkname = $loc1->id.'-'.'<a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
 
-        $graph_url = guifi_node_get_url_mrtg($id,FALSE);
+        $graph_url = guifi_graphs_get_node_url($id,FALSE);
         if ($graph_url != NULL)
           $img_url = ' <img src='.$graph_url.'?device='.$loc2->device_id.'&type=availability&format=short>';
         else
@@ -1301,7 +1355,7 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
           $rows[] = array(array('data'=> '<b><a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
         }
         $rows[] = array($linkname,
-                     $loc1->ip.'/'.$loc2->ip, 
+                     $loc1->ip.'/'.$loc2->ip,
                    array('data' => t($loc1->flag).$img_url,
                                    'class' => $loc1->flag),
                    array('data' => $gDist,'class' => 'number'),

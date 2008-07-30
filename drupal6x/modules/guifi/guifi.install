@@ -1,7 +1,7 @@
 <?php
 
 function guifi_uninstall() {
-  
+
   drupal_uninstall_schema('guifi');
 
   variable_del('guifi_license');
@@ -13,7 +13,7 @@ function guifi_uninstall() {
   variable_del('guifi_maps');
   variable_del('guifi_decimal');
   variable_del('guifi_thousand');
-} 
+}
 
 function guifi_schema() {
   $schema['guifi_notify'] = array(
@@ -41,14 +41,14 @@ function guifi_schema() {
          'notification' => array('type' => 'varchar', 'length' => '1024', 'not null' => TRUE),
          'status_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned'),
          'stable' => array('comment' => 'Yes,No', 'type' => 'varchar', 'length' => '25', 'not null' => TRUE, 'default' => 'Yes'),
-         'graph_server' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not null' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
          'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'user_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '10'),
          'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
          'timestamp_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11')),
     'primary key' => array('id'),
   );
-  
+
   $schema['guifi_networks'] = array(
     'comment' => 'allocates ipv4 adddress ranges to zones',
     'fields' => array(
@@ -68,7 +68,7 @@ function guifi_schema() {
     'indexes' => array(
          'net_zone' => array('zone')),
   );
-  
+
   $schema['guifi_zone'] = array(
     'comment' => 'zone information, zones have a self hierarchy and group node locations',
     'fields' => array(
@@ -78,8 +78,9 @@ function guifi_schema() {
          'body' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
          'master' => array('COMMENT' => 'references parent zone guifi_zone(id)', 'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '5'),
          'zone_mode' => array('type' => 'varchar', 'length' => 25, 'not null' => TRUE, 'default' => 'infrastructure', 'COMMENT' => 'infrastructure/ad-hoc'),
-         'proxy_id' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
-         'voip_id' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not null' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
+         'proxy_id' => array('type' => 'int', 'disp-width' => '11', 'not null' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (proxy)'),
+         'voip_id' => array('type' => 'int', 'disp-width' => '11', 'not null' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (VoIP)'),
          'time_zone' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
          'dns_servers' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
          'ntp_servers' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
@@ -105,7 +106,7 @@ function guifi_schema() {
     'indexes' => array(
          'name' => array(array('title', 10))),
   );
-  
+
   $schema['guifi_devices'] = array(
     'fields' => array(
          'id' => array('type' => 'serial', 'not null' => TRUE, 'disp-width' => '11'),
@@ -118,9 +119,9 @@ function guifi_schema() {
          'flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'Planned'),
          'extra' => array('COMMENT' => 'store variable data depending on guifi_devices(type)', 'type' => 'text', 'size' => 'big', 'not null' => FALSE),
          'url_mrtg_server' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE),
-         'graph_server' => array('type' => 'varchar', 'length' => '40', 'not null' => FALSE),
-         'last_online' => array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'),  
-         'last_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'),  
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not null' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
+         'last_online' => array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'),
+         'last_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'),
          'ly_availability' => array('type' => 'numeric', 'precision' => '11', 'scale'=>'2', 'not null' => FALSE, 'default' => null),
          'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
@@ -130,7 +131,7 @@ function guifi_schema() {
     'unique keys' => array(
          'nick' => array('nick')),
   );
-  
+
   $schema['guifi_links'] = array(
     'COMMENT' => 'devices/interfaces linked, one row per peer joined by guifi_links(id)',
     'fields' => array(
@@ -146,7 +147,7 @@ function guifi_schema() {
     'indexes' => array(
          'id' => array('id')),
   );
-  
+
   $schema['guifi_interfaces'] = array(
     'COMMENT' => 'describes interfaces (network connectors) at the devices',
     'fields' => array(
@@ -194,7 +195,7 @@ function guifi_schema() {
     'indexes' => array(
          'text' => array('text')),
   );
-  
+
   $schema['guifi_services'] = array(
     'COMMENT' => 'store guifi services',
     'fields' => array(
@@ -212,7 +213,7 @@ function guifi_schema() {
          'timestamp_changed' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '11')),
     'primary key' => array('id'),
   );
-  
+
   $schema['guifi_users'] = array(
     'COMMENT' => 'stores user credentials assigned to nodes for proxy servers, or any other service',
     'fields' => array(
@@ -235,7 +236,7 @@ function guifi_schema() {
     'unique keys' => array(
          'username' => array('username')),
   );
-  
+
   $schema['guifi_ipv4'] = array(
     'fields' => array(
          'id' => array('COMMENT' => 'primary key 1st column, numbers the sequential order of each address into the same interface', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
@@ -246,7 +247,7 @@ function guifi_schema() {
     'unique keys' => array(
          'ipv4' => array('ipv4')),
   );
-  
+
   $schema['guifi_manufacturer'] = array(
     'COMMENT' => 'device manufacturers',
     'fields' => array(
@@ -285,18 +286,18 @@ function guifi_schema() {
     'primary key' => array('mid'),
 );
 
-  
+
   return $schema;
 }
 
 function guifi_install() {
-  
+
   drupal_install_schema('guifi');
-  
-  // -- 
+
+  // --
   // -- interface types
   // -- relation describes MAC (related to base MAC)
-  // -- 
+  // --
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'interface', 'Lan',     'Device base address (Lan)',      '0');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'interface', 'wLan/Lan','Device lan & wlan (bridged)',    '2');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'interface', 'wLan',    'wireless lan',                   '2');");
@@ -330,9 +331,9 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'link', 'wds',      'Wireless WDS',      'wds/p2p');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'link', 'ap/client','Wireless AP/Client','Wan/wLan|wLan/Lan');");
 
-  // -- 
+  // --
   // -- device types
-  // -- 
+  // --
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'device', 'radio',  'Wireless device, like a router, bridge, AP...');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'device', 'phone',  'Voip handset, telephone');");
   db_query("-- INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'device', 'mobile', 'Mobile device. like a laptop or pda');");
@@ -340,10 +341,10 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('5', 'device', 'nat',    'Firewall, private Network behind a NAT');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('6', 'device', 'ADSL',   'ADSL router or device providing internet access');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('7', 'device', 'cam',    'Network camera. Live view.');");
-      
-  // -- 
+
+  // --
   // -- service types
-  // -- 
+  // --
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'service', 'AP',       'Wireless connectivity for end users');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'service', 'ADSL',     'Open ADSL-type internet access');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'service', 'Proxy',    'Internet access trough a proxy');");
@@ -530,9 +531,9 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'routing','BATMAN','BATMAN','');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'routing','RIP','RIP','');");
 
-  // -- 
+  // --
   // -- Volcant dades de la taula guifi_manufacturer
-  // -- 
+  // --
   db_query("INSERT INTO guifi_manufacturer VALUES (99, 'Other', null);");
   db_query("INSERT INTO guifi_manufacturer VALUES (1, 'D-Link', 'http://www.dlink.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (2, 'Linksys', 'http://www.linksys.com');");
@@ -546,9 +547,9 @@ function guifi_install() {
   db_query("INSERT INTO guifi_manufacturer VALUES (10, 'Ubiquiti', 'http://www.ubnt.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (11, 'Meraki', 'http://meraki.com');");
 
-  // -- 
+  // --
   // -- guifi_model
-  // -- 
+  // --
   db_query("INSERT INTO guifi_model VALUES (99, 99, 'Other', NULL, 1, NULL, '802.11a/b/g', 'Si', 'No', 'Si', 'Si', 'Si', NULL, NULL, 'Si', 'Si', NULL, NULL, NULL, 'wLan/Lan', NULL, 'To be used for unknown or not listed devices', 'Yes'); ");
   db_query("INSERT INTO guifi_model VALUES (1, 2, 'WRT54Gv1-4', 'Extern', 1, 251, '802.11b/g', 'Si', 'No', 'Hack', 'Hack', 'Hack', 'RP-TNC', '2', 'Si', 'Si', 'Hack', 'Hack', 'Si', 'wLan/Lan|vlan|vlan2|vlan3|vlan4|Wan', 'http://www.linksys.com/products/product.', 'El canvi de potència, mode client i WDS, via hack.\r\nHacks disponibles: sveasoft (Satori, Alchemy...), OpenWRT...','Yes');");
   db_query("INSERT INTO guifi_model VALUES (2, 4, 'USR5450', 'Extern', 1, 100, '802.11b/g', 'Si', 'No', 'Si', 'Si', 'Si', 'RP-SMA', '2', 'No', 'No', 'No', 'Si', 'Si', 'wLan/Lan', 'http://www.usr-emea.com/products/p-networking-product.asp?prod=net-5450&page=overview&loc=span', 'suporta snmp, 108...','Deprectated');");
@@ -583,11 +584,11 @@ function guifi_install() {
   // --
   // -- user status types
   // --
-  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'New',  'New');");  
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('1', 'user_status', 'New',  'New');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Pending',  'Pending');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Approved', 'Approved');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('4', 'user_status', 'Rejected', 'Rejected');");
-  
+
   // --
   // -- content filter types
   // --hidden
@@ -604,8 +605,8 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('11', 'filter', 'redirect', 'Redirectors');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('12', 'filter', 'spyware', 'Spyware');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('13', 'filter', 'cracks', 'Illegal warez exchange, cracks...');");
-  
-} 
+
+}
 // --
 // First major upgrade to the migration.
 // It updates Schema database based on drupal4.6.x the new drupal6x.
@@ -715,38 +716,40 @@ return $items;
 //
 function guifi_update_412() {
   // changes @ guifi_zones
+  $items = array();
+
   db_add_field($items,'guifi_zone','zone_mode',
-    array('type' => 'varchar', 'length' => 25, 'not null' => TRUE, 'default' => 'infrastructure', 'COMMENT' => 'infrastructure/ad-hoc'));  
+    array('type' => 'varchar', 'length' => 25, 'not null' => TRUE, 'default' => 'infrastructure', 'COMMENT' => 'infrastructure/ad-hoc'));
   db_add_field($items, 'guifi_zone', 'proxy_id',
     array('type' => 'varchar', 'length' => '255', 'not null' => FALSE));
   db_add_field($items, 'guifi_zone', 'voip_id',
     array('type' => 'varchar', 'length' => '255', 'not null' => FALSE));
-  db_drop_field($items,'guifi_zone','mrtg_servers'); 
-  db_drop_field($items,'guifi_zone','image');  
+  db_drop_field($items,'guifi_zone','mrtg_servers');
+  db_drop_field($items,'guifi_zone','image');
   db_drop_field($items,'guifi_zone','map_poly');
   db_drop_field($items,'guifi_zone','map_coord');
 
   // changes @ guifi_services
   db_change_field($items, 'guifi_services', 'contact', 'notification', array('type' => 'varchar', 'length' => 1024));
-  
+
   // changes @ guifi_users
   db_add_field($items, 'guifi_users', 'status',
-    array('type' => 'varchar', 'length' => 25, 'not null' => TRUE, 'default' => 'new', 'COMMENT' => 'pending/approved/rejected'));  
+    array('type' => 'varchar', 'length' => 25, 'not null' => TRUE, 'default' => 'new', 'COMMENT' => 'pending/approved/rejected'));
   db_add_field($items, 'guifi_users', 'content_filters',
-    array('type' => 'text', 'size' => 'big', 'not null' => FALSE, 'default' => null));  
+    array('type' => 'text', 'size' => 'big', 'not null' => FALSE, 'default' => null));
   db_change_field($items, 'guifi_users', 'content_filters', 'content_filters', array('type' => 'text', 'size' => 'big'));
   db_change_field($items, 'guifi_users', 'email', 'notification', array('type' => 'varchar', 'length' => '1024'));
   $items[] = update_sql("UPDATE {guifi_users} SET status = 'Approved'");
 
   // changes @ guifi_devices
   db_add_field($items, 'guifi_devices', 'last_online',
-    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'));  
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'));
   db_add_field($items, 'guifi_devices', 'last_flag',
-    array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'));  
+    array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'));
   db_add_field($items, 'guifi_devices', 'ly_availability',
     array('type' => 'numeric', 'precision' => '10', 'scale'=>'6', 'not null' => FALSE, 'default' => null));
-  $items[] = update_sql("UPDATE {guifi_devices} SET extra = REPLACE(extra,'s:11:\"NanoStation\"','s:8:\"AirOs211\"')");  
-    
+  $items[] = update_sql("UPDATE {guifi_devices} SET extra = REPLACE(extra,'s:11:\"NanoStation\"','s:8:\"AirOs211\"')");
+
   // changes @ guifi_radios
   db_change_field($items, 'guifi_radios', 'antmode', 'antenna_mode', array('type' => 'varchar', 'length' => 1024));
   db_add_field($items, 'guifi_radios', 'ly_bytes_in',
@@ -763,7 +766,7 @@ function guifi_update_412() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('2', 'user_status', 'Pending',  'Pending');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('3', 'user_status', 'Approved', 'Approved');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('4', 'user_status', 'Rejected', 'Rejected');");
-  
+
   // --
   // -- content filter types
   // --
@@ -780,10 +783,65 @@ function guifi_update_412() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('11', 'filter', 'redirect', 'Redirectors');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('12', 'filter', 'spyware', 'Spyware');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('13', 'filter', 'cracks', 'Illegal warez exchange, cracks...');");
-  
+
   $items[] = update_sql("UPDATE `guifi_types` SET `text` = 'AirOsv221' WHERE `id` =11 AND `type` = 'firmware'");
 
-  
+
+  return $items;
+}
+
+function guifi_update_422() {
+
+  $items = array();
+  $q = db_query('SELECT id, title, nick FROM {guifi_zone}');
+  while ($z = db_fetch_object($q)) {
+    if (empty($z->nick)) {
+      $nick = guifi_abbreviate($z->title);
+      $items[] = update_sql(
+        sprintf("UPDATE {guifi_zone} SET nick='%s' WHERE id=%d",
+          $nick,$z->id)
+        );
+    }
+  }
+
+  db_drop_field($items,'guifi_devices','url_mrtg_server');
+  db_change_field($items,'guifi_devices','graph_server','graph_server',
+    array('type' => 'int',
+      'disp-width' => 11,
+      'not null' => TRUE,
+      'default' => 0,
+      'COMMENT' => 'Foreign key to guifi_services (type SNPGraph)')
+    );
+  db_change_field($items,'guifi_location','graph_server','graph_server',
+    array('type' => 'int',
+      'disp-width' => 11,
+      'not null' => TRUE,
+      'default' => 0,
+      'COMMENT' => 'Foreign key to guifi_services (type SNPGraph)')
+    );
+  db_change_field($items,'guifi_zone','graph_server','graph_server',
+    array('type' => 'int',
+      'disp-width' => 11,
+      'not null' => TRUE,
+      'default' => 0,
+      'COMMENT' => 'Foreign key to guifi_services (type SNPGraph)')
+    );
+  db_change_field($items,'guifi_zone','proxy_id','proxy_id',
+    array('type' => 'int',
+      'disp-width' => 11,
+      'not null' => TRUE,
+      'default' => 0,
+      'COMMENT' => 'Foreign key to guifi_services (type Proxt)')
+    );
+  db_change_field($items,'guifi_zone','voip_id','voip_id',
+    array('type' => 'int',
+      'disp-width' => 11,
+      'not null' => TRUE,
+      'default' => 0,
+      'COMMENT' => 'Foreign key to guifi_services (type VoIP)')
+    );  $q = db_query('SELECT id, title, nick FROM {guifi_zone}');
+
+
   return $items;
 }
 
