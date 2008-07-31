@@ -14,15 +14,16 @@
  */
 function guifi_zone_load($node) {
 
-  guifi_log(GUIFILOG_FULL,
+  guifi_log(GUIFILOG_TRACE,
     'function guifi_zone_load()',
     $node);
 
   if (is_object($node)) {
     $k = $node->nid;
-    if ($node->zone != 'guifi_zone')
+    if ($node->type != 'guifi_zone')
       return false;
   } else
+  if (is_numeric($node))
     $k = $node;
 
 
@@ -148,6 +149,10 @@ function guifi_zone_select_field($zid,$fname) {
 /** guifi_zone_form(): Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node, &$param) {
+  guifi_log(GUIFILOG_TRACE,
+    'function guifi_zone_form()',
+    $node);
+
   drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
   $form_weight = -20;
 
