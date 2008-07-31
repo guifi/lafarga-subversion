@@ -895,6 +895,9 @@ function guifi_zone_totals($zones) {
 */
 function guifi_zone_nodes($node,$embeded = false) {
 
+  if (!isset($node->id))
+    $node->id=$node->nid;
+
   if (!$embeded)
     drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
 
