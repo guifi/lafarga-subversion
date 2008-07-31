@@ -227,7 +227,16 @@ function guifi_device_load($id,$ret = 'array') {
   }
 }
 
+function guifi_device_admin_url($d,$ip) {
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_admin_url()',$d['variable']['firmware']);
 
+  if (in_array($d['variable']['firmware'],array(
+    'Alchemy','Talisman','DD-guifi','DD-WRT'
+    )))
+    return 'https://'.$ip.':8080';
+
+  return 'http://'.$ip;
+}
 /*
  * Device edit funcions
  * guifi_device_form_submit(): Performs submit actions

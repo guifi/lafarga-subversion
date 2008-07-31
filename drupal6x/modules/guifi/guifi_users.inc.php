@@ -410,6 +410,12 @@ function guifi_user_proxy_validate($element, &$form_state) {
 /**
  * Confirm that an edited user fields properly filled in.
  */
+
+function _guifi_user_queue_device_form_submit($form, $form_state) {
+    guifi_log(GUIFILOG_BASIC,'function guifi_user_queue_device_form_submit()',$form_state);
+
+}
+
 function guifi_user_form_validate($form, &$form_state) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_user_form_validate()',$form_state);
@@ -483,27 +489,58 @@ function guifi_user_form_validate($form, &$form_state) {
 
 function guifi_users_queue($zone) {
 
-  function _guifi_user_queue_devices($nid) {
+  function _guifi_user_queue_device_form($form_state, $params = array()) {
+
+    guifi_log(GUIFILOG_TRACE,'function guifi_user_form()',$params);
+
+    if (empty($form_state['values'])) {
+      $form_state['values'] = $params;
+    }
+    $f['status'] = array(
+      '#type'=>'select',
+//      '#title'=>t('Status'),
+      '#options'=>guifi_types('user_status'),
+      '#default_value'=>$form_state['values']['status'],
+      '#prefix'=>'<table><tr><td>',
+      '#suffix'=>'</td>'
+    );
+    $f['id'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
+    $f['submit'] = array (
+      '#type'=>'submit',
+      '#value'=>t('Save'),
+      '#submit'=>array('_guifi_user_queue_device_form_submit'),
+      '#prefix'=>'<td>',
+      '#suffix'=>'</td></tr></table>'
+    );
+    // $f['#submit'][] = '_guifi_user_queue_device_form_submit';
+    return $f;
+  }
+
+  function _guifi_user_queue_devices($u) {
+
     $query = db_query(
-      'SELECT d.* ' .
+      'SELECT d.id ' .
       'FROM {guifi_devices} d ' .
       'WHERE d.nid=%d' .
       '  AND type="radio"',
-      $nid
+      $u['nid']
     );
     $rows = array();
     while ($d = db_fetch_array($query)) {
+     $d = guifi_device_load($d);
+
      $ip = guifi_main_ip($d['id']);
-     $graph_url = guifi_graphs_get_node_url($nid,FALSE);
+     $graph_url = guifi_graphs_get_node_url($u['nid'],FALSE);
      if ($graph_url != NULL)
        $img_url = ' <img src='.$graph_url.'?device='.$d['id'].'&type=availability&format=short>';
      else
        $img_url = 'NULL';
       $rows[] = array(
         l($d['nick'],'guifi/device/'.$d['id']),
+        l($ip['ipv4'].'/'.$ip['maskbits'],
+          guifi_device_admin_url($d,$ip['ipv4'])),
         array('data' => $d['flag'], 'class' => $d['flag']),
         array('data' => $img_url, 'class' => $d['flag']),
-        $ip['ipv4'].'/'.$ip['maskbits']
       );
     }
     return theme('table',null,$rows);
@@ -522,7 +559,7 @@ function guifi_users_queue($zone) {
   $childs[] = $zone->id;
 
   $sql =
-    'SELECT u.*, l.status_flag nflag ' .
+    'SELECT u.*, l.id nid, l.nick nnick, l.status_flag nflag ' .
     'FROM {guifi_users} u, {guifi_location} l ' .
     'WHERE u.nid=l.id' .
     '  AND l.zone_id IN ('.implode(',',$childs).')';
@@ -534,9 +571,10 @@ function guifi_users_queue($zone) {
   while ($u = db_fetch_array($query)) {
     $rows[] = array(
       $u['username'],
-      $u['status'],
       format_date($u['timestamp_created']),
-      _guifi_user_queue_devices($u['nid'])
+      array('data'=>l($u['nnick'],'node/'.$u['nid']),'class'=>$u['nflag']),
+      drupal_get_form('_guifi_user_queue_device_form',$u),
+      _guifi_user_queue_devices($u)
     );
   }
   $output .= theme('table', $header, $rows);
