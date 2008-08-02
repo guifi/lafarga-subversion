@@ -412,8 +412,14 @@ function guifi_user_proxy_validate($element, &$form_state) {
  */
 
 function _guifi_user_queue_device_form_submit($form, $form_state) {
-    guifi_log(GUIFILOG_BASIC,'function guifi_user_queue_device_form_submit()',$form_state);
+    guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form_submit()',$form_state);
 
+    $u = guifi_user_load($form_state['clicked_button']['#post']['id']);
+
+    $u['status'] = $form_state['values']['status'];
+    $u['id'] = $form_state['clicked_button']['#post']['id'];
+
+    guifi_user_save($u);
 }
 
 function guifi_user_form_validate($form, &$form_state) {
@@ -508,6 +514,7 @@ function guifi_users_queue($zone) {
     $f['submit'] = array (
       '#type'=>'submit',
       '#value'=>t('Save'),
+      '#name'=>$form_state['values']['id'],
       '#submit'=>array('_guifi_user_queue_device_form_submit'),
       '#prefix'=>'<td>',
       '#suffix'=>'</td></tr></table>'
@@ -562,6 +569,7 @@ function guifi_users_queue($zone) {
     'SELECT u.*, l.id nid, l.nick nnick, l.status_flag nflag ' .
     'FROM {guifi_users} u, {guifi_location} l ' .
     'WHERE u.nid=l.id' .
+    '  AND (l.status_flag != "Working" OR u.status != "Approved") ' .
     '  AND l.zone_id IN ('.implode(',',$childs).')';
   $query = pager_query($sql);
 
