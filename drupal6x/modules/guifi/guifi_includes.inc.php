@@ -42,7 +42,8 @@ function _guifi_validate_mac($mac) {
 }
 
 function guifi_img_icon($i) {
-  return '<img src="/'.drupal_get_path('module', 'guifi').'/icons/'.$i.'" >';
+  global $base_url;
+  return '<img src="'.$base_url.'/'.drupal_get_path('module', 'guifi').'/icons/'.$i.'" >';
 }
 
 /**
