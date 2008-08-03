@@ -412,14 +412,27 @@ function guifi_user_proxy_validate($element, &$form_state) {
  */
 
 function _guifi_user_queue_device_form_submit($form, $form_state) {
-    guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form_submit()',$form_state);
-
-    $u = guifi_user_load($form_state['clicked_button']['#post']['id']);
-
-    $u['status'] = $form_state['values']['status'];
-    $u['id'] = $form_state['clicked_button']['#post']['id'];
-
-    guifi_user_save($u);
+    guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form_submit()',$form_state['clicked_button']['#post']);
+    
+    switch ($form_state['clicked_button']['#name']) {
+    case 'approve':
+      $edit = &$form_state['clicked_button']['#post'];
+      $d = guifi_device_load($edit['did']);
+      $d['flag'] = 'Working';
+      $d['radios'][0]['mac'] =  $edit['mac'];
+      $d['radios'][0]['interfaces'][$edit['iid']]['mac'] =  $edit['mac'];
+      $d['radios'][0]['interfaces'][$edit['iid']]['ipv4'][0]['links'][$edit['lid']]['flag'] =  
+        'Working';
+      guifi_device_save($d);
+      $n = guifi_node_load($form_state['clicked_button']['#post']['nid']);
+      $form_state['values']['status'] = 'Approved';
+    case 'saveUser':
+      $u = guifi_user_load($form_state['clicked_button']['#post']['uid']);
+      $u['status'] = $form_state['values']['status'];
+      guifi_user_save($u);
+      break;
+    }  
+    return;
 }
 
 function guifi_user_form_validate($form, &$form_state) {
@@ -495,9 +508,72 @@ function guifi_user_form_validate($form, &$form_state) {
 
 function guifi_users_queue($zone) {
 
-  function _guifi_user_queue_device_form($form_state, $params = array()) {
+  function _guifi_user_queue_device_form($form_state, $d = array()) {
 
-    guifi_log(GUIFILOG_TRACE,'function guifi_user_form()',$params);
+    guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form()',$d);
+    
+    if (count($d['radios']) != 1)
+      return;
+    if ($d['radios'][0]['mode'] != 'client')
+      return;
+
+    if (empty($form_state['values'])) {
+      $form_state['values'] = $d;
+    }
+    $f['flag'] = array(
+      '#type'=>'item',
+//      '#title'=>t('Status'),
+//      '#options'=>guifi_types('status'),
+//      '#default_value'=>$form_state['values']['flag'],
+      '#value'=>$form_state['values']['flag'],
+      //'#description'=>
+      '#prefix'=>'<table><tr><td>',
+      '#suffix'=>'</td>'
+    );
+    $f['mac'] = array(
+      '#type' => 'textfield',
+//      '#title' => t('Device MAC Address'),
+      '#required' => TRUE,
+      '#size' => 17,
+      '#maxlength' => 17,
+      '#default_value' => $form_state['values']['radios'][0]['mac'],
+      '#element_validate' => array('guifi_mac_validate'),
+//      '#description' => t("Base/Main MAC Address.<br />Some configurations won't work if is blank"),
+      '#prefix'=>'<td>',
+      '#suffix'=>'</td>'
+    );   
+    $iid = key($d['radios'][0]['interfaces']);
+    $lid = key($d['radios'][0]['interfaces'][$iid]['ipv4'][0]['links']);
+    $f['did'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
+    $f['nid'] = array('#type'=>'hidden','#value'=>$form_state['values']['nid']);
+    $f['uid'] = array('#type'=>'hidden','#value'=>$form_state['values']['uid']);
+    $f['iid'] = array('#type'=>'hidden','#value'=>$iid);
+    $f['lid'] = array('#type'=>'hidden','#value'=>$lid);
+    
+    $f['approve'] = array(
+      '#type'=>'image_button',
+      '#src'=> drupal_get_path('module', 'guifi').'/icons/ok.png',
+      '#attributes'=>array('title'=>t('Set the device and link Online, confirm MAC & approve user.')), 
+      '#prefix'=>'<td>',
+      '#suffix'=>'</td></tr></table>'
+    );
+    return $f;    
+    
+    $f['submit'] = array (
+      '#type'=>'submit',
+      '#value'=>t('Save'),
+      '#name'=>$form_state['values']['id'],
+      '#submit'=>array('_guifi_user_queue_device_form_submit'),
+      '#prefix'=>'<td>',
+      '#suffix'=>'</td></tr></table>'
+    );
+    // $f['#submit'][] = '_guifi_user_queue_device_form_submit';
+    return $f;
+  }
+
+  function _guifi_user_queue_form($form_state, $params = array()) {
+
+    guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_form()',$params);
 
     if (empty($form_state['values'])) {
       $form_state['values'] = $params;
@@ -510,10 +586,19 @@ function guifi_users_queue($zone) {
       '#prefix'=>'<table><tr><td>',
       '#suffix'=>'</td>'
     );
-    $f['id'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
+    $f['uid'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
+    $f['saveUser'] = array(
+      '#type'=>'image_button',
+      '#src'=> drupal_get_path('module', 'guifi').'/icons/save.png',
+      '#attributes'=>array('title'=>t('Change & Save users Status.')), 
+      '#submit'=>array('_guifi_user_queue_device_form_submit'),
+      '#prefix'=>'<td>',
+      '#suffix'=>'</td></tr></table>'
+    );
+    return $f;
     $f['submit'] = array (
       '#type'=>'submit',
-      '#value'=>t('Save'),
+      '#value'=>t('Change user status'),
       '#name'=>$form_state['values']['id'],
       '#submit'=>array('_guifi_user_queue_device_form_submit'),
       '#prefix'=>'<td>',
@@ -534,7 +619,10 @@ function guifi_users_queue($zone) {
     );
     $rows = array();
     while ($d = db_fetch_array($query)) {
-     $d = guifi_device_load($d);
+     $d = guifi_device_load($d['id']);
+     $d['uid']=$u['id'];
+//     print_r($d);
+//     print "<br>\n";
 
      $ip = guifi_main_ip($d['id']);
      $graph_url = guifi_graphs_get_node_url($u['nid'],FALSE);
@@ -543,14 +631,20 @@ function guifi_users_queue($zone) {
      else
        $img_url = 'NULL';
       $rows[] = array(
-        l($d['nick'],'guifi/device/'.$d['id']),
+        l($d['nick'],'guifi/device/'.$d['id'],
+          array('attributes'=>array('target'=>'_blank'))).' '.
+        l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
+          array('html'=>true,'attributes'=>array('target'=>'_blank'))),
         l($ip['ipv4'].'/'.$ip['maskbits'],
-          guifi_device_admin_url($d,$ip['ipv4'])),
-        array('data' => $d['flag'], 'class' => $d['flag']),
+          guifi_device_admin_url($d,$ip['ipv4']),
+          array('attributes'=>array('title'=>t('Connect to the device on a new window'),
+            'target'=>'_blank'))),
+        array('data' => drupal_get_form('_guifi_user_queue_device_form',$d), 'class' => $d['flag']),
         array('data' => $img_url, 'class' => $d['flag']),
       );
     }
-    return theme('table',null,$rows);
+    // return theme('table',null,$rows);
+    return $rows;
   }
 
   global $user;
@@ -574,25 +668,73 @@ function guifi_users_queue($zone) {
   $query = pager_query($sql);
 
   $rows = array();
+  $nrow = 0;
   $header = array();
 
   while ($u = db_fetch_array($query)) {
+    $srows =  _guifi_user_queue_devices($u);
+    $nsr   = count($srows);
+    if (empty($nsr))
+      $nsr = 1;
+        
     $rows[] = array(
-      $u['username'],
-      format_date($u['timestamp_created']),
-      array('data'=>l($u['nnick'],'node/'.$u['nid']),'class'=>$u['nflag']),
-      drupal_get_form('_guifi_user_queue_device_form',$u),
-      _guifi_user_queue_devices($u)
-    );
+      array('data'=>
+        l($u['username'],'node/'.$u['nid'].'/view/users',
+          array('attributes'=>array(
+            'title'=>$u['lastname'].", ".$u['firstname'],
+            'target'=>'_blank')
+          )) .' '.
+          l(guifi_img_icon('edit.png'),
+            'guifi/user/'.$u['id'].'/edit',
+            array('html'=>true,'attributes'=>array('target'=>'_blank'))) .
+            "\n<br>".
+            '<small>'.format_date($u['timestamp_created']).'</small>',
+        'rowspan'=>$nsr
+        ),
+      array(
+        'data'=>
+           l($u['nnick'],'node/'.$u['nid']).' '.
+           l(guifi_img_icon('edit.png'),
+             'node/'.$u['nid'].'/edit',
+             array('html'=>true)).'<br><small>'.
+           l(t('add a comment'),'comment/reply/'.$u['nid'],
+             array('fragment'=>'comment-form',
+               'html'=>true,
+               'attributes'=>array('title'=>t('Add a comment to the page of this node'),
+                 'target'=>'_blank'))).'</small>',
+        'class'=>$u['nflag'],
+        'rowspan'=>$nsr
+        ),
+      array('data'=>drupal_get_form('_guifi_user_queue_form',$u),
+        'rowspan'=>$nsr
+        )
+      );
+    
+    end($rows);
+    $krow = key($rows);
+        
+    if (count($srows)) {
+      // merge current row with first element
+      $rows[$krow] = array_merge($rows[$krow],array_shift($srows));
+      // adding rest og the elements
+      foreach ($srows as $k=>$v)
+        $rows[] = $v;
+    }
+
   }
+  
+  
   $output .= theme('table', $header, $rows);
   $output .= theme_pager(null, 50);
-
-  return $output;
+  
+  // Full screen (no lateral bars, etc...)
+  print theme('page', $output, FALSE);
+  // If normal output, retrurn $output...
 }
 
 function guifi_users_node_list($node) {
 
+  guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list()',$node);
   $output = drupal_get_form('guifi_users_node_list_form',$node);
 
   // To gain space, save bandwith and CPU, omit blocks
@@ -606,13 +748,13 @@ function guifi_users_node_list_form($form_state, $params = array()) {
   global $user;
   $owner = $user->uid;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list_form()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list_form()',$params);
 
   if (empty($form_state['values'])) {
     if (is_numeric($params))
       $node = node_load($params);
     else
-      $node = $params;
+      $node = node_load(array('nid'=>$params->id));
   }
 
 //  $form_state['#redirect'] = FALSE;

@@ -41,6 +41,10 @@ function _guifi_validate_mac($mac) {
   return strtoupper(substr(chunk_split($mac,2,':'),0,17));
 }
 
+function guifi_img_icon($i) {
+  return '<img src="/'.drupal_get_path('module', 'guifi').'/icons/'.$i.'" >';
+}
+
 /**
  * guifi_rrdfile
 **/
