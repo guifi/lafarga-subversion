@@ -516,34 +516,31 @@ function guifi_users_queue($zone) {
       return;
     if ($d['radios'][0]['mode'] != 'client')
       return;
+    $iid = key($d['radios'][0]['interfaces']);
+    $lid = key($d['radios'][0]['interfaces'][$iid]['ipv4'][0]['links']);
+    if ((empty($iid)) or (empty($lid)))
+      return;
 
     if (empty($form_state['values'])) {
       $form_state['values'] = $d;
     }
     $f['flag'] = array(
       '#type'=>'item',
-//      '#title'=>t('Status'),
-//      '#options'=>guifi_types('status'),
-//      '#default_value'=>$form_state['values']['flag'],
       '#value'=>$form_state['values']['flag'],
-      //'#description'=>
       '#prefix'=>'<table><tr><td>',
       '#suffix'=>'</td>'
     );
     $f['mac'] = array(
       '#type' => 'textfield',
-//      '#title' => t('Device MAC Address'),
       '#required' => TRUE,
       '#size' => 17,
       '#maxlength' => 17,
       '#default_value' => $form_state['values']['radios'][0]['mac'],
       '#element_validate' => array('guifi_mac_validate'),
-//      '#description' => t("Base/Main MAC Address.<br />Some configurations won't work if is blank"),
       '#prefix'=>'<td>',
       '#suffix'=>'</td>'
     );   
-    $iid = key($d['radios'][0]['interfaces']);
-    $lid = key($d['radios'][0]['interfaces'][$iid]['ipv4'][0]['links']);
+
     $f['did'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
     $f['nid'] = array('#type'=>'hidden','#value'=>$form_state['values']['nid']);
     $f['uid'] = array('#type'=>'hidden','#value'=>$form_state['values']['uid']);
@@ -558,17 +555,6 @@ function guifi_users_queue($zone) {
       '#suffix'=>'</td></tr></table>'
     );
     return $f;    
-    
-    $f['submit'] = array (
-      '#type'=>'submit',
-      '#value'=>t('Save'),
-      '#name'=>$form_state['values']['id'],
-      '#submit'=>array('_guifi_user_queue_device_form_submit'),
-      '#prefix'=>'<td>',
-      '#suffix'=>'</td></tr></table>'
-    );
-    // $f['#submit'][] = '_guifi_user_queue_device_form_submit';
-    return $f;
   }
 
   function _guifi_user_queue_form($form_state, $params = array()) {
@@ -660,7 +646,7 @@ function guifi_users_queue($zone) {
   $childs[] = $zone->id;
 
   $sql =
-    'SELECT u.*, l.id nid, l.nick nnick, l.status_flag nflag ' .
+    'SELECT u.*, l.id nid, l.nick nnick, l.status_flag nflag, l.zone_id ' .
     'FROM {guifi_users} u, {guifi_location} l ' .
     'WHERE u.nid=l.id' .
     '  AND (l.status_flag != "Working" OR u.status != "Approved") ' .
@@ -669,8 +655,7 @@ function guifi_users_queue($zone) {
 
   $rows = array();
   $nrow = 0;
-  $header = array();
-
+  
   while ($u = db_fetch_array($query)) {
     $srows =  _guifi_user_queue_devices($u);
     $nsr   = count($srows);
@@ -693,10 +678,11 @@ function guifi_users_queue($zone) {
         ),
       array(
         'data'=>
+           guifi_get_zone_nick($u['zone_id'])."<br><strong>".
            l($u['nnick'],'node/'.$u['nid']).' '.
            l(guifi_img_icon('edit.png'),
              'node/'.$u['nid'].'/edit',
-             array('html'=>true)).'<br><small>'.
+             array('html'=>true)).'</strong><br><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
              array('fragment'=>'comment-form',
                'html'=>true,
@@ -723,6 +709,15 @@ function guifi_users_queue($zone) {
 
   }
   
+  $header = array(
+    t('Username'),
+    t('Node'),
+    t('User status'),
+    t('Device'),
+    t('IP v4 address'),
+    t('Status & MAC'),
+    t('Current status')
+  );
   
   $output .= theme('table', $header, $rows);
   $output .= theme_pager(null, 50);
