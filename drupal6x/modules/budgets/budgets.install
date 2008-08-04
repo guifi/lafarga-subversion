@@ -1,66 +1,65 @@
 <?php
 
 function budgets_schema() {
-
-$schema['budgets'] = array(
+  
+  $schema['budgets'] = array(
     'fields' => array(
-         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-         'budget_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
-         'promoter' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'payment_instructions' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'terms' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'expires' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
-         'guifi_zones' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
-         'currency_txt' => array('type' => 'varchar', 'length' => '10', 'not null' => TRUE, 'default' => 'Euros'),
-         'currency_symbol' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => '€'),
-         'min_contribution' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2')),
-    'primary key' => array('nid'),
-);
-
-$schema['budget_funds'] = array(
+      'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'budget_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+      'promoter' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'payment_instructions' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'terms' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'expires' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
+      'guifi_zones' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
+      'currency_txt' => array('type' => 'varchar', 'length' => '10', 'not null' => TRUE, 'default' => 'Euros'),
+      'currency_symbol' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => '€'),
+      'min_contribution' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2')),
+      'primary key' => array('nid'),
+  );
+  $schema['budget_funds'] = array(
     'fields' => array(
-         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-         'fund_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-         'contributor_name' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE),
-         'contributor_telf' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
-         'contributor_email' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
-         'fund_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
-         'date' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
-         'amount' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-         'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
-    'primary key' => array('nid', 'fund_id'),
-);
-$schema['budget_items'] = array(
+      'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'fund_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'contributor_name' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE),
+      'contributor_telf' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
+      'contributor_email' => array('type' => 'varchar', 'length' => '64', 'not null' => FALSE),
+      'fund_status' => array('type' => 'varchar', 'length' => '15', 'not null' => TRUE),
+      'date' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
+      'amount' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
+      'primary key' => array('nid', 'fund_id'),
+  );
+  $schema['budget_items'] = array(
     'fields' => array(
-         'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-         'item_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-         'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
-         'quantity' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
-         'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-         'weight' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '3')),
-    'primary key' => array('nid', 'item_id'),
-);
-   return $schema;
+      'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'item_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'quantity' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
+      'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'weight' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '3')),
+      'primary key' => array('nid', 'item_id'),
+  );
+  return $schema;
 }
 
 function budgets_install() {
-    drupal_install_schema('budgets');
+  drupal_install_schema('budgets');
 }
 
 function budgets_uninstall() {
-    drupal_uninstall_schema('budgets');
-
-      variable_del('budget_block_title');
-      variable_del('budget_payment');
-      variable_del('budget_terms');
-      variable_del('budget_expires');
-      variable_del('budget_currency_symbol');
-      variable_del('budget_currency_txt');
-      variable_del('budget_minimum');
-      variable_del('budget_block_title');
-      variable_del('budget_currency_long');
+  drupal_uninstall_schema('budgets');
+  
+  variable_del('budget_block_title');
+  variable_del('budget_payment');
+  variable_del('budget_terms');
+  variable_del('budget_expires');
+  variable_del('budget_currency_symbol');
+  variable_del('budget_currency_txt');
+  variable_del('budget_minimum');
+  variable_del('budget_block_title');
+  variable_del('budget_currency_long');
 }
 //
 // Database update from SVN revision 413
