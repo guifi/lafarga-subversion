@@ -773,20 +773,31 @@ function guifi_zone_get_parents($id) {
 
 /** guifi_zone_ariadna(): Get an array of zone hierarchy to breadcumb
 **/
-function guifi_zone_ariadna($id = 0, $link = 'node/') {
+function guifi_zone_ariadna($id = 0, $link = 'node/%d') {
   $ret = array();
 $ret[] = l(t('Home'), NULL);
   foreach (array_reverse(guifi_zone_get_parents($id)) as $parent)
   if ($parent > 0) {
-    $parentData = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$parent));
-    $ret[] = l($parentData['title'],$link.$parentData['id']);
+    $parentData = db_fetch_array(db_query(
+      'SELECT z.id, z.title ' .
+      'FROM {guifi_zone} z ' .
+      'WHERE z.id = %d ',
+      $parent));
+    $ret[] = l($parentData['title'],sprintf($link,$parentData['id']));
   }
   $ret[count($ret)-1] = '<b>'.$ret[count($ret)-1].'</b>';
 
   $child = array();
-  $query = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$id);
+  $query = db_query('SELECT z.id, z.nick, z.title ' .
+      'FROM {guifi_zone} z ' .
+      'WHERE z.master = %d ' .
+      'ORDER BY z.weight, z.title',
+      $id);
   while ($zoneChild = db_fetch_array($query)) {
-    $child[] = l($zoneChild['title'],$link.$zoneChild['id']);
+    $child[] = l($zoneChild['nick'],sprintf($link,$zoneChild['id']),
+      array(
+        'attributes'=>array('title'=>$zoneChild['title'])
+      ));
   }
   if (count($child)) {
     $child[0] = '<br><small>('.$child[0];
@@ -994,67 +1005,145 @@ function guifi_get_zone_child_tree($parent = 0, $depth = 30, $maxdepth = NULL) {
   return $children;
 }
 
-/** guifi_zone_availability(): List zone nodes/devices with it's availability status
- */
-function guifi_zone_availability_recurse($node, $depth = 0,$maxdepth = 3) {
-
-  $rows = array();
-  $depth ++;
-  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->nid);
-  if (db_result($result) > 0)
-    while ($zone = db_fetch_object($result)) {
+function guifi_zone_availability($zone,$desc = "all") {
+  guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability()',$zone);
+  
+  function _guifi_zone_availability_devices($nid) {
+    $qry  = db_query( 
+      'SELECT d.id did, d.nick dnick, d.flag dflag ' .
+      'FROM {guifi_devices} d ' .
+      'WHERE d.type = "radio" ' .
+      '  AND d.nid=%d ' .
+      'ORDER BY d.nick',
+      $nid);
+    
+    $rows = array();
+    
+    while ($d = db_fetch_array($qry)) {
+      $dev = guifi_device_load($d['did']);
+      
+      if (guifi_device_access('update',$dev))
+        $edit = 
+          l(guifi_img_icon('edit.png'),'guifi/device/'.$d['did'].'/edit',
+            array(
+              'html'=>true,
+              'title' => t('edit device'),
+              'attributes'=>array('target'=>'_blank'))).
+          l(guifi_img_icon('drop.png'),'guifi/device/'.$d['did'].'/delete',
+            array(
+              'html'=>true,
+              'title' => t('delete device'),
+              'attributes'=>array('target'=>'_blank')));
+      else
+        $edit = null;
+            
+      $ip = guifi_main_ip($d['did']);
+      $graph_url = guifi_graphs_get_radio_url($d['did'],FALSE);
+      if ($graph_url != NULL)
+        $img_url = ' <img src='.$graph_url.'?device='.$d['did'].'&type=availability&format=long>';
+      else
+        $img_url = null;
+        
       $rows[] = array(
-                      array('data' => '<a href="node/'.$zone->id.'/view/availability">'.$zone->title,'class' => 'fullwidth'));
-      $child = node_load(array('nid' => $zone->id));
-      $rows[] = array(guifi_zone_availability_recurse($child,$depth,$maxdepth));
-    } // end while zones
-
-  if ($depth < $maxdepth)  {
-    $result = db_query('SELECT l.id,l.nick, l.notification, l.zone_description, l.status_flag, count(*) radios FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid WHERE l.zone_id = %d GROUP BY 1,2,3,4,5 ORDER BY radios DESC, l.nick',$node->nid);
-    if (db_result($result) > 0)
-      while ($loc = db_fetch_object($result)) {
-        $qdevices = db_query("SELECT d.id, d.nick, d.flag FROM {guifi_devices} d WHERE nid=%d",$loc->id);
-        $i = 0;
-        if (db_result($qdevices) > 0)
-          while ($radio = db_fetch_object($qdevices)) {
-            if ($i == 0)
-              $nnick = '<a href="'.base_path().'node/'.$loc->id.'">'.$loc->nick.'</a>';
-            else
-              $nnick = null;
-            $i++;
-
-            $url_device = url('guifi/device/'.$radio->id);
-
-
-            $graph_url = guifi_radio_get_url_mrtg($radio->id,FALSE);
-            if ($graph_url != NULL)
-              $img_url = ' <img src='.$graph_url.'?device='.$radio->id.'&type=availability&format=long>';
-            else
-              $img_url = NULL;
-
-            $rows[] = array(
-                            array('data' => $nnick,'class'=>'quarterwidth'),
-                            array('data' => '<a href="'.$url_device.'">'.$radio->nick.'</a>', 'class' => 'quarterwidth'),
-                            array('data' => t($radio->flag).$img_url,'class' => $radio->flag)
-              );
-
-          } // while radios
-      } // while nodes
-  } // if in depth
-
-  if (count($rows)) {
-    if ($depth > 1)
-      $header = array(t('node'),t('device'),t('status'));
-    return theme('table',$header,$rows,array('width'=>'100%'));
-  } else
-  return;
-}
-
-function guifi_zone_availability($nid) {
-  $node = node_load(array('nid'=>$nid));
-  $output = '<h2>' .t('Availability of ') .' ' .$node->title .'</h2>';
-  $rows[] = array(guifi_zone_availability_recurse($node));
-  $output .= theme('table', null, array_merge($rows),array('width'=>'100%'));
+        array('data'=>
+          $edit.l($d['dnick'],'guifi/device/'.$d['did'])
+             ),
+        array(
+          'data'=>l($ip['ipv4'].'/'.$ip['maskbits'],
+          guifi_device_admin_url($d['did'],$ip['ipv4']),
+          array('attributes'=>array('title'=>t('Connect to the device on a new window'),
+            'target'=>'_blank'))),
+          'align'=>'right'
+        ),
+        array('data'=>$d['dflag'].$img_url,'class'=>$d['dflag'])
+      );
+    }
+    guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability_device()',$rows);
+        
+    return $rows;  
+  }
+  
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/availability'));
+  $childs = array_keys(guifi_zone_childs($zone->id));
+  $childs[] = $zone->id;
+  
+  switch ($desc) {
+    case t('Working'):
+      $msg = t('Pending/to review'); 
+      break;
+    case t('all'):
+      $msg = t('Availability');
+  }
+  
+  $output = '<h2>' .$msg.' @  ' .$zone->title .'</h2>';
+  
+  $sql = 
+    'SELECT z.id zid, z.title ztitle, z.nick znick, ' .
+    '  l.id nid, l.nick nnick, l.status_flag nstatus ' .
+    'FROM {guifi_zone} z, {guifi_location} l ' .
+    'WHERE z.id=l.zone_id ' .
+    '  AND l.status_flag != "'.$desc.'"' .
+    '  AND z.id IN ('.implode(',',$childs).') '.
+    'ORDER BY z.title, z.id, l.nick';
+  guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability()',$sql);
+  
+  $Msql = pager_query($sql,variable_get("guifi_pagelimit", 50));
+  
+  $rows = array();
+  $currZ = -1;
+  while ($d = db_fetch_array($Msql)) {
+    if ($currZ != $d['zid']) {
+      $rows[] = array(array('data'=>
+        l($d['znick'],'node/'.$d['zid']
+          ).' <strong>'.
+        $d['ztitle'].'</strong>',
+        'colspan'=>0
+      ));
+      $currZ = $d['zid'];
+    }
+    $drows = _guifi_zone_availability_devices($d['nid']);
+    
+    $nsr = count($drows);
+    if (empty($nsr))
+      $nsr = 1;
+      
+    if (guifi_node_access('update',$d['nid']))
+      $edit = 
+        l(guifi_img_icon('edit.png'),'node/'.$d['nid'].'/edit',
+          array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+        l(guifi_img_icon('drop.png'),'node/'.$d['nid'].'/delete',
+          array('html'=>true,'attributes'=>array('target'=>'_blank')));
+    else
+      $edit = null;
+    
+    $rows[] = array(
+      array('data'=>$d['nid'],
+       'align'=>'right',
+       'rowspan'=>$nsr),
+      array('data'=> $edit.
+        l($d['nnick'],'node/'.$d['nid'],
+          array('attributes'=>array('target'=>'_blank'))),
+       'rowspan'=>$nsr),
+      array('data'=>$d['nstatus'],
+       'class'=>$d['nstatus'],
+       'rowspan'=>$nsr)        
+    );
+    end($rows);
+    $krow = key($rows);
+      
+    if (count($drows)) {
+      $rows[$krow] = array_merge($rows[$krow],array_shift($drows));
+     
+      foreach ($drows as $k2 => $v)
+        $rows[] = $v;
+    }
+        
+  }
+  
+  
+//  $rows[] = array(guifi_zone_availability_recurse($node));
+  $output .= theme('table', null, $rows,array('width'=>'100%'));
+  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
   return $output;
 }
 

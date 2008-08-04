@@ -616,18 +616,20 @@ function guifi_users_queue($zone) {
        $img_url = ' <img src='.$graph_url.'?device='.$d['id'].'&type=availability&format=short>';
      else
        $img_url = 'NULL';
-      $rows[] = array(
-        l($d['nick'],'guifi/device/'.$d['id'],
-          array('attributes'=>array('target'=>'_blank'))).' '.
-        l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
-          array('html'=>true,'attributes'=>array('target'=>'_blank'))),
-        l($ip['ipv4'].'/'.$ip['maskbits'],
-          guifi_device_admin_url($d,$ip['ipv4']),
-          array('attributes'=>array('title'=>t('Connect to the device on a new window'),
-            'target'=>'_blank'))),
-        array('data' => drupal_get_form('_guifi_user_queue_device_form',$d), 'class' => $d['flag']),
-        array('data' => $img_url, 'class' => $d['flag']),
-      );
+     $rows[] = array(
+       l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
+         array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+         l($d['nick'],'guifi/device/'.$d['id'],
+           array('attributes'=>array('target'=>'_blank'))),
+           array(
+             'data'=>l($ip['ipv4'].'/'.$ip['maskbits'],
+               guifi_device_admin_url($d,$ip['ipv4']),
+               array('attributes'=>array('title'=>t('Connect to the device on a new window'),
+                 'target'=>'_blank'))),
+                 'align'=>'right'),
+                 array('data' => drupal_get_form('_guifi_user_queue_device_form',$d), 'class' => $d['flag']),
+                 array('data' => $img_url, 'class' => $d['flag']),
+     );
     }
     // return theme('table',null,$rows);
     return $rows;
@@ -651,7 +653,7 @@ function guifi_users_queue($zone) {
     'WHERE u.nid=l.id' .
     '  AND (l.status_flag != "Working" OR u.status != "Approved") ' .
     '  AND l.zone_id IN ('.implode(',',$childs).')';
-  $query = pager_query($sql);
+  $query = pager_query($sql,variable_get("guifi_pagelimit", 50));
 
   $rows = array();
   $nrow = 0;
@@ -664,25 +666,26 @@ function guifi_users_queue($zone) {
         
     $rows[] = array(
       array('data'=>
+        l(guifi_img_icon('edit.png'),
+         'guifi/user/'.$u['id'].'/edit',
+          array('html'=>true,'attributes'=>array('target'=>'_blank'))).
         l($u['username'],'node/'.$u['nid'].'/view/users',
           array('attributes'=>array(
             'title'=>$u['lastname'].", ".$u['firstname'],
             'target'=>'_blank')
-          )) .' '.
-          l(guifi_img_icon('edit.png'),
-            'guifi/user/'.$u['id'].'/edit',
-            array('html'=>true,'attributes'=>array('target'=>'_blank'))) .
-            "\n<br>".
-            '<small>'.format_date($u['timestamp_created']).'</small>',
+          )) .
+          "\n<br>".
+          '<small>'.format_date($u['timestamp_created']).'</small>',
         'rowspan'=>$nsr
         ),
       array(
         'data'=>
            guifi_get_zone_nick($u['zone_id'])."<br><strong>".
-           l($u['nnick'],'node/'.$u['nid']).' '.
            l(guifi_img_icon('edit.png'),
              'node/'.$u['nid'].'/edit',
-             array('html'=>true)).'</strong><br><small>'.
+             array('html'=>true)).
+           l($u['nnick'],'node/'.$u['nid']).
+           '</strong><br><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
              array('fragment'=>'comment-form',
                'html'=>true,
@@ -720,7 +723,7 @@ function guifi_users_queue($zone) {
   );
   
   $output .= theme('table', $header, $rows);
-  $output .= theme_pager(null, 50);
+  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
   
   // Full screen (no lateral bars, etc...)
   print theme('page', $output, FALSE);

@@ -16,6 +16,8 @@
   functions
     ???->user_access(p1:string):boolean
 */
+
+
 function guifi_node_access($op, $node) {
   global $user;
 

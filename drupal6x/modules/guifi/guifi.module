@@ -94,6 +94,14 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
+   $items['node/%guifi_zone/view/Working'] = array(
+     'title' => 'pending/review',
+     'page callback' => 'guifi_zone_availability',
+     'page arguments' => array(1,3),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+//     'weight' => 5,
+     'type' => MENU_LOCAL_TASK);
    $items['node/%guifi_zone/view/services'] = array(
      'title' => 'services',
      'page callback' => 'guifi_list_services',
@@ -123,7 +131,7 @@ function guifi_menu() {
      'page callback' => 'guifi_users_queue',
      'page arguments' => array(1),
      'access callback' => 'user_access',
-     'access arguments' => array('access content'),
+     'access arguments' => array('administer guifi users'),
 //     'weight' => 7,
      'type' => MENU_LOCAL_TASK);
    $items['node/%guifi_zone/view/ipv4/add'] = array(
@@ -899,7 +907,15 @@ function guifi_help($section) {
  * Implementation of hook_perm().
  */
 function guifi_perm() {
-  return array('administer guifi zones','administer guifi networks','create guifi zones','create guifi nodes','administer guifi users','manage guifi users','edit own guifi zones','edit own guifi nodes');
+  return array(
+    'administer guifi zones',
+    'administer guifi networks',
+    'create guifi zones',
+    'create guifi nodes',
+    'administer guifi users',
+    'manage guifi users',
+    'edit own guifi zones',
+    'edit own guifi nodes');
 }
 
 function guifi_admin_settings() {
@@ -936,6 +952,16 @@ function guifi_admin_settings() {
     '#description' => t("URL of the root zone..."),
     '#weight' => $form_weight++,
   );
+  $form['guifi_pagelimit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Limit of items listed on every page'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_pagelimit", 50),
+    '#size' => 3,
+    '#maxlength' => 3,
+    '#description' => t("Number of rows to be displayed as default on every paged report..."),
+    '#weight' => $form_weight++,
+  );  
   $form['guifi_contact'] = array(
     '#type' => 'textfield',
     '#title' => t('Default contact'),
@@ -1204,57 +1230,6 @@ function guifi_display_block_1() {
     return $content;
 }
 
-function guifi_access($op, $node) {
-  global $user;
-
-  switch($op) {
-    case 'create':
-      return user_access("create guifi nodes");
-    case 'update':
-    case 'delete':
-      if ($node->type == 'guifi_node') {
-        if ((user_access('administer guifi zones')) ||
-          (user_access('administer guifi networks')) ||
-          ($node->uid == $user->uid))
-          return TRUE;
-        return FALSE;
-      } else {
-        return user_access("create guifi nodes");
-      }
-  }
-}
-
-function guifi_device_access($op, $id) {
-  global $user;
-
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_access()',$id);
-  guifi_log(GUIFILOG_FULL,'user=',$user);
-
-  if ($user->uid==0)
-    return FALSE;
-
-  if (empty($id) || ($id < 1))
-   return FALSE;
-
-  if (is_array($id))
-    $device = $id;
-  else
-    $device = guifi_device_load($id);
-
-  $node = node_load(array('nid'=>$device['nid']));
-
-  switch($op) {
-    case 'create':
-      return user_access("create guifi nodes");
-    case 'update':
-      if ((user_access('administer guifi networks')) ||
-        (user_access('administer guifi zones')) ||
-        ($device['user_created'] == $user->uid) ||
-        ($node->user_created == $user->uid))
-        return TRUE;
-      return FALSE;
-  }
-}
 
 function guifi_link($type, $node = 0){
   $links = array();

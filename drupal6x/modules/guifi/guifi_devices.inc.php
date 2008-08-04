@@ -227,7 +227,42 @@ function guifi_device_load($id,$ret = 'array') {
   }
 }
 
+function guifi_device_access($op, $id) {
+  global $user;
+
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_access()',$id);
+  guifi_log(GUIFILOG_FULL,'user=',$user);
+
+  if ($user->uid==0)
+    return FALSE;
+
+  if (empty($id) || ($id < 1))
+   return FALSE;
+
+  if (is_array($id))
+    $device = $id;
+  else
+    $device = guifi_device_load($id);
+
+  $node = node_load(array('nid'=>$device['nid']));
+
+  switch($op) {
+    case 'create':
+      return user_access("create guifi nodes");
+    case 'update':
+      if ((user_access('administer guifi networks')) ||
+        (user_access('administer guifi zones')) ||
+        ($device['user_created'] == $user->uid) ||
+        ($node->user_created == $user->uid))
+        return TRUE;
+      return FALSE;
+  }
+}
+
 function guifi_device_admin_url($d,$ip) {
+  if (is_numeric($d))
+    $d = guifi_device_load($d);
+    
   guifi_log(GUIFILOG_TRACE,'function guifi_device_admin_url()',$d['variable']['firmware']);
 
   if (in_array($d['variable']['firmware'],array(
@@ -876,7 +911,7 @@ function guifi_device_create_form($form_state, $nid) {
   else
     $id = $nid;
 
-  if (!guifi_access('create',$id)) {
+  if (!guifi_node_access('create',$id)) {
     $form['text_add'] = array(
      '#type' => 'item',
      '#value' => t('You are not allowed to update this node.'),
