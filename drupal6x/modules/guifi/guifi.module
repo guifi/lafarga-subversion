@@ -94,7 +94,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
 //     'weight' => 5,
      'type' => MENU_LOCAL_TASK);
-   $items['node/%guifi_zone/view/Working'] = array(
+   $items['node/%guifi_zone/view/pending'] = array(
      'title' => 'pending/review',
      'page callback' => 'guifi_zone_availability',
      'page arguments' => array(1,3),

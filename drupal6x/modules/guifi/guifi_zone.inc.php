@@ -1068,11 +1068,13 @@ function guifi_zone_availability($zone,$desc = "all") {
   $childs[] = $zone->id;
   
   switch ($desc) {
-    case t('Working'):
-      $msg = t('Pending/to review'); 
+    case t('pending'):
+      $msg = t('Pending/to review');
+      $qstatus = "Working"; 
       break;
     case t('all'):
       $msg = t('Availability');
+      $qstatus = "all";
   }
   
   $output = '<h2>' .$msg.' @  ' .$zone->title .'</h2>';
@@ -1082,7 +1084,7 @@ function guifi_zone_availability($zone,$desc = "all") {
     '  l.id nid, l.nick nnick, l.status_flag nstatus ' .
     'FROM {guifi_zone} z, {guifi_location} l ' .
     'WHERE z.id=l.zone_id ' .
-    '  AND l.status_flag != "'.$desc.'"' .
+    '  AND l.status_flag != "'.$qstatus.'"' .
     '  AND z.id IN ('.implode(',',$childs).') '.
     'ORDER BY z.title, z.id, l.nick';
   guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability()',$sql);
