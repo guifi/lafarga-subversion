@@ -1275,31 +1275,6 @@ function guifi_page() {
 
 }
 
-/* Obsolete after upgarde to drupal 6.x
- *
- * function guifi_view(&$node, $teaser = 0, $page = 0) {
-
-
-  if (!is_object($node))  {
-    $nid = $node;
-    unset($node);
-    $node = node_load(array('nid' => $nid));
-  }
-
-  switch ($node->type) {
-    case 'guifi_zone':
-//      guifi_zone_view($node);
-      break;
-    case 'guifi_node':
-      guifi_node_view($node);
-      break;
-    case 'guifi_service':
-      guifi_service_view($node);
-  }
-}
-*/
-
-
 function guifi_cron() {
   // delete orphan devices, radios, ip addresses & links
   $msg_exp = variable_get('guifi_notify_last',0) +
