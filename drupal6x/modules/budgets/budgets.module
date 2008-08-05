@@ -493,6 +493,26 @@ function budgets_form(&$node, &$param) {
   
   $form['items'] = budgets_items_form($node->items);
   
+  $form['batch'] = array(
+    '#type'=>'fieldset',
+    '#title'=>t('Add items from previous proposals or quotes provided by suppliers'),
+    '#collapsible'=>false,
+    '#collapsed'=>false
+  );
+  $form['batch']['loadbudget'] = array(
+    '#type'=>'textfield',
+    '#title'=>t('Proposal'),
+    '#description'=>t('Find an existng proposal, and then press "Load proposal"' .
+        ' to get the existing items of that proposal loaded into this one'),
+    '#default_value' => t('None'),
+    '#autocomplete_path'=> 'guifi/js/select-budget',
+  );
+  $form['batch']['loaddo'] = array(
+    '#type' => 'submit',
+    '#value' => t('Load Proposal')
+  );
+  
+  
   $form['body'] = array(
     '#title' => t("Body"),
     '#type' => 'textarea',
@@ -513,7 +533,13 @@ function budgets_form(&$node, &$param) {
 //        '#multiple' => TRUE,
 //        '#weight' => $form_weight++
 //    );
-    $form['promoter'] = array(
+    $form['others'] = array(
+      '#type'=>'fieldset',
+      '#title'=>t('Promoter, payment instructions, terms & conditions'),
+      '#collapsible'=>true,
+      '#collapsed'=>true
+    );
+    $form['others']['promoter'] = array(
         '#title' => t("Promoter(s)"),
         '#type' => 'textarea',
         '#default_value' => $node->promoter,
@@ -522,7 +548,7 @@ function budgets_form(&$node, &$param) {
         '#weight' => $form_weight++
     );
 
-    $form['payment_instructions'] = array(
+    $form['others']['payment_instructions'] = array(
         '#title' => t("Payment instructions"),
         '#type' => 'textarea',
         '#default_value' => $node->payment_instructions,
@@ -531,7 +557,7 @@ function budgets_form(&$node, &$param) {
         '#weight' => $form_weight++
     );
 
-    $form['terms'] = array(
+    $form['others']['terms'] = array(
         '#title' => t("Terms & Conditions"),
         '#type' => 'textarea',
         '#default_value' => $node->terms,
@@ -637,12 +663,15 @@ function budgets_item_form($item) {
 }
 
 function budgets_items_form($items) {
+  $txtmore = t('If you need more items, save & edit again ' .
+        'or press "Preview" and you will get 3 more items to fill');
   $f = array(
     '#type' => 'fieldset',
     '#title' => t('Budget items'),
     '#tree' => true,
     '#collapsible' => true,
-    '#collapsed' => false
+    '#collapsed' => false,
+    '#description' => $txtmore
   );  
   
   // Sort items by weight
@@ -667,9 +696,8 @@ function budgets_items_form($items) {
   
   $f['items_help'] = array(
     '#type' => 'item',
-    '#title' => t('Budget items'),
-    '#value' => $help_text,
-    '#weight' => $form_weight++
+    '#title' => t('Already filled all items and need for more?'),
+    '#value' => $txtmore,
   );
   
   return $f;
