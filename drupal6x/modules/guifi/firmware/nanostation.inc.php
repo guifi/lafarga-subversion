@@ -1,6 +1,6 @@
 <?php
 
-function unsolclic_AirOs211($dev) {
+function unsolclic_AirOsv221($dev) {
   $version = "1.0.2";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
