@@ -94,7 +94,7 @@ function budgets_node_info() {
           "or materials to deploy/build open networks. " 
           )
     ),
-    'budget_quote' => array(
+    'supplier_quote' => array(
       'name' => t('guifi.net quote'),
       'module' => 'budgets',
       'description' => t("A supply quote is a priced item given by a supplier which " .
@@ -281,6 +281,7 @@ function budgets_admin_settings() {
     '#description' => t('By default, maximum amount of each single contribution'),
     '#weight' => $form_weight++,
   );
+ 
 
   return system_settings_form($form);
 }
@@ -318,12 +319,15 @@ function budgets_block($op = "list", $delta = 0, $edit = array()) {
 
 function budgets_display_block_1() {
     $content .= t("Help raising the green bars with your donations!") ."<br />";
-    $qbudgets = db_query("SELECT n.nid, title, currency_symbol FROM {budgets} b, {node} n WHERE n.nid=b.nid AND budget_status = 'Open' ORDER BY changed DESC");
+    $qbudgets = db_query(
+      "SELECT b.id " .
+      "FROM {budgets} b " .
+      "WHERE b.budget_status = 'Open' " .
+      "ORDER BY b.id DESC");
     while ($budget = db_fetch_object($qbudgets)) {
-      $content .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->nid .'">' .$budget->title .'</a></div>';
-      $t = db_fetch_object(db_query("SELECT sum(quantity * cost) amount FROM {budget_items} WHERE nid = %d", $budget->nid));
-      $s = db_fetch_object(db_query("SELECT sum(amount) amount FROM {budget_funds} WHERE fund_status != 'Declined' AND nid = %d", $budget->nid));
-      $content .= budgets_bar($t->amount,$s->amount,$budget->currency_symbol);
+      $b = node_load(array('nid'=>$budget->id));
+      $content .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->id .'">' .$b->title .'</a></div>';
+      $content .= budgets_bar($b->total,$b->covered,$b->currency_symbol);
     }
     $content .= '<div style="text-align: right;">' .l(t('view all open projects'), 'budgets') .'</div>';
     return $content;
@@ -339,7 +343,43 @@ function budgets_load($node) {
     $k = $node;
   
   $node = db_fetch_object(
-    db_query("SELECT * FROM {budgets} WHERE nid = '%d'", $k));
+    db_query("SELECT * FROM {budgets} WHERE id = '%d'", $k));
+    
+  $items = array();
+  $total = 0;
+  $covered = 0;
+  $funds = array();
+  
+  $qry = db_query(
+    "SELECT * " .
+    "FROM {budget_items} " .
+    "WHERE budget_id='%d' " .
+    "ORDER BY weight, id",
+    $k);
+  while ($item = db_fetch_array($qry)) { 
+    $items[] = $item;
+    $total += ($item['quantity'] * $item['cost']);
+  }
+  $node->items = $items;
+  $node->total = $total;
+  
+  $qry = db_query(
+    "SELECT * " .
+    "FROM {budget_funds} " .
+    "WHERE budget_id='%d' " .
+    "ORDER BY timestamp_created",
+    $k);
+  while ($fund = db_fetch_array($qry)) { 
+    $funds[] = $fund;
+    if ($fund['fund_status'] != 'Declined')
+      $covered += $fund['amount'];
+  }
+  $node->funds = $funds;
+  $node->covered = $covered;
+  
+  list($node->arrexpires['year'],
+    $node->arrexpires['month'],
+    $node->arrexpires['day']) = explode(',',date("Y,n,j",$node->expires));
   
   return $node;
 }
@@ -352,8 +392,13 @@ function _budget_expires_list() {
 * Implementation of hook_form().
 */
 function budgets_form(&$node, &$param) {
-  budgets_node_loads($node);
+  
+  guifi_log(GUIFILOG_TRACE,'function budgets_form()',$node);
  
+  $form['#redirect'] = FALSE;
+  
+  budgets_items_clean($node->items);
+  
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -364,8 +409,8 @@ function budgets_form(&$node, &$param) {
   $form['budgets_general'] = array(
     '#type' => 'fieldset',
     '#title' => t('General'),
-    '#collapsible' => true,
-    '#collapsed' => true,  
+//    '#collapsible' => true,
+//    '#collapsed' => true,  
   );
   $form['budgets_general']['budget_status'] = array(
     '#type' => 'select',
@@ -378,17 +423,16 @@ function budgets_form(&$node, &$param) {
     '#prefix' => '<table><tr><td>',
     '#suffix' => '</td>'
   );  
-  list($ye,$mo,$da) = explode(' ',date("Y n j",$node->expires));
-  $form['budgets_general']['txtexpire'] = array(
+
+  $form['budgets_general']['arrexpires'] = array(
     '#type' => 'date',
     '#title' => t('Expiration'),
-    '#default_value' => array('year'=>$ye,'month'=>$mo,'day'=>$da),
+    '#default_value' => $node->arrexpires,
     '#description' => t("Date when this proposal/budget will expire"),
     '#required' => true,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>'
   );
-  $form['budgets_general']['zones'] = guifi_zone_select_field($node->zones,'zones');
   
   $form['budgets_currency'] = array(
     '#type' => 'fieldset',
@@ -444,130 +488,22 @@ function budgets_form(&$node, &$param) {
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>'
     );
-  // List all budget items.
-  if( is_array($node->items) && !empty($node->items)) {
-    $nocomponents = count($node->items);
-
-    // sorting array by weight
-    foreach ($node->items as $item_id => $item)
-      $items_sorted[$item_id] = $item['weight'];
-    asort($items_sorted);
-
-    $total = 0;
-    foreach($items_sorted as $item_id => $weight) {
-      $subtotal = $node->items[$item_id]['quantity']* $node->items[$item_id]['cost'];
-      $total = $total + $subtotal;
-
-                    //form_radio('', 'item_checked', $item_id),
-                     $form['items]['.$item_id.'][item_checked'] = array(
-                         '#type' => 'radio',
-                         '#id' => $item_id,
-                         '#prefix' => '<table style="width: 40em"><tr><td style="wiiidth: 200px">',
-                         '#suffix' => '</td>',
-                     );
-                    //form_hidden("items][".$item_id.'][description', $node->items[$item_id]['description']).$node->items[$item_id]['description'], 
-                     $form['items]['.$item_id.'][description'] = array(
-                         '#type' => 'hidden', 
-                         '#value' => $node->items[$item_id]['description'],
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
-                     );
-                    //form_hidden("items][".$item_id.'][comments', $node->items[$item_id]['comments']).$node->items[$item_id]['comments'], 
-                     $form['items]['.$item_id.'][comments'] = array(
-                         '#type' => 'hidden', 
-                         '#value' => $node->items[$item_id]['comments'],
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
-                     );
-                    //form_textfield('', "items][".$item_id.'][quantity', $node->items[$item_id]['quantity'], 6, 12),
-                     $form['items]['.$item_id.'][quantity'] = array(
-                         '#type' => 'textfield',
-                         '#default_value' =>  $node->items[$item_id]['quantity'],
-                         '#size' => 6,
-                         '#maxlength' => 12,
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
-                     );
-                    //form_textfield('', "items][".$item_id.'][cost', $node->items[$item_id]['cost'], 10, 11),
-                     $form['items]['.$item_id.'][cost'] = array(
-                         '#type' => 'textfield',
-                         '#default_value' =>  $node->items[$item_id]['cost'],
-                         '#size' => 10,
-                         '#maxlength' => 11,
-    '#prefix' => '<td>',
-    '#suffix' => '</td>',
-                     );
-                    array('data'=>number_format($subtotal,2,',','.'),'align'=>'right');
-                    //form_weight('',"items][".$item_id.'][weight', $node->items[$item_id]['weight'],20));
-                     $form['items]['.$item_id.'][weight'] = array(
-                         '#type' => 'weight',
-                         '#default_value' => $node->items[$item_id]['weight'],
-    '#prefix' => '<td>',
-    '#suffix' => '</td></tr></table>',
-                     );
-                
-    }
-    $rows[] = array(null,'<strong>'.t('Total').'</strong>',null,null,null,
-                    array('data'=>'<strong>'.number_format($total,2,',','.').'</strong>','align'=>'right'),null);
-
-    $help_text = theme_item_list(array(
-                                       t('To edit an item description or comment, check its box and press "Edit selected".'),
-                                       t('To delete an item, check its box and press "Delete selected".'),
-                                       t('You can edit units, cost and weight values directly in the form.'),
-                                       t('Remember to set weight on the components or they will be added to the budget in a random order.'),
-                                       t('The components are sorted first by weight and then by name.')
-                                       )
-                                 );
-    $form['items']['items_help'] = array(
-        '#type' => 'item',
-        '#title' => t('Budget items'),
-        '#value' => $help_text,
-        '#weight' => $form_weight++
-    );
-    $headers = array(
-//                     '<span>&nbsp;&nbsp;'.t('Select').'</span>',
-                     '&nbsp;',
-                     '<span>'.t('Description').'</span>',
-                     t('Comments'),
-                     '<span>'.t('Units').'</span>',
-                     '<span>'.t('Cost').'</span>',
-                     '<span>'.t('Total').'</span>',
-                     '<span>'.t('Weight').'</span>'
-                     );
-    $output .= theme('table', $headers, $rows);
-//    $output .= form_button(t('Edit selected'), 'form_item[edit]');
-      $output .= 'form_button';
-//    $output .= form_button(t('Delete selected'), 'form_item[delete]');
-      $output .= 'form_button';
-
-  } else {
-
- //   $output .= form_item(t('Budget items'),t('There is no budget items yet for this project'),t('Add values by pressing the "Add budget item" button'));
-      $output .=     $form['menu']['_path'] = array(
-      '#type' => 'item',
-      '#title' =>t('Budget items'),
-      '#description' => t('There is no budget items yet for this project'),t('Add values by pressing the "Add budget item" button'),
-    );
-
-  }
-
- // $output .= form_button(t('Add budget item'), 'form_item[add]');
-    $form['form_item[add]'] = array(
-        '#type' => 'button',
-        '#value' => t('Add budget item'),
-        '#weight' => $form_weight++
-    );
-
-  if (!empty($node->budget_items)) {
-  }
-    $form['body'] = array(
-        '#title' => t("Body"),
-        '#type' => 'textarea',
-        '#default_value' => $node->body,
-        '#description' => t('Description of the project. Describe here it\'s purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the <!-- header --> tag'),
-        '#rows' => 10,
-        '#weight' => $form_weight++
-    );
+    
+  $form['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
+  
+  $form['items'] = budgets_items_form($node->items);
+  
+  $form['body'] = array(
+    '#title' => t("Body"),
+    '#type' => 'textarea',
+    '#default_value' => $node->body,
+    '#description' => t('Description of the project. Describe here it\'s purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the <!-- header --> tag'),
+    '#rows' => 10,
+    '#weight' => $form_weight++
+  );
+  
+  
+ 
 //    $form['zones'] = array(
 //        '#type' => 'select',
 //        '#title' => t('Zones'),
@@ -607,10 +543,199 @@ function budgets_form(&$node, &$param) {
   return $form;
 }
 
+function budgets_item_form($item) {
+
+  $it = $item;
+  unset($it['weight']);
+  if (empty($it)) {
+    $title = t('New item (unfold to fill a new item)');
+    $folded = true;
+  } else {
+    if (empty($item['title']))
+      $title = t('item');
+    else
+      $title = $item['title'];
+    
+    $title .= ' '.
+      $item['quantity'] .'*'. $item['cost'] .' = '.
+      $item['quantity'] * $item['cost'];
+      
+    $folded = false;
+  }
+  
+  $f = array (
+    '#type' => 'fieldset',
+    '#title' => $title,
+    '#tree' => true,
+    '#collapsible' => true,
+    '#collapsed' => $folded
+  );
+  if (isset($item['id']))
+    $f['id'] = array(
+      '#type' => 'hidden',
+      '#value' => $item['id']
+    );
+  else
+    $f['new'] = array(
+      '#type' => 'hidden',
+      '#value' => true
+    );
+    
+  $f['id'] = array(
+    '#type' => 'hidden',
+    '#value' => $item['id']
+  );
+  $f['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => false,
+    '#default_value' => !empty($item['title']) ? $item['title'] : NULL,
+        '#prefix' => '<table><tr><td>',
+        '#suffix' => '</td>',    
+  );
+  $f['quantity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Quantity'),
+    '#default_value' =>  $item['quantity'],
+    '#size' => 6,
+    '#maxlength' => 12,
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+  );
+  $f['cost'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Cost'),
+    '#default_value' =>  $item['cost'],
+    '#size' => 10,
+    '#maxlength' => 12,
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+  );      
+  $f['weight'] = array(
+    '#type' => 'weight',
+    '#title' => t('Weight'),
+    '#default_value' => $item['weight'],
+    '#delta'=>30,
+    '#prefix' => '<td>',
+    '#suffix' => '</td></tr></table>',
+  );
+  
+  // Description 
+  $f['description'] = array(
+    '#type' => 'textarea', 
+    '#description' => t('Description'),
+    '#default_value' => $item['description'],
+  );
+  // Comments 
+  $f['comments'] = array(
+    '#type' => 'textarea',
+    '#description' => t('Comments'), 
+    '#value' => $item['comments'],
+  );
+  
+  return $f;
+}
+
+function budgets_items_form($items) {
+  $f = array(
+    '#type' => 'fieldset',
+    '#title' => t('Budget items'),
+    '#tree' => true,
+    '#collapsible' => true,
+    '#collapsed' => false
+  );  
+  
+  // Sort items by weight
+  foreach ($items as $ki=>$item) 
+    $witems[$ki] = $item['weight'];
+  asort($witems);
+  
+  // list items
+  $cw = -30;
+  foreach ($witems as $ki=>$item) {
+//    print_r($items[$ki]);
+//    print "\n<br>";
+    $f[$ki] = budgets_item_form($items[$ki]);  
+    if ($cw < $items[$ki]['weight'])
+      $cw = ($items[$ki]['weight']+1);
+  } // foreach item
+  
+  for ($c = $ki + 1; $c < ($ki + 4); $c++) {
+    $f[$c] = budgets_item_form(array('weight'=>$cw));
+    $cw++;      
+  }
+  
+  $f['items_help'] = array(
+    '#type' => 'item',
+    '#title' => t('Budget items'),
+    '#value' => $help_text,
+    '#weight' => $form_weight++
+  );
+  
+  return $f;
+    $form['items']['items_help'] = array(
+        '#type' => 'item',
+        '#title' => t('Budget items'),
+        '#value' => $help_text,
+        '#weight' => $form_weight++
+    );
+    $headers = array(
+//                     '<span>&nbsp;&nbsp;'.t('Select').'</span>',
+                     '&nbsp;',
+                     '<span>'.t('Description').'</span>',
+                     t('Comments'),
+                     '<span>'.t('Units').'</span>',
+                     '<span>'.t('Cost').'</span>',
+                     '<span>'.t('Total').'</span>',
+                     '<span>'.t('Weight').'</span>'
+                     );
+    $output .= theme('table', $headers, $rows);
+//    $output .= form_button(t('Edit selected'), 'form_item[edit]');
+      $output .= 'form_button';
+//    $output .= form_button(t('Delete selected'), 'form_item[delete]');
+      $output .= 'form_button';
+
+//  } else {
+
+ //   $output .= form_item(t('Budget items'),t('There is no budget items yet for this project'),t('Add values by pressing the "Add budget item" button'));
+      $output .=     $form['menu']['_path'] = array(
+      '#type' => 'item',
+      '#title' =>t('Budget items'),
+      '#description' => t('There is no budget items yet for this project'),t('Add values by pressing the "Add budget item" button'),
+    );
+
+//  }
+
+ // $output .= form_button(t('Add budget item'), 'form_item[add]');
+    $form['form_item[add]'] = array(
+        '#type' => 'button',
+        '#value' => t('Add budget item'),
+        '#weight' => $form_weight++
+    );
+
+  if (!empty($node->budget_items)) {
+  }
+}
+
+function budgets_items_clean(&$nitems) {
+  $items = $nitems;  
+  foreach ($items as $k=>$i) {
+    if (empty($i['title']))
+    if (empty($i['quantity']))
+    if (empty($i['cost']))
+    if (empty($i['description']))
+    if (empty($i['comments'])) {
+       unset($nitems[$k]);
+    }
+  }
+  
+}
 /**
 * Implementation of hook_validate().
 */
-function budgets_validate($node) {
+function budgets_validate(&$node) {
+  guifi_log(GUIFILOG_TRACE,'function budgets_validate()',$node);
+  
   if (empty($node->nid)) {
     // Fill default values
     if (empty($node->payment_instructions))
@@ -628,7 +753,10 @@ function budgets_validate($node) {
         case '1h': $dexp = mktime(0, 0, 0, date("m")+6,  date("d"),  date("Y")); break;
         case '1y': $dexp = mktime(0, 0, 0, date("m"),  date("d"),  date("Y")+1); break;
       }
-      $node->txtexpire = date('Y-n-j',$dexp);
+      list(
+        $node->arrexpires['year'],
+        $node->arrexpires['month'],
+        $node->arrexpires['day']) = explode(',',date('Y,n,j',$dexp));
     }
     if (empty($node->currency_txt))
       $node->currency_txt = variable_get("budgets_currency_txt",'Euros');
@@ -639,6 +767,12 @@ function budgets_validate($node) {
     if (empty($node->max_contribution))
       $node->max_contribution = variable_get("budgets_maximum",50000);
   }
+
+  budgets_items_clean($node->items);
+    
+//  guifi_log(GUIFILOG_BASIC,'function budgets_validate(3)',$node);
+  
+  
   // Follow the framework if going to edit other forms
   if (isset($_POST['form_item'])) {
     // If we are adding a new componenet or removing a old one
@@ -678,15 +812,15 @@ function budgets_validate($node) {
       form_set_error('items]['.$item_id.'][cost', t('Cost must be numeric'));
   }
 
-  if (!empty($node->txtexpire)) {
-    if (strtotime($node->txtexpire) != -1) {
-      $node->expires = strtotime($node->txtexpire);
-      if ($node->expires < time())
-        form_set_error('txtexpire',t('Expiration must be in the future'));
-    } else 
-      form_set_error('txtexpire', t('Invalid date, use format YYYY-MM-DD'));
-  } else
-    form_set_error('txtexpire', t('You must specify a date when this budget will expire'));
+//  if (!empty($node->arrexpires)) {
+//    if (strtotime($node->txtexpire) != -1) {
+//      $node->expires = strtotime($node->txtexpire);
+//      if ($node->expires < time())
+//        form_set_error('txtexpire',t('Expiration must be in the future'));
+//    } else 
+//      form_set_error('txtexpire', t('Invalid date, use format YYYY-MM-DD'));
+//  } else
+//    form_set_error('txtexpire', t('You must specify a date when this budget will expire'));
     
 }
 
@@ -750,26 +884,6 @@ function budgets_page($zone = NULL) {
   print theme('page', $output);
 }
 
-function budgets_node_loads($node) {
-  $node->txtexpire = date('Y-n-j', $node->expires);
-  $node->zones = explode(',',$node->guifi_zones);
-  $qitems = db_query("SELECT * FROM {budget_items} WHERE nid = '%d' ORDER BY weight, item_id", $node->nid);
-  $node->total = 0;
-  while ($item = db_fetch_array($qitems)) {
-    $node->items[] = $item;
-    $node->total = $node->total + ($item['quantity'] * $item['cost']);
-  }
-  $node->next_fund = 1;
-  $node->covered = 0;
-  $qfunds = db_query("SELECT * FROM {budget_funds} WHERE nid = '%d' ORDER BY fund_id", $node->nid);
-  while ($fund = db_fetch_array($qfunds)) {
-    if ($node->next_fund <= $fund['fund_id'])
-    $node->next_fund = $fund['fund_id'] + 1;
-    if ($fund['fund_status'] != 'Declined')
-    $node->covered = $node->covered + $fund['amount'];
-    $node->funds[] = $fund;
-  }
-}
 /**
 * Implementation of hook_view().
 */
@@ -791,7 +905,7 @@ function budgets_view($node, $teaser = FALSE, $page = FALSE) {
   } 
   switch ($op) {
     case 'page': case 'default':
-     budgets_node_loads($node);
+     
       $show_bar = budgets_bar($node->total,$node->covered,$node->currency_symbol);
 
       if ($teaser) {
@@ -827,15 +941,12 @@ function budgets_view($node, $teaser = FALSE, $page = FALSE) {
     return $node;
       break;
     case 'items':
-  budgets_node_loads($node);
       return budgets_print_items($node);
     break;
     case 'funds':
-  budgets_node_loads($node);
       return budgets_print_funds($node);
     break;
     case 'contribute':
-  budgets_node_loads($node);
       return budgets_contribute($node);
       break;
   }
@@ -876,17 +987,19 @@ function budgets_print_data($node) {
 
 function budgets_bar($total,$subtotal,$currency = '€') {
   if ($subtotal > 0)
-  $pct_green = round( (100*$subtotal) / $total  );
+    $pct_green = round( (100*$subtotal) / $total  );
   else
-  $pct_green = 0;
-
+    $pct_green = 0;
+  if ($pct_green > 100)
+    $pct_green = 100;
+  
   $output .= "\n\r".'<div class="budgets_bar"><div class="bar">';
   $output .= "\n\r".'<div class="foreground" style="width: '.$pct_green.'%;">';
   //  $output .= $pct_green.'% ('.number_format($subtotal,1,',','.').' '.t('of').' '.number_format($total,1,",",'.').$currency.')';
   //  $output .= '</div></div></div>';
   $output .= '</div></div>';
   $output .= "\n\r".'<div class="total">'.$pct_green.'% ('.number_format($subtotal,1,',','.').' '.t('of').' '.number_format($total,1,",",'.').$currency.')</div></div>';
-
+  
   return $output;
 }
 
