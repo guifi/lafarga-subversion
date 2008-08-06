@@ -13,56 +13,71 @@ include_once("budgets_todo.inc.php");
 */
 function budgets_menu() {
   $items = array();
-   
-    $items['admin/settings/budgets'] = array(
-      'title' => 'Budgets',
-      'description' => 'Administer Budget defaults.',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('budgets_admin_settings'),
-      'access arguments' => array('access administration pages'),
-      'type' => MENU_NORMAL_ITEM);
   
-    $items['budgets'] = array(
-      'title' => 'budget and funding',
-      'page callback' => 'budgets_page',
-      'access callback' => 'user_access',
-      'access arguments' => array('access content'),
-      'type' => MENU_SUGGESTED_ITEM);
-    $items['node/%budgets/view/page'] = array(
-          'title' => 'page',
-          'page callback' => 'budgets_view',
-          'page arguments' => array(1),
-          'access callback' => 'user_access',
-          'access arguments' => array('access content'),
-          'weight' => -9,
-          'type' => MENU_DEFAULT_LOCAL_TASK);
-    $items['node/%budgets/view/items'] = array(
-          'title' => 'budget details',
-          'page callback' => 'budgets_view',
-          'page arguments' => array(1),
-          'access callback' => 'user_access',
-          'access arguments' => array('access content'),
-          'weight' => -8,
-          'type' => MENU_LOCAL_TASK);
-
-    $items['node/%budgets/view/funds'] = array( 
-          'title' => 'funds report',
-          'page callback' => 'budgets_view',
-          'page arguments' => array(1),
-          'access callback' => 'user_access',
-          'access arguments' => array('access content'),
-          'weight' => -7,
-          'type' => MENU_LOCAL_TASK);
-
-     $items['node/%budgets/view/contribute'] = array( 
-          'title' => 'make your donation',
-          'page callback' => 'budgets_view',
-          'page arguments' => array(1),
-          'access callback' => 'user_access',
-          'access arguments' => array('access content'),
-          'weight' => -6,
-          'type' => MENU_LOCAL_TASK);
-      
+  $items['admin/settings/budgets'] = array(
+    'title' => 'Budgets',
+    'description' => 'Administer Budget defaults.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgets_admin_settings'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM);
+  
+  $items['budgets'] = array(
+    'title' => 'budget and funding',
+    'page callback' => 'budgets_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_SUGGESTED_ITEM);
+  $items['node/%budgets/view/page'] = array(
+    'title' => 'page',
+    'page callback' => 'budgets_view',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -9,
+    'type' => MENU_DEFAULT_LOCAL_TASK);
+  $items['node/%budgets/view/items'] = array(
+    'title' => 'budget details',
+    'page callback' => 'budgets_view',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -8,
+    'type' => MENU_LOCAL_TASK);
+  
+  $items['node/%budgets/view/funds'] = array( 
+    'title' => 'funds report',
+    'page callback' => 'budgets_view',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -7,
+    'type' => MENU_LOCAL_TASK);
+  
+  $items['node/%budgets/view/contribute'] = array( 
+    'title' => 'make your donation',
+    'page callback' => 'budgets_view',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -6,
+    'type' => MENU_LOCAL_TASK);
+    
+  $items['budgets/js/select-budget/%'] = array(
+    'title' => 'Javascript/autocomplete find Budget',
+    'page callback' => 'budgets_ahah_select_budget',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['budgets/js/select-quote/%'] = array(
+    'title' => 'Javascript/autocomplete find supplier quote',
+    'page callback' => 'budgets_ahah_select_quote',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
   return $items;
 }
 
@@ -393,10 +408,14 @@ function _budget_expires_list() {
 */
 function budgets_form(&$node, &$param) {
   
-  guifi_log(GUIFILOG_TRACE,'function budgets_form()',$node);
- 
-  $form['#redirect'] = FALSE;
+  guifi_log(GUIFILOG_TRACE,'function budgets_form()',$param);
   
+  if (!empty($param['values'])) {
+     foreach ($param['values'] as $k=>$v)
+       $node->$k = $v;
+     guifi_log(GUIFILOG_TRACE,'function budgets_form(READ)',$node);
+  }           
+
   budgets_items_clean($node->items);
   
   $form['title'] = array(
@@ -505,10 +524,11 @@ function budgets_form(&$node, &$param) {
     '#description'=>t('Find an existng proposal, and then press "Load proposal"' .
         ' to get the existing items of that proposal loaded into this one'),
     '#default_value' => t('None'),
-    '#autocomplete_path'=> 'guifi/js/select-budget',
+    '#autocomplete_path'=> 'budgets/js/select-budget',
   );
   $form['batch']['loaddo'] = array(
     '#type' => 'submit',
+    '#submit' => array('budgets_form_load_budget'),
     '#value' => t('Load Proposal')
   );
   
@@ -743,6 +763,43 @@ function budgets_items_form($items) {
 
   if (!empty($node->budget_items)) {
   }
+}
+
+function budgets_form_load_budget($form,&$form_state) {
+  $node = &$form_state['values'];
+  guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget()',$node);
+  
+  $toLoad = explode('-',$node['loadbudget']);
+  if ($toLoad[0] == t('None'))
+    return;
+    
+  budgets_items_clean($node['items']);
+
+  // find higest weight  
+  $cw = -30;
+  foreach ($node['items'] as $k=>$v)
+    if ($v['weight']>$cw)
+      $cw=$v['weight']+1;
+  
+  // query existing budget/proposal
+  $qry = db_query(
+    'SELECT i.* ' .
+    'FROM {budget_items} i ' .
+    'WHERE budget_id=%d ' .
+    'ORDER BY i.weight, i.id',
+    $toLoad[0]
+  );
+  
+  // load items found into current budget
+  while ($newI = db_fetch_array($qry)) {
+    $newI['weight'] = $cw;
+    $node['items'][] = $newI;
+    $cw++;
+  }
+  guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget(OUT)',$node);  
+  
+  $form_state['#redirect'] = FALSE;
+  $form_state['rebuild'] = true;
 }
 
 function budgets_items_clean(&$nitems) {
@@ -1170,6 +1227,36 @@ function budgets_validate_fund(&$fund) {
     form_set_error('contributor_email',t('You must use a valid email address'));
   }
 }
+
+
+function budgets_ahah_select_budget($string){
+  $matches = array();
+  
+  $string = strtoupper(arg(3));
+  
+  $qry = db_query(
+    'SELECT ' .
+    '  CONCAT(b.id, "-", z.title, ", ",n.title) str '.
+    'FROM {budgets} b, {guifi_zone} z, {node} n ' .
+    'WHERE b.zone_id = z.id ' .
+    '  AND b.id=n.nid ' .
+    '  AND (CONCAT(b.id, "-", upper(z.title), ", ",upper(n.title)) ' .
+    '    LIKE "%'.$string.'%") ' .
+    'ORDER BY b.id DESC'
+  );
+  $c = 0;
+  $na = t('None');
+  $matches[$na] = $na;
+  while (($value = db_fetch_array($qry)) and ($c < 50)) {
+    $c++;
+    $matches[$value['str']] = $value['str'];
+  }
+  print drupal_to_js($matches);
+  exit();
+}
+
+
+
 /**
 * Implementation of hook_cron().
 */
