@@ -529,7 +529,7 @@ function guifi_ahah_select_firmware_by_model(){
 }
 
 function guifi_ahah_select_channel($rid){
- 
+ $rid = arg(3);
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
   $protocol = $_POST['radios'][$rid]['protocol'];
