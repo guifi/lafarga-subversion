@@ -8,7 +8,7 @@
 /** _guifi_db_sql(): UPSERT (SQL insert or update) on
  * node, device, radios, interfaces, ipv4, links...
  **/
-function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
+function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) {
   global $user;
   
 //  print_r($key);
@@ -20,7 +20,15 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
   guifi_log(GUIFILOG_TRACE,
     sprintf('guifi_sql(table: %s, keys='.implode(',',$key).')',
       $table,key),
-    $data);
+    $idata);
+  
+  $dasta = array();
+  if (is_object($idata))  
+    foreach ($idata as $k=>$v)
+      $data[$k] = $v;
+  else
+    $data = &$idata;
+    
   // delete?
   if ($data['deleted']) {
     $log .= _guifi_db_delete($table,$key,$to_mail);
@@ -45,17 +53,24 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
   // processing insert triggers to fill new ids etc...
   if ($insert) 
   switch ($table) {
+  case 'budget_items':
+    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table} " .
+        "WHERE budget_id = %d",$data['budget_id']));
+    if (is_null($next_id['id']))
+      $next_id['id'] = 1;
+    $data['id'] = $next_id['id'];
+    break;
   case 'guifi_devices':
   case 'guifi_users': 
-       $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
-      if (is_null($next_id['id']))
-        $next_id['id'] = 1;
-      $data['id'] = $next_id['id'];
+    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
+    if (is_null($next_id['id']))
+      $next_id['id'] = 1;
+    $data['id'] = $next_id['id'];
   case 'guifi_zone':
   case 'guifi_services':
   case 'guifi_location':
-      $data['user_created'] = $user->uid;
-      $data['timestamp_created'] = time();
+    $data['user_created'] = $user->uid;
+    $data['timestamp_created'] = time();
     break;
 //  case 'guifi_radios':
 //      // radio id already comes (device exists), looking for next radio id  at this device  (radiodev_counter)
@@ -65,23 +80,23 @@ function _guifi_db_sql($table, $key, $data, &$log = null, &$to_mail = array()) {
 //      $data['radiodev_counter']=$next_id['id'];
 //    break;
   case 'guifi_interfaces':
-      $new_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
-      $data['id']=$new_id['id'];
+    $new_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
+    $data['id']=$new_id['id'];
     break;
   case 'guifi_ipv4':
-      $next_id = db_fetch_array(db_query('SELECT max(a.id) + 1 id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.id=%d',$data['interface_id']));
-      if (is_null($next_id['id']))
-        $next_id['id'] = 0;
-      $data['id'] = $next_id['id'];
+    $next_id = db_fetch_array(db_query('SELECT max(a.id) + 1 id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.id=%d',$data['interface_id']));
+    if (is_null($next_id['id']))
+      $next_id['id'] = 0;
+    $data['id'] = $next_id['id'];
     break;
   case 'guifi_links':
-      // fill only if insert (remote id already know the id)
-      if (($insert) && ($data['id']==-1))  {
-        $next_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_links}'));
-        if (is_null($next_id['id']))
-          $next_id['id'] = 1;
-        $data['id']=$next_id['id'];
-      }
+    // fill only if insert (remote id already know the id)
+    if (($insert) && ($data['id']==-1))  {
+      $next_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_links}'));
+      if (is_null($next_id['id']))
+        $next_id['id'] = 1;
+      $data['id']=$next_id['id'];
+    }
     break;
   } // insert triggers switch table
   // processing update triggers 
@@ -410,6 +425,28 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     break;
   
   case 'guifi_zone':
+    break;
+    
+  case 'budgets':
+    if (!$cascade)
+      break;   
+    $qc = db_query(
+      'SELECT id, budget_id ' .
+      'FROM {budget_items} ' .
+      'WHERE budget_id=%d',
+      $data['id']);
+      
+    while ($item = db_fetch_array($qc))
+      $log .= '<br>'._guifi_db_delete('budget_items',$item,$to_mail,$depth);
+
+    $qc = db_query(
+      'SELECT id, budget_id ' .
+      'FROM {budget_funds} ' .
+      'WHERE budget_id=%d',
+      $data['id']);
+      
+    while ($fund = db_fetch_array($qc))
+      $log .= '<br>'._guifi_db_delete('budget_funds',$fund,$to_mail,$depth);
     break;
 
   }
