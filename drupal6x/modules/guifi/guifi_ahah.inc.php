@@ -528,5 +528,36 @@ function guifi_ahah_select_firmware_by_model(){
   exit;
 }
 
+function guifi_ahah_select_channel() {
+  $rid = arg(3);
+  $cid = 'form_'. $_POST['form_build_id'];
+  $cache = cache_get($cid, 'cache_form');
 
+  if ($cache) {
+    $f = $cache->data;
+
+    if (isset($f['s']['protocol'])) {
+      $f['s']['channel'] =
+        guifi_radio_channel_field(
+          $rid, $_POST['channel'],
+          $_POST['protocol']);
+      cache_set($cid, $f, 'cache_form', $cache->expire);
+
+      // Build and render the new select element, then return it in JSON format.
+      $form_state = array();
+      $f['#post'] = array();
+      $f = form_builder($f['form_id']['#value'] , $f, $form_state);
+      $output = drupal_render($f['s']['channel']);
+      drupal_json(array('status' => TRUE, 'data' => $output));
+    }
+    else {
+      $output = t('Press "Save & continue edit" button <br /> to select the channel of the protocol specified.');
+      drupal_json(array('status' =>TRUE, 'data' => $output));
+    }
+  }
+  else {
+    drupal_json(array('status' => FALSE, 'data' => ''));
+  }
+  exit;
+}
 ?>

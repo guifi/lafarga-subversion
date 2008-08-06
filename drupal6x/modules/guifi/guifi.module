@@ -418,9 +418,10 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
-   $items['guifi/js/channel'] = array(
+   $items['guifi/js/channel/%'] = array(
     'title' => 'Javascript Select Channel by protocol',
     'page callback' => 'guifi_ahah_select_channel',
+    'page_arguments'=> array(3),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     );
@@ -439,7 +440,7 @@ function guifi_menu() {
     $items['guifi/js/select-node/%'] = array(
       'title' => 'Javascript Select Node',
       'page callback' => 'guifi_ahah_select_node',
-      'page_arguments'=>array(3),
+      'page_arguments'=> array(3),
       'access arguments' => array('access content'),
       'type' => MENU_CALLBACK,
     );

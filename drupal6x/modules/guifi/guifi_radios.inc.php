@@ -303,7 +303,7 @@ function guifi_radio_firmware_field($fid,$mid) {
   );
 }
 
-function guifi_radio_channel_field($rid,$channel,$protocol,$weight = 0) {
+function guifi_radio_channel_field($rid, $channel, $protocol) {
   return array(
     '#type' => 'select',
     '#title' => t("Channel"),
@@ -313,7 +313,6 @@ function guifi_radio_channel_field($rid,$channel,$protocol,$weight = 0) {
     '#description' => t('Select the channel where this radio will operate.'),
     '#prefix'=>'<div id="select-channel-'.$rid.'">',
     '#suffix'=>'</div>',
- //   '#weight' => $weight
      );
 }
 
@@ -428,7 +427,7 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
         ),
 //        '#weight' => $fw2++,   
       );
-      
+
       $f['s']['channel'] = 
         guifi_radio_channel_field(
           $key,
