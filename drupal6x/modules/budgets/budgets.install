@@ -36,7 +36,7 @@ function budgets_schema() {
     'fields' => array(
       'id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
       'budget_id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'title' => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
+      'title' => array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
       'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
       'comments' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
       'quantity' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
@@ -152,5 +152,13 @@ function budgets_update_414() {
   return $items;
 }
 
+function budgets_update_424() {
+  $items = array();
+
+  db_change_field($items,'budget_items','title','title',
+    array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'));
+    
+  return $items;
+}
 
 ?>
