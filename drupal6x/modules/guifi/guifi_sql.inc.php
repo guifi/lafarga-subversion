@@ -108,8 +108,16 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
     case 'guifi_users':
       $data['user_changed'] = $user->uid;
       $data['timestamp_changed'] = time();
-    // TODO: update node status here
     break;
+  }
+  
+  // processing all cases triggers
+  switch ($table) {
+    case 'guifi_ipv4':
+      if (isset($data['ipv4']))
+        $data['ipv4'] = trim($data['ipv4']);
+      break;
+    // TODO: update node status either here (ticket #4) or at device_save()
   }
 
 // // set numeric & refix if ipv4
