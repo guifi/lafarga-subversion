@@ -28,7 +28,7 @@ function budgets_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_SUGGESTED_ITEM);
-  $items['node/%budgets/view/page'] = array(
+  $items['node/%budgets/view'] = array(
     'title' => 'page',
     'page callback' => 'budgets_view',
     'page arguments' => array(1),
@@ -368,13 +368,13 @@ function budgets_load($node) {
     $k = $node->nid;
   else
     $k = $node;
-    
-  if ($node->type != 'budgets')
-    return false;
-  
+        
   $node = db_fetch_object(
     db_query("SELECT * FROM {budgets} WHERE id = '%d'", $k));
     
+  if (is_null($node->id))
+    return false;
+       
   $items = array();
   $total = 0;
   $covered = 0;
