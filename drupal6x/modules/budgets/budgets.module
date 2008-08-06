@@ -602,9 +602,10 @@ function budgets_item_form($item) {
     else
       $title = $item['title'];
     
-    $title .= ' '.
+    $title .= str_pad("",10,'_').
       $item['quantity'] .'*'. $item['cost'] .' = '.
       $item['quantity'] * $item['cost'];
+       
       
     $folded = false;
   }
@@ -614,7 +615,7 @@ function budgets_item_form($item) {
     '#title' => $title,
     '#tree' => true,
     '#collapsible' => true,
-    '#collapsed' => $folded
+    '#collapsed' => true
   );
   if (isset($item['id']))
     $f['id'] = array(
