@@ -368,6 +368,9 @@ function budgets_load($node) {
     $k = $node->nid;
   else
     $k = $node;
+    
+  if ($node->type != 'budgets')
+    return false;
   
   $node = db_fetch_object(
     db_query("SELECT * FROM {budgets} WHERE id = '%d'", $k));
