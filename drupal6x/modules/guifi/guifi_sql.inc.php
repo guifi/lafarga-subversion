@@ -117,7 +117,6 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
       if (isset($data['ipv4']))
         $data['ipv4'] = trim($data['ipv4']);
       break;
-    // TODO: update node status either here (ticket #4) or at device_save()
   }
 
 // // set numeric & refix if ipv4
@@ -442,7 +441,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
       'SELECT id, budget_id ' .
       'FROM {budget_items} ' .
       'WHERE budget_id=%d',
-      $data['id']);
+      $key['id']);
       
     while ($item = db_fetch_array($qc))
       $log .= '<br>'._guifi_db_delete('budget_items',$item,$to_mail,$depth);
@@ -451,7 +450,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
       'SELECT id, budget_id ' .
       'FROM {budget_funds} ' .
       'WHERE budget_id=%d',
-      $data['id']);
+      $key['id']);
       
     while ($fund = db_fetch_array($qc))
       $log .= '<br>'._guifi_db_delete('budget_funds',$fund,$to_mail,$depth);
