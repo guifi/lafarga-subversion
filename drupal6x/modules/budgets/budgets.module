@@ -672,9 +672,11 @@ function budgets_item_form($item,$ki) {
     else
       $title = $item['title'];
     
-    $title .= str_pad("",10,'_').
-      $item['quantity'] .'*'. $item['cost'] .' = '.
-      $item['quantity'] * $item['cost'];      
+    $title .= 
+      // str_pad("",10,' ').
+      ': '.
+      $item['quantity'] .' * '. number_format($item['cost'],2,',','.').' = '.
+      number_format($item['quantity'] * $item['cost'],2,',','.');      
   }
   
   $folded = true;
@@ -810,6 +812,7 @@ function budgets_items_form($items) {
   
   // Sort items by weight
   $cw = -30;
+  $total = 0;
   if (count($items)) { 
     foreach ($items as $ki=>$item) 
       $witems[$ki] = $item['weight'];
@@ -817,6 +820,8 @@ function budgets_items_form($items) {
     
     // list items
     foreach ($witems as $ki=>$item) {
+      if (!$items[$ki]['deleted'])
+        $total += $items[$ki]['quantity']*$items[$ki]['cost'];
       $f[$ki] = budgets_item_form($items[$ki],$ki);  
       if ($cw < $items[$ki]['weight'])
         $cw = ($items[$ki]['weight']+1);
@@ -833,6 +838,11 @@ function budgets_items_form($items) {
     '#title' => t('Already filled all items and need for more?'),
     '#value' => $txtmore,
   );
+  
+  $f['#title'] .= ' ('.
+    format_plural(count($items),t('1 item'),t('@count items')).', '.
+    t('total').': '.number_format($total,2,',','.').')';
+  
   
   return $f;
 }
