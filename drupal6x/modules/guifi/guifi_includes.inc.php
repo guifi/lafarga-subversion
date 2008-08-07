@@ -1413,13 +1413,14 @@ function guifi_cnml_tree($zid) {
 function guifi_form_hidden_var($var,$keys = array(),$parents = array()) {
 
   $keys = array_merge($keys,array('new','deleted'));
-
+  
   foreach ($keys as $kvalue) {
-    if (isset($var[$kvalue]))
+    if (isset($var[$kvalue])) {
       $form[$kvalue] = array(
-        '#type'=>'hidden','#value'=>$var[$kvalue],
-        '#parents'=> array_merge($parents,array($kvalue))
-      );
+        '#type'=>'hidden','#value'=>$var[$kvalue]);
+      if (!(empty($parents)))
+        $form[$kvalue]['#parents'] = array_merge($parents,array($kvalue));
+    }
   }
 
   return $form;
