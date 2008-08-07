@@ -483,7 +483,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $where_str .= $k.' = '.$value;
   }
   $delete_str = 'DELETE FROM {'.$table.'} WHERE '.$where_str;
-//  $log .= '<br>'.$delete_str;
+  $log .= '<br>'.$delete_str;
   guifi_log(GUIFILOG_TRACE,$delete_str);
   db_query($delete_str);
 
