@@ -414,6 +414,44 @@ function budgets_load($node) {
   return $node;
 }
 
+function budgets_prepare(&$node) {
+  global $user;
+
+  if (isset($node->id))
+    return;
+  
+  $node->notification = $user->mail;
+  if (empty($node->payment_instructions))
+    $node->payment_instructions = budgets_variable("budget_payment");
+  if (empty($node->terms))
+    $node->terms = budgets_variable("budget_terms");
+  if (empty($node->expires)) {
+    switch (variable_get("budget_expires",'1q')) {
+      case '1w': $dexp = mktime(0, 0, 0, date("m"),  date("d")+7,  date("Y")); break; 
+      case '2w': $dexp = mktime(0, 0, 0, date("m"),  date("d")+14,  date("Y")); break;
+      case '1m': $dexp = mktime(0, 0, 0, date("m")+1,  date("d"),  date("Y")); break;
+      case '2m': $dexp = mktime(0, 0, 0, date("m")+2,  date("d"),  date("Y")); break;
+      case '1q': $dexp = mktime(0, 0, 0, date("m")+3,  date("d"),  date("Y")); break;
+      case '4m': $dexp = mktime(0, 0, 0, date("m")+4,  date("d"),  date("Y")); break;
+      case '1h': $dexp = mktime(0, 0, 0, date("m")+6,  date("d"),  date("Y")); break;
+      case '1y': $dexp = mktime(0, 0, 0, date("m"),  date("d"),  date("Y")+1); break;
+    }
+    list(
+      $node->arrexpires['year'],
+      $node->arrexpires['month'],
+      $node->arrexpires['day']) = explode(',',date('Y,n,j',$dexp));
+  }
+  if (empty($node->currency_txt))
+    $node->currency_txt = variable_get("budgets_currency_txt",'Euros');
+  if (empty($node->currency_symbol))
+    $node->currency_symbol = variable_get("budgets_currency_symbol",'€');
+  if (empty($node->min_contribution))
+    $node->min_contribution = variable_get("budgets_minimum",0);
+  if (empty($node->max_contribution))
+    $node->max_contribution = variable_get("budgets_maximum",50000);
+  
+}
+
 function _budget_expires_list() {
   return array('1w' => t('One week'), '2w' => t('Two weeks'), '1m' => t('One month'), '2m' => t('Two months'), '1q' => t('One quarter'), '4m' => t('4 months'), '1h' => t('Half year'), '1y' => t('One year'));
 }
@@ -472,13 +510,25 @@ function budgets_form(&$node, &$param) {
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>'
   );
+  $form['budgets_general']['notification'] = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#maxlength' => 1024,
+    '#title' => t('contact'),
+    '#required' => TRUE,
+    '#element_validate' => array('guifi_emails_validate'),
+    '#default_value' => $node->notification,
+    '#description' =>  t('Mailid where changes on the device will be notified, ' .
+        'if many, separated by \',\'.')
+  );
   
   $form['budgets_currency'] = array(
     '#type' => 'fieldset',
     '#title' => t('Currency'),
     '#collapsible' => true,
-    '#collapsed' => true,  
+    '#collapsed' => true,    
   );
+    
   $form['budgets_currency']['currency_txt'] = array(
     '#type' => 'textfield',
     '#title' => t('Text'),
@@ -1123,17 +1173,25 @@ function budgets_print_data($node) {
   if ($node->budget_status == 'Open') {
     $output .= '&nbsp;'.t('until').'&nbsp;'.format_date($node->expires);
   }
-  $output .= '<h2>'.t('Promoter(s)').'</h2>';
-  $output .= $node->promoter;
+  if (!empty($node->promoter)) {
+    $output .= '<h2>'.t('Promoter(s)').'</h2>';
+    $output .= $node->promoter;
+  }
+  
   $output .= budgets_print_items($node);
-  $output .= '<h2>'.t('Payment Instructions').'</h2>';
-  $output .= '<small>';
-  $output .= $node->payment_instructions;
-  $output .= "</small>\n";
-  $output .= '<h2>'.t('Terms & Conditions').'</h2>';
-  $output .= '<small>';
-  $output .= $node->terms;
-  $output .= "</small>\n";
+  
+  if (!empty($node->payment_instructions)) {
+    $output .= '<h2>'.t('Payment Instructions').'</h2>';
+    $output .= '<small>';
+    $output .= $node->payment_instructions;
+    $output .= "</small>\n";
+  }
+  if (!empty($node->terms)) {
+    $output .= '<h2>'.t('Terms & Conditions').'</h2>';
+    $output .= '<small>';
+    $output .= $node->terms;
+    $output .= "</small>\n";
+  }
 
   return $output;
 
@@ -1188,7 +1246,7 @@ function budgets_print_items($node) {
 
 function budgets_print_funds($node) {
 
-  drupal_set_title(t('Contribuitions to').': '.$node->title);
+  drupal_set_title(t('Contributions to').': '.$node->title);
   if (isset($_POST['edit'])) {
     $op = $_POST['op'];
     $edit = $_POST['edit'];
