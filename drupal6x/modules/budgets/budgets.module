@@ -611,11 +611,6 @@ function budgets_form(&$node, &$param) {
 
 function budgets_item_form($item,$ki) {
   
-  if ($item['deleted']) {
-    $f['deleted'] = array('#type'=>'hidden','#value'=>true); 
-    return $f;
-  }
-
   $it = $item;
   unset($it['weight'],$it['new']);
   if (empty($it)) {
@@ -629,38 +624,76 @@ function budgets_item_form($item,$ki) {
     
     $title .= str_pad("",10,'_').
       $item['quantity'] .'*'. $item['cost'] .' = '.
-      $item['quantity'] * $item['cost'];
-       
-      
-    $folded = false;
+      $item['quantity'] * $item['cost'];      
   }
+  
+  $folded = true;
+  if ($item['deleted'])
+    $folded = false; 
   
   $f = array (
     '#type' => 'fieldset',
     '#title' => $title,
     '#tree' => true,
     '#collapsible' => true,
-    '#collapsed' => true
+    '#collapsed' => $folded
   );
 
-  if (isset($item['new']))
-    $f['new'] = array(
-      '#type' => 'hidden',
-      '#value' => true
-    );
+  $f2 = guifi_form_hidden_var($item,
+    array('id','title'));
     
-  $f['id'] = array(
-    '#type' => 'hidden',
-    '#value' => $item['id']
-  );
+  $f = array_merge($f,$f2);
+  
+  if ($item['deleted']) {
+    $f['deleted'] = array('#type'=>'hidden','#value'=>true);
+    $f['deletedHelp'] = array(
+      '#type' => 'item',
+      '#title' => t('Deleted').': '.$item['title'],
+      '#value' => $item['description'],
+      '#description' => t("Do not save this proposal " .
+          "if you don't want to confirm the deletion"),
+      '#prefix' => '<table><tr><td>'
+      );
+    $f['quantity'] = array('#type'=>'hidden','#value'=>$item['quantity']);
+    $f['cost'] = array('#type'=>'hidden','#value'=>$item['cost']);
+    $f['title'] = array('#type'=>'hidden','#value'=>$item['title']);
+    $f['description'] = array('#type'=>'hidden','#value'=>$item['description']);
+//      '#suffix' => '</td>');
+    $f['iQuantity'] = array(
+      '#type' => 'item',
+      '#title' => t('Quantity'),
+      '#value' => $item['quantity'],
+      '#prefix' => '</td><td>',
+      '#suffix' => '</td>',    
+      );
+    $f['iCost'] = array(
+      '#type' => 'item',
+      '#title' => t('Cost'),
+      '#value' => $item['cost'],
+      '#prefix' => '<td>',
+      '#suffix' => '</td>',    
+      );
+    $f['deletedDescr'] = array('' .
+      '#type' => 'item',
+      '#title' => t('item deleted'),
+      '#value' => t('This item will be deleted ' .
+          'when the proposal will be saved'),    
+      '#description' => t("Do not save this proposal " .
+          "if you don't want to confirm the deletion"),
+      '#prefix' => '<td>',
+      '#suffix' => '</td></tr></table>',
+      );
+    return $f;
+  }
+
   $f['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#maxlength' => 1024,
     '#required' => false,
     '#default_value' => !empty($item['title']) ? $item['title'] : NULL,
-        '#prefix' => '<table><tr><td>',
-        '#suffix' => '</td>',    
+    '#prefix' => '<table><tr><td>',
+    '#suffix' => '</td>',    
   );
   $f['quantity'] = array(
     '#type' => 'textfield',
@@ -884,6 +917,8 @@ function budgets_validate(&$node) {
 
   // validate budget items
   if (!empty($node->items)) foreach ($node->items as $item_id=>$item) {
+    if ($item['deleted'])
+      continue;
     if (empty($item['description']))
       form_set_error('items]['.$item_id.'][description', t('Item description is mandatory'));
     $item['quantity'] = str_replace(',','.',$item['quantity']);
