@@ -1402,4 +1402,40 @@ function guifi_node_links($node)
   //return $output;
 }
 
+function guifi_node_set_flag($id) {
+  
+  $scores = array(
+    'Dropped'=>0,
+    'Planned'=>1,
+    'Reserved'=>2,
+    'Building'=>3,
+    'Testing'=>4,
+    'Working'=>5
+    );
+  $score = -1; 
+  $query = db_query(
+    "SELECT d.id, d.flag " .
+    "FROM {guifi_devices} d " .
+    "WHERE d.nid = %d",
+    $id);
+  while ($device = db_fetch_object($query)) {
+    if ($scores[$device->flag] > $score)
+      $score = $scores[$device->flag];
+  } // eof while devices
+  
+  if ($score == -1)
+    // no devices status found, default Planned
+    $score = 1;
+    
+  // set the highest score found  
+  $scores = array_flip($scores);
+  db_query("UPDATE {guifi_location} " .
+      "SET status_flag = '%s' " .
+      "WHERE id = %d",
+      $scores[$score],
+      $id);
+}
+
+
+
 ?>

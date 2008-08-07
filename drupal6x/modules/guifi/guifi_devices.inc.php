@@ -700,7 +700,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     $verbose,
     $notify);
 
-  guifi_set_node_flag($edit['nid']);
+  guifi_node_set_flag($edit['nid']);
 
   return $ndevice['id'];
 

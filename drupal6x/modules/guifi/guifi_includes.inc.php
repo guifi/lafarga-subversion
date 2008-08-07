@@ -1268,16 +1268,38 @@ function guifi_rename_graphs($old, $new) {
   }
 }
 
-function guifi_set_node_flag($id) {
-
-  $status = 'Planned';
-  $query = db_query("SELECT d.id, d.flag FROM {guifi_devices} d WHERE d.nid = %d",$id);
-  if ($query > 0)
+function guifi_node_set_flag($id) {
+  
+  $scores = array(
+    'Dropped'=>0,
+    'Planned'=>1,
+    'Reserved'=>2,
+    'Building'=>3,
+    'Testing'=>4,
+    'Working'=>5
+    );
+  $score = -1; 
+  $query = db_query(
+    "SELECT d.id, d.flag " .
+    "FROM {guifi_devices} d " .
+    "WHERE d.nid = %d",
+    $id);
   while ($device = db_fetch_object($query)) {
-    if ($status != 'Working')
-      $status = $device->flag;
+    if ($scores[$device->flag] > $score)
+      $score = $scores[$device->flag];
   } // eof while devices
-  db_query("UPDATE {guifi_location} SET status_flag = '%s' WHERE id = %d",$status,$id);
+  
+  if ($score == -1)
+    // no devices status found, default Planned
+    $score = 1;
+    
+  // set the highest score found  
+  $scores = array_flip($scores);
+  db_query("UPDATE {guifi_location} " .
+      "SET status_flag = '%s' " .
+      "WHERE id = %d",
+      $scores[$score],
+      $id);
 }
 
 define('GUIFILOG_NONE',0);
