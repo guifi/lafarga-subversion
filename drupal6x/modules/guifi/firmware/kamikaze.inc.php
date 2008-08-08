@@ -314,8 +314,8 @@ _out_file($config_dhcp,'/etc/config/dhcp');
   
 function guifi_unsolclic_network_vars($dev,$zone) {
 
-   _outln_comment($dev->nick);
-   _outln_comment(t('Global network parameters'));
+  _outln_comment($dev->nick);
+  _outln_comment(t('Global network parameters'));
 
 $file_network='
 config interface loopback
@@ -334,8 +334,8 @@ config system
 _out_file($_hostname,'/etc/config/system');
 
 
-   $wlan_lan = guifi_unsolclic_if($dev->id,'wLan/Lan');
-   //_out("WLAN");_out($wlan_lan);
+  $wlan_lan = guifi_unsolclic_if($dev->id,'wLan/Lan');
+  //_out("WLAN");_out($wlan_lan);
 
    if ($wlan_lan->ipv4 != '') {
      //_outln_nvram('lan_ipaddr',$wlan_lan->ipv4);
@@ -361,7 +361,7 @@ config interface lan
    }
 
    $lan = guifi_unsolclic_if($dev->id,'Lan');
-   //_out("LAN");_out($wlan_lan);
+   _out("LAN");_out($dev->id);_out($wlan_lan);print_r($dev->id);print_r($lan);
    if ($lan->ipv4 != '') {
      //_outln_nvram('lan_ipaddr',$lan->ipv4);
      $item = _ipcalc($lan->ipv4, $lan->netmask);
@@ -380,11 +380,13 @@ config interface lan
    }
 
    $wan = guifi_unsolclic_if($dev->id,'Wan');
+   _out("WAN".$wan);
    if ($wan) {
 $file_network.='
 config interface wan
         option ifname   eth0
-        #option type     bridge';
+        #option type     bridge
+';
 
      if (empty($wan->ipv4)) { 
        #_outln_nvram('wan_proto','dhcp');
@@ -421,7 +423,16 @@ $file_network.='        option dns      "'.$wan_dns.'"
    //_outln_nvram('lan_domain','guifi.net');
    //_outln_nvram('wan_domain','guifi.net');
    //_outln_nvram('http_passwd','guifi');
-   _out('passwd guifi');
+
+// password: 'guifi'
+_out('PASSWD=`grep -v ^root: /etc/passwd`');
+$file_pass='root:WLL3bqv6fH7qM:0:0:root:/tmp:/bin/ash
+';
+_out_file($file_pass.'$PASSWD','/etc/passwd');
+
+
+
+
    //_outln_nvram('time_zone',$zone->time_zone);
    
 /*$guifi_dns=array(guifi_get_dns($zone,1),'10.139.50.1');
@@ -460,10 +471,10 @@ $file_dns='nameserver '.$dns.'
    //_outln_nvram('sshd_enable','1');
    //_outln_nvram('sshd_passwd_auth','1');
 $sshd_config='config dropbear
- option PasswordAuth \'on\'
- option Port         \'22\'
+        option PasswordAuth on
+        option Port         22
 ';
-   _out_file($sshd_config,'/etc/dropbear');
+   _out_file($sshd_config,'/etc/config/dropbear');
    
    //_outln_nvram('remote_management','1');
 //   _outln_nvram('remote_mgt_https','1');
@@ -509,33 +520,7 @@ _out_file($file_ntp,'/etc/ntp.conf');
 global $wireless_model, $file_wireless;
 
 $bssid='option bssid ';
-
-$file_wireless='
-config wifi-device wifi0
- option type '.$wireless_model.'
- option channel '.$dev->radios[0][channel].'
- option mode \'11b\'
- option diversity \'0\'
- option disabled \'0\'
- option txantenna \''.$dev->radios[0][antenna_mode].'\'
- option rxantenna \'0\'
-
-config wifi-iface
- option device wifi0
- option network lan
- option mode \'ap\'
- option ssid guifi.net-'.guifi_to_7bits($dev->radios[0][ssid]).'
- '.$bssid.'
- option encryption none
- option hidden \'0\'
- option isolate \'0\'
- option txpower \'14\'
- option bgscan \'1\'
-';
-#option wds \'0\'      
-      
-
-      
+$mode = 'ap';
       
       /*_outln_nvram('wl_macmode','disable');
       _outln_nvram('wl0_macmode','disable');
@@ -544,8 +529,6 @@ config wifi-iface
       guifi_unsolclic_ospf($dev,$zone);
       guifi_unsolclic_dhcp($dev);
       guifi_unsolclic_wds_vars($dev);
-      _out_file($file_network,'/etc/config/network');
-      _out_file($file_wireless,'/etc/config/wireless');
       break;
     case 'client':
       _outln_comment(t('Client mode'));
@@ -557,7 +540,7 @@ config wifi-iface
               $ap_macs[] = $link['interface']['mac'];
               $gateway = $link['interface']['ipv4']['ipv4'];
        // TODO!!!
-              _out('	option mode	\'sta\'	>> /etc/config/wireless');
+              $mode = 'sta';
               //_outln_nvram('wl0_mode','sta');
               _out('	option ssid	guifi.net-'.guifi_get_ap_ssid($link['interface']['device_id'].'    '.$link['interface']['radiodev_counter']));
        
@@ -592,7 +575,35 @@ config wifi-iface
           guifi_unsolclic_gateway($dev);
           break;
          }
-   } 
+   }
+
+$file_wireless='
+config wifi-device wifi0
+ option type '.$wireless_model.'
+ option channel '.$dev->radios[0][channel].'
+ option mode \'11b\'
+ option diversity \'0\'
+ option disabled \'0\'
+ option txantenna \''.$dev->radios[0][antenna_mode].'\'
+ option rxantenna \'0\'
+
+config wifi-iface
+ option device wifi0
+ option network lan
+ option mode '.$mode.'
+ option ssid guifi.net-'.guifi_to_7bits($dev->radios[0][ssid]).'
+ '.$bssid.'
+ option encryption none
+ option hidden \'0\'
+ option isolate \'0\'
+ option txpower \'14\'
+ option bgscan \'1\'
+';
+
+      _out_file($file_network,'/etc/config/network');
+      _out_file($file_wireless,'/etc/config/wireless');
+
+
    _outln_comment();
 }
 
@@ -694,7 +705,7 @@ function guifi_unsolclic_vlan_vars($dev,&$rc_startup) {
 function guifi_unsolclic_wds_vars($dev) {
   
   global $rc_startup, $file_wireless, $file_network;
-
+print_r($dev);
   $wds_links = array();
   $wds_str = '';
   if (!empty($dev->radios))       foreach ($dev->radios as $radio_id => $radio) 
@@ -706,6 +717,7 @@ function guifi_unsolclic_wds_vars($dev) {
      $iplocal[] = $ipv4 ;
      $iflocal[] = $interface ;
   }
+  _out(">>> ".count($wds_links));
   if (count($wds_links) == 0)
     return;
 
@@ -731,6 +743,35 @@ function guifi_unsolclic_wds_vars($dev) {
     _outln_nvram('wl_wds'.($key+1).'_ipaddr',$iplocal[$key][ipv4]);
     _outln_nvram('wl_wds'.($key+1).'_hwaddr',$wds['interface'][mac]);
     _outln_nvram('wl_wds'.($key+1).'_netmask',$iplocal[$key][netmask]);
+  
+$file_wireless.='
+config wifi-iface
+        option device wifi0
+        option network lan
+        option mode \'wds\'
+        option bssid'.$wds['interface'][mac].'
+        option encryption none
+        option hidden \'0\'
+        option isolate \'0\'
+        option txpower \'18\'
+        option bgscan \'1\'
+';  
+ #option wds \'0\'
+
+
+$file_network.='
+config interface lan
+        option ifname   ath'.$key.'
+        option type     bridge
+        option proto    static
+        option ipaddr   '.$iplocal[$key][ipv4].'
+        option netmask  '.$iplocal[$key][netmask].'
+        option dns      "'.$file_dns.'"
+';
+
+
+
+  
   }
   if (count($wds_links) >= 11)
     return;
@@ -750,24 +791,6 @@ function guifi_unsolclic_wds_vars($dev) {
 
 
 
-$file_wds='
-config wifi-iface
- option device wifi0
- option network lan
- option mode \'wds\'
-# option ssid guifi.net-'.guifi_to_7bits($dev->radios[0][ssid]).'
- option bssid'.$wds['interface'][mac].'
- option encryption none
- option hidden \'0\'
- option isolate \'0\'
- option txpower \'14\'
- option bgscan \'1\'
-';
- #option wds \'0\'
-_out_file($file_wds,'/etc/config/wireless');
-
-
-
 
 } // wds_vars function
 
@@ -782,8 +805,8 @@ global $wireless_model;
     case "18":	// WRT54GSv4
       $wireless_model='broadcom';
       break;
-    //case "25":	// NanoStation2
-    //case "26":	// NanoStation2
+    case "25":	// NanoStation2
+    case "26":	// NanoStation5
     case "30":	// F o n era, Meraki
       $wireless_model='atheros';
       break;
