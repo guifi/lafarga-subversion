@@ -270,6 +270,143 @@ function guifi_device_graph_overview($radio) {
 
 }
 
+/**
+ * guifi_mrtg
+**/
+
+function guifi_mrtg() {
+  
+  if (is_numeric(arg(1)))
+    $zoneid = arg(1);
+  else
+    $zoneid = arg(2);
+
+  function wlan_traffic($rrdfile,$snmpIndex,$max,$txt,$row,$nl) {
+     $output = "Target[".$rrdfile."_".$snmpIndex."]: ".$snmpIndex.":public@".$row['ip'].':';
+//     $output .= $nl."SetEnv[".$rrdfile.'_'.$snmpIndex.']: MRTG_INT_IP="'.$row['ip'].'" MRTG_INT_DESCR="eth0"';
+     $output .= $nl."SetEnv[".$rrdfile.'_'.$snmpIndex.']: MRTG_INT_IP="'.$row['ip'].'"';
+     $output .= $nl.'MaxBytes['.$rrdfile.'_'.$snmpIndex.']: '.$max;
+     $output .= $nl."Title[".$rrdfile."_".$snmpIndex."]: ".$txt." de ".$row['title'];
+     $html = "PageTop[".$rrdfile."_".$snmpIndex."]: <H1>".$txt." de ".$row['title']."</H1>
+     <TABLE>
+     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
+     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
+     <TR><TD>Description:</TD><TD>".$txt."</TD></TR>
+     <TR><TD>IP:</TD>         <TD>".$row['ip']."</TD></TR>
+     <TR><TD>Max Speed:</TD>  <TD>".$max." bits/sec</TD></TR>
+     </TABLE>";
+     if ($nl == "\n")
+       $output .= $nl.$html;
+     else
+       $output .= $nl.htmlentities($html);
+  
+     return $nl.$output;
+  }
+  function wlan_routeros_traffic($rrdfile,$row,$ifid,$nl) {
+     $ifDescr = 'wlan'.$ifid;
+     $output = "Target[".$rrdfile."]: \\".$ifDescr.":public@".$row['ip'].':';
+     $output .= $nl."SetEnv[".$rrdfile.']: MRTG_INT_IP="'.$row['ip'].'" MRTG_INT_DESCR="'.$ifDescr.'"';
+     $output .= $nl.'MaxBytes['.$rrdfile.']: 3000000';
+     $output .= $nl."Title[".$rrdfile."]: Trafic a ".$ifDescr." de ".$row['title'];
+     $html = "PageTop[".$rrdfile."]: <H1>Tr&agrave;fic a ".$ifDescr." de ".$row['title']."</H1>
+     <TABLE>
+     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
+     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
+     <TR><TD>Description:</TD><TD>".$ifDescr."</TD></TR>
+     <TR><TD>Max Speed:</TD>  <TD>30.0 Mbits/s</TD></TR>
+     </TABLE>";
+     if ($nl == "\n")
+       $output .= $nl.$html;
+     else
+       $output .= $nl.htmlentities($html);
+  
+     return $nl.$output;
+  }
+  function ping($rrdfile,$row,$nl) {
+     $output .= 'Title['.$rrdfile.'_ping]: Temps del ping de '.$row['title'];
+     $html = 'PageTop['.$rrdfile.'_ping]: <H1>Lat&egrave;ncia '.$row['title']."</H1>
+     <TABLE
+     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
+     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
+     <TR><TD>Description:</TD><TD>ping  </TD></TR>
+     <TR><TD>IP:</TD>         <TD>".$row['ip']."</TD></TR>
+     </TABLE>";
+     if ($nl == "\n")
+       $output .= $nl.$html;
+     else
+       $output .= $nl.htmlentities($html);
+     $output .= $nl.'Target['.$rrdfile.'_ping]: `/etc/mrtg/ping.sh '.$row['ip'].'`';
+     $output .= $nl.'MaxBytes['.$rrdfile.'_ping]: 2000';
+     $output .= $nl.'Options['.$rrdfile.'_ping]: growright,unknaszero,nopercent,gauge';
+     $output .= $nl.'LegendI['.$rrdfile.'_ping]: Perduts %';
+     $output .= $nl.'LegendO['.$rrdfile.'_ping]: Temps mig';
+     $output .= $nl.'Legend1['.$rrdfile.'_ping]: Temps max. en ms';
+     $output .= $nl.'Legend2['.$rrdfile.'_ping]: Temps min. en ms';
+     $output .= $nl.'YLegend['.$rrdfile.'_ping]: RTT (ms)';
+
+     return $nl.$output;
+  }
+  if (isset($_GET['ascii']))
+    $nl = "\n";
+  else
+    $nl = "<BR>\n";
+
+  $query = db_query("SELECT z.title FROM {guifi_zone} z WHERE z.id=%d",$zoneid);
+  $zone = db_fetch_object($query);
+
+  print "# MRTG configuration for zone: ".$zoneid." - ".$zone->title;
+  print $nl."HtmlDir: ".variable_get('rrdimg_path','/home/comesfa/mrtg/images');
+  print $nl."ImageDir: ".variable_get('rrdimg_path','/home/comesfa/mrtg/images');
+  print $nl."LogDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
+  print $nl."LogFormat: rrdtool";
+  print $nl."ThreshDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
+  print $nl."Forks: 24";
+  print $nl."SnmpOptions: retries => 2, only_ip_address_matching => 0";
+  print $nl."SnmpOptions: timeout => 1";
+  
+  $listed = array();
+  $query = db_query("SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra FROM {guifi_location} l, {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE l.zone_id IN (".implode(',',guifi_get_zone_child_tree($zoneid)).") AND l.id = d.nid AND d.id=i.device_id AND i.id=a.interface_id AND i.interface_type IN ('Wan','wLan/Lan','Lan','Client','wlan','wlan1','wlan2','wlan3','wlan4','wlan5','wlan6','wds/p2p') AND a.ipv4 != '' GROUP BY 1,2,3");
+  while ($row = db_fetch_array($query)) {
+
+   // if not a radio in client mode and if is Wan, next
+   if ($row['type'] == 'radio') {
+     $radio = db_fetch_object(db_query("SELECT * FROM {guifi_radios} WHERE id=%d",$row['id']));
+     if (($radio->mode!='client') and ($row['interface_type'] == 'Wan')) {
+       continue;
+     }
+   }
+
+   // if device already listed, next
+   if ($listed[$row['id']]) {
+     continue;
+   } else {
+     $listed[$row['id']] = true;
+   }
+
+   print $nl.'# '.$row['title'].' - '.$row['ip'];
+   $rrdfile = guifi_rrdfile($row['title']);
+   $query_linksys_buffalo = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('WRT54Gv1-4','WRT54GSv1-2','WRT54GSv4','WRT54GL','WHR-HP-G54, WHR-G54S')",$row['id']);
+   if (db_result($query_linksys_buffalo) > 0)  
+      print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
+   $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
+   if (db_result($query_routeros) > 0)   {
+     $dev = guifi_device_load($row[id]);
+     if (isset($dev[radios])) foreach ($dev[radios] as $radio_id=>$radio) {
+       print wlan_routeros_traffic(guifi_rrdfile($radio[ssid]),$row,$radio_id+1,$nl);
+     }
+   }
+   
+   // ADSL
+   if (($row['type'] == 'ADSL'))  {
+     $adsl = unserialize($row['extra']);
+     if (isset($adsl['mrtg_index']))
+       print wlan_traffic($rrdfile,$adsl['mrtg_index'],$adsl['download'],t('ADSL traffic'),$row,$nl);
+   }
+
+   print ping($rrdfile,$row,$nl);
+  }
+
+}
 
 /**
  * guifi_get_availability
