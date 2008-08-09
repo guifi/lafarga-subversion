@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Guifi.net module for drupal6 v1.0\n"
 "POT-Creation-Date: 2008-08-09 00:57+0200\n"
-"PO-Revision-Date: 2008-08-09 01:52+0100\n"
+"PO-Revision-Date: 2008-08-09 03:51+0100\n"
 "Last-Translator: Miquel Martos <miquelmartos@gmail.com>\n"
 "Language-Team: Catalan <guifi-rdes@projectes.lafarga.guifi.net>\n"
 "MIME-Version: 1.0\n"
@@ -146,18 +146,18 @@ msgid "export %zname% in CNML format"
 msgstr "exporta %zname% al format CNML"
 
 #: guifi_cnml.inc.php:596
-#: guifi.module:1170
+#: guifi.module:878
 msgid "PtP link"
 msgstr "Enllaç PtP"
 
 #: guifi_cnml.inc.php:597
 #: guifi_devices.inc.php:1219
-#: guifi.module:1171
+#: guifi.module:879
 msgid "ap/client"
 msgstr "ap/client"
 
 #: guifi_cnml.inc.php:598
-#: guifi.module:1172
+#: guifi.module:880
 msgid "unknown"
 msgstr "desconegut"
 
@@ -201,7 +201,7 @@ msgid "Device name, status and main settings"
 msgstr "Nom del trasto, estat i ajustaments principals"
 
 #: guifi_devices.inc.php:444
-#: guifi_node.inc.php:1126
+#: guifi_node.inc.php:1127
 #: guifi_users.inc.php:263;285;717
 msgid "Node"
 msgstr "Node"
@@ -217,7 +217,7 @@ msgstr "El nom del trasto.<br />s'utilitza per al Hostname, SSId, etc..."
 #: guifi_devices.inc.php:476
 #: guifi_includes.inc.php:575
 #: guifi_links.inc.php:134
-#: guifi_node.inc.php:1135
+#: guifi_node.inc.php:1136
 #: guifi_service.inc.php:150
 #: guifi_users.inc.php:257;280
 msgid "Status"
@@ -412,7 +412,7 @@ msgid "status &#038; availability"
 msgstr "estat i disponibilitat"
 
 #: guifi_devices.inc.php:1117
-msgid "changes notified to (visible only if you have privileges)"
+msgid "changes notified to (visible only if you have privileged)"
 msgstr "canvis notificats a (només és visible si tens privilegis)"
 
 #: guifi_devices.inc.php:1118
@@ -448,7 +448,7 @@ msgid "id"
 msgstr "id"
 
 #: guifi_devices.inc.php:1190;1331
-#: guifi_node.inc.php:887
+#: guifi_node.inc.php:888
 #: guifi_service.inc.php:525;542
 #: guifi_zone.inc.php:882
 msgid "type"
@@ -479,8 +479,8 @@ msgid "View device %dname"
 msgstr "Veure trasto %dname"
 
 #: guifi_devices.inc.php:1214;1216;1318;1327;1329
-#: guifi_node.inc.php:1303;1305
-#: guifi.module:197;399
+#: guifi_node.inc.php:1304;1306
+#: guifi.module:185;371
 msgid "links"
 msgstr "enllaços"
 
@@ -493,42 +493,42 @@ msgid "cable"
 msgstr "cable"
 
 #: guifi_devices.inc.php:1237;1245;1371;1379
-#: guifi_node.inc.php:1325;1333
+#: guifi_node.inc.php:1326;1334
 msgid "N"
 msgstr "N"
 
 #: guifi_devices.inc.php:1238;1372
-#: guifi_node.inc.php:1326
+#: guifi_node.inc.php:1327
 msgid "NE"
 msgstr "NE"
 
 #: guifi_devices.inc.php:1239;1373
-#: guifi_node.inc.php:1327
+#: guifi_node.inc.php:1328
 msgid "E"
 msgstr "E"
 
 #: guifi_devices.inc.php:1240;1374
-#: guifi_node.inc.php:1328
+#: guifi_node.inc.php:1329
 msgid "SE"
 msgstr "SE"
 
 #: guifi_devices.inc.php:1241;1375
-#: guifi_node.inc.php:1329
+#: guifi_node.inc.php:1330
 msgid "S"
 msgstr "S"
 
 #: guifi_devices.inc.php:1242;1376
-#: guifi_node.inc.php:1330
+#: guifi_node.inc.php:1331
 msgid "SW"
 msgstr "SO"
 
 #: guifi_devices.inc.php:1243;1377
-#: guifi_node.inc.php:1331
+#: guifi_node.inc.php:1332
 msgid "W"
 msgstr "O"
 
 #: guifi_devices.inc.php:1244;1378
-#: guifi_node.inc.php:1332
+#: guifi_node.inc.php:1333
 msgid "NW"
 msgstr "NO"
 
@@ -537,8 +537,8 @@ msgid "Totals"
 msgstr "Totals"
 
 #: guifi_devices.inc.php:1318;1319;1331;1401
-#: guifi_node.inc.php:1306;1369
-#: guifi.module:1229
+#: guifi_node.inc.php:1307;1370
+#: guifi.module:937
 msgid "kms."
 msgstr "qms."
 
@@ -547,18 +547,18 @@ msgid "interface"
 msgstr "interfície"
 
 #: guifi_devices.inc.php:1319
-#: guifi_node.inc.php:887
+#: guifi_node.inc.php:888
 #: guifi_service.inc.php:659
 msgid "device"
 msgstr "trasto"
 
 #: guifi_devices.inc.php:1319
-#: guifi_node.inc.php:685;1393;1399
+#: guifi_node.inc.php:685
 msgid "node"
 msgstr "node"
 
 #: guifi_devices.inc.php:1319;1331
-#: guifi_node.inc.php:887;1306
+#: guifi_node.inc.php:888;1307
 #: guifi_service.inc.php:659
 #: guifi_zone.inc.php:978
 msgid "status"
@@ -569,7 +569,7 @@ msgid "routing"
 msgstr "enrutament"
 
 #: guifi_devices.inc.php:1319;1331
-#: guifi_node.inc.php:1306
+#: guifi_node.inc.php:1307
 msgid "az."
 msgstr "az."
 
@@ -578,17 +578,17 @@ msgid "linked devices"
 msgstr "trastos enllaçats"
 
 #: guifi_devices.inc.php:1331
-#: guifi_node.inc.php:887;1306
+#: guifi_node.inc.php:888;1307
 msgid "ip"
 msgstr "ip"
 
 #: guifi_devices.inc.php:1401
-#: guifi_node.inc.php:1369
+#: guifi_node.inc.php:1370
 msgid "Total:"
 msgstr "Total:"
 
 #: guifi_gml.inc.php:11
-#: guifi.module:1132
+#: guifi.module:840
 msgid "Nodes"
 msgstr "Nodes"
 
@@ -683,6 +683,14 @@ msgstr "detalls de gràfiqyes per"
 msgid "This radio is not being graphed yet."
 msgstr "Aquesta ràdio encara no te gràfiques."
 
+#: guifi_graphs.inc.php:390
+msgid "wLan traffic"
+msgstr ""
+
+#: guifi_graphs.inc.php:403
+msgid "ADSL traffic"
+msgstr ""
+
 #: guifi_includes.inc.php:96;97
 msgid "n/a"
 msgstr "n/d"
@@ -701,7 +709,7 @@ msgid "backbone"
 msgstr "troncal"
 
 #: guifi_includes.inc.php:251
-#: guifi_node.inc.php:1239
+#: guifi_node.inc.php:1240
 msgid "kms"
 msgstr "kms"
 
@@ -766,27 +774,27 @@ msgid "Status of the node"
 msgstr "Estat del node"
 
 #: guifi_includes.inc.php:589
-#: guifi_node.inc.php:1136
+#: guifi_node.inc.php:1137
 msgid "Azimuth"
 msgstr "Azimut"
 
 #: guifi_includes.inc.php:593
-#: guifi_node.inc.php:1158;1166
+#: guifi_node.inc.php:1159;1167
 msgid "North"
 msgstr "Nord"
 
 #: guifi_includes.inc.php:594
-#: guifi_node.inc.php:1160
+#: guifi_node.inc.php:1161
 msgid "East"
 msgstr "Est"
 
 #: guifi_includes.inc.php:595
-#: guifi_node.inc.php:1162
+#: guifi_node.inc.php:1163
 msgid "South"
 msgstr "Sud"
 
 #: guifi_includes.inc.php:596
-#: guifi_node.inc.php:1164
+#: guifi_node.inc.php:1165
 msgid "West"
 msgstr "Oest"
 
@@ -943,7 +951,7 @@ msgid "1 interface"
 msgstr "1 interfície"
 
 #: guifi_interfaces.inc.php:176
-#: guifi.module:372
+#: guifi.module:347
 msgid "interfaces"
 msgstr "interfície"
 
@@ -1396,108 +1404,104 @@ msgstr "creat per"
 msgid "updated by"
 msgstr "actualitzat per"
 
-#: guifi_node.inc.php:768
+#: guifi_node.inc.php:769
 #: guifi_zone.inc.php:509;530
 msgid "Sorry, your browser can't display the embedded map"
 msgstr ""
 
-#: guifi_node.inc.php:879
+#: guifi_node.inc.php:880
 msgid "Edit"
 msgstr "Editar"
 
-#: guifi_node.inc.php:888
+#: guifi_node.inc.php:889
 msgid "last available"
 msgstr "ultima disponibilitat"
 
-#: guifi_node.inc.php:904
+#: guifi_node.inc.php:905
 msgid "Get radio configuration with singleclick"
 msgstr ""
 
-#: guifi_node.inc.php:922
+#: guifi_node.inc.php:923
 msgid "This node does not have any device."
 msgstr "Aquest node no té cap trasto."
 
-#: guifi_node.inc.php:924
-#: guifi.module:188
+#: guifi_node.inc.php:925
+#: guifi.module:177
 msgid "devices"
 msgstr "trastos"
 
-#: guifi_node.inc.php:955
+#: guifi_node.inc.php:956
 msgid "distances map from"
 msgstr "Mapa de distància des de"
 
-#: guifi_node.inc.php:961
+#: guifi_node.inc.php:962
 msgid "Click on the map to get a new path profile to check the Line Of Sight"
 msgstr ""
 
-#: guifi_node.inc.php:979
+#: guifi_node.inc.php:980
 msgid "distances from"
 msgstr "distàncies des de"
 
-#: guifi_node.inc.php:1060;1280
+#: guifi_node.inc.php:1061;1281
 msgid "Next page"
 msgstr "Pàgina següent"
 
-#: guifi_node.inc.php:1062;1268
+#: guifi_node.inc.php:1063;1269
 msgid "Previous page"
 msgstr "Pàgina anterior"
 
-#: guifi_node.inc.php:1107
+#: guifi_node.inc.php:1108
 msgid "No nodes found. The list is empty"
 msgstr "No s'ha trobat cap node. La llista està buida."
 
-#: guifi_node.inc.php:1108
+#: guifi_node.inc.php:1109
 msgid "Th given query has returned no rows."
 msgstr "Aquesta consulta no ha tornat cap fila."
 
-#: guifi_node.inc.php:1109
+#: guifi_node.inc.php:1110
 msgid "Use the filters to get some results"
 msgstr ""
 
-#: guifi_node.inc.php:1127
+#: guifi_node.inc.php:1128
 #: guifi_zone.inc.php:116
 msgid "Zone"
 msgstr "Barri, zona"
 
-#: guifi_node.inc.php:1134
+#: guifi_node.inc.php:1135
 msgid "Distance"
 msgstr "Distància"
 
-#: guifi_node.inc.php:1143
+#: guifi_node.inc.php:1144
 msgid "Heights image"
 msgstr ""
 
-#: guifi_node.inc.php:1144
+#: guifi_node.inc.php:1145
 msgid "Click over the image to view in large format"
 msgstr ""
 
-#: guifi_node.inc.php:1159
+#: guifi_node.inc.php:1160
 msgid "North East"
 msgstr "Nord est"
 
-#: guifi_node.inc.php:1161
+#: guifi_node.inc.php:1162
 msgid "South East"
 msgstr "Sud est"
 
-#: guifi_node.inc.php:1163
+#: guifi_node.inc.php:1164
 msgid "South West"
 msgstr "Sud oest"
 
-#: guifi_node.inc.php:1165
+#: guifi_node.inc.php:1166
 msgid "North West"
 msgstr "Nord oest"
 
-#: guifi_node.inc.php:1249
+#: guifi_node.inc.php:1250
 msgid "Click to view in large format"
 msgstr ""
 
-#: guifi_node.inc.php:1306
+#: guifi_node.inc.php:1307
 msgid "linked nodes (device)"
 msgstr "nodes enllaçats (trastos)"
-
-#: guifi_node.inc.php:1396
-msgid "node information"
-msgstr "informació del node"
 
 #: guifi_nodexchange.inc.php:14
 msgid "export zone and zone childs in nodexchange format"
@@ -1895,7 +1899,7 @@ msgid "The service %name has been UPDATED by %user."
 msgstr ""
 
 #: guifi_service.inc.php:524;659
-#: guifi.module:543
+#: guifi.module:515
 msgid "service"
 msgstr "servei"
 
@@ -2072,7 +2076,7 @@ msgid "To change/set the current user password, enter the new password in both f
 msgstr ""
 
 #: guifi_users.inc.php:333
-#: guifi.module:114;106;363
+#: guifi.module:104;339
 msgid "services"
 msgstr "serveis"
 
@@ -2506,7 +2510,7 @@ msgid "Testing"
 msgstr "En proves"
 
 #: guifi_zone.inc.php:933
-#: guifi.module:1210
+#: guifi.module:918
 msgid "Total"
 msgstr "Total"
 
@@ -2527,12 +2531,12 @@ msgid "No"
 msgstr "No"
 
 #: guifi_zone.inc.php:1030
-#: guifi.module:331
+#: guifi.module:308
 msgid "edit device"
 msgstr "editar trasto"
 
 #: guifi_zone.inc.php:1035
-#: guifi.module:340
+#: guifi.module:317
 msgid "delete device"
 msgstr "esborrar trasto"
 
@@ -2545,7 +2549,7 @@ msgid "Pending/to review"
 msgstr "Pendent/de revisió"
 
 #: guifi_zone.inc.php:1075
-#: guifi.module:349
+#: guifi.module:326
 msgid "all"
 msgstr "tot"
 
@@ -2557,295 +2561,291 @@ msgstr "Disponibilitat"
 msgid "root zone"
 msgstr "zona arrel"
 
-#: guifi.module:551
-msgid "display detailed node graphs"
-msgstr "mostrar gràfiques detallades pel node"
-
-#: guifi.module:871
+#: guifi.module:579
 msgid "guifi.net zone"
 msgstr "zona guifi.net"
 
-#: guifi.module:873;901
+#: guifi.module:581;609
 msgid "Create a community, area or zone. A typical zone hierarchy can be related to the territory (Country/Region/City...) but not have to, i.e. a single city can have many groups or communities with distinct IP addressing policies.<br />Every zone will have it's own page so it can be used as the homepage of that community.<br />The zones must belong at least to the root zone, but can also belong to other zones, so in that way a hierarchy is created.<br />Every zone have its own properties like maps or ip ranges and every node will have to be assigned to an existing zone, and will inherit the zone properties like his IP address and drawn in the corresponding map.<br />If zone properties are leaved blank, will inherit the parent zone properties."
 msgstr ""
 
-#: guifi.module:876
+#: guifi.module:584
 msgid "guifi.net node"
 msgstr "node guifi.net"
 
-#: guifi.module:878;899
+#: guifi.module:586;607
 msgid "Create a node. A node is a physical location (will be dynamically drawed on the maps using lat/lon coordinates) where there are network devices, servers, etc.<br />Every node have to assigned to a guifi zone."
 msgstr ""
 
-#: guifi.module:881
+#: guifi.module:589
 msgid "guifi.net service"
 msgstr "servei guifi.net"
 
-#: guifi.module:883;903
+#: guifi.module:591;611
 msgid "Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... ."
 msgstr ""
 
-#: guifi.module:893
+#: guifi.module:601
 msgid "Manage the guifi.net, a mesh network community."
 msgstr "Gestiona guifi.net, una comunitat de xarxa en malla."
 
-#: guifi.module:895
+#: guifi.module:603
 msgid "Select an operation from the menus to manage zones."
 msgstr ""
 
-#: guifi.module:897
+#: guifi.module:605
 msgid "Enter de zone information."
 msgstr ""
 
-#: guifi.module:929
+#: guifi.module:637
 msgid "License agreement"
 msgstr "Acceptació de la llicència"
 
-#: guifi.module:930
+#: guifi.module:638
 msgid "By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned or your data might be deleted if inappropiate use is detected.<br>You will be allways responsible of the information you give, agree to make it publicly available and you will be able to modify or delete it, network administrators can also update or delete your data.<br>If you want to promote your role within the community you can ask for it contacting the current administrators and they will grant the privileges that you qualify for."
 msgstr ""
 
-#: guifi.module:933
+#: guifi.module:641
 msgid "Agreement &#038; help message when creating new nodes, users will not be able to create nodes unless they accept this message."
 msgstr ""
 
-#: guifi.module:938
+#: guifi.module:646
 msgid "Block title"
 msgstr "Títol del bloc"
 
-#: guifi.module:940
+#: guifi.module:648
 msgid "Network statistics"
 msgstr ""
 
-#: guifi.module:943
+#: guifi.module:651
 msgid "Title of guifi block..."
 msgstr "Títol del bloc guifi..."
 
-#: guifi.module:948
+#: guifi.module:656
 msgid "Root zone"
 msgstr ""
 
-#: guifi.module:953
+#: guifi.module:661
 msgid "URL of the root zone..."
 msgstr ""
 
-#: guifi.module:958
+#: guifi.module:666
 msgid "Limit of items listed on every page"
 msgstr ""
 
-#: guifi.module:963
+#: guifi.module:671
 msgid "Number of rows to be displayed as default on every paged report..."
 msgstr ""
 
-#: guifi.module:968
+#: guifi.module:676
 msgid "Default contact"
 msgstr ""
 
-#: guifi.module:973
+#: guifi.module:681
 msgid "An email will be submitted to this address when no contact address is present."
 msgstr "Un email serà enviat a aquesta adreça quan no hi hagi cap adreça definida."
 
-#: guifi.module:978
+#: guifi.module:686
 msgid "Send notifications every"
 msgstr "Envia notificacions cada"
 
-#: guifi.module:982
+#: guifi.module:690
 msgid "Never (disabled)"
 msgstr "Mai (desactivat)"
 
-#: guifi.module:983
+#: guifi.module:691
 msgid "Every cron"
 msgstr "Cada cron"
 
-#: guifi.module:984
+#: guifi.module:692
 msgid "Hourly"
 msgstr "Cada hora"
 
-#: guifi.module:985
+#: guifi.module:693
 msgid "Every 2 hours"
 msgstr "Cada 2 hores"
 
-#: guifi.module:986
+#: guifi.module:694
 msgid "Every 6 hours"
 msgstr "Cada 6 hores"
 
-#: guifi.module:987
+#: guifi.module:695
 msgid "Every 12 hours"
 msgstr "Cada 12 hores"
 
-#: guifi.module:988
+#: guifi.module:696
 msgid "Daily"
 msgstr "Diari"
 
-#: guifi.module:989
+#: guifi.module:697
 msgid "Every other day"
 msgstr "Cada dos dies"
 
-#: guifi.module:990
+#: guifi.module:698
 msgid "Weekly"
 msgstr "Setmanalment"
 
-#: guifi.module:991
+#: guifi.module:699
 msgid "When the notification messages queue will be delivered, if set to \"Never\", no messages will be post at the queue."
 msgstr ""
 
-#: guifi.module:997
+#: guifi.module:705
 msgid "Hotspot SSID"
 msgstr "SSID del Hotspot"
 
-#: guifi.module:999
+#: guifi.module:707
 msgid "HotSpot"
 msgstr "HotSpot"
 
-#: guifi.module:1002
+#: guifi.module:710
 msgid "SSID name for the hotspot open access for guests"
 msgstr ""
 
-#: guifi.module:1007
+#: guifi.module:715
 msgid "Log level"
 msgstr "Nivell del log"
 
-#: guifi.module:1011
+#: guifi.module:719
 msgid "Trace log level to screen:<ol><li><em>None</em>, normal operation</li><li><em>Basic</em>, general messages</li><li><em>Trace</em> provides follow-up of functions being executed, for developers</li><li><em>Full</em> dumps variable values, very long, for fine debug</li></ol>Change the log level to figure out whats happening."
 msgstr ""
 
-#: guifi.module:1016
+#: guifi.module:724
 msgid "Key for Google Maps API"
 msgstr ""
 
-#: guifi.module:1021
+#: guifi.module:729
 msgid "If not present, Google Maps API will be disabled.<br>Get it at: "
 msgstr ""
 
-#: guifi.module:1028
+#: guifi.module:736
 msgid "URL for WMS service"
 msgstr ""
 
-#: guifi.module:1033
+#: guifi.module:741
 msgid "URL to call to get WMS guifi mapping services"
 msgstr ""
 
-#: guifi.module:1038
+#: guifi.module:746
 msgid "URL for maps module"
 msgstr ""
 
-#: guifi.module:1043
+#: guifi.module:751
 msgid "Base URL for the mapping GIS application (guifimaps)"
 msgstr ""
 
-#: guifi.module:1048
+#: guifi.module:756
 msgid "Decimal separator"
 msgstr ""
 
-#: guifi.module:1053
+#: guifi.module:761
 msgid "Decimal character for formatting numbers"
 msgstr ""
 
-#: guifi.module:1058
+#: guifi.module:766
 msgid "Thousands separator"
 msgstr ""
 
-#: guifi.module:1063
+#: guifi.module:771
 msgid "Thousands separatos for formatting numbers"
 msgstr ""
 
-#: guifi.module:1076
+#: guifi.module:784
 msgid "guifi nodes"
 msgstr "nodes guifi"
 
-#: guifi.module:1083
+#: guifi.module:791
 msgid "Number of items"
 msgstr ""
 
-#: guifi.module:1094
+#: guifi.module:802
 msgid "List of guifi nodes"
 msgstr "Llista dels nodes guifi"
 
-#: guifi.module:1142
+#: guifi.module:850
 msgid "node list and maps..."
 msgstr "llistat i mapes..."
 
-#: guifi.module:1145
+#: guifi.module:853
 msgid "Go to the list of nodes root page and their maps."
 msgstr ""
 
-#: guifi.module:1228
+#: guifi.module:936
 msgid "Wireless<br />links"
 msgstr "Enllaços<br />Sense fIls"
 
-#: guifi.module:1240
+#: guifi.module:948
 msgid "create mrtg config"
 msgstr "crea una configuració pel mrtg"
 
-#: guifi.module:1243
+#: guifi.module:951
 msgid "get an mrtg configuration file for this zone"
 msgstr "obtindre una configuració per a aquesta zona en format mrtg"
 
-#: guifi.module:1245
+#: guifi.module:953
 msgid "nodeXchange"
 msgstr "nodeXchange"
 
-#: guifi.module:1247;508;515
+#: guifi.module:955;480;487
 msgid "export zone in nodeXchange format"
 msgstr "exporta aquesta zona en format nodeXchange"
 
-#: guifi.module:1249;1265
+#: guifi.module:957;973
 msgid "CNML"
 msgstr "CNML"
 
-#: guifi.module:1251;494;501
+#: guifi.module:959;466;473
 msgid "export zone in CNML format"
 msgstr "exporta la zona en format CNML"
 
-#: guifi.module:1253
+#: guifi.module:961
 msgid "gml"
 msgstr "gml"
 
-#: guifi.module:1255;522;529
+#: guifi.module:963;494;501
 msgid "export zone in gml format"
 msgstr "exporta la zona en format gml"
 
-#: guifi.module:1258
+#: guifi.module:966
 msgid "budgets"
 msgstr "pressupostos"
 
-#: guifi.module:1260
+#: guifi.module:968
 msgid "view budgets for this zone"
 msgstr "veure els pressupostos d'aquesta zona"
 
-#: guifi.module:1267
+#: guifi.module:975
 msgid "export node in CNML format"
 msgstr ""
 
-#: guifi.module:912
+#: guifi.module:620
 msgid "administer guifi zones"
 msgstr "administrar zones guifi"
 
-#: guifi.module:913
+#: guifi.module:621
 msgid "administer guifi networks"
 msgstr "administrar xarxes guifi"
 
-#: guifi.module:914
+#: guifi.module:622
 msgid "create guifi zones"
 msgstr "crear zones guifi"
 
-#: guifi.module:915
+#: guifi.module:623
 msgid "create guifi nodes"
 msgstr "crear nodes guifi"
 
-#: guifi.module:916
+#: guifi.module:624
 msgid "administer guifi users"
 msgstr "administrar usuaris de guifi"
 
-#: guifi.module:917
+#: guifi.module:625
 msgid "manage guifi users"
 msgstr "administrar usuaris de guifi"
 
-#: guifi.module:918
+#: guifi.module:626
 msgid "edit own guifi zones"
 msgstr ""
 
-#: guifi.module:919
+#: guifi.module:627
 msgid "edit own guifi nodes"
 msgstr ""
 
@@ -2861,141 +2861,145 @@ msgstr "Configura el modul guifi.net"
 msgid "nodes"
 msgstr "nodes"
 
-#: guifi.module:73
+#: guifi.module:72
 msgid "map"
 msgstr "mapa"
 
-#: guifi.module:82;179;248;381
+#: guifi.module:80;169;233;355
 msgid "data"
 msgstr "dades"
 
-#: guifi.module:90
+#: guifi.module:88
 msgid "availability"
 msgstr "disponibilitat"
 
-#: guifi.module:98
+#: guifi.module:96
 msgid "pending/review"
 msgstr "pendent/revisar"
 
-#: guifi.module:122
+#: guifi.module:112
 msgid "networks"
 msgstr "xarxes"
 
-#: guifi.module:130
+#: guifi.module:120
 msgid "users queue"
 msgstr "cua d'usuaris"
 
-#: guifi.module:138
+#: guifi.module:128
 msgid "add ipv4 network"
 msgstr ""
 
-#: guifi.module:146
+#: guifi.module:136
 msgid "edit ipv4 network"
 msgstr ""
 
-#: guifi.module:153
+#: guifi.module:144
 msgid "delete ipv4 network"
 msgstr ""
 
-#: guifi.module:163
+#: guifi.module:155
 msgid "distances"
 msgstr "distàncies"
 
-#: guifi.module:171
+#: guifi.module:162
 msgid "profiles map"
 msgstr "mapa de perfils"
 
-#: guifi.module:206;390
+#: guifi.module:193;363
 msgid "graphs"
 msgstr "gràfiques"
 
-#: guifi.module:215;258
+#: guifi.module:201;242
 msgid "users"
 msgstr "usuaris"
 
-#: guifi.module:267
+#: guifi.module:250
 msgid "passwd"
 msgstr "paraula clau"
 
-#: guifi.module:276
+#: guifi.module:258
 msgid "federated"
 msgstr "federat"
 
-#: guifi.module:284
+#: guifi.module:266
 msgid "federated_md5"
 msgstr "federated_md5"
 
-#: guifi.module:292
+#: guifi.module:274
 msgid "ldif"
 msgstr "ldif"
 
-#: guifi.module:311
+#: guifi.module:292
 msgid "add device"
 msgstr "afegir trasto"
 
-#: guifi.module:321
+#: guifi.module:300
 msgid "view device"
 msgstr "veure trastos"
 
-#: guifi.module:354
+#: guifi.module:331
 msgid "unsolclic"
 msgstr "unsolclic"
 
-#: guifi.module:410
+#: guifi.module:381
 msgid "Javascript Add WDS"
 msgstr ""
 
-#: guifi.module:416
+#: guifi.module:387
 msgid "Javascript Select Firmware by Model"
 msgstr ""
 
-#: guifi.module:422
+#: guifi.module:393
 msgid "Javascript Select Channel by protocol"
 msgstr ""
 
-#: guifi.module:429
+#: guifi.module:400
 msgid "Javascript Select Zone"
 msgstr ""
 
-#: guifi.module:435
+#: guifi.module:406
 msgid "Javascript Select Device"
 msgstr ""
 
-#: guifi.module:441
+#: guifi.module:412
 msgid "Javascript Select Node"
 msgstr ""
 
-#: guifi.module:448
+#: guifi.module:419
 msgid "Javascript Select Service"
 msgstr ""
 
-#: guifi.module:455
+#: guifi.module:426
 msgid "Javascript Select Server"
 msgstr ""
 
-#: guifi.module:462
+#: guifi.module:433
 msgid "Javascript Move Device"
 msgstr ""
 
-#: guifi.module:468
+#: guifi.module:439
 msgid "Javascript Add Interface"
 msgstr ""
 
-#: guifi.module:474
+#: guifi.module:445
 msgid "Javascript Add Public Subnetwork Mask"
 msgstr ""
 
-#: guifi.module:480
+#: guifi.module:451
 msgid "Javascript Add Wireless Radio"
 msgstr ""
 
-#: guifi.module:486
+#: guifi.module:457
 msgid "Javascript Add Cable Link"
 msgstr ""
 
-#: guifi.module:536
+#: guifi.module:508
 msgid "generate mrtg config file"
 msgstr "generar l'arxiu de configuració pel mrtg"
+
+#: guifi.module:523
+msgid "display detailed node graphs"
+msgstr "mostrar gràfiques detallades pel node"
 
 #: guifi.info:0;0
 msgid "guifi.net"
@@ -3039,106 +3043,106 @@ msgstr "Enrutament OSPF Quagga"
 msgid "Global network parameters"
 msgstr "Parametres globals de la xarxa"
 
-#: firmware/kamikaze.inc.php:457
+#: firmware/kamikaze.inc.php:468
 #: firmware/wrt-sveasoft-dd.inc.php:384
 msgid "Management"
 msgstr "Gestio"
 
-#: firmware/kamikaze.inc.php:506
+#: firmware/kamikaze.inc.php:517
 #: firmware/wrt-sveasoft-dd.inc.php:414
 msgid "AP mode"
 msgstr "Mode AP"
 
-#: firmware/kamikaze.inc.php:551
+#: firmware/kamikaze.inc.php:534
 #: firmware/wrt-sveasoft-dd.inc.php:428
 msgid "Client mode"
 msgstr "Mode Client"
 
-#: firmware/kamikaze.inc.php:570
+#: firmware/kamikaze.inc.php:553
 #: firmware/wrt-sveasoft-dd.inc.php:455
 msgid "WARNING: AP MAC not set"
 msgstr "ATENCIÓ: La MAC de l'AP no s'ha definit"
 
-#: firmware/kamikaze.inc.php:713
+#: firmware/kamikaze.inc.php:725
 #: firmware/wrt-sveasoft-dd.inc.php:598
 msgid "WDS Links for"
 msgstr "Enllacos WDS per"
 
-#: firmware/kamikaze.inc.php:797
+#: firmware/kamikaze.inc.php:820
 #: firmware/wrt-sveasoft-dd.inc.php:641
 msgid "open a telnet/ssh session on your device and run the script below."
 msgstr "obre una sessio telnet/ssh en el teu trasto i executa aquestscript."
 
-#: firmware/kamikaze.inc.php:798
+#: firmware/kamikaze.inc.php:821
 #: firmware/wrt-sveasoft-dd.inc.php:642
 msgid "Note: Use Status/Wireless survey to verify that you have the"
 msgstr "Nota: Fes servir l'Status/Wireless survey per verificar que"
 
-#: firmware/kamikaze.inc.php:799
+#: firmware/kamikaze.inc.php:822
 #: firmware/wrt-sveasoft-dd.inc.php:643
 msgid "antenna plugged in the right connector. The right antena is probably"
 msgstr "tens l'antena ben endollada i configurada. La dreta es probablement"
 
-#: firmware/kamikaze.inc.php:800
+#: firmware/kamikaze.inc.php:823
 #: firmware/wrt-sveasoft-dd.inc.php:644
 msgid "the one which is at the right, looking the WRT54G from the front"
 msgstr "la que tens a la dreta si el mires des del davant (on hi han els"
 
-#: firmware/kamikaze.inc.php:801
+#: firmware/kamikaze.inc.php:824
 #: firmware/wrt-sveasoft-dd.inc.php:645
 msgid "(where it have the leds). If needed, change the antenna connector"
 msgstr "leds). Si et cal, canvia el connector des de la configuracio via"
 
-#: firmware/kamikaze.inc.php:802
+#: firmware/kamikaze.inc.php:825
 #: firmware/wrt-sveasoft-dd.inc.php:646
 msgid "at Wireless->Advanced Settings."
 msgstr "wev anant a Wireless->Advanced Settings."
 
-#: firmware/kamikaze.inc.php:803
+#: firmware/kamikaze.inc.php:826
 #: firmware/wrt-sveasoft-dd.inc.php:647
 msgid "Security notes:"
 msgstr ""
 
-#: firmware/kamikaze.inc.php:804
+#: firmware/kamikaze.inc.php:827
 #: firmware/wrt-sveasoft-dd.inc.php:648
 msgid "Once this script is executes, the router password for root/admin users is \"guifi\""
 msgstr ""
 
-#: firmware/kamikaze.inc.php:805
+#: firmware/kamikaze.inc.php:828
 msgid "You must change this password if you want to keep it secret. Upon request, your setup"
 msgstr ""
 
-#: firmware/kamikaze.inc.php:806
+#: firmware/kamikaze.inc.php:829
 #: firmware/wrt-sveasoft-dd.inc.php:651
 msgid "might be asked for being inspected to check the Wireless Commons compliance."
 msgstr ""
 
-#: firmware/kamikaze.inc.php:807
+#: firmware/kamikaze.inc.php:830
 #: firmware/wrt-sveasoft-dd.inc.php:652
 msgid "No firewall rules are allowed in the public network area."
 msgstr ""
 
-#: firmware/kamikaze.inc.php:808
+#: firmware/kamikaze.inc.php:831
 #: firmware/wrt-sveasoft-dd.inc.php:653
 msgid "By being in client mode, the router has the firewall enabled to distinguish between"
 msgstr ""
 
-#: firmware/kamikaze.inc.php:809
+#: firmware/kamikaze.inc.php:832
 #: firmware/wrt-sveasoft-dd.inc.php:654
 msgid "private and public areas, and only SNMP, ssh and https 8080 ports are enabled"
 msgstr ""
 
-#: firmware/kamikaze.inc.php:810
+#: firmware/kamikaze.inc.php:833
 #: firmware/wrt-sveasoft-dd.inc.php:655
 msgid "for external administration. Everything else is closed, therefore you might"
 msgstr ""
 
-#: firmware/kamikaze.inc.php:811
+#: firmware/kamikaze.inc.php:834
 #: firmware/wrt-sveasoft-dd.inc.php:656
 msgid "have to open ports to share resources."
 msgstr ""
 
-#: firmware/kamikaze.inc.php:821
+#: firmware/kamikaze.inc.php:844
 #: firmware/wrt-sveasoft-dd.inc.php:665
 msgid "end of script and reboot"
 msgstr "Fi del script i reiniciar"

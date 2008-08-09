@@ -690,7 +690,7 @@ function guifi_node_print_data($node) {
 
   if (($node->notification) and (user_access('administer guifi networks')))
     $rows[] = array(
-      t('changes notified to (visible only if you are privileged):'),
+      t('changes notified to (visible only if you have privileges)'),
       array(
         'data'=>
           '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
@@ -739,7 +739,8 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
           array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
                                              array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
           array(guifi_node_graph_overview($node)),
-          array(guifi_node_radio_list($node)),        )
+          array(guifi_node_radio_list($node)),
+          array(guifi_node_links($node)),         )
       );
 
     return $node;
@@ -1370,36 +1371,17 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
     return $output;
   }
   return NULL;
+
 }
 
 
 function guifi_node_links($node)
 {
-  if (is_numeric($node)) {
-    $node = node_load($node);
-  }
+  $output .= guifi_node_link_list($node->id,'cable');
+  $output .= guifi_node_link_list($node->id,'wds');
+  $output .= guifi_node_link_list($node->id,'ap/client');
 
-  $node = node_prepare($node);
-
-  guifi_log(GUIFILOG_TRACE,"guifi_node_links()",$node);
-
-
-  $output .= guifi_node_link_list($node->nid,'cable');
-  $output .= guifi_node_link_list($node->nid,'wds');
-  $output .= guifi_node_link_list($node->nid,'ap/client');
-
-
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
-  drupal_set_title(t('node').': '.$node->title.' ('.t($op).')');
-  //print theme('page', $output,FALSE);
-
-  $node->body .= theme('box', t('node information'), $output);
-
-
-  print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
-
-
-  //return $output;
+  return $output;
 }
 
 function guifi_node_set_flag($id) {

@@ -817,7 +817,7 @@ function guifi_zone_print_data($zone) {
   if ($zone->homepage)
     $rows[] = array(t('homepage'),l($zone->homepage,$zone->homepage));
   if (($zone->notification) and (user_access('administer guifi zones')))
-    $rows[] = array(t('changes notified to (visible only if you are privileged):'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>');
+    $rows[] = array(t('changes notified to (visible only if you have privileges)'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>');
   $rows[] = array(t('default proxy'),
               l(guifi_service_str($zone->proxy_id),
                 guifi_zone_get_service($zone,'proxy_id',true))
