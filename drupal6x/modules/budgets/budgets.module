@@ -1313,6 +1313,9 @@ function budgets_print_funds($node) {
   $total = 0; 
 
   // Going to report the funds
+  $header = array(t('Date'),t('Name'),t('Amount'),t('Status'),t('Comment'));
+  if (budgets_access('update',$node)) 
+    $header = array_merge(array(t('Action')),$header);
   $rows = array();
 
   if (empty($node->funds)) {
@@ -1323,7 +1326,7 @@ function budgets_print_funds($node) {
       if ($fund['fund_status'] != 'Declined')
         $total = $total + $fund['amount'];    
     
-      $rows[] = array(
+      $row = array(
         format_date($fund['timestamp_created'],'small'),
         $fund['contributor_name'],
         array('data'=>number_format($fund['amount'],2,',','.').
@@ -1331,18 +1334,40 @@ function budgets_print_funds($node) {
           'align'=>'right'),
         array('data'=>$fund['fund_status'],'align'=>'right'),
         $fund['comments']);
-//      if (budgets_access('update',$node)) {
-//        // TODO: display edit/decline/accept buttons
-//        null;
-//      }
+        
+      if (budgets_access('update',$node)) {
+        // TODO: display edit/decline/accept buttons
+        $b = l(guifi_img_icon('edit.png'),
+               'budgets/'.$node->id.'/edit/'.$fund_id,
+               array(
+                 'attributes'=>array('title'=>t('Edit this funding')),
+                 'html'=>true));
+        if ($fund['fund_status'] == 'Submitted')
+          $b .= l(guifi_img_icon('ok.png'),
+               'budgets/'.$node->id.'/accept/'.$fund_id,
+               array(
+                 'attributes'=>array('title'=>t('Accept this funding')),
+                 'html'=>true));
+        if ($fund['fund_status'] != 'Declined')
+          $b .= l(guifi_img_icon('drop.png'),
+               'budgets/'.$node->id.'/decline/'.$fund_id,
+               array(
+                 'attributes'=>array('title'=>t('Decline this funding')),
+                 'html'=>true));
+
+        $rows[] = array_merge(array($b),$row);
+      } else
+        $rows[] = $row;
     } // foreach fund
   } // if there are funds
   
   $rows[] = array(
-                 '<strong>Total</strong',null,
-                 array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right'),
-                 null,null);
-  $header = array(t('Date'),t('Name'),t('Amount'),t('Status'));
+                 '<strong>Total</strong',
+                 array('data'=>
+                   '<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>',
+                   'align'=>'right',
+                   'colspan'=>0),
+                 );
   
   return theme('table', $header, $rows);
 
