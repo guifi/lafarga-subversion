@@ -1336,24 +1336,59 @@ function budgets_print_funds($node) {
         $fund['comments']);
         
       if (budgets_access('update',$node)) {
-        // TODO: display edit/decline/accept buttons
-        $b = l(guifi_img_icon('edit.png'),
-               'budgets/'.$node->id.'/edit/'.$fund_id,
-               array(
-                 'attributes'=>array('title'=>t('Edit this funding')),
-                 'html'=>true));
+//        $b = array();
+//        $b[] = l(guifi_img_icon('edit.png'),
+//               'budgets/'.$node->id.'/edit/'.$fund_id,
+//               array(
+//                 'attributes'=>array('title'=>t('Edit this funding')),
+//                 'html'=>true));
+//        if ($fund['fund_status'] == 'Submitted')
+//          $b[] = l(guifi_img_icon('ok.png'),
+//               'budgets/'.$node->id.'/accept/'.$fund_id,
+//               array(
+//                 'attributes'=>array('title'=>t('Accept this funding')),
+//                 'html'=>true));
+//        if ($fund['fund_status'] != 'Declined')
+//          $b[] = l(guifi_img_icon('drop.png'),
+//               'budgets/'.$node->id.'/decline/'.$fund_id,
+//               array(
+//                 'attributes'=>array('title'=>t('Decline this funding')),
+//                 'html'=>true));
+//        if (!array_search($fund['fund_status'],array('Declined','Paid')))
+//          $b[] = l(guifi_img_icon('money.png'),
+//               'budgets/'.$node->id.'/paid/'.$fund_id,
+//               array(
+//                 'attributes'=>array('title'=>t('Set the payment done for this funding')),
+//                 'html'=>true));
+//          $buttons = theme('table',null,array($b));
+
+
+        $b = '<pre>';
         if ($fund['fund_status'] == 'Submitted')
           $b .= l(guifi_img_icon('ok.png'),
                'budgets/'.$node->id.'/accept/'.$fund_id,
                array(
                  'attributes'=>array('title'=>t('Accept this funding')),
                  'html'=>true));
-        if ($fund['fund_status'] != 'Declined')
+        $b .= l(guifi_img_icon('edit.png'),
+               'budgets/'.$node->id.'/edit/'.$fund_id,
+               array(
+                 'attributes'=>array('title'=>t('Edit this funding')),
+                 'html'=>true));
+        if (!array_search($fund['fund_status'],array('Declined','Paid')))
+          $b .= l(guifi_img_icon('money.png'),
+               'budgets/'.$node->id.'/paid/'.$fund_id,
+               array(
+                 'attributes'=>array('title'=>t('Mark the payment as done for this funding')),
+                 'html'=>true));
+        if (!array_search($fund['fund_status'],array('Declined','Paid')))
           $b .= l(guifi_img_icon('drop.png'),
                'budgets/'.$node->id.'/decline/'.$fund_id,
                array(
                  'attributes'=>array('title'=>t('Decline this funding')),
                  'html'=>true));
+        $b .= '</pre>';
+
 
         $rows[] = array_merge(array($b),$row);
       } else
