@@ -1077,7 +1077,13 @@ function budgets_delete(&$node) {
 * Implementation of hook_page().
 */
 function budgets_page($zone = NULL) {
-  $result = pager_query("SELECT n.nid,b.guifi_zones FROM {node} n, {budgets} b WHERE n.nid=b.nid ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), n.changed DESC", variable_get('default_nodes_main', 10));
+  $result = pager_query(
+      "SELECT n.nid,b.zone_id " .
+      "FROM {node} n, {budgets} b " .
+      "WHERE n.nid=b.id " .
+      "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
+      "  n.changed DESC", 
+      variable_get('default_nodes_main', 10));
   if ($result > 0) {
 
     $output = '';
@@ -1093,7 +1099,9 @@ function budgets_page($zone = NULL) {
     $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
   }
   else {
-    $output = t("Welcome to budget module. This module will allow your community to maintain budgets, allocate due costs for them, ansd accept donations");
+    $output = t("Welcome to budget module. " .
+        "This module will allow your community to maintain budgets, " .
+        "allocate due costs for them, ansd accept donations");
   }
   print theme('page', $output);
 }
@@ -1270,7 +1278,7 @@ function budgets_print_funds($node) {
             drupal_set_message(t('Fund deleted'));
             drupal_goto('node/'.$node->nid.'/view/funds');
            } else {
-           $form['fund_checked'] = array(
+             $form['fund_checked'] = array(
                 '#type' => 'hidden',
                 '#value' => $edit['fund_checked'],
                  );
