@@ -69,7 +69,7 @@
 //-----------------------------------------------------
 
 	// Recullir parametres
-	$nid=intval($_GET["nid"]);
+	$nid=intval($_GET["id"]);
 	$guifi_zones=intval($_GET["gzn"]);
 
 	// ubicacio relativa al directori d'aquest script ;)
@@ -110,15 +110,15 @@ header("Content-type: text/xml");
 		
 		if ($nid!=0) {
 			// Seleccio per numero de budget (Obert)
-			$qbudgets_cond = " WHERE b.nid=$nid and n.nid=b.nid AND budget_status = 'Open' ";
+			$qbudgets_cond = " WHERE b.id=$nid and n.nid=b.id AND budget_status = 'Open' ";
 			$qbudgets = mysql_query("SELECT n.nid, n.title, currency_symbol FROM budgets b, node n".$qbudgets_cond,$conn_db);
 		} else if ($guifi_zones!=0) {
 			// Seleccio de bugets  Oberts	 d'una zona		
-			$qbudgets_cond = " WHERE n.nid=b.nid AND budget_status = 'Open' AND b.guifi_zones = $guifi_zones ";		
+			$qbudgets_cond = " WHERE n.nid=b.id AND budget_status = 'Open' AND b.zone_id = $guifi_zones ";		
 			$qbudgets = mysql_query("SELECT n.nid, n.title, currency_symbol FROM budgets b, node n".$qbudgets_cond,$conn_db);
 		} else {
 			// Seleccio de bugets Oberts		
-			$qbudgets_cond = " WHERE n.nid=b.nid AND budget_status = 'Open' ";
+			$qbudgets_cond = " WHERE n.nid=b.id AND budget_status = 'Open' ";
 			$qbudgets = mysql_query("SELECT n.nid, n.title, currency_symbol FROM budgets b, node n".$qbudgets_cond,$conn_db);
 		}
 	
@@ -137,17 +137,17 @@ echo '<xmlbudgets>';
 			
 			// Incluir al XML els budgets obtinguts a la consulta a la BDD		
 			while ($budget = mysql_fetch_array($qbudgets)) {
-		    $temporaly_budge_nid=intval($budget['nid']);
+		    $temporaly_budge_nid=intval($budget['id']);
 		    
-				$t = mysql_fetch_array(mysql_query("SELECT sum(quantity * cost) amount FROM budget_items WHERE nid = $temporaly_budge_nid",$conn_db));
-				$s = mysql_fetch_array(mysql_query("SELECT sum(amount) amount FROM budget_funds WHERE fund_status != 'Declined' AND nid = $temporaly_budge_nid",$conn_db));
+				$t = mysql_fetch_array(mysql_query("SELECT sum(quantity * cost) amount FROM budget_items WHERE id = $temporaly_budge_nid",$conn_db));
+				$s = mysql_fetch_array(mysql_query("SELECT sum(amount) amount FROM budget_funds WHERE fund_status != 'Declined' AND id = $temporaly_budge_nid",$conn_db));
 				
 				$qbudgets_pos++;
 				
 		    extract($t,EXTR_PREFIX_ALL,"budget_total");
 			  extract($s,EXTR_PREFIX_ALL,"budget_funds");	  
 			  
-				$bud_id = $budget["nid"];
+				$bud_id = $budget["id"];
 				$bud_titulo = $budget["title"];
 				$bud_imp_total = $budget_total_amount;
 				$bud_imp_aport = $budget_funds_amount;
