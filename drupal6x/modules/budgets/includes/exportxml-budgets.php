@@ -13,7 +13,7 @@
 // a fi d'exportar informacio relatia als apadrinaments.
 // Si hi a cap problema per conectar amb la bdd retorna
 // el tag xml "budgets" amb valor -1 amb el que despres
-// a l¥hora d'importar es pot esta al corrent i mostrar
+// a l'hora d'importar es pot esta al corrent i mostrar
 // un misatge adecuat i descriptiu del problema, per no
 // confondra amb quan no hi han apadrinaments actius.
 //
@@ -188,18 +188,18 @@ echo '</xmlbudgets>';
 // del receptor de l'arxiu XML
 //
 Function xml_budgets_espchar ($contenido) {
-	$contenido=ereg_replace("·","a",$contenido); 
-	$contenido=ereg_replace("È","e",$contenido); 
-	$contenido=ereg_replace("Ì","i",$contenido); 
-	$contenido=ereg_replace("Û","o",$contenido); 
-	$contenido=ereg_replace("˙","u",$contenido); 
-	$contenido=ereg_replace("¡","A",$contenido); 
-	$contenido=ereg_replace("…","E",$contenido); 
-	$contenido=ereg_replace("Õ","I",$contenido); 
-	$contenido=ereg_replace("”","O",$contenido); 
-	$contenido=ereg_replace("⁄","U",$contenido); 
-	$contenido=ereg_replace("—","NI",$contenido); 
-	$contenido=ereg_replace("Ò","ni",$contenido);
+	$contenido=ereg_replace("√°","a",$contenido); 
+	$contenido=ereg_replace("√©","e",$contenido); 
+	$contenido=ereg_replace("√≠","i",$contenido); 
+	$contenido=ereg_replace("√≥","o",$contenido); 
+	$contenido=ereg_replace("√∫","u",$contenido); 
+	$contenido=ereg_replace("√Å","A",$contenido); 
+	$contenido=ereg_replace("√â","E",$contenido); 
+	$contenido=ereg_replace("√ç","I",$contenido); 
+	$contenido=ereg_replace("√ì","O",$contenido); 
+	$contenido=ereg_replace("√ö","U",$contenido); 
+	$contenido=ereg_replace("√ë","NI",$contenido); 
+	$contenido=ereg_replace("√±","ni",$contenido);
 	
 	return $contenido;
 }
