@@ -1,8 +1,6 @@
 <?php
 // $Id: budgets.module x$
 
-include_once("budgets_todo.inc.php");
-
 /**
  * @file
  * allow to create budgets, allocated to projects, and then collect funds for them
@@ -56,8 +54,8 @@ function budgets_menu() {
   
   $items['node/%budgets/view/contribute'] = array( 
     'title' => 'make your donation',
-    'page callback' => 'budgets_view',
-    'page arguments' => array(1),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgets_fund_form',1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -6,
@@ -73,7 +71,7 @@ function budgets_menu() {
   $items['budgets/%budgets/edit/%'] = array(
     'title' => 'Edit funding',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgets_funds_form',1,3),
+    'page arguments' => array('budgets_fund_form',1,3),
     'access callback' => 'budgets_access',
     'access arguments' => array('update',1),
     'type' => MENU_CALLBACK,
@@ -907,6 +905,146 @@ function budgets_form_load_budget($form,&$form_state) {
   $form_state['rebuild'] = true;
 }
 
+function budgets_fund_form($form_state, $params = array()) {
+  
+  guifi_validate_js("#budgets-fund-form");
+
+  $fid = arg(3);
+  $budget = $params;
+  
+  if (empty($form_state['values'])) {
+    if ($fid == 'contribute') {
+      unset($fid);
+      $f['new'] = array('#type' => 'hidden','#value' => true);
+    } else {
+      $fund = $params->funds[$fid];
+      $f['id'] = array('#type' => 'hidden','#value' => $fund['id']);
+    }
+  }
+  $f['budget_id'] = array('#type' => 'hidden','#value' => $budget->id);
+  $f['notification'] = array('#type' => 'hidden','#value' => $budget->notification);
+  
+  guifi_log(GUIFILOG_TRACE,sprintf('function budgets_fund_form(%d)',$fid),$fund);
+  
+  if (isset($f['new']))
+    $f['fund_status'] = array('#type'=>'hidden','#value'=>'Submitted');
+  else
+    $f['fund_status'] = array(
+      '#type' => 'select',
+      '#title' => t('Status'),
+      '#description' => t('Current status of this funding.'),
+      '#default_value' => $fund['fund_status'],
+      '#options' => drupal_map_assoc(
+        array('Submitted','Accepted','Paid','Declined'))
+    );
+    
+  $f['contributor_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#required' => true,
+    '#default_value' => $fund['contributor_name'],
+    '#description' => t('Your full name, ' .
+        'or if your contribution wants to be anonyomous, ' .
+        'something that will identify that the money comes from this donation ' .
+        'once is verified.')
+  );  
+  $f['contributor_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('e-mail'),
+    '#required' => true,
+    '#attributes' => array(
+      'class'=>'email required'),    
+    '#default_value' => $fund['contributor_email'],
+    '#description' => t('Your email-id. Will be available just to promoters ' .
+        'and not published in the reports available to all.')
+  );  
+  $f['contributor_telf'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Telf'),
+    '#default_value' => $fund['contributor_telf'],
+    '#description' => t('How promoters can contact you by phone. Will be ' .
+        'available just to them and not published at the reports')
+  );   
+  $f['amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Amount'),
+    '#size' => 12,
+    '#required' => true,
+    '#max-length' => 15,
+    '#attributes' => array(
+      'class'=>'number required',
+        'min'=>$budget->min_contribution,
+        'max'=>$budget->max_contribution),
+    '#default_value' => $fund['amount'],
+    '#description' => t('Amount of the contribution').
+                          '&nbsp;('.$budget->currency_txt.').'.
+                          '<br />'.$budget->payment_instructions,
+  );
+  $f['contributor_comments'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Comments'),
+    '#default_value' => $fund['comments'],
+    '#description' => t('Write here any additional comments ' .
+        'about your contribution. ' .
+        'Note that in some cases you may donate other things, ' .
+        'like reused material, availability to work...')
+  );   
+
+  if (isset($f['new']))
+    $f['terms'] = array(
+      '#type' => 'checkbox',
+      '#required' => true,
+      '#title'=>t('Do you accept the Terms & Conditions described below?'),
+      '#attributes'=>array('class'=>'required'),
+      '#description' => $budget->terms,
+    );  
+  
+  
+  $f['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit')
+  );
+  if (!isset($f['new']))
+    $f['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete')
+    );
+    
+  return $f;  
+}
+
+function budgets_fund_form_submit($form, &$form_state) {
+  global $user;
+  
+  $to_mail = explode(',',$user->mail);
+  $fid = $form_state['values']['id'];
+  $fund = &$form_state['values'];
+  guifi_log(GUIFILOG_BASIC,sprintf('function budgets_fund_form_submit(%d)',$fid),$fund);
+  $log = ''; 
+  $to_mail[] = $fund['notification'];
+  $to_mail[] = $fund['contributor_email'];
+  $fid = _guifi_db_sql(
+      'budget_funds',
+      array('id'=>$fund['id'],'budget_id'=>$fund['budget_id']),
+      $fund,
+      $log,$to_mail);
+  if (isset($fund['new'])) 
+    $subject = t('New fund of %amount for %contributor created by %user',
+      array('%amount'=>$fund['amount'],
+        '%contributor'=>$fund['contributor_name'],
+        '%user'=>$user->name));
+  else
+    $subject = t('Fund of %amount from %contributor updated by %user',
+      array('%amount'=>$fund['amount'],
+        '%contributor'=>$fund['contributor_name'],
+        '%user'=>$user->name));
+  drupal_set_message($subject);
+  guifi_notify($to_mail,
+    $subject,
+    $log);
+  drupal_goto('node/'.$fund['budget_id'].'/view/funds');
+}
+
 function budgets_fund_set_status($budget,$fund_id,$status) {
   guifi_log(GUIFILOG_TRACE,
     sprintf('function budgets_fund_decline(%d %s)',$fund_id,$status),$budget->title);
@@ -920,6 +1058,7 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
     'SET fund_status="'.$status.'" ' .
     'WHERE budget_id='.$budget->id.
     ' AND id='.$fund_id);
+  
   drupal_set_message(t('Funding of %amount by %name set as %status.',
     array('%name'=>$budget->funds[$fund_id]['contributor_name'],
       '%amount'=>$budget->funds[$fund_id]['amount'],
@@ -1306,47 +1445,10 @@ function budgets_print_funds($node) {
     
   drupal_set_title(t('Contributions to').': '.$node->title);
   
-  if (isset($_POST['edit'])) {
-    $op = $_POST['op'];
-    $edit = $_POST['edit'];
-    switch ($op) {
-      case t('Delete selected'):
-         if (!isset($edit ['fund_checked'])) 
-          form_set_error(null,t('A fund must be selected for its deletion'));
-         else {
-           if ($edit['confirm']) {
-            db_query("DELETE FROM {budget_funds} WHERE nid = %d AND fund_id = %d",$node->nid,$edit['fund_checked']);
-            drupal_set_message(t('Fund deleted'));
-            drupal_goto('node/'.$node->nid.'/view/funds');
-           } else {
-             $form['fund_checked'] = array(
-                '#type' => 'hidden',
-                '#value' => $edit['fund_checked'],
-                 );
-             $f = db_fetch_object(db_query("SELECT contributor_name, amount FROM {budget_funds} WHERE nid = %d AND fund_id = %d",$node->nid, $edit['fund_checked']));
-             $output .= drupal_render($form['fund_checked']);
-             $output .= theme('confirm',   t('This action cannot be undone.'),  'node/'.$node->nid.'/view/funds/', t('Are you sure that you want to delete the fund from %name of %amount?',array('%name'=>$f->contributor_name,'%amount'=>$f->amount)), t('Delete selected'));
-           }
-         }
-         break;
-      case t('Submit'):
-
-        foreach ($edit['fund_status'] as $fund_id=>$new_status) {
-
-          if ($node->funds[$fund_id - 1]['fund_status'] != $new_status) {
-
-            db_query("UPDATE {budget_funds} SET fund_status = '%s' WHERE nid = %d AND fund_id =%d",$new_status,$node->nid,$fund_id);
-          }
-        }
-        drupal_set_message($output.' '.t('Changes saved'));
-        drupal_goto('node/'.$node->nid.'/view/funds');
-        break;
-    }
-  }
-
   $output .= '<h2>'.t('Fundings').'</h2>';
   
   $total = 0; 
+  $totals = array();
 
   // Going to report the funds
   $header = array(t('Date'),t('Name'),t('Amount'),t('Status'),t('Comment'));
@@ -1359,6 +1461,12 @@ function budgets_print_funds($node) {
       array('data'=>0,'align'=>'right'));
   } else {
     foreach ($node->funds as $fund_id => $fund) {
+      
+      if (isset($totals[$fund['fund_status']]))
+        $totals[$fund['fund_status']] += $fund['amount'];
+      else
+        $totals[$fund['fund_status']] = $fund['amount'];
+      
       if ($fund['fund_status'] != 'Declined')
         $total = $total + $fund['amount'];    
     
@@ -1372,33 +1480,6 @@ function budgets_print_funds($node) {
         $fund['comments']);
         
       if (budgets_access('update',$node)) {
-//        $b = array();
-//        $b[] = l(guifi_img_icon('edit.png'),
-//               'budgets/'.$node->id.'/edit/'.$fund_id,
-//               array(
-//                 'attributes'=>array('title'=>t('Edit this funding')),
-//                 'html'=>true));
-//        if ($fund['fund_status'] == 'Submitted')
-//          $b[] = l(guifi_img_icon('ok.png'),
-//               'budgets/'.$node->id.'/accept/'.$fund_id,
-//               array(
-//                 'attributes'=>array('title'=>t('Accept this funding')),
-//                 'html'=>true));
-//        if ($fund['fund_status'] != 'Declined')
-//          $b[] = l(guifi_img_icon('drop.png'),
-//               'budgets/'.$node->id.'/decline/'.$fund_id,
-//               array(
-//                 'attributes'=>array('title'=>t('Decline this funding')),
-//                 'html'=>true));
-//        if (!array_search($fund['fund_status'],array('Declined','Paid')))
-//          $b[] = l(guifi_img_icon('money.png'),
-//               'budgets/'.$node->id.'/paid/'.$fund_id,
-//               array(
-//                 'attributes'=>array('title'=>t('Set the payment done for this funding')),
-//                 'html'=>true));
-//          $buttons = theme('table',null,array($b));
-
-
         $b = '<pre>';
         if ($fund['fund_status'] == 'Submitted')
           $b .= l(guifi_img_icon('ok.png'),
@@ -1411,13 +1492,13 @@ function budgets_print_funds($node) {
                array(
                  'attributes'=>array('title'=>t('Edit this funding')),
                  'html'=>true));
-        if (!array_search($fund['fund_status'],array('Declined','Paid')))
+        if (!array_search($fund['fund_status'],array('dummy','Declined','Paid')))
           $b .= l(guifi_img_icon('money.png'),
                'budgets/'.$node->id.'/fund/'.$fund['id'].'/Paid',
                array(
                  'attributes'=>array('title'=>t('Mark the payment as done for this funding')),
                  'html'=>true));
-        if (!array_search($fund['fund_status'],array('Declined','Paid')))
+        if (!array_search($fund['fund_status'],array('dummy','Declined','Paid')))
           $b .= l(guifi_img_icon('drop.png'),
                'budgets/'.$node->id.'/fund/'.$fund['id'].'/Declined',
                array(
@@ -1435,12 +1516,19 @@ function budgets_print_funds($node) {
   $rows[] = array(
                  '<strong>Total</strong',
                  array('data'=>
-                   '<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>',
+                   '<strong>'.number_format($total,2,',','.').$budget->currency_symbol.'</strong>',
                    'align'=>'right',
                    'colspan'=>0),
                  );
-  
-  return theme('table', $header, $rows);
+  foreach ($totals as $k=>$v) {
+    $rows[] = array(null,
+                $k,array('data'=>
+                  number_format($v,2,',','.').$budget->currency_symbol,
+                  'align'=>'right',
+                  'colspan'=>0),
+              );
+  }
+  return $output.theme('table', $header, $rows);
 
 }
 
