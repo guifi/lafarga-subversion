@@ -1807,12 +1807,7 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
       $itemXML->addAttribute('cost',$item['cost']);
       if (!empty($item['comments']))
         $itemXML->addChild('comments',
-          htmlspecialchars($item['comments'],ENT_QUOTES));
-      
-//      $fundXML->addAttribute('status',$fund['fund_status']);    
-//      $fundXML->addAttribute('amount',$fund['amount']);    
-//      $fundXML->addAttribute('contributor',$fund['contributor_name']);    
-//      $fundXML->addAttribute('created',date('Ymd hi',$fund['timestamp_created']));    
+          htmlspecialchars($item['comments'],ENT_QUOTES));   
     }
   }  
 
