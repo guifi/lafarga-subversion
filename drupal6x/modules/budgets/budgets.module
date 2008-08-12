@@ -951,16 +951,18 @@ function budgets_fund_delete_confirm_submit($form, &$form_state) {
   $log = _guifi_db_delete('budget_funds',
     array('id'=>$fund['id'],'budget_id'=>$fund['budget_id']),
     $to_mail);
+  $subject = t('Fund for %title from %contributor of %amount deleted by %user.',
+    array('%title' => $node->title,
+      '%contributor' => $fund['contributor_name'],
+      '%amount' => $fund['amount'], 
+      '%user' => $user->name));
 
   guifi_notify(
     $to_mail,
-    t('Fund for %title from %contributor of %amount deleted by %user.',
-      array('%title' => $node->title,
-        '%contributor' => $fund['contributor_name'],
-        '%amount' => $fund['amount'], 
-        '%user' => $user->name)),
+    $subject,
     $log);
 
+  drupal_set_message($subject);
   drupal_set_message($log);
 
   $form_state['redirect'] = 'node/'.$node->id.'/view/funds';
@@ -1121,6 +1123,8 @@ function budgets_fund_form_submit($form, &$form_state) {
 }
 
 function budgets_fund_set_status($budget,$fund_id,$status) {
+  global $user;
+  
   guifi_log(GUIFILOG_TRACE,
     sprintf('function budgets_fund_decline(%d %s)',$fund_id,$status),$budget->title);
   if (!(array_search($status,drupal_map_assoc(array('Paid','Accepted','Declined'))))) {
@@ -1129,15 +1133,30 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
     drupal_goto('node/'.$budget->id.'/view/funds');  
   }
   
-  update_sql('UPDATE {budget_funds} ' .
-    'SET fund_status="'.$status.'" ' .
-    'WHERE budget_id='.$budget->id.
-    ' AND id='.$fund_id);
+  $fund['id'] = $fund_id;
+  $fund['budget_id'] = $budget->id;
+  $fund['fund_status'] = $status;
   
-  drupal_set_message(t('Funding of %amount by %name set as %status.',
+  $subject = t('Funding of %amount by %name set as %status.',
     array('%name'=>$budget->funds[$fund_id]['contributor_name'],
       '%amount'=>$budget->funds[$fund_id]['amount'],
-      '%status'=>$status)));
+      '%status'=>$status));
+  $log = '';
+  
+  $to_mail = explode(',',$budget->notification);
+  $to_mail[] = $budget->funds[$fund_id]['contributor_email'];
+  $to_mail[] = $user->mail;
+  
+  _guifi_db_sql('budget_funds',
+    array('id'=>$fund_id,'budget_id'=>$budget->id),
+    $fund,
+    $log,$to_mail);
+
+  drupal_set_message($subject);
+  guifi_notify($to_mail,
+    $subject,
+    $log);
+    
   drupal_goto('node/'.$budget->id.'/view/funds');  
 }
 
