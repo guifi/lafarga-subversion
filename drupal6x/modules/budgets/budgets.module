@@ -5,6 +5,9 @@
  * @file
  * allow to create budgets, allocated to projects, and then collect funds for them
  */
+ 
+include_once("supplier.inc.php");      // suppliers node management
+
 
 /**
 * Implementation of hook_menu().
@@ -83,7 +86,7 @@ function budgets_menu() {
     'type' => MENU_LOCAL_TASK);
   
   $items['node/%budgets/view/contribute'] = array( 
-    'title' => 'make your donation',
+    'title' => 'donate/fund this budget',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('budgets_fund_form',1),
     'access callback' => 'user_access',
@@ -158,7 +161,7 @@ function budgets_node_info() {
           'RFP formal document (Requirement for proposals).'),
     ),
     'supplier' => array(
-      'name' => t('guifi.net provider/supplier'),
+      'name' => t('guifi.net Provider/Supplier'),
       'module' => 'budgets_supplier',
       'has_title' => true,
       'title_label' => t('Supplier name'),
@@ -186,19 +189,27 @@ function budgets_node_info() {
 * Implementation of hook_perm().
 */
 function budgets_perm() {
-  return array('administer budgets', 'create budgets');
+  return array(
+    'administer budgets', 
+    'create budgets' // for create & manage budgets & funds
+                     // in general, registered users should be able to create 
+                     // their own budgets, and edit their owns,
+                     // but anly admin could edit others
+   );
 }
 
 /**
 * Implementation of hook_access().
 */
 function budgets_access($op, $node) {
+  global $user;
+  
   $node = node_load(array('nid'=>$node->id));
   switch($op) {
     case 'create':
       return user_access('create budgets');
     case 'update':
-      if ($node->type == 'budget') {
+      if ($node->type == 'budgets') {
         if ((user_access('administer budgets')) || ($node->uid == $user->uid)) {
           return TRUE;
         }
@@ -235,10 +246,10 @@ function budgets_link($type, $node = 0, $main) {
   if ($node->budget_status == 'Open') {
     $links[] = 
       array(
-        'title' => t('make your donation'),
+        'title' => t('donate/fund this budget'),
         'href'=> 'node/'. $node->nid.'/view/contribute',
         'attributes'=>array(
-          'title' => t('make your donation to this project')
+          'title' => t('donate/fund this budget or proposal for this project')
         ));
   } 
   $links[] = array(
