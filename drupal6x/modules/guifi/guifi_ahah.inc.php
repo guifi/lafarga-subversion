@@ -141,7 +141,7 @@ function guifi_ahah_select_zone() {
 
     // zid field
     $form[$fname] =
-        guifi_zone_select_field($zid,$fname);
+      guifi_zone_select_field($zid,$fname);
 
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.

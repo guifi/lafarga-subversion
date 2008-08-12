@@ -122,8 +122,8 @@ function guifi_zone_select_field($zid,$fname) {
   } else {
     $zidFn = $fname;
   }
-  $msg .= ("select zone zid: $zid, nid: $_POST[zid], fname: $fname, zidFn: $zidFn" .
-      " var[0]: $var[0] count(var): ".count($var));
+//  $msg .= ("select zone zid: $zid, nid: $_POST[zid], fname: $fname, zidFn: $zidFn" .
+//      " var[0]: $var[0] count(var): ".count($var));
 
   return array(
     '#type' => 'select',
@@ -131,7 +131,6 @@ function guifi_zone_select_field($zid,$fname) {
     '#parents' => array($zidFn),
     '#default_value' => $zid,
     '#options' => $lzones,
-//    '#element_validate' => array('guifi_zone_master_validate'),
     '#description' => $msg,
     '#prefix'=>'<div id="select-zone">',
     '#suffix'=>'</div>',

@@ -53,6 +53,8 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
   // processing insert triggers to fill new ids etc...
   if ($insert) 
   switch ($table) {
+  case 'budget_funds':
+    $data['timestamp_created'] = time();
   case 'budget_items':
     $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table} " .
         "WHERE budget_id = %d",$data['budget_id']));
