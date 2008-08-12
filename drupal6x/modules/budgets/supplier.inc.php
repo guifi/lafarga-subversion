@@ -6,8 +6,8 @@
  */
  
 function budgets_supplier_help($path, $arg) {
-  if ($path == 'admin/help/budgets_supplier') {
-    $txt = 'A suppier is either ean individual or a compani who provides ' .
+  if ($path == 'admin/help#budgets_supplier') {
+    $txt = 'A supplier is either ean individual or a compani who provides ' .
         'services or materials to other network participants to help in ' .
         'building infrasetructures';
     $replace = array();

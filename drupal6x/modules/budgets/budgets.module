@@ -7,6 +7,7 @@
  */
  
 include_once("supplier.inc.php");      // suppliers node management
+include_once("quotes.inc.php");        // quotes node management
 
 
 /**
@@ -98,6 +99,12 @@ function budgets_menu() {
     'title' => 'Javascript/autocomplete find Budget',
     'page callback' => 'budgets_ahah_select_budget',
     'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['budgets/js/select-supplier'] = array(
+    'title' => 'Javascript/autocomplete find Supplier',
+    'page callback' => 'budgets_quote_ahah_select_supplier',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
