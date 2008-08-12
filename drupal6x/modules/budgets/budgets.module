@@ -21,11 +21,41 @@ function budgets_menu() {
     'type' => MENU_NORMAL_ITEM);
   
   $items['budgets'] = array(
-    'title' => 'budget and funding',
+    'title' => 'Proposals,budgets and fundings',
     'page callback' => 'budgets_page',
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_SUGGESTED_ITEM);
+    'type' => MENU_CALLBACK);
+  $items['budgets/cnml/short'] = array(
+    'title' => 'cnml',
+    'page callback' => 'budgets_cnml',
+    'page arguments' => array('short'),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK);
+  $items['budgets/cnml/long'] = array(
+    'title' => 'detailed cnml',
+    'page callback' => 'budgets_cnml',
+    'page arguments' => array('long'),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK);
+  $items['node/%budgets/cnml/short'] = array( 
+    'title' => 'cnml',
+    'page callback' => 'budgets_cnml',
+    'page arguments' => array('short',1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -7,
+    'type' => MENU_CALLBACK);
+  $items['node/%budgets/cnml/long'] = array( 
+    'title' => 'detailed cnml',
+    'page callback' => 'budgets_cnml',
+    'page arguments' => array('long',1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => -7,
+    'type' => MENU_CALLBACK);
   $items['node/%budgets/view'] = array(
     'title' => 'page',
     'page callback' => 'budgets_view',
@@ -198,16 +228,32 @@ function budgets_help($path, $arg) {
  
 function budgets_link($type, $node = 0, $main) {
   $links = array();
-
-  if (($node->type == 'budgets') and ($node->budget_status == 'Open')) {
+  
+  if ($node->type != 'budgets')
+    return;
+    
+  if ($node->budget_status == 'Open') {
     $links[] = 
-               array(
-               'title' => t('make your donation'),
-               'href'=> 'node/'. $node->nid.'/view/contribute',
-               'attributes'=>array(
-               'title' => t('make your donation to this project')
-               ));
-  }      
+      array(
+        'title' => t('make your donation'),
+        'href'=> 'node/'. $node->nid.'/view/contribute',
+        'attributes'=>array(
+          'title' => t('make your donation to this project')
+        ));
+  } 
+  $links[] = array(
+    'title' => t('cnml'),
+    'href'=> 'node/'. $node->nid.'/cnml/short',
+    'attributes'=>array(
+    'title' => t('Obtain a CNML export for this budget in abbreviated format'))
+  );   
+  $links[] = array(
+    'title' => t('detailed cnml'),
+    'href'=> 'node/'. $node->nid.'/cnml/long',
+    'attributes'=>array(
+    'title' => t('Obtain a CNML export for this budget in detailed format'))
+  );   
+    
   return $links;
 }
 
@@ -1380,7 +1426,13 @@ function budgets_page($zone = NULL) {
 */
 function budgets_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_load(array('nid'=>$node->id));
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+  
+  if ($page)
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+  else {
+    drupal_set_title(t('Open proposals & budgets'));
+  }
+    
   node_prepare($node, $teaser);
   switch (arg(3)) {
     case 'page':
@@ -1685,6 +1737,100 @@ function budgets_ahah_select_budget($string){
   exit();
 }
 
+function budgets_cnml($format, $bid = null) {
+
+  $CNML = new SimpleXMLElement('<cnml></cnml>');
+  $CNML->addAttribute('version','0.1');
+  $CNML->addAttribute('server_id','1');
+  $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
+  $classXML = $CNML->addChild('class');
+  $classXML->addAttribute('budgets',$format);
+  
+  if (is_null($bid)) {
+    $result = db_query(
+      "SELECT b.id,b.zone_id " .
+      "FROM {node} n, {budgets} b " .
+      "WHERE n.nid=b.id " .
+      "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
+      "  n.changed DESC");
+    while ($b = db_fetch_object($result)) {
+      budgets_cnml_budget($CNML,$b->id,$format);
+    }
+  } else 
+    budgets_cnml_budget($CNML,$bid->id,$format);
+  
+  
+  drupal_set_header('Content-Type: application/xml; charset=utf-8');
+  echo $CNML->asXML();
+  exit;
+}
+
+function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
+  $budget = node_load(array('nid'=>$bid));
+  
+  $budgetXML = $CNML->addChild('budget');
+  $budgetXML->addAttribute('id',$bid);
+  $budgetXML->addAttribute('title',$budget->title);
+  $budgetXML->addAttribute('amount',$budget->total);
+  $budgetXML->addAttribute('funded',$budget->covered);
+  $budgetXML->addAttribute('zone_id',$budget->zone_id);
+  $budgetXML->addAttribute('status',$budget->budget_status);
+  
+  // if format is short, that's all
+  if ($format == 'short')
+    return;
+
+  $budgetXML->addAttribute('created',date('Ymd hi',$budget->created));
+  $budgetXML->addAttribute('updated',date('Ymd hi',$budget->changed));
+  $budgetXML->addAttribute('expires',date('Ymd hi',$budget->expires));
+  
+  
+  $budgetXML->addAttribute('currency',$budget->currency_txt);
+  $budgetXML->addChild('promoter',
+    htmlspecialchars($budget->promoter,ENT_QUOTES));
+  $budgetXML->addChild('payment_instructions',
+    htmlspecialchars($budget->payment_instructions,ENT_QUOTES));
+  $budgetXML->addChild('terms',
+    htmlspecialchars($budget->terms,ENT_QUOTES));
+
+  // items        
+  if (!empty($budget->items)) {
+    $itemsXML = $budgetXML->addChild('items');
+    foreach ($budget->items as $iid=>$item) {
+      $itemXML = $itemsXML->addChild('item',
+        htmlspecialchars($item['description'],ENT_QUOTES));
+      $itemXML->addAttribute('id',$item['id']);
+      if (!empty($item['title']))
+        $itemXML->addAttribute('title',$item['title']);
+      $itemXML->addAttribute('quantity',$item['quantity']);
+      $itemXML->addAttribute('cost',$item['cost']);
+      if (!empty($item['comments']))
+        $itemXML->addChild('comments',
+          htmlspecialchars($item['comments'],ENT_QUOTES));
+      
+//      $fundXML->addAttribute('status',$fund['fund_status']);    
+//      $fundXML->addAttribute('amount',$fund['amount']);    
+//      $fundXML->addAttribute('contributor',$fund['contributor_name']);    
+//      $fundXML->addAttribute('created',date('Ymd hi',$fund['timestamp_created']));    
+    }
+  }  
+
+  // funds        
+  if (!empty($budget->funds)) {
+    $fundsXML = $budgetXML->addChild('funds');
+    foreach ($budget->funds as $fid=>$fund) {
+      $fundXML = $fundsXML->addChild('fund',
+        htmlspecialchars($fund['comments'],ENT_QUOTES));
+      $fundXML->addAttribute('id',$fund['id']);
+      $fundXML->addAttribute('status',$fund['fund_status']);    
+      $fundXML->addAttribute('amount',$fund['amount']);    
+      $fundXML->addAttribute('contributor',$fund['contributor_name']);    
+      $fundXML->addAttribute('created',date('Ymd hi',$fund['timestamp_created']));    
+    }
+  }  
+  return;
+}
 
 
 /**
