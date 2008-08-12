@@ -76,6 +76,14 @@ function budgets_menu() {
     'access arguments' => array('update',1),
     'type' => MENU_CALLBACK,
   );
+  $items['budgets/%budgets/delete/%'] = array(
+    'title' => 'Delete funding',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('budgets_fund_delete_confirm',1,3),
+    'access callback' => 'budgets_access',
+    'access arguments' => array('update',1),
+    'type' => MENU_CALLBACK,
+  );  
   $items['budgets/%budgets/fund/%/%'] = array(
     'title' => 'Set a funding status',
     'page callback' => 'budgets_fund_set_status',
@@ -905,6 +913,60 @@ function budgets_form_load_budget($form,&$form_state) {
   $form_state['rebuild'] = true;
 }
 
+function budgets_fund_delete_confirm(&$form_state, $node) {
+  $node = node_load(array('nid'=>$node->id));
+  $fid = arg(3);
+  
+  $fund=&$node->funds[$fid];
+    
+  $form['id'] = array('#type' => 'value','#value' => $fid);
+  $form['budget_id'] = array('#type' => 'value','#value' => $node->id);
+
+  return confirm_form($form,
+    t('Are you sure you want to delete fund at %amount ' .
+        'from %contributor of %title?', 
+        array(
+         '%contributor'=>$fund['contributor_name'],
+         '%amount'=>$fund['amount'],
+         '%title' => $node->title)),
+    'budgets/'.$node->id.'/edit/'.$fid,
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Execute node deletion
+ */
+function budgets_fund_delete_confirm_submit($form, &$form_state) {
+  global $user;
+
+  $node = node_load(array('nid'=>$form_state['values']['budget_id']));
+  $fund = $node->funds[$form_state['values']['id']];
+  $to_mail = explode(',',$node->notification);
+  $to_mail[]=$user->mail;
+  $to_mail[]=$fund['contributor_email'];
+    
+  $log = _guifi_db_delete('budget_funds',
+    array('id'=>$fund['id'],'budget_id'=>$fund['budget_id']),
+    $to_mail);
+
+  guifi_notify(
+    $to_mail,
+    t('Fund for %title from %contributor of %amount deleted by %user.',
+      array('%title' => $node->title,
+        '%contributor' => $fund['contributor_name'],
+        '%amount' => $fund['amount'], 
+        '%user' => $user->name)),
+    $log);
+
+  drupal_set_message($log);
+
+  $form_state['redirect'] = 'node/'.$node->id.'/view/funds';
+}
+
+
 function budgets_fund_form($form_state, $params = array()) {
   
   guifi_validate_js("#budgets-fund-form");
@@ -980,7 +1042,7 @@ function budgets_fund_form($form_state, $params = array()) {
                           '&nbsp;('.$budget->currency_txt.').'.
                           '<br />'.$budget->payment_instructions,
   );
-  $f['contributor_comments'] = array(
+  $f['comments'] = array(
     '#type' => 'textarea',
     '#title' => t('Comments'),
     '#default_value' => $fund['comments'],
@@ -1009,17 +1071,30 @@ function budgets_fund_form($form_state, $params = array()) {
       '#type' => 'submit',
       '#value' => t('Delete')
     );
+  end($f);
+//  $k = key($f);
+//  $f[$k]['#suffix'] = l(t('Back'),'node/'.$budget->id.'/view/funds');
+  $f['back'] = array(
+    '#type'=>'item',
+    '#value'=> l(t('Back to funds report'),'node/'.$budget->id.'/view/funds')
+  );
     
   return $f;  
 }
 
 function budgets_fund_form_submit($form, &$form_state) {
   global $user;
-  
+    
   $to_mail = explode(',',$user->mail);
   $fid = $form_state['values']['id'];
   $fund = &$form_state['values'];
-  guifi_log(GUIFILOG_BASIC,sprintf('function budgets_fund_form_submit(%d)',$fid),$fund);
+  guifi_log(GUIFILOG_TRACE,sprintf('function budgets_fund_form_submit(%d)',$fid),$form_state);
+  
+  if ($form_state['clicked_button']['#value']==t('Delete')) {
+    $form_state['redirect'] = 'budgets/'.$fund['budget_id'].'/delete/'.$fund['id'];
+    return;
+  } 
+  
   $log = ''; 
   $to_mail[] = $fund['notification'];
   $to_mail[] = $fund['contributor_email'];
@@ -1042,7 +1117,7 @@ function budgets_fund_form_submit($form, &$form_state) {
   guifi_notify($to_mail,
     $subject,
     $log);
-  drupal_goto('node/'.$fund['budget_id'].'/view/funds');
+  $form_state['redirect'] = 'node/'.$fund['budget_id'].'/view/funds';
 }
 
 function budgets_fund_set_status($budget,$fund_id,$status) {
@@ -1451,7 +1526,7 @@ function budgets_print_funds($node) {
   $totals = array();
 
   // Going to report the funds
-  $header = array(t('Date'),t('Name'),t('Amount'),t('Status'),t('Comment'));
+  $header = array(t('Date'),t('Name'),array('data'=>t('Amount'),'align'=>'right'),t('Status'));
   if (budgets_access('update',$node)) 
     $header = array_merge(array(t('Action')),$header);
   $rows = array();
@@ -1476,8 +1551,7 @@ function budgets_print_funds($node) {
         array('data'=>number_format($fund['amount'],2,',','.').
           $node->currency_symbol,
           'align'=>'right'),
-        array('data'=>$fund['fund_status'],'align'=>'right'),
-        $fund['comments']);
+        array('data'=>$fund['fund_status'],'align'=>'right'));
         
       if (budgets_access('update',$node)) {
         $b = '<pre>';
@@ -1510,6 +1584,11 @@ function budgets_print_funds($node) {
         $rows[] = array_merge(array($b),$row);
       } else
         $rows[] = $row;
+        
+      if (!empty($fund['comments']))
+        $rows[] = array(null,
+          array('data'=>$fund['comments'],'colspan'=>0));
+      
     } // foreach fund
   } // if there are funds
   
