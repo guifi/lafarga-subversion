@@ -116,6 +116,15 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
+  if (module_exists('budgets'))
+    $items['node/%guifi_zone/view/suppliers'] = array(
+      'title' => 'suppliers',
+      'page callback' => 'budgets_supplier_list_by_zone',
+      'page arguments' => array(1),
+      'access callback' => 'user_access',
+      'access arguments' => array('access content'),
+      'type' => MENU_LOCAL_TASK
+    );
   $items['node/%guifi_zone/view/userqueue'] = array(
     'title' => 'users queue',
     'page callback' => 'guifi_users_queue',
