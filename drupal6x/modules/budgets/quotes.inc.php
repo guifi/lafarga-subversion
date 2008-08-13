@@ -299,13 +299,12 @@ function budgets_quote_load($node) {
 
 function budgets_quote_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
-  if ($node->partno)
-    $node->content['header'] = array(
-      '#value'=>'<strong>'.$node->partno.'</strong><hr>',
-      '#weight' => -10,
-    );
-//  if ($teaser)
-    $node->content['header']['#value'] .= ' '.$node->supplier_id;
+  $supplier = node_load(array('nid'=>$node->supplier_id));
+  
+  $node->content['refquote'] = array(
+    '#value'=> theme_refquote($node,$supplier,$teaser).'<hr>',
+    '#weight' => -1,
+  );
 
   return $node;
 }

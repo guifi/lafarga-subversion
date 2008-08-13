@@ -150,6 +150,32 @@ function budgets_supplier_list_by_zone($zone) {
   return $output;
 }
 
+function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);
+  
+  $qquotes = pager_query(
+    sprintf('SELECT id ' .
+    'FROM {supplier_quote} ' .
+    'WHERE supplier_id = %d ' .
+    'ORDER BY title, partno, id',
+    $node->nid),
+    variable_get('default_nodes_main', 10) 
+  );
+  
+  $output = 'Llistat de quotes';  
+  while ($quote = db_fetch_object($qquotes)) {;
+    $output .= node_view(node_load(array('nid'=>$quote->id)),true,false);
+  }
+  
+  $node->content['quotes'] = array(
+    '#value'=> $output.
+       theme('pager', NULL, variable_get('default_nodes_main', 10)),
+    '#weight' => 1,
+  );
+
+  return $node;
+}
+
 
 
 ?>

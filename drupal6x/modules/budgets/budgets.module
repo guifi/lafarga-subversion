@@ -1941,8 +1941,12 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
   return;
 }
 
-function theme_refquote($quote,$supplier) {
-  return '<ul><li>'.
+function theme_refquote($quote,$supplier,$teaser) {
+  if ($teaser)
+    return t('Ref.').': '.l($quote->partno,'node/'.$quote->nid).'-'.
+      l($supplier->title,'node/'.$supplier->nid);
+    
+  return t('Reference').': <ul><li>'.
     t('Supplied by').': '.$quote->supplier_id.
     '-'.l($supplier->title,'node/'.$supplier->nid).
     '</li><li>'.
