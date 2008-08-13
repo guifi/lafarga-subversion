@@ -164,11 +164,11 @@ function budgets_node_info() {
   return array(
     'budgets' => array(
       'name' => t('guifi.net Proposal/Budget'),
+      'module' => 'budgets',
       'has_title' => true,
       'title_label' => t('Proposal/Budget title'),
       'has_body' => true,
       'body_label' => t('Proposal description'),
-      'module' => 'budgets',
       'description' => t('Create a proposal/budget. ' .
           'A proposal is an itemized project description with allocated due costs. ' .
           'Therefore, contributors can donate funds to it, or can be used as a ' .
@@ -713,15 +713,24 @@ function budgets_form(&$node, &$param) {
     '#value' => t('Load Quote')
   );
   
+  $type = node_get_types('type',$node);
   
-  $form['body'] = array(
-    '#title' => t("Body"),
-    '#type' => 'textarea',
-    '#default_value' => $node->body,
-    '#description' => t('Description of the project. Describe here it\'s purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the <!-- header --> tag'),
-    '#rows' => 10,
-    '#weight' => $form_weight++
-  );
+  if (($type->has_body)) {
+    $form['body_field'] = node_body_field(
+      $node,
+      $type->body_label,
+      $type->min_word_count
+    );
+  } 
+//  
+//  $form['body'] = array(
+//    '#title' => t("Body"),
+//    '#type' => 'textarea',
+//    '#default_value' => $node->body,
+//    '#description' => t('Description of the project. Describe here it\'s purpose, expected benefits and beneficiaries, justifications, etc. Use de default drupal node syntax for constructing a teaser with the first lines of text or by inserting the <!-- header --> tag'),
+//    '#rows' => 10,
+//    '#weight' => $form_weight++
+//  );
   
   
  
@@ -1941,7 +1950,7 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
   return;
 }
 
-function theme_refquote($quote,$supplier,$teaser) {
+function theme_refquote($quote,$supplier,$teaser = false) {
   if ($teaser)
     return t('Ref.').': '.l($quote->partno,'node/'.$quote->nid).'-'.
       l($supplier->title,'node/'.$supplier->nid);
