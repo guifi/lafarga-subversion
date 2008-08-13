@@ -15,6 +15,8 @@
 }
  
 function budgets_quote_form(&$node) {
+  guifi_log(GUIFILOG_TRACE,'function budgets_quote_form()',$node);
+  
   $type = node_get_types('type',$node);
   
   if (($type->has_title)) {
@@ -25,20 +27,35 @@ function budgets_quote_form(&$node) {
       '#default_value' => $node->title,
     );
   }
-
-  if (!empty($node->supplier_id)) {
-    $s = node_load(array('nid'=>$node->supplier_id));
-    $node->supplier = $s->nid.'-'.$s->title;
-  } 
-  $form['supplier'] = array(
-    '#type' => 'textfield',
-    '#required' => true,
-    '#title' => t('Supplier'),
-    '#description' => t('Supplier for this quote.'),
-    '#default_vale' => $node->supplier,
-    '#element_validate' => array('budgets_quote_supplier_validate'),
-    '#autocomplete_path'=> 'budgets/js/select-supplier',
-  );  
+ 
+  if (isset($node->supplier))
+    $form['supplier'] = array(
+      '#type' => 'textfield',
+      '#required' => true,
+      '#title' => t('Supplier'),
+      '#description' => t('Supplier for this quote.'),
+      '#default_value' => $node->supplier,
+      '#autocomplete_path'=> 'budgets/js/select-supplier',
+    );  
+  else {
+    $suppliers = array('0'=>t('<Select a supplier from this list>'));
+    $qsup = db_query(
+      'SELECT id, title ' .
+      'FROM {supplier} ' .
+      'ORDER BY title');
+    while ($sup = db_fetch_object($qsup)) 
+      $suppliers[$sup->id] = $sup->title;
+       
+    $form['supplier_id'] = array(
+      '#type' => 'select',
+      '#required' => true,
+      '#title' => t('Supplier'),
+      '#description' => t('Supplier for this quote.'),
+      '#default_value' => $node->supplier_id,
+      '#options' => $suppliers,
+    );  
+  }
+    
 
   $form['partno'] = array(
     '#type' => 'textfield',
@@ -47,8 +64,7 @@ function budgets_quote_form(&$node) {
     '#maxlength' => 60,
     '#title' => t('Part number'),
     '#description' => t('Part number/Code to identify this quote.'),
-    '#default_vale' => $node->partno,
-    '#element_validate' => array('budgets_quote_partno_validate'),
+    '#default_value' => $node->partno,
   );  
 
   $form['cost'] = array(
@@ -98,23 +114,46 @@ function budgets_quote_ahah_select_supplier($string){
   exit();
 }
 
-function budgets_quote_partno_validate($element, &$form_state) {
+function budgets_quote_validate($node, &$form) {
 
-  if (empty($element['#value']))
-    return $element;
+  // validate unique partno
+  if (!empty($node->partno)) {
+    if ($node->nid)
+      $sql = sprintf('SELECT count(partno) partno ' .
+                     'FROM {supplier_quote} ' .
+                     'WHERE partno IS NOT NULL ' .
+                     '  AND partno ="%s" ' .
+                     '  AND id != %d',
+             $node->partno,$node->nid);
+    else
+      $sql = sprintf('SELECT count(partno) partno ' .
+                     'FROM {supplier_quote} ' .
+                     'WHERE partno IS NOT NULL ' .
+                     '  AND partno ="%s"',
+             $node->partno);
+    $count = db_fetch_object(db_query($sql));
+    if ($count->partno){
+      form_set_error('partno', t('Partno %partno already exists.',
+        array('%partno'=>$element['#value'])));  
+    }
+  }
+  
+  // validate supplier exists
+  if (isset($node->supplier)) { 
+    $sup = explode('-',$node->supplier);
+    $node->supplier_id = $sup[0];
+    $errfield = 'supplier';
+  } else
+    $errfield = 'supplier_id';
     
   $count = db_fetch_object(db_query(
-      'SELECT count(partno) partno ' .
-      'FROM {supplier_quote} ' .
-      'WHERE partno IS NOT NULL ' .
-      '  AND partno ="%s"',
-      $element['#value']));
-   
-  if ($count->partno){
-    form_error($element, t('Partno %partno already exists.',
-      array('%partno'=>$element['#value'])));  
-  }
-  return $element;
+    'SELECT count(id) supplier ' .
+    'FROM {supplier} ' .
+    'WHERE id=%d',
+    $node->supplier_id));
+  if (!$count->supplier)
+    form_set_error($errfield, t('Supplier does not exists.'));
+  
 }
 
 function budgets_quote_access($op, $node, $account) {
@@ -140,11 +179,28 @@ function budgets_quote_access($op, $node, $account) {
   }
 }
 
+function budgets_quote_prepare(&$node) {
+  $ns = db_fetch_object(db_query(
+    'SELECT count(*) suppliers ' .
+    'FROM {supplier}'));
+  if ($ns->suppliers >= 10)
+    if (!empty($node->supplier_id)) {
+      $s = node_load(array('nid'=>$node->supplier_id));
+      $node->supplier = $s->nid.'-'.$s->title;
+    } else
+      $node->supplier = ''; 
+}
+
 function budgets_quote_save($node) {
   global $user;
   
   $to_mail = $user->mail;
   $log = '';
+  
+  if (isset($node->supplier)) {
+    $sup = explode('-',$node->supplier);
+    $node->supplier_id = $sup[0];
+  }
   
   $sid = _guifi_db_sql(
     'supplier_quote',
