@@ -1794,5 +1794,8 @@ function guifi_validate_js($form_name) {
     'inline');
 }
 
+function theme_strong($txt) {
+  return '<strong>'.theme_placeholder($txt).'</strong>';
+}
 
 ?>
