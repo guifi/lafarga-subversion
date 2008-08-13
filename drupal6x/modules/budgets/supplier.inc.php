@@ -40,25 +40,22 @@ function budgets_supplier_form(&$node) {
   return $form;
 }
 
-function budgets_supplier_perm() {
-  return array(
-    'administer suppliers', 
-    'create suppliers'
-                     // for create & manage suppliers
-   );
-}
-
-function budgets_supplier_access($op, $node, $account) {
+function budgets_supplier_access($op, $node, $account = null) {
   global $user;
   
-  $node = node_load(array('nid'=>$node->id));
+  if (is_numeric($node))
+    $k = $node;
+  else
+    $k = $node->id;    
+  $node = node_load(array('nid'=>$k));
+  
   switch($op) {
     case 'create':
       return user_access('create suppliers',$account);
     case 'update':
-      if ($node->type == 'budgets') {
+      if ($node->type == 'supplier') {
         if ((user_access('administer suppliers',$account)) 
-          || ($node->uid == $user->uid)) {
+          or ($node->uid == $user->uid)) {
           return TRUE;
         }
         else {

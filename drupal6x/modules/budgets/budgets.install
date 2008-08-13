@@ -141,7 +141,6 @@ function budgets_update_414() {
       'supplier_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11','default'=>0,'COMMENT' => 'Foreign key to guifi_zone'),
       'partno' => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
       'title' => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
       'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
       'expires' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11')
       ),
@@ -157,6 +156,14 @@ function budgets_update_424() {
 
   db_change_field($items,'budget_items','title','title',
     array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'));
+    
+  return $items;
+}
+
+function budgets_update_476() {
+  $items = array();
+
+  db_drop_field($items,'supplier_quote','description');
     
   return $items;
 }

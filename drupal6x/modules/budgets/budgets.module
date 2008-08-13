@@ -108,6 +108,13 @@ function budgets_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+  $items['budgets/js/select-quote'] = array(
+    'title' => 'Javascript/autocomplete find Quote',
+    'page callback' => 'budgets_quote_ahah_select_quote',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['budgets/%budgets/edit/%'] = array(
     'title' => 'Edit funding',
     'page callback' => 'drupal_get_form',
@@ -197,11 +204,14 @@ function budgets_node_info() {
 */
 function budgets_perm() {
   return array(
+  // for create & manage budgets & funds in general, registered users should 
+  // be able to create their own budgets, and edit their owns,
+  // but anly admin could edit others
     'administer budgets', 
-    'create budgets' // for create & manage budgets & funds
-                     // in general, registered users should be able to create 
-                     // their own budgets, and edit their owns,
-                     // but anly admin could edit others
+    'create budgets',
+  // for create & manage suppliers 
+    'administer suppliers', 
+    'create suppliers'                     
    );
 }
 
@@ -677,15 +687,30 @@ function budgets_form(&$node, &$param) {
   $form['batch']['loadbudget'] = array(
     '#type'=>'textfield',
     '#title'=>t('Proposal'),
-    '#description'=>t('Find an existng proposal, and then press "Load proposal"' .
+    '#description'=>t('Find an existng proposal, and then press "Load Proposal"' .
         ' to get the existing items of that proposal loaded into this one'),
     '#default_value' => t('None'),
     '#autocomplete_path'=> 'budgets/js/select-budget',
   );
-  $form['batch']['loaddo'] = array(
+  $form['batch']['doLoadProposal'] = array(
     '#type' => 'submit',
     '#submit' => array('budgets_form_load_budget'),
     '#value' => t('Load Proposal')
+  );
+  $form['batch']['loadquote'] = array(
+    '#type'=>'textfield',
+    '#title'=>t('Supplier'),
+    '#description'=>t('Find an existng quote provided by a supplier, ' .
+        'and then press "Load Quote"' .
+        ' to get the that quote loaded into this proposal.'),
+    '#default_value' => t('None'),
+    '#autocomplete_path'=> 'budgets/js/select-quote',
+  );
+  
+  $form['batch']['doLoadQuote'] = array(
+    '#type' => 'submit',
+    '#submit' => array('budgets_form_load_quote'),
+    '#value' => t('Load Quote')
   );
   
   
@@ -915,8 +940,8 @@ function budgets_items_form($items) {
   }
   
   for ($c = $ki + 1; $c < ($ki + 4); $c++) {
-    $f[$c] = budgets_item_form(array('weight'=>$cw,'new'=>true),$c);
-    $cw++;      
+    $cw++;
+    $f[$c] = budgets_item_form(array('weight'=>$cw,'new'=>true),$c);   
   }
   
   $f['items_help'] = array(
@@ -971,6 +996,49 @@ function budgets_form_load_budget($form,&$form_state) {
     $node['items'][] = $newI;
     $cw++;
   }
+  guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget(OUT)',$node);  
+  
+  $form_state['#redirect'] = FALSE;
+  $form_state['rebuild'] = true;
+}
+
+function budgets_form_load_quote($form,&$form_state) {
+  $node = &$form_state['values'];
+  guifi_log(GUIFILOG_TRACE,'function budgets_form_load_quote()',$node['loadquote']);
+  
+  $toLoad = explode('-',$node['loadquote']);
+  if ((empty($toLoad[0])) or
+     (!is_numeric($toLoad[0])))
+    return;
+    
+  budgets_items_clean($node['items']);
+
+  // find higest weight  
+  $cw = -30;
+  foreach ($node['items'] as $k=>$v)
+    if ($v['weight']>$cw)
+      $cw=$v['weight']+1;
+  
+  // load quote 
+  $quote = node_load(array('nid'=>$toLoad[0]));
+  if ($quote->type != 'supplier_quote')
+    return;
+  
+  $newI = array();
+  $newI['weight'] = $cw;
+  $newI['new'] = true;
+  $newI['title'] = $quote->title;
+  $newI['quantity'] = 0;
+  $newI['cost'] = $quote->cost;
+
+  $newI['description'] = $quote->teaser;
+  
+  $supplier = node_load(array('nid'=>$quote->supplier_id));
+    
+  $newI['comments'] = theme_refquote($quote,$supplier);
+  
+  $node['items'][] = $newI;  
+
   guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget(OUT)',$node);  
   
   $form_state['#redirect'] = FALSE;
@@ -1615,10 +1683,14 @@ function budgets_print_funds($node) {
   $totals = array();
 
   // Going to report the funds
-  $header = array(t('Date'),t('Name'),array('data'=>t('Amount'),'align'=>'right'),t('Status'));
+  $rows[0] = array(
+    theme_strong(t('Date')),
+    theme_strong(t('Name')),
+    array('data'=>theme_strong(t('Amount')),'align'=>'right'),
+    array('data'=>theme_strong(t('Status')),'align'=>'right')
+  );
   if (budgets_access('update',$node)) 
-    $header = array_merge(array(t('Action')),$header);
-  $rows = array();
+    $rows[0] = array_merge(array(theme_strong(t('Action'))),$rows[0]);
 
   if (empty($node->funds)) {
     $rows[] = array(t('There is no contributions to this project yet'),
@@ -1755,6 +1827,30 @@ function budgets_ahah_select_budget($string){
   exit();
 }
 
+function budgets_ahah_select_quote($string){
+  $matches = array();
+  
+  $string = strtoupper(arg(3));
+  
+  $qry = db_query(
+    'SELECT ' .
+    '  CONCAT(id, "-", partno, ", ", title) str '.
+    'FROM {supplier_quote}  ' .
+    'WHERE ' .
+    '  (CONCAT(id, "-", upper(partno), ", ",upper(title)) ' .
+    '    LIKE "%'.$string.'%") ' .
+    'ORDER BY supplier_id, title, partno');
+    
+  $c = 0;
+  $matches = array();
+  while (($value = db_fetch_array($qry)) and ($c < 50)) {
+    $c++;
+    $matches[$value['str']] = $value['str'];
+  }
+  print drupal_to_js($matches);
+  exit();
+}
+
 function budgets_cnml($format, $bid = null) {
 
   $CNML = new SimpleXMLElement('<cnml></cnml>');
@@ -1843,6 +1939,16 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
     }
   }  
   return;
+}
+
+function theme_refquote($quote,$supplier) {
+  return '<ul><li>'.
+    t('Supplied by').': '.$quote->supplier_id.
+    '-'.l($supplier->title,'node/'.$supplier->nid).
+    '</li><li>'.
+    t('Part#').': '.$quote->nid.'-'.
+    l($quote->partno,'node/'.$quote->nid).
+    '</li>';
 }
 
 

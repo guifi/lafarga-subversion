@@ -38,13 +38,18 @@ function budgets_quote_form(&$node) {
       '#autocomplete_path'=> 'budgets/js/select-supplier',
     );  
   else {
-    $suppliers = array('0'=>t('<Select a supplier from this list>'));
+    $suppliers = array();
     $qsup = db_query(
       'SELECT id, title ' .
       'FROM {supplier} ' .
       'ORDER BY title');
-    while ($sup = db_fetch_object($qsup)) 
-      $suppliers[$sup->id] = $sup->title;
+    while ($sup = db_fetch_object($qsup)) {
+      if (!user_access('administer suppliers')) {
+        if (budgets_supplier_access('update',$sup->id))
+          $suppliers[$sup->id] = $sup->title;
+      } else 
+        $suppliers[$sup->id] = $sup->title;
+    }
        
     $form['supplier_id'] = array(
       '#type' => 'select',
@@ -78,6 +83,13 @@ function budgets_quote_form(&$node) {
         'min'=>1),
     '#default_value' => $node->cost,
     '#description' => t('Quoted value (cost) for this quoted item.'),
+  );
+  $form['arrexpires'] = array(
+    '#type' => 'date',
+    '#title' => t('Expiration'),
+    '#default_value' => $node->arrexpires,
+    '#description' => t("Date when this quote will expire"),
+    '#required' => true,
   );
 
   if (($type->has_body)) {
@@ -151,12 +163,17 @@ function budgets_quote_validate($node, &$form) {
     'FROM {supplier} ' .
     'WHERE id=%d',
     $node->supplier_id));
+  
   if (!$count->supplier)
-    form_set_error($errfield, t('Supplier does not exists.'));
+    form_set_error($errfield, t('Supplier does not exist.'));
+    
+  // validate is privileged for using this supplier
+  if (!budgets_supplier_access('update',$node->supplier_id))
+    form_set_error($errfield, t('Only can add quotes to owned suppliers.'));
   
 }
 
-function budgets_quote_access($op, $node, $account) {
+function budgets_quote_access($op, $node, $account = null) {
   global $user;
   
   $node = node_load(array('nid'=>$node->id));
@@ -164,7 +181,7 @@ function budgets_quote_access($op, $node, $account) {
     case 'create':
       return user_access('create suppliers',$account);
     case 'update':
-      if ($node->type == 'budgets') {
+      if ($node->type == 'supplier_quote') {
         if ((user_access('administer suppliers',$account)) 
           || ($node->uid == $user->uid)) {
           return TRUE;
@@ -180,10 +197,25 @@ function budgets_quote_access($op, $node, $account) {
 }
 
 function budgets_quote_prepare(&$node) {
+  
+  if (empty($node->expires))
+    $node->expires = mktime(0, 0, 0, date("m"),  date("d"),  date("Y")+1);
+  
+  list(
+    $node->arrexpires['year'],
+    $node->arrexpires['month'],
+    $node->arrexpires['day']) = explode(',',date('Y,n,j',$node->expires));
+  
+  // load a $node->supplier text field in case that is an administrator and 
+  // there is more than 10 possible choices
+  
+  if (!user_access('administer suppliers'))
+    return;
+    
   $ns = db_fetch_object(db_query(
     'SELECT count(*) suppliers ' .
     'FROM {supplier}'));
-  if ($ns->suppliers >= 10)
+  if ($ns->suppliers > 10)
     if (!empty($node->supplier_id)) {
       $s = node_load(array('nid'=>$node->supplier_id));
       $node->supplier = $s->nid.'-'.$s->title;
@@ -201,6 +233,13 @@ function budgets_quote_save($node) {
     $sup = explode('-',$node->supplier);
     $node->supplier_id = $sup[0];
   }
+  
+  $node->expires = 
+    mktime(0,0,0,
+      $node->arrexpires['month'],
+      $node->arrexpires['day'],
+      $node->arrexpires['year']
+    );
   
   $sid = _guifi_db_sql(
     'supplier_quote',
@@ -255,6 +294,19 @@ function budgets_quote_load($node) {
   if (is_null($node->id))
     return false;
   
+  return $node;
+}
+
+function budgets_quote_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);
+  if ($node->partno)
+    $node->content['header'] = array(
+      '#value'=>'<strong>'.$node->partno.'</strong><hr>',
+      '#weight' => -10,
+    );
+//  if ($teaser)
+    $node->content['header']['#value'] .= ' '.$node->supplier_id;
+
   return $node;
 }
  
