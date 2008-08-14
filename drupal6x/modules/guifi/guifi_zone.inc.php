@@ -31,13 +31,50 @@ function guifi_zone_load($node) {
     db_query("
     SELECT * FROM {guifi_zone} WHERE id = '%d'",
     $k));
+    
   if (($loaded->nick == '') or ($loaded->nick == null))
     $loaded->nick = guifi_abbreviate($loaded->title);
+    
+  // if zone map not set, take from parents
+  if ( ($loaded->minx==0) and 
+       ($loaded->miny==0) and 
+       ($loaded->maxx==0) and 
+       ($loaded->maxy==0) ) {
+    $coords = guifi_zone_get_coords($loaded->master);
 
+    $loaded->minx = $coords['minx'];
+    $loaded->miny = $coords['miny'];
+    $loaded->maxx = $coords['maxx'];
+    $loaded->maxy = $coords['maxy'];
+  }
+     
   if ($loaded->id != null)
     return $loaded;
 
   return false;
+}
+
+function guifi_zone_get_coords($zid) {
+  guifi_log(GUIFILOG_TRACE,
+    'function guifi_zone_get_coords()',
+    $zid);
+
+  if (empty($zid))
+    return FALSE;
+    
+  $coords = db_fetch_array(db_query(
+    'SELECT master, minx, miny, maxx, maxy ' .
+    'FROM {guifi_zone} ' .
+    'WHERE id=%d',
+    $zid));
+  
+  if ($coords['minx']==0 and $coords['miny']==0
+      and $coords['maxx']==0 and $coords['maxy']==0)
+    return guifi_zone_get_coords($coords['master']);
+  else {
+    unset($coords['master']);
+    return $coords;
+  }
 }
 
 function guifi_zone_root() {
@@ -481,6 +518,7 @@ function guifi_zone_prepare(&$node) {
     $node->maxx = 70;
     $node->maxy = 50;
   }
+       
 }
 
 /** guifi_zone_map_help Print help text for embedded maps
