@@ -162,7 +162,7 @@ function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
     variable_get('default_nodes_main', 10) 
   );
   
-  $output = 'Llistat de quotes';  
+  $output = '<h2>'.t('Quotes').'</h2>';  
   while ($quote = db_fetch_object($qquotes)) {;
     $output .= node_view(node_load(array('nid'=>$quote->id)),true,false);
   }

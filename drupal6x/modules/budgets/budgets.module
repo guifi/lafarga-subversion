@@ -147,6 +147,23 @@ function budgets_menu() {
     'type' => MENU_CALLBACK,
   );
   
+  $items['node/%guifi_zone/view/budgets'] = array(
+    'title' => 'budgets',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK
+  );
+
+  $items['node/%budgets_supplier/addquote'] = array( 
+    'title' => 'add quotes',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('node_form',1),
+    'access callback' => 'budgets_supplier_access',
+    'access arguments' => array('create',arg(1)),
+    'type' => MENU_LOCAL_TASK);
+  
   return $items;
 }
 
@@ -571,13 +588,17 @@ function budgets_form(&$node, &$param) {
     $form['id'] = array('#type'=>'#hidden','#value'=>$node->nid);
   else
     $form['new'] = array('#type'=>'#hidden','#value'=>true);
-  
-  $form['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#required' => TRUE,
-    '#default_value' => !empty($node->title) ? $node->title : NULL,
-  );
+
+  $type = node_get_types('type',$node);
+      
+  if (($type->has_title)) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => true,
+      '#default_value' => $node->title,
+    );
+  }
 
   $form['budgets_general'] = array(
     '#type' => 'fieldset',
@@ -712,8 +733,6 @@ function budgets_form(&$node, &$param) {
     '#submit' => array('budgets_form_load_quote'),
     '#value' => t('Load Quote')
   );
-  
-  $type = node_get_types('type',$node);
   
   if (($type->has_body)) {
     $form['body_field'] = node_body_field(
@@ -1486,7 +1505,13 @@ function budgets_delete(&$node) {
 /**
 * Implementation of hook_page().
 */
-function budgets_page($zone = NULL) {
+function budgets_page($zone_id = NULL) {
+  
+  guifi_log(GUIFILOG_BASIC,'function budgets_page()',$zone);
+  
+  if (is_null($zone_id))
+    $zone_id = guifi_zone_root;
+
   $result = pager_query(
       "SELECT n.nid,b.zone_id " .
       "FROM {node} n, {budgets} b " .
@@ -1860,7 +1885,7 @@ function budgets_ahah_select_quote($string){
   exit();
 }
 
-function budgets_cnml($format, $bid = null) {
+function budgets_cnml($format, $bid = null, $where_str = null) {
 
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   $CNML->addAttribute('version','0.1');
@@ -1869,6 +1894,8 @@ function budgets_cnml($format, $bid = null) {
   $CNML->addAttribute('generated',date('Ymd hi',time()));
   $classXML = $CNML->addChild('class');
   $classXML->addAttribute('budgets',$format);
+  
+// TODO: Query by zone anr/or budget_status
   
   if (is_null($bid)) {
     $result = db_query(
