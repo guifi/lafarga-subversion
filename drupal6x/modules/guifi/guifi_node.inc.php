@@ -130,17 +130,19 @@ function guifi_node_form($node, $param){
 function guifi_node_form_supernode($node, $param) {
   global $user;
 
+  $type = node_get_types('type',$node);
 
   // ----
   // El títol el primer de tot
   // ------------------------------------------------
-  $form['title'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Node name and general settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#weight' => 0
-  );
+  if (($type->has_title)) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => true,
+      '#default_value' => $node->title,
+    );
+  }
   $form['title']['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -392,16 +394,23 @@ function guifi_node_form_supernode($node, $param) {
   // body
   // ------------------------------------------------
 
-  $form['body'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Body'),
-    '#default_value' => $node->body,
-    '#cols' => 60,
-    '#rows' => 20,
-    '#required' => FALSE,
-    '#description' => t("Textual description of the wifi node"),
-    '#weight' => 11,
-  );
+  if (($type->has_body)) {
+    $form['body_field'] = node_body_field(
+      $node,
+      $type->body_label,
+      $type->min_word_count
+    );
+  } 
+//  $form['body'] = array(
+//    '#type' => 'textarea',
+//    '#title' => t('Body'),
+//    '#default_value' => $node->body,
+//    '#cols' => 60,
+//    '#rows' => 20,
+//    '#required' => FALSE,
+//    '#description' => t("Textual description of the wifi node"),
+//    '#weight' => 11,
+//  );
 
   // ----
   // flags

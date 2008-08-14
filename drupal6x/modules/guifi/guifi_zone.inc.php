@@ -155,29 +155,30 @@ function guifi_zone_form(&$node, &$param) {
   drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
   $form_weight = -20;
 
-  $form['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#required' => TRUE,
-    '#default_value' => $node->title,
-    '#element_validate' => array('guifi_zone_title_validate'),
-    '#weight' => $form_weight++,
-  );
+  $type = node_get_types('type',$node);
+
+  if (($type->has_title)) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => true,
+      '#default_value' => $node->title,
+      '#weight' => $form_weight++,
+    );
+  }
 
   $form['master'] = guifi_zone_select_field($node->master,'master');
   $form['master']['#weight'] = $form_weight++;
 
-  $form['body'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Description of the zone'),
-    '#default_value' => $node->body,
-    '#cols' => 60,
-    '#rows' => 10,
-    '#required' => FALSE,
-    '#description' =>
-      t('This text will be displayed as the page. Should contain information of the zone.'),
-    '#weight' => $form_weight++,
-  );
+
+  if (($type->has_body)) {
+    $form['body_field'] = node_body_field(
+      $node,
+      $type->body_label,
+      $type->min_word_count
+    );
+    $form['body_field']['#weight'] = $form_weight++;
+  }
 
   // That's it for non-admin users, they don't need to edit more information
   if (!user_access('administer guifi zones'))

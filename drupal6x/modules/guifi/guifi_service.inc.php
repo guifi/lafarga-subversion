@@ -78,13 +78,16 @@ function guifi_service_form($node, $param) {
     //$output = form_item(t('Service type'),$node->service_type,t($type->description));
 
 
-  $f['title']['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#required' => TRUE,
-    '#default_value' => $node->title,
-    '#weight'=>0
-  );
+  $type = node_get_types('type',$node);
+
+  if (($type->has_title)) {
+    $f['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => true,
+      '#default_value' => $node->title,
+    );
+  }
 
   $f['nick'] = array(
     '#type' => 'textfield',
@@ -338,15 +341,13 @@ function guifi_service_form($node, $param) {
     break;
   }
 
-  $f['body'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Body'),
-    '#default_value' => $node->body,
-    '#description' => t('Description of the service'),
-    '#cols' => 60,
-    '#rows' => 20,
-  );
-  //$output .= form_textarea(t("Body"), "body", $node->body, 60, 20, t("Textual description of the wifi") . ($error['body'] ? $error['body'] : ''));
+  if (($type->has_body)) {
+    $f['body_field'] = node_body_field(
+      $node,
+      $type->body_label,
+      $type->min_word_count
+    );
+  }
 
   return $f;
 }

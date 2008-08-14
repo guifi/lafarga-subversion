@@ -588,16 +588,31 @@ function guifi_node_info() {
       'name' => t('guifi.net zone'),
       'module' => 'guifi_zone',
       'description' => t("Create a community, area or zone. A typical zone hierarchy can be related to the territory (Country/Region/City...) but not have to, i.e. a single city can have many groups or communities with distinct IP addressing policies.<br />Every zone will have it's own page so it can be used as the homepage of that community.<br />The zones must belong at least to the root zone, but can also belong to other zones, so in that way a hierarchy is created.<br />Every zone have its own properties like maps or ip ranges and every node will have to be assigned to an existing zone, and will inherit the zone properties like his IP address and drawn in the corresponding map.<br />If zone properties are leaved blank, will inherit the parent zone properties."),
+      'has_title' => true,
+      'title_label' => t('Zone name'),
+      'has_body' => true,
+      'body_label' => t('Information about this zone'),
     ),
     'guifi_node' => array(
       'name' => t('guifi.net node'),
       'module' => 'guifi_node',
-      'description' => t("Create a node. A node is a physical location (will be dynamically drawed on the maps using lat/lon coordinates) where there are network devices, servers, etc.<br />Every node have to assigned to a guifi zone."),
+      'description' => t("Create a node. A node is a physical location " .
+        "(will be dynamically drawed on the maps using lat/lon coordinates) " .
+        "where there are network devices, servers, etc.<br />" .
+        "Every node have to be assigned to a guifi zone."),
+      'has_title' => true,
+      'title_label' => t('Location name'),
+      'has_body' => true,
+      'body_label' => t('Information about this location'),
     ),
     'guifi_service' => array(
       'name' => t('guifi.net service'),
       'module' => 'guifi_service',
       'description' => t("Create a service. A service is any resource available on the network that should be listed in the content directory of the site, like a web server, internet proxy,ntp, instant messaging, voip gateway, etc... ."),
+      'has_title' => true,
+      'title_label' => t('Service name'),
+      'has_body' => true,
+      'body_label' => t('Information about this service'),
     ),
   );
 }
