@@ -41,7 +41,8 @@ function xz()
 	map.addControl(new GMapTypeControl());	
 	
     icon_NE = new GIcon(); 
-    icon_NE.image = '/modules/guifi/js/marker_NE_icon.png';
+    icon_NE.image = document.getElementById("edit-jspath").value+
+      'marker_NE_icon.png';
     icon_NE.shadow = '';
     icon_NE.iconSize = new GSize(32, 32);
     icon_NE.shadowSize = new GSize(22, 20);
@@ -49,7 +50,8 @@ function xz()
     icon_NE.dragCrossImage = '';
 
     icon_SW = new GIcon(); 
-    icon_SW.image = '/modules/guifi/js/marker_SW_icon.png';
+    icon_SW.image = document.getElementById("edit-jspath").value+
+      'marker_SW_icon.png';
     icon_SW.shadow = '';
     icon_SW.iconSize = new GSize(32, 32);
     icon_SW.shadowSize = new GSize(22, 20);
@@ -57,7 +59,8 @@ function xz()
     icon_SW.dragCrossImage = '';
 
     icon_move = new GIcon();
-    icon_move.image = '/modules/guifi/js/marker_move_icon.png';
+    icon_move.image = document.getElementById("edit-jspath").value+
+      'marker_move_icon.png';
     icon_move.shadow = '';
     icon_move.iconSize = new GSize(32, 32);
     icon_move.shadowSize = new GSize(6, 20);

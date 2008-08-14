@@ -156,9 +156,15 @@ function guifi_zone_select_field($zid,$fname) {
 /** guifi_zone_form(): Present the guifi zone editing form.
  */
 function guifi_zone_form(&$node, &$param) {
-  guifi_log(GUIFILOG_TRACE,
+ // print drupal_get_path('system');
+//  print "\n<br>";
+//  global $base_url;
+  
+  $guifip = base_path().drupal_get_path('module','guifi');
+  print "PATH: $guifip\n<br>";
+  guifi_log(GUIFILOG_BASIC,
     'function guifi_zone_form()',
-    $node);
+    $guifip);
 
   drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
   $form_weight = -20;
@@ -174,6 +180,11 @@ function guifi_zone_form(&$node, &$param) {
       '#weight' => $form_weight++,
     );
   }
+  
+  $form['jspath'] = array(
+   '#type'=>'hidden',
+   '#value'=> base_path().drupal_get_path('module','guifi').'/js/'
+  );
 
   $form['master'] = guifi_zone_select_field($node->master,'master');
   $form['master']['#weight'] = $form_weight++;
