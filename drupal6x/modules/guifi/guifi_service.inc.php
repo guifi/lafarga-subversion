@@ -610,7 +610,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
   $sqlprefix = "SELECT s.*,z.title zonename FROM {guifi_services} s LEFT JOIN {guifi_devices} d ON s.device_id=d.id LEFT JOIN {guifi_zone} z ON s.zone_id=z.id LEFT JOIN {guifi_location} l ON d.nid=l.id WHERE ";
   switch ($typestr) {
     case t('by zone'):
-      $childs = guifi_get_zone_child_tree($param->id);
+      $childs = guifi_zone_childs($param->id);
       $sqlwhere = sprintf('s.zone_id IN (%s) ',implode(',',$childs));
       break;
     case t('by node'):

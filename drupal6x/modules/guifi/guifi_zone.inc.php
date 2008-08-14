@@ -942,7 +942,12 @@ function guifi_zone_ipv4($zone) {
 **/
 function guifi_zone_totals($zones) {
 
-  $result = db_query("SELECT status_flag, count(*) total FROM {guifi_location} l WHERE l.zone_id in (%s) GROUP BY status_flag",implode(',',$zones));
+  $result = db_query(
+    "SELECT status_flag, count(*) total " .
+    "FROM {guifi_location} l " .
+    "WHERE l.zone_id in (%s) " .
+    "GROUP BY status_flag",
+    implode(',',$zones));
   while ($sum = db_fetch_object($result)) {
     $summary[$sum->status_flag] = $sum->total;
     $summary['Total'] = $summary['Total'] + $sum->total;
@@ -976,7 +981,7 @@ function guifi_zone_nodes($node,$embeded = false) {
       array('data' => t('Testing'),'class' => 'Testing'),
       array('data' => t('Total'),'class' => 'Total'));
   while ($zone = db_fetch_object($result)) {
-    $summary = guifi_zone_totals(guifi_get_zone_child_tree($zone->id));
+    $summary = guifi_zone_totals(guifi_zone_childs($zone->id));
     $rows[] = array(
       array('data' => guifi_zone_l($zone->id,$zone->title,'node/'),'class' => 'zonename'),
       array('data' => number_format($summary['Working'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Working','align'=>'right'),
@@ -1036,18 +1041,40 @@ function guifi_zone_nodes($node,$embeded = false) {
   return $output;
 }
 
-/** guifi_get_zone_childs(): get a tree of the zones
-**/
-function guifi_get_zone_child_tree($parent = 0, $depth = 30, $maxdepth = NULL) {
-  $children = array($parent);
-  $result = db_query('SELECT z.id, z.title, z.master ' .
-                     'FROM {guifi_zone} z ' .
-                     'ORDER BY z.master');
-  while ($zone = db_fetch_object($result)) {
-    if (in_array($zone->master,$children))
-      $children[] = $zone->id;
+function guifi_zone_childs($zid) {
+  return array_keys(guifi_zone_childs_tree($zid,9999));
+}
+
+
+function guifi_zone_childs_tree($parents, $maxdepth = 1, $depth = 0) {
+ 
+  if (is_numeric($parents)) 
+    $parents = array($parents=>array('depth'=>0,'master'=>0));
+  guifi_log(GUIFILOG_TRACE,'function guifi_zone_childs_tree(childs)',$parents);
+    
+  // check only current depth
+  $current_depth = array();
+  foreach ($parents as $k=>$v) {
+    if ($v['depth'] == $depth)
+      $current_depth[] = $k;
   }
-  return $children;
+  $depth++;
+
+  $result = db_query('SELECT z.id, z.master ' .
+                     'FROM {guifi_zone} z ' .
+                     'WHERE z.master IN ('.implode(',',$current_depth).')');
+  
+  $childs = $parents;
+  $found = false;                   
+  while ($child = db_fetch_object($result)) { 
+    $childs[$child->id] = array('depth'=>$depth,'master'=>$child->master);
+    $found = true;
+  }
+  
+  if ($found and ($depth < $maxdepth))
+    $childs = guifi_zone_childs_tree($childs,$maxdepth,$depth);
+ 
+  return $childs;
 }
 
 function guifi_zone_availability($zone,$desc = "all") {
@@ -1109,7 +1136,7 @@ function guifi_zone_availability($zone,$desc = "all") {
   }
   
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/availability'));
-  $childs = array_keys(guifi_zone_childs($zone->id));
+  $childs = guifi_zone_childs($zone->id);
   $childs[] = $zone->id;
   
   switch ($desc) {

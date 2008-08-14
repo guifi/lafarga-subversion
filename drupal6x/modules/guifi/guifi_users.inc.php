@@ -644,7 +644,7 @@ function guifi_users_queue($zone) {
   $title = t('Queue of pending users @') .' ' .$zone->title;
   drupal_set_title($title);
 
-  $childs = array_keys(guifi_zone_childs($zone->id));
+  $childs = guifi_zone_childs($zone->id);
   $childs[] = $zone->id;
 
   $sql =

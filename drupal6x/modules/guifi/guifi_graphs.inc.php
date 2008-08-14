@@ -368,7 +368,7 @@ function guifi_mrtg() {
   $query = db_query(
     "SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra " .
     "FROM {guifi_location} l, {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a " .
-    "WHERE l.zone_id IN (".implode(',',guifi_get_zone_child_tree($zoneid)).") " .
+    "WHERE l.zone_id IN (".implode(',',guifi_zone_childs($zoneid)).") " .
     "  AND l.id = d.nid " .
     "  AND d.id=i.device_id " .
     "  AND i.id=a.interface_id " .

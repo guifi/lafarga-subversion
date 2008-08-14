@@ -32,10 +32,12 @@ function guifi_gml_nodes($zid,$type) {
        
   $zchilds = guifi_zone_childs($zid);
 
-  $res = db_query("SELECT id,nick,lat,lon,zone_id,status_flag FROM {guifi_location}"); 
+  $res = db_query(
+    "SELECT id,nick,lat,lon,zone_id,status_flag " .
+    "FROM {guifi_location}"); 
 
   while ($row = db_fetch_object($res)) {
-    if (($row->zone_id != $zid) and (!$zchilds[$row->zone_id]))
+    if (($row->zone_id != $zid) and (!in_array($zchilds,$row->zone_id)))
       continue;
     $resradio = db_query("SELECT mode FROM {guifi_radios} WHERE nid = %d",$row->id);
     switch (db_result($resradio)) {
@@ -106,7 +108,7 @@ function guifi_gml_links($zid,$type) {
       $nl[] = $n;
   }
   if (count($nl) == 2) 
-  if (($zchilds[$nl[0]->zone_id]) || ($zchilds[$nl[1]->zone_id])) {
+  if ((in_array($zchilds,$nl[0]->zone_id)) || (in_array($zchilds,$nl[1]->zone_id))) {
     $distance = round($oGC->EllipsoidDistance($nl[0]->lat,$nl[0]->lon, $nl[1]->lat, $nl[1]->lon),3);
     
     if (($nl[0]->status_flag != 'Working') or ($nl[1]->status_flag != 'Working')) 
