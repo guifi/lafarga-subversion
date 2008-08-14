@@ -365,7 +365,18 @@ function guifi_mrtg() {
   print $nl."SnmpOptions: timeout => 1";
   
   $listed = array();
-  $query = db_query("SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra FROM {guifi_location} l, {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE l.zone_id IN (".implode(',',guifi_get_zone_child_tree($zoneid)).") AND l.id = d.nid AND d.id=i.device_id AND i.id=a.interface_id AND i.interface_type IN ('Wan','wLan/Lan','Lan','Client','wlan','wlan1','wlan2','wlan3','wlan4','wlan5','wlan6','wds/p2p') AND a.ipv4 != '' GROUP BY 1,2,3");
+  $query = db_query(
+    "SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra " .
+    "FROM {guifi_location} l, {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a " .
+    "WHERE l.zone_id IN (".implode(',',guifi_get_zone_child_tree($zoneid)).") " .
+    "  AND l.id = d.nid " .
+    "  AND d.id=i.device_id " .
+    "  AND i.id=a.interface_id " .
+    "  AND i.interface_type IN " .
+    "    ('Wan','wLan/Lan','Lan','Client','wlan','wlan1','wlan2','wlan3'," .
+    "     'wlan4','wlan5','wlan6','wds/p2p') " .
+    "  AND a.ipv4 != '' " .
+    "GROUP BY 1,2,3");
   while ($row = db_fetch_array($query)) {
 
    // if not a radio in client mode and if is Wan, next

@@ -40,6 +40,14 @@ function guifi_zone_load($node) {
   return false;
 }
 
+function guifi_zone_root() {
+  $root = db_fetch_object(db_query(
+    "SELECT id " .
+    "FROM {guifi_zone} " .
+    "WHERE master = 0"));
+  return $root->id;
+}
+
 function guifi_zone_select_field($zid,$fname) {
   $parents = array();
   $parent=$zid;
@@ -169,7 +177,6 @@ function guifi_zone_form(&$node, &$param) {
 
   $form['master'] = guifi_zone_select_field($node->master,'master');
   $form['master']['#weight'] = $form_weight++;
-
 
   if (($type->has_body)) {
     $form['body_field'] = node_body_field(
@@ -533,9 +540,6 @@ function guifi_zone_map($node) {
   return $output;
 }
 
-/** guifi_zone_validate(): Confirm that an edited guifi item has fields properly filled in.
- */
-
 function guifi_zone_title_validate($element, &$form_state) {
   if (empty($element['#value']))
     form_error($element,t('You must specify a title for the zone.'));
@@ -589,33 +593,30 @@ function guifi_emails_validate($element, &$form_state) {
     form_set_value($element,$emails,$form_state);
 }
 
-function guifi_zone_master_validate($element, &$form_state) {
-//  print_r($form_state);
-//  print "\n<br>";
-//  print_r($element);
-
-  // if root, check that there is not another zone as zoot
-  if ($element['#value'] == 0) {
-  	  $qry = db_query(
+function guifi_zone_validate($node) {
+  
+  // if node master is root, check that there is not another zone as zoot
+  if ($node->master == 0) {
+      $qry = db_query(
            'SELECT id, title, nick
-  			FROM {guifi_zone}
-  			WHERE master = 0');
-  	 while ($rootZone = db_fetch_object($qry))
-  	 {
-        if ($form_state['values']['nid'] != $rootZone->id)
-          form_error($element,
+            FROM {guifi_zone}
+            WHERE master = 0');
+     while ($rootZone = db_fetch_object($qry))
+     {
+        if ($node->nid != $rootZone->id)
+          form_set_error('master',
             t('The root zone is already set to "%s". Only one root zone can be present at the database. Delete/change the actual root zone before assigning a new one or choose another partent.',
               array('%s'=>$rootZone->title)));
-  	 }
+     }
   }
-
-  if (!empty($form_state['values']['nid']))
-  if ($element['#value'] == $form_state['values']['nid'])
-    form_error($element,
+  
+  // check that master is not being assigned to itself
+  if (!empty($node->nid))
+  if ($node->master == $node->nid)
+    form_set_error('master',
       t("Master zone can't be set to itself"));
-}
-
-function guifi_zone_validate($form) {
+  
+  // check that zone area is consistent
   if ($node->minx > $node->maxx)
     form_set_error('minx', t("Longitude: Min should be less than Max").
       ' '.$node->minx.'/'.$node->maxx);
@@ -995,9 +996,10 @@ function guifi_zone_nodes($node,$embeded = false) {
 /** guifi_get_zone_childs(): get a tree of the zones
 **/
 function guifi_get_zone_child_tree($parent = 0, $depth = 30, $maxdepth = NULL) {
-
   $children = array($parent);
-  $result = db_query('SELECT z.id, z.title, z.master FROM {guifi_zone} z ORDER BY z.master');
+  $result = db_query('SELECT z.id, z.title, z.master ' .
+                     'FROM {guifi_zone} z ' .
+                     'ORDER BY z.master');
   while ($zone = db_fetch_object($result)) {
     if (in_array($zone->master,$children))
       $children[] = $zone->id;
