@@ -1505,39 +1505,42 @@ function budgets_delete(&$node) {
 /**
 * Implementation of hook_page().
 */
-function budgets_page($zone_id = NULL) {
+function budgets_page($zone = NULL) {
   
-  guifi_log(GUIFILOG_BASIC,'function budgets_page()',$zone);
+  guifi_log(GUIFILOG_TRACE,'function budgets_page()',$zone->id);
+      
+  if (is_null($zone))
+    $zone->id = 0;
+    
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
   
-  if (is_null($zone_id))
-    $zone_id = guifi_zone_root;
+  $zones = guifi_zone_childs_and_parents($zone->id);
+  
+  $sql = 
+    "SELECT n.nid,b.zone_id " .
+    "FROM {node} n, {budgets} b " .
+    "WHERE n.nid=b.id " .
+    "  AND b.zone_id IN (".implode(',',$zones).") " .
+    "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
+    "  n.changed DESC";
+      
+  $result = pager_query($sql,variable_get('default_nodes_main', 10));
 
-  $result = pager_query(
-      "SELECT n.nid,b.zone_id " .
-      "FROM {node} n, {budgets} b " .
-      "WHERE n.nid=b.id " .
-      "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
-      "  n.changed DESC", 
-      variable_get('default_nodes_main', 10));
-  if ($result > 0) {
-
-    $output = '';
-    while ($node = db_fetch_object($result)) {
-      if ($zone == null) 
-      $output .= node_view(node_load($node->nid), 1);
-      else {
-        $zones = explode(",",$node->guifi_zones);
-        if (in_array($zone,$zones))
-          $output .= node_view(node_load($node->nid), 1);
-      }
-    }
-    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+  $output = '';
+  while ($node = db_fetch_object($result)) {
+      $output .= node_view(node_load(array('nid'=>$node->nid)), true);
   }
-  else {
+  
+  if (empty($output))
     $output = t("Welcome to budget module. " .
-        "This module will allow your community to maintain budgets, " .
-        "allocate due costs for them, ansd accept donations");
-  }
+        "This module will allow your community to create & manage " .
+        "budgets & proposals by allocate costs, and collecting funds for them." .
+        "<br>There are currently none defined here. Any logged user can create " .
+        "new pudgets/proposals by going to the 'Create content' menu option.");
+  else  
+    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+
+  return $output;
   print theme('page', $output);
 }
 
