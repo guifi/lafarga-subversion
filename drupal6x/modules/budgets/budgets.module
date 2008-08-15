@@ -60,18 +60,19 @@ function budgets_menu() {
     'access arguments' => array('access content'),
     'weight' => -7,
     'type' => MENU_CALLBACK);
-  $items['node/%budgets/view'] = array(
-    'title' => 'page',
-    'page callback' => 'budgets_view',
-    'page arguments' => array(1),
-    'access callback' => 'user_access',
-    'access arguments' => array('access content'),
-    'weight' => -9,
-    'type' => MENU_DEFAULT_LOCAL_TASK);
+
+//  $items['node/%budgets/view'] = array(
+//    'title' => 'budget',
+//    'page callback' => 'budgets_view',
+//    'page arguments' => array(1),
+//    'access callback' => 'user_access',
+//    'access arguments' => array('access content'),
+//    'weight' => -8,
+//    'type' => MENU_DEFAULT_LOCAL_TASK);    
   $items['node/%budgets/view/items'] = array(
     'title' => 'budget details',
-    'page callback' => 'budgets_view',
-    'page arguments' => array(1),
+    'page callback' => 'theme_budgets_items',
+    'page arguments' => array(1,true),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -8,
@@ -79,8 +80,8 @@ function budgets_menu() {
   
   $items['node/%budgets/view/funds'] = array( 
     'title' => 'funds report',
-    'page callback' => 'budgets_view',
-    'page arguments' => array(1),
+    'page callback' => 'theme_budgets_funds',
+    'page arguments' => array(1,true),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -1514,6 +1515,13 @@ function budgets_page($zone = NULL) {
     
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
   
+  $title = t('Proposals & budgets');
+  if ($zone->title)
+    $title .= ' @ '.$zone->title;
+  
+  
+  drupal_set_title($title);
+  
   $zones = guifi_zone_childs_and_parents($zone->id);
   
   $sql = 
@@ -1548,117 +1556,33 @@ function budgets_page($zone = NULL) {
 * Implementation of hook_view().
 */
 function budgets_view($node, $teaser = FALSE, $page = FALSE) {
-  $node = node_load(array('nid'=>$node->id));
+  if (!isset($node->nid))
+    $node = node_load(array('nid'=>$node->id));
+
+  guifi_log(GUIFILOG_TRACE,'function budgets_view()');
+
+  node_prepare($node, $teaser);
+  
+  if ($page) 
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    
+  $node->content['header'] = array(
+    '#value'=>theme_budgets_header($node,$teaser),
+    '#weight' => -10
+  );
   
   if ($page)
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
-  else {
-    drupal_set_title(t('Open proposals & budgets'));
-  }
+    $node->content['items'] = array(
+      '#value'=>theme_budgets_items($node),
+      '#weight' => 1
+    );
+  if (!$teaser)    
+    $node->content['footer'] = array(
+      '#value'=>theme_budgets_footer($node,$teaser),
+      '#weight' => 10
+    );
     
-  node_prepare($node, $teaser);
-  switch (arg(3)) {
-    case 'page':
-    case 'items':
-    case 'funds':
-    case 'contribute':
-      $op = arg(3);
-      break;
-    default:
-      if (!isset($_POST['form_item']))
-        $op = "default";
-      else
-        return;
-      break;
-  } 
-  switch ($op) {
-    case 'page': case 'default':
-     
-      $show_bar = budgets_bar($node->total,$node->covered,$node->currency_symbol);
-
-      if ($teaser) {
-        $node->content['data'] = array(
-          '#value' => $show_bar,
-          '#weight' => 1,
-        );
-        return $node;
-      }
-      if ($block)
-        return $node;
-      if ($page) {
-
-        $node->content['body'] = array(
-          array(
-            '#value' => $teaser ? $node->teaser : $node->body,
-            '#weight' => 0,
-          ),
-          array(
-            '#value' => $show_bar,
-             '#weight' => 1,
-          ),
-          array(
-            '#value' => theme('box', t('budget information')),
-            '#weight' => 2,
-          ),
-          array(
-            '#value' => budgets_print_data($node),
-            '#weight' => 3,
-          )
-        );
-      }
-    return $node;
-      break;
-    case 'items':
-      return budgets_print_items($node);
-    break;
-    case 'funds':
-      return budgets_print_funds($node);
-    break;
-    case 'contribute':
-      return budgets_contribute($node);
-      break;
-  }
-}
-
-function budgets_print_data($node) {
-
-  if (!empty($node->zones)) {
-    $output = '<div class="breadcumb"><font size=3>';
-    $output .= t('Zones').': ';
-    foreach ($node->zones as $zid)
-    if ($zid > 0) {
-      $result = db_fetch_array(db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.id = %d ',$zid));
-      $output .= guifi_zone_l('budgets/'.$result['id'], $result['title'], $link);
-      $output .= '&nbsp;&raquo;&nbsp;';
-    }
-    $output .= '</div>';
-  }
-  $output .= '<h2>'.t('Status').'</h2>'.t($node->budget_status);
-  if ($node->budget_status == 'Open') {
-    $output .= '&nbsp;'.t('until').'&nbsp;'.format_date($node->expires);
-  }
-  if (!empty($node->promoter)) {
-    $output .= '<h2>'.t('Promoter(s)').'</h2>';
-    $output .= $node->promoter;
-  }
-  
-  $output .= budgets_print_items($node);
-  
-  if (!empty($node->payment_instructions)) {
-    $output .= '<h2>'.t('Payment Instructions').'</h2>';
-    $output .= '<small>';
-    $output .= $node->payment_instructions;
-    $output .= "</small>\n";
-  }
-  if (!empty($node->terms)) {
-    $output .= '<h2>'.t('Terms & Conditions').'</h2>';
-    $output .= '<small>';
-    $output .= $node->terms;
-    $output .= "</small>\n";
-  }
-
-  return $output;
-
+  return $node;
 }
 
 function budgets_bar($total,$subtotal,$currency = '€') {
@@ -1671,15 +1595,17 @@ function budgets_bar($total,$subtotal,$currency = '€') {
   
   $output .= "\n\r".'<div class="budgets_bar"><div class="bar">';
   $output .= "\n\r".'<div class="foreground" style="width: '.$pct_green.'%;">';
-  //  $output .= $pct_green.'% ('.number_format($subtotal,1,',','.').' '.t('of').' '.number_format($total,1,",",'.').$currency.')';
-  //  $output .= '</div></div></div>';
   $output .= '</div></div>';
   $output .= "\n\r".'<div class="total">'.$pct_green.'% ('.number_format($subtotal,1,',','.').' '.t('of').' '.number_format($total,1,",",'.').$currency.')</div></div>';
   
   return $output;
 }
 
-function budgets_print_items($node) {
+function theme_budgets_items($node,$links = false) {
+  print $links;
+
+  if (!isset($node->nid))
+    $node = node_load(array('nid'=>$node->id));
 
   $output = '<h2>'.t('Proposal/Budget details').'</h2>';
   $total = 0;
@@ -1705,12 +1631,20 @@ function budgets_print_items($node) {
   array('data'=>t('Cost per unit'),'align'=>'right'),
   array('data'=>t('Subtotal'),'align'=>'right'));
 
-  return $output.theme('table', $header, $rows);
+  $output .=theme('table', $header, $rows);
+
+  if ($links)
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  
+  return $output;
 }
 
-function budgets_print_funds($node) {
+function theme_budgets_funds($node,$links = false) {
   
   guifi_log(GUIFILOG_TRACE,'function budgets_print_funds()',$node);
+  
+  if (!isset($node->nid))
+    $node = node_load(array('nid'=>$node->id));
     
   drupal_set_title(t('Contributions to').': '.$node->title);
   
@@ -1805,7 +1739,13 @@ function budgets_print_funds($node) {
                   'colspan'=>0),
               );
   }
-  return $output.theme('table', $header, $rows);
+  
+  $output .= theme('table', $header, $rows);
+  
+  if ($links)
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  
+  return $output;
 
 }
 
@@ -1992,6 +1932,43 @@ function theme_refquote($quote,$supplier,$teaser = false) {
     t('Part#').': '.$quote->nid.'-'.
     l($quote->partno,'node/'.$quote->nid).
     '</li>';
+}
+
+function theme_budgets_header($node,$teaser) {  
+  if ($teaser) {
+    $output =
+      '<small>'.
+      guifi_zone_l($node->zone_id).' '.
+      t('Status').': '.$node->budget_status;
+    if (in_array($node->budget_status,array('Open','Preparation')))
+      $output .= ', '.t('until').' '.format_date($node->expires.'small');
+    $output .= '</small>';
+  } else {
+    $output =
+      '<h3>'.t('Zone').'</h3>'.guifi_zone_l($node->zone_id).'</br>'.
+      '<h3>'.t('Status').'</h3>'.$node->budget_status;
+    if (in_array($node->budget_status,array('Open','Preparation')))
+      $output .= ', '.t('until').' '.format_date($node->expires.'large');
+    if (!empty($node->promoter)) {
+      $output .= '<h3>'.t('Promoter(s)').'</h3>';
+      $output .= $node->promoter;
+    }
+  }
+  return $output.
+    budgets_bar($node->total,$node->covered,$node->currency_symbol);
+}
+
+function theme_budgets_footer($node) {
+  $output = '</hr>';
+  if (!empty($node->payment_instructions)) {
+    $output .= '<h3>'.t('Payment instructions').'</h3>';
+    $output .= '<small'.$node->payment_instructions.'</small>';
+  }
+  if (!empty($node->terms)) {
+    $output .= '<h3>'.t('Terms & Conditions').'</h3>';
+    $output .= '<small>'.$node->terms.'</small>';
+  }
+  return $output;  
 }
 
 
