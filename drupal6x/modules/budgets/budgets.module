@@ -27,34 +27,84 @@ function budgets_menu() {
   $items['budgets'] = array(
     'title' => 'Proposals, budgets and fundings',
     'page callback' => 'budgets_page',
+//    'page arguments' => array('0',null),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK);
-  $items['budgets/%guifi_zone'] = array(
-    'title' => 'Zone proposals, budgets and fundings',
+//  $items['budgets/%guifi_zone'] = array(
+//    'title' => 'Zone proposals, budgets and fundings',
+//    'page callback' => 'budgets_page',
+//    'page arguments' => array(1),
+//    'access callback' => 'user_access',
+//    'access arguments' => array('access content'),
+//    'type' => MENU_LOCAL_TASK);  
+  $items['budgets/%guifi_zone/list'] = array(
+    'title' => 'list',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1),
+    'page arguments' => array(1,null),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK);  
-  $items['budgets/cnml/short'] = array(
+    'type' => MENU_LOCAL_TASK); 
+  $items['budgets/%guifi_zone/list/All'] = array(
+    'title' => 'all status',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1,null),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK); 
+  $items['budgets/%guifi_zone/list/Open'] = array(
+    'title' => 'open',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1,2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK); 
+  $items['budgets/%guifi_zone/list/Preparation'] = array(
+    'title' => 'preparation',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1,2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => 2,
+    'type' => MENU_LOCAL_TASK); 
+  $items['budgets/%guifi_zone/list/Closed'] = array(
+    'title' => 'closed',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1,2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => 3,
+    'type' => MENU_LOCAL_TASK); 
+
+
+  $items['budgets/%guifi_zone/cnml'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array('short'),
+    'page arguments' => array(1,'short'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK);
-  $items['budgets/cnml/long'] = array(
+  $items['budgets/%guifi_zone/cnml/short'] = array(
+    'title' => 'cnml',
+    'page callback' => 'budgets_cnml',
+    'page arguments' => array(1,'short'),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK);
+  $items['budgets/%guifi_zone/cnml/long'] = array(
     'title' => 'detailed cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array('long'),
+    'page arguments' => array(1,'long'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK);
+    
   $items['node/%budgets/cnml/short'] = array( 
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array('short',1),
+    'page arguments' => array(1,'short'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -62,7 +112,7 @@ function budgets_menu() {
   $items['node/%budgets/cnml/long'] = array( 
     'title' => 'detailed cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array('long',1),
+    'page arguments' => array(1,'long'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -1522,13 +1572,15 @@ function budgets_delete(&$node) {
 /**
 * Implementation of hook_page().
 */
-function budgets_page($zone = NULL) {
+function budgets_page($zone = NULL,$status = NULL) {
   
   guifi_log(GUIFILOG_TRACE,'function budgets_page()',$zone->id);
   
   // if 4rth parameter, asking for a specific status
-  if (arg(2)!=null) 
+  if ($status!=null) 
     $status_str = "  AND budget_status='".arg(2)."' ";
+  else
+    $status_str = '';
       
   if (is_null($zone))
     $zone->id = 0;
@@ -1850,7 +1902,13 @@ function budgets_ahah_select_quote($string){
   exit();
 }
 
-function budgets_cnml($format, $bid = null, $where_str = null) {
+function budgets_cnml($node = null, $format) {
+  guifi_log(GUIFILOG_BBASIC,'function budgets_cnml()',$node);
+  
+  if ($node_>type == 'budgets')
+    $bid = $node->id;
+  else
+    $zid = $node->id;
 
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   $CNML->addAttribute('version','0.1');
@@ -2006,46 +2064,46 @@ function theme_budgets_page_header($zone) {
   } else
     $output .= '<h3>'.t('Reporting all zones').'</h3>';
     
-  $status = arg(2);
-  
-  $pstatus = array('Open','Preparation','Closed');
-  if (empty($status)) {
-    $output .= '<h3><br>'.t('Reporting all status').'</h3>';
-    $output .= '<small>'.t('Restrict the report to').':</small>';
-    
-    foreach ($pstatus as $s) {
-      $links[] = array(
-        'title' => t($s),
-        'href'=> 'budgets/'. $zone->id.'/'.$s,
-        'attributes'=>array(
-          'title' => t('List budgets/proposals with status set as !status',
-            array('!status'=>t($s)))
-        )
-      );
-    }
-  } else {
-    $output .= '<h3><br>'.
-      t('Reporting status %status',array('%status'=>$status)).'</h3>';
-    $output .= '<small>'.t('Restrict the report to').':</small>';
-    $links[] = array(
-      'title' => t('All status'),
-      'href'=> 'budgets/'. $zone->id,
-      'attributes'=>array(
-        'title' => t('List all budgets/proposals regardless of the status'))
-      );
-    foreach ($pstatus as $s) {
-      if ($s != $status)
-      $links[] = array(
-        'title' => t($s),
-        'href'=> 'budgets/'. $zone->id.'/'.$s,
-        'attributes'=>array(
-          'title' => t('List budgets/proposals with status set as !status',
-            array('!status'=>t($s)))
-        )
-      );
-    }   
-  }
-  $output .= theme_links($links).'<br>';   
+//  $status = arg(2);
+//  
+//  $pstatus = array('Open','Preparation','Closed');
+//  if (empty($status)) {
+//    $output .= '<h3><br>'.t('Reporting all status').'</h3>';
+//    $output .= '<small>'.t('Restrict the report to').':</small>';
+//    
+//    foreach ($pstatus as $s) {
+//      $links[] = array(
+//        'title' => t($s),
+//        'href'=> 'budgets/'. $zone->id.'/'.$s,
+//        'attributes'=>array(
+//          'title' => t('List budgets/proposals with status set as !status',
+//            array('!status'=>t($s)))
+//        )
+//      );
+//    }
+//  } else {
+//    $output .= '<h3><br>'.
+//      t('Reporting status %status',array('%status'=>$status)).'</h3>';
+//    $output .= '<small>'.t('Restrict the report to').':</small>';
+//    $links[] = array(
+//      'title' => t('All status'),
+//      'href'=> 'budgets/'. $zone->id,
+//      'attributes'=>array(
+//        'title' => t('List all budgets/proposals regardless of the status'))
+//      );
+//    foreach ($pstatus as $s) {
+//      if ($s != $status)
+//      $links[] = array(
+//        'title' => t($s),
+//        'href'=> 'budgets/'. $zone->id.'/'.$s,
+//        'attributes'=>array(
+//          'title' => t('List budgets/proposals with status set as !status',
+//            array('!status'=>t($s)))
+//        )
+//      );
+//    }   
+//  }
+//  $output .= theme_links($links).'<br>';   
     
   return '<hr>'.$output.'<hr>';
 }
