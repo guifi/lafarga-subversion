@@ -37,13 +37,16 @@ function budgets_menu() {
 //    'page arguments' => array(1),
 //    'access callback' => 'user_access',
 //    'access arguments' => array('access content'),
-//    'type' => MENU_LOCAL_TASK);  
+//    'type' => MENU_LOCAL_TASK);
+
+  // list budgets  
   $items['budgets/%guifi_zone/list'] = array(
     'title' => 'list',
     'page callback' => 'budgets_page',
     'page arguments' => array(1,null),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
+    'weight'=>0,
     'type' => MENU_LOCAL_TASK); 
   $items['budgets/%guifi_zone/list/All'] = array(
     'title' => 'all status',
@@ -52,11 +55,11 @@ function budgets_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 0,
-    'type' => MENU_LOCAL_TASK); 
+    'type' => MENU_DEFAULT_LOCAL_TASK); 
   $items['budgets/%guifi_zone/list/Open'] = array(
     'title' => 'open',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,2),
+    'page arguments' => array(1,3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 1,
@@ -64,7 +67,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Preparation'] = array(
     'title' => 'preparation',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,2),
+    'page arguments' => array(1,3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 2,
@@ -72,34 +75,45 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Closed'] = array(
     'title' => 'closed',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,2),
+    'page arguments' => array(1,3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 3,
     'type' => MENU_LOCAL_TASK); 
 
 
+  // CNML exports
   $items['budgets/%guifi_zone/cnml'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,'short'),
+    'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
+    'weight'=>1,
     'type' => MENU_LOCAL_TASK);
-  $items['budgets/%guifi_zone/cnml/short'] = array(
+  $items['budgets/%guifi_zone/cnml/%/%'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,'short'),
+    'page arguments' => array(1,3,4),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
+    'weight'=>1,
     'type' => MENU_LOCAL_TASK);
-  $items['budgets/%guifi_zone/cnml/long'] = array(
-    'title' => 'detailed cnml',
-    'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,'long'),
-    'access callback' => 'user_access',
-    'access arguments' => array('access content'),
-    'type' => MENU_LOCAL_TASK);
+  
+//  $items['budgets/%guifi_zone/cnml/short'] = array(
+//    'title' => 'cnml',
+//    'page callback' => 'budgets_cnml',
+//    'page arguments' => array(1,'short'),
+//    'access callback' => 'user_access',
+//    'access arguments' => array('access content'),
+//    'type' => MENU_LOCAL_TASK);
+//  $items['budgets/%guifi_zone/cnml/long'] = array(
+//    'title' => 'detailed cnml',
+//    'page callback' => 'budgets_cnml',
+//    'page arguments' => array(1,'long'),
+//    'access callback' => 'user_access',
+//    'access arguments' => array('access content'),
+//    'type' => MENU_LOCAL_TASK);
     
   $items['node/%budgets/cnml/short'] = array( 
     'title' => 'cnml',
@@ -1574,11 +1588,11 @@ function budgets_delete(&$node) {
 */
 function budgets_page($zone = NULL,$status = NULL) {
   
-  guifi_log(GUIFILOG_TRACE,'function budgets_page()',$zone->id);
+  guifi_log(GUIFILOG_TRACE,sprintf('function budgets_page(%d)',$zone->id),
+    $status);
   
-  // if 4rth parameter, asking for a specific status
   if ($status!=null) 
-    $status_str = "  AND budget_status='".arg(2)."' ";
+    $status_str = "  AND budget_status='".$status."' ";
   else
     $status_str = '';
       
@@ -1713,9 +1727,45 @@ function theme_budgets_items($node,$links = false) {
   return $output;
 }
 
+function theme_budgets_cnml($node) {
+  $node = node_load(array('nid'=>$node->id));
+    
+  guifi_log(GUIFILOG_TRACE,'function theme_budgets_cnml()',$node);
+  
+  $output = '<div id="guifi">';
+  $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$node->title)).'</h2>';
+  $output .= '<p>'.t('You must specify which data do you want to export, ' .
+      'the following options are available:').'</p>';
+  
+  $output .= '<ul>';
+  $output .= '<li>'.t('All status').' ('.
+      l(t('short format'),'budgets/'.$node->nid.'/cnml/short/All').', '.
+      l(t('long format'),'budgets/'.$node->nid.'/cnml/long/All').
+      ')</li>';
+  $output .= '<li>'.t('Open').' ('.
+      l(t('short format'),'budgets/'.$node->nid.'/cnml/short/Open').', '.
+      l(t('long format'),'budgets/'.$node->nid.'/cnml/long/Open').
+      ')</li>';
+  $output .= '<li>'.t('Preparation').' ('.
+      l(t('short format'),'budgets/'.$node->nid.'/cnml/short/Preparation').', '.
+      l(t('long format'),'budgets/'.$node->nid.'/cnml/short/Preparation').
+      ')</li>';
+  $output .= '<li>'.t('Closed').' ('.
+      l(t('short format'),'budgets/'.$node->nid.'/cnml/short/Closed').', '.
+      l(t('long format'),'budgets/'.$node->nid.'/cnml/long/Closed').
+      ')</li>';
+  $output .= '</ul>';
+      
+  $output .= '<p>'.t('The <b>C</b>ommunity <b>N</b>etwork <b>M</b>arkup <b>L</b>anguage (<a href="'.base_path().'node/3521">CNML</a>) is a XML format to interchange network information between services or servers.').'</p>';
+  $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
+  $output .= "</div>";
+
+  return $output;
+}
+
 function theme_budgets_funds($node,$links = false) {
   
-  guifi_log(GUIFILOG_TRACE,'function budgets_print_funds()',$node);
+  guifi_log(GUIFILOG_TRACE,'function theme_budgets_funds()',$node);
   
   if (!isset($node->nid))
     $node = node_load(array('nid'=>$node->id));
@@ -1902,14 +1952,30 @@ function budgets_ahah_select_quote($string){
   exit();
 }
 
-function budgets_cnml($node = null, $format) {
-  guifi_log(GUIFILOG_BBASIC,'function budgets_cnml()',$node);
+function budgets_cnml($node = null, $format = null, $status = null) {
   
-  if ($node_>type == 'budgets')
-    $bid = $node->id;
-  else
-    $zid = $node->id;
+  $node = node_load(array('nid'=>$node->id));  
+  guifi_log(GUIFILOG_TRACE,
+    sprintf('function budgets_cnml(%s %s)',$format,$status),
+    $node);
 
+  if ($format == null)
+    return theme_budgets_cnml($node);
+    
+  // Filter by status
+  if (($status == "All") or (empty($status)))
+    $where_str = '';
+  else
+    $where_str = " AND budget_status='".$status."' ";
+
+  // filter by zone (childs&parents) or budget id    
+  if ($node->type == 'guifi_zone')
+    $where_str .= " AND zone_id IN (".
+      implode(',',guifi_zone_childs_and_parents($node->id)).
+      ") ";
+  else
+    $where_str .= " AND id=".$node->id;
+  
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   $CNML->addAttribute('version','0.1');
   $CNML->addAttribute('server_id','1');
@@ -1924,7 +1990,7 @@ function budgets_cnml($node = null, $format) {
     $result = db_query(
       "SELECT b.id,b.zone_id " .
       "FROM {node} n, {budgets} b " .
-      "WHERE n.nid=b.id " .
+      "WHERE n.nid=b.id " .$where_str.
       "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
       "  n.changed DESC");
     while ($b = db_fetch_object($result)) {
