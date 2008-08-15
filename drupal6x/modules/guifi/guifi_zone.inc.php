@@ -588,6 +588,18 @@ function guifi_zone_title_validate($element, &$form_state) {
     form_error($element,t('You must specify a title for the zone.'));
 }
 
+function guifi_zone_tree_recurse($zid, $children) {
+  $childs = array();
+  if ($children[$zid]) {
+    foreach ($children[$zid] as $id => $zone) {
+      $childs[$id] = $zone;
+      $childs[$id]->childs = guifi_zone_tree_recurse($id,$children);
+    }
+  }
+
+  return $childs;
+}
+
 function guifi_zone_nick_validate($element, &$form_state) {
   if (empty($element['#value'])) {
     $nick = guifi_abbreviate($form_state['values']['title']);
