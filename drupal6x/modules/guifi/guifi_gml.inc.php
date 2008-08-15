@@ -2,7 +2,7 @@
 
 function guifi_gml($zid,$action = "help",$type = 'gml') {
 
-  if ($action == "help") { 
+  if ($action == "help") {
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zid));
      drupal_set_breadcrumb(guifi_zone_ariadna($zid));
      $output = '<div id="guifi">';
@@ -24,37 +24,40 @@ function guifi_gml($zid,$action = "help",$type = 'gml') {
   case 'nodes':
     guifi_gml_nodes($zid,$type);
     break;
-  }  
+  }
 } //EOF function guifi_gml
 
 function guifi_gml_nodes($zid,$type) {
   $minx = 180; $miny = 90; $maxx= -180; $maxy = -90;
-       
+
   $zchilds = guifi_zone_childs($zid);
 
   $res = db_query(
     "SELECT id,nick,lat,lon,zone_id,status_flag " .
-    "FROM {guifi_location}"); 
+    "FROM {guifi_location}");
 
   while ($row = db_fetch_object($res)) {
-    if (($row->zone_id != $zid) and (!in_array($zchilds,$row->zone_id)))
+    if (($row->zone_id != $zid) and (!in_array($row->zone_id,$zchilds)))
       continue;
-    $resradio = db_query("SELECT mode FROM {guifi_radios} WHERE nid = %d",$row->id);
-    switch (db_result($resradio)) {
-    case 0:
-      $node_type = 'N_A';
-      break;
-    case 1:
-      $radio = mysql_fetch_object($resradio);
-      $node_type = $radio->mode;
-      break;
-    default:
-      $node_type = 'Supernode';
-      break;
+    $rsql = db_query(
+       "SELECT mode " .
+       "FROM {guifi_radios} " .
+       "WHERE nid = %d",
+       $row->id);
+    $rcount = 0;
+    $node_type = 'N_A';
+    while ($r = db_fetch_object($rsql)) {
+      $rcount++;
+      if ($rcount == 1)
+        $node_type = $r->mode;
+      else {
+        $node_type = 'Supernode';
+        break;
+      }
     }
 
     if ($type == 'gml') {
-    $output .= '  
+    $output .= '
   <gml:featureMember>
     <dnodes fid="'.$row->id.'">
       <ogr:geometryProperty><gml:Point><gml:coordinates>'.$row->lon.','.$row->lat.'</gml:coordinates></gml:Point></ogr:geometryProperty>
@@ -95,7 +98,7 @@ function guifi_gml_links($zid,$type) {
   $oGC = new GeoCalc();
   $minx = 180; $miny = 90; $maxx= -180; $maxy = -90;
 
-  $res = db_query("SELECT id,link_type,flag FROM {guifi_links} WHERE link_type != 'cable' GROUP BY 1,2 HAVING count(*) = 2"); 
+  $res = db_query("SELECT id,link_type,flag FROM {guifi_links} WHERE link_type != 'cable' GROUP BY 1,2 HAVING count(*) = 2");
 
   $zchilds = guifi_zone_childs($zid);
   $zchilds[$zid] = 'Top';
@@ -107,16 +110,16 @@ function guifi_gml_links($zid,$type) {
   while ($n = db_fetch_object($resnode)) {
       $nl[] = $n;
   }
-  if (count($nl) == 2) 
+  if (count($nl) == 2)
   if ((in_array($zchilds,$nl[0]->zone_id)) || (in_array($zchilds,$nl[1]->zone_id))) {
     $distance = round($oGC->EllipsoidDistance($nl[0]->lat,$nl[0]->lon, $nl[1]->lat, $nl[1]->lon),3);
-    
-    if (($nl[0]->status_flag != 'Working') or ($nl[1]->status_flag != 'Working')) 
+
+    if (($nl[0]->status_flag != 'Working') or ($nl[1]->status_flag != 'Working'))
       $status = 'Reserved';
     else
       $status = $row->flag;
 
-    if ($type == 'gml') $output .= '  
+    if ($type == 'gml') $output .= '
   <gml:featureMember>
     <dlinks fid="'.$row->id.'">
       <NODE1_ID>'.$nl[0]->id.'</NODE1_ID>
@@ -131,7 +134,7 @@ function guifi_gml_links($zid,$type) {
   </gml:featureMember>';
     else
       $output .= $row->id.','.$nl[0]->id.','.$nl[0]->nick.','.$nl[1]->id.','.$nl[1]->nick.','.$distance.','.$row->link_type.','.$status.','.$nl[0]->lon.','.$nl[0]->lat.','.$nl[1]->lon.','.$nl[1]->lat."\n";
-  
+
     if ($nl[0]->lon > $maxx) $maxx = $nl[0]->lon;
     if ($nl[0]->lat > $maxy) $maxy = $nl[0]->lat;
     if ($nl[0]->lon < $minx) $minx = $nl[0]->lon;
@@ -142,7 +145,7 @@ function guifi_gml_links($zid,$type) {
     if ($nl[1]->lat < $miny) $miny = $nl[1]->lat;
   }
 
-  
+
 }
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
   if ($type == 'gml') print '<?xml version="1.0" encoding="utf-8" ?>
@@ -159,7 +162,7 @@ function guifi_gml_links($zid,$type) {
   </gml:boundedBy>';
   print $output;
   if ($type == 'gml') print '</ogr:FeatureCollection>';
-     
+
 } // eof function guifi_gml_links()
 
 ?>

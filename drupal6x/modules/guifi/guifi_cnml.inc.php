@@ -5,9 +5,18 @@
 
 function guifi_cnml($cnmlid,$action = 'help') {
 
+  guifi_log(GUIFILOG_TRACE,'function guifi_cnml()',$cnmlid);
+
+  if (!is_numeric($cnmlid))
+    return;
+
   if ($action == "help") {
-     $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$cnmlid));
+     $zone = db_fetch_object(db_query(
+       'SELECT title, nick ' .
+       'FROM {guifi_zone} ' .
+       'WHERE id = %d',$cnmlid));
      drupal_set_breadcrumb(guifi_zone_ariadna($cnmlid));
+
      $output = '<div id="guifi">';
      $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
      $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
@@ -18,7 +27,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
      $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
      $output .= "</div>";
      print theme('page',$output,t('export %zname% in CNML format',array('%zname%' => $z->title)));
-     return;
+     exit;
   }
 
   function links($iid,$iipv4_id,$ident,$nl) {
@@ -33,16 +42,16 @@ function guifi_cnml($cnmlid,$action = 'help') {
                                                     'linked_node_id'=>$l->nid,
 						    'linked_interface_id'=>$l->interface_id,
                                                     'link_type'=>$l->link_type,
-                                                    'link_status'=>$l->flag)); 
-      $links->xml .= xmlclosetag($ident,'link',$nl); 
-      
+                                                    'link_status'=>$l->flag));
+      $links->xml .= xmlclosetag($ident,'link',$nl);
+
     }
-   
+
     return $links->xml;
   }
 
   global $base_url;
-  
+
   // load nodes and zones in memory for faster execution
   switch ($action) {
   case 'zones':
@@ -56,7 +65,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      $sql_services = 'SELECT s.* FROM {guifi_services} s';
      break;
    case 'node':
-     $qnode = db_query(sprintf('SELECT l.* FROM {guifi_location} l WHERE l.id in (%s)',$cnmlid));
+     $qnode = db_query(sprintf(
+       'SELECT l.*,r.body body ' .
+       'FROM {guifi_location} l, {node} n, {node_revisions} r ' .
+       'WHERE l.id=n.nid AND n.vid=r.vid ' .
+       '  AND l.id in (%s)',
+       $cnmlid));
      while ($node = db_fetch_object($qnode)) {
        $tree[] = $node;
      }
@@ -72,8 +86,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
      echo $CNML->asXML();
      return;
      break;
-  }   
-  
+  }
+
 
   // load devices in memory for faster execution
   global $devices;
@@ -129,7 +143,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
 
   function _add_cnml_node(&$CNML,$node,&$summary,$action) {
-  
+
     global $devices;
     global $radios;
     global $interfaces;
@@ -158,7 +172,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
          case 'timestamp_created': $nodeXML->addAttribute('created',date('Ymd hi',$value)); break;
          case 'timestamp_changed': $nodeXML->addAttribute('updated',date('Ymd hi',$value)); break;
        }
-      } 
+      }
     }
     $summary->nodes++;
     if ($node->lon < $summary->minx) $summary->minx = $node->lon;
@@ -204,8 +218,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
           foreach ($radios[$node->id][$device->id] as $id=>$radio) {
             if ($action == 'detail') {
               $radioXML = $deviceXML->addChild('radio',htmlspecialchars($radio->comment,ENT_QUOTES));
-              $radioXML->addAttribute('id',$radio->radiodev_counter); 
-              $radioXML->addAttribute('device_id',$device->id); 
+              $radioXML->addAttribute('id',$radio->radiodev_counter);
+              $radioXML->addAttribute('device_id',$device->id);
               foreach ($radio as $key=>$value) {
                if ($value) switch ($key) {
                  case 'radiodev_counter':
@@ -223,8 +237,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
               if (in_array($model_name,
                      array('WRT54Gv1-4','WHR-HP-G54, WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
                switch ($device->variable['firmware']) {
-               case 'whiterussian': 
-               case 'kamikaze': 
+               case 'whiterussian':
+               case 'kamikaze':
                  $radioXML->addAttribute('snmp_index',3);
                  break;
                default:
@@ -247,7 +261,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
             // device radio interfaces
             if (is_array($interfaces[$device->id][$radio->radiodev_counter])) if (count($interfaces[$device->id][$radio->radiodev_counter])) {
-              foreach ($interfaces[$device->id][$radio->radiodev_counter] as $radio_interfaces) 
+              foreach ($interfaces[$device->id][$radio->radiodev_counter] as $radio_interfaces)
               foreach ($radio_interfaces as $interface) {
                 if (!array_search($interface->interface_type,array('a'=>'wds/p2p','b'=>'wLan','c'=>'wLan/Lan','d'=>'Wan')))
                   continue;
@@ -290,15 +304,15 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
 
               } // foreach radio interface
-            } // radio interfaces 
+            } // radio interfaces
 
           } // foreach radios
         } // device radios
 
         // device interfaces
         if (is_array($interfaces[$device->id])) if (count($interfaces[$device->id])) {
-          foreach ($interfaces[$device->id] as $device_interfaces) 
-          foreach ($device_interfaces as $counter_interfaces) 
+          foreach ($interfaces[$device->id] as $device_interfaces)
+          foreach ($device_interfaces as $counter_interfaces)
           foreach ($counter_interfaces as $interface) {
             if (array_search($interface->interface_type,array('a'=>'wds/p2p','b'=>'wLan','c'=>'wlan/Lan')))
               continue;
@@ -337,7 +351,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
               } // foreach link
             } //interface links
           } // foreach interface
-        } //interface 
+        } //interface
 
         // services
         if (is_array($services[$device->id])) if (count($services[$device->id])) {
@@ -375,7 +389,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
       if ($nodesummary->links) $nodeXML->addAttribute('links',$nodesummary->links);
       if ($nodesummary->services) $nodeXML->addAttribute('services',$nodesummary->services);
     }
-   
+
     return;
   } // _add_cnml_node
 
@@ -412,7 +426,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
           }
           break;
        case 'nodes':
-          foreach ($value as $child) 
+          $summary = (object)array();
+          foreach ($value as $child)
             _add_cnml_node($zoneXML,$child,$summary,$action);
           break;
        case 'id': $zoneXML->addAttribute('id',$value); break;
@@ -425,10 +440,10 @@ function guifi_cnml($cnmlid,$action = 'help') {
        case 'timestamp_created': $zoneXML->addAttribute('created',date('Ymd hi',$value)); break;
        case 'timestamp_changed': $zoneXML->addAttribute('updated',date('Ymd hi',$value)); break;
      }
-    } 
+    }
     $zoneXML->addAttribute('zone_nodes',$summary->nodes);
 
-    if (($zone->minx != 0) and ($zone->miny != 0) and ($zone->maxx != 0) and ($zone->maxy != 0)) 
+    if (($zone->minx != 0) and ($zone->miny != 0) and ($zone->maxx != 0) and ($zone->maxy != 0))
       $zoneXML->addAttribute('box',$zone->minx.','.$zone->miny.','.$zone->maxx.','.$zone->maxy);
     else
       $zoneXML->addAttribute('box',$summary->minx.','.$summary->miny.','.$summary->maxx.','.$summary->maxy);
@@ -441,7 +456,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
     return $summary;
   }
-  
+
   $summary->nodes = 0;
   $summary->minx = 179.9;
   $summary->miny = 89.9;
@@ -464,7 +479,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
     $classXML->addAttribute('network_description',$action);
     $classXML->addAttribute('mapping','y');
     $networkXML = $CNML->addChild('network');
-  
+
+    if (count($tree))
     foreach ($tree as $zone_id=>$zone) {
       $summary2 = _add_cnml_zone($networkXML,$zone,$action);
       $summary->nodes   += $summary2->nodes;
@@ -473,9 +489,9 @@ function guifi_cnml($cnmlid,$action = 'help') {
       $summary->servers += $summary2->servers;
       $summary->links   += $summary2->links;
       $summary->services+= $summary2->services;
-       
+
     }
-  
+
     $networkXML->addAttribute('nodes',$summary->nodes);
     $networkXML->addAttribute('devices',$summary->devices);
     $networkXML->addAttribute('ap',$summary->ap);
@@ -491,18 +507,18 @@ function guifi_cnml($cnmlid,$action = 'help') {
     $summary->client = 0;
     $summary->services = 0;
     $summary->links = 0;
- 
-    // print_r($tree); 
+
+    // print_r($tree);
     foreach ($tree as $nodeid=>$node) {
       $summary = _add_cnml_node($CNML,$node,$summary,'detail');
     }
-  } 
+  }
 
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
   echo $CNML->asXML();
 
   return;
-  
+
 }
 
 function fnodecount($cnmlid){
@@ -579,13 +595,13 @@ function fnodecount($cnmlid){
     $oGC = new GeoCalc();
     $dTotals = array();
     $qlinks = db_query('
-      SELECT 
-        l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1, 
-        n1.lon lon1, n2.lat lat2, n2.lon lon2 
-      FROM guifi_links l1 
-        LEFT JOIN guifi_links l2 ON l1.id=l2.id 
-        LEFT JOIN guifi_location n1 ON l1.nid=n1.id 
-        LEFT JOIN guifi_location n2 ON l2.nid=n2.id 
+      SELECT
+        l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1,
+        n1.lon lon1, n2.lat lat2, n2.lon lon2
+      FROM guifi_links l1
+        LEFT JOIN guifi_links l2 ON l1.id=l2.id
+        LEFT JOIN guifi_location n1 ON l1.nid=n1.id
+        LEFT JOIN guifi_location n2 ON l2.nid=n2.id
       WHERE l1.nid != l2.nid AND l1.device_id != l2.device_id');
     unset($listed);
     while ($link = db_fetch_object($qlinks)) {
@@ -595,10 +611,10 @@ function fnodecount($cnmlid){
 	    switch ($link->link_type) {
 	      case 'wds': $type=t('PtP link'); break;
 	      case 'ap/client': $type=t('ap/client'); break;
-	      default: $type=t('unknown'); 
+	      default: $type=t('unknown');
 	    }
 	    if ($d < 100) {
-	      $dTotals[$type]['dTotal'] += $d; 
+	      $dTotals[$type]['dTotal'] += $d;
 	      $dTotals[$type]['count'] ++;
 	    }else{
 	      guifi_log(GUIFILOG_BASIC,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
@@ -608,7 +624,7 @@ function fnodecount($cnmlid){
     }
 	$classXML = $CNML->addChild('linksxtype');
 	$nreg=0;
-    if (count($dTotals)) foreach ($dTotals as $key=>$dTotal){ 
+    if (count($dTotals)) foreach ($dTotals as $key=>$dTotal){
 	    if ($dTotal['dTotal']) {
 	  	  $nreg++;
 	  	  $reg = $classXML->addChild('rec');
@@ -621,7 +637,7 @@ function fnodecount($cnmlid){
 	break;
   case 9:  //torna els nodes actius totals i els del ultim minut
 	$afecha=getdate();
-	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mday],$afecha[mon],$afecha[year]);  
+	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mday],$afecha[mon],$afecha[year]);
 	$tiempomax=$tiempomin+60;
   	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
   	$result2=db_query("select COUNT(*) as num from {guifi_location} where timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax."");
@@ -636,7 +652,7 @@ function fnodecount($cnmlid){
 	};
 	$classXML->addAttribute('result',$nreg);
 	break;
-  }	
+  }
   return $CNML;
 }
 

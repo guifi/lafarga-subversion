@@ -694,7 +694,7 @@ function guifi_admin_settings() {
     '#maxlength' => 3,
     '#description' => t("Number of rows to be displayed as default on every paged report..."),
     '#weight' => $form_weight++,
-  );  
+  );
   $form['guifi_contact'] = array(
     '#type' => 'textfield',
     '#title' => t('Default contact'),

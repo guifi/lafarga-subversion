@@ -1330,23 +1330,25 @@ function guifi_cnml_tree($zid) {
   $result = db_query('
     SELECT z.id, z.master parent_id, z.title, z.time_zone, z.ntp_servers,
       z.dns_servers, z.graph_server, z.homepage, z.minx, z.miny, z.maxx,
-      z.maxy,z.timestamp_created, z.timestamp_changed
-    FROM {guifi_zone} z
+      z.maxy,z.timestamp_created, z.timestamp_changed,
+      r.body
+    FROM {guifi_zone} z, {node} n, {node_revisions} r
+    WHERE z.id=n.nid AND n.vid=r.vid
     ORDER BY z.title');
   while ($zone = db_fetch_object($result)) {
     $zones[$zone->id] = $zone;
   }
   $result = db_query('
-    SELECT l.*
-    FROM {guifi_location} l
+    SELECT l.*, r.body
+    FROM {guifi_location} l, {node} n, {node_revisions} r
+    WHERE l.id=n.nid AND n.vid=r.vid
     ORDER BY l.nick');
   while ($node = db_fetch_object($result)) {
     $zones[$node->zone_id]->nodes[] = $node;
   }
 
-
   $childs = array();
-
+  $children = array();
   foreach ($zones as $zoneid=>$zone) {
     if (!$children[$zone->parent_id]) {
       $children[$zone->parent_id][$zoneid] = $zone;
@@ -1364,7 +1366,7 @@ function guifi_cnml_tree($zid) {
 function guifi_form_hidden_var($var,$keys = array(),$parents = array()) {
 
   $keys = array_merge($keys,array('new','deleted'));
-  
+
   foreach ($keys as $kvalue) {
     if (isset($var[$kvalue])) {
       $form[$kvalue] = array(
