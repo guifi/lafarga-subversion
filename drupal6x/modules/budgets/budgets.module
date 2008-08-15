@@ -25,11 +25,18 @@ function budgets_menu() {
     'type' => MENU_NORMAL_ITEM);
   
   $items['budgets'] = array(
-    'title' => 'Proposals,budgets and fundings',
+    'title' => 'Proposals, budgets and fundings',
     'page callback' => 'budgets_page',
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK);
+  $items['budgets/%guifi_zone'] = array(
+    'title' => 'Zone proposals, budgets and fundings',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK);  
   $items['budgets/cnml/short'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
