@@ -1297,7 +1297,11 @@ function guifi_zones_listbox($exclude = 0) {
 
 /** guifi_zone_l(): Creates a link to the zone
 **/
-function guifi_zone_l($id, $title, $linkto) {
+function guifi_zone_l($id, $title = null, $linkto = 'node/') {
+  if ($id == 0)
+    $id = guifi_zone_root();
+  if (empty($title))
+    $title = guifi_get_zone_name($id);
   return l($title, $linkto. $id);
 }
 
