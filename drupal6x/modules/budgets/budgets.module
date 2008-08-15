@@ -550,7 +550,7 @@ function budgets_display_block_1() {
       $content .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->id .'">' .$b->title .'</a></div>';
       $content .= budgets_bar($b->total,$b->covered,$b->currency_symbol);
     }
-    $content .= '<div style="text-align: right;">' .l(t('view all open projects'), 'budgets') .'</div>';
+    $content .= '<div style="text-align: right;">' .l(t('view all open projects'), 'budgets/'.guifi_zone_root().'/list/Open') .'</div>';
     return $content;
 }
 
@@ -1690,7 +1690,6 @@ function budgets_bar($total,$subtotal,$currency = '€') {
 }
 
 function theme_budgets_items($node,$links = false) {
-  print $links;
 
   if (!isset($node->nid))
     $node = node_load(array('nid'=>$node->id));
@@ -1958,7 +1957,7 @@ function budgets_cnml($node = null, $format = null, $status = null) {
   guifi_log(GUIFILOG_TRACE,
     sprintf('function budgets_cnml(%s %s)',$format,$status),
     $node);
-
+  
   if ($format == null)
     return theme_budgets_cnml($node);
     
@@ -1986,7 +1985,7 @@ function budgets_cnml($node = null, $format = null, $status = null) {
   
 // TODO: Query by zone anr/or budget_status
   
-  if (is_null($bid)) {
+  if ($node->type == 'guifi_zone') {
     $result = db_query(
       "SELECT b.id,b.zone_id " .
       "FROM {node} n, {budgets} b " .
@@ -1997,7 +1996,7 @@ function budgets_cnml($node = null, $format = null, $status = null) {
       budgets_cnml_budget($CNML,$b->id,$format);
     }
   } else 
-    budgets_cnml_budget($CNML,$bid->id,$format);
+    budgets_cnml_budget($CNML,$node->id,$format);
   
   
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
