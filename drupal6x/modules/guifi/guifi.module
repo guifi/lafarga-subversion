@@ -176,32 +176,32 @@ function guifi_menu() {
   );
   $items['node/%guifi_node/view/data'] = array(
     'title' => 'data',
-    'page callback' => 'guifi_node_print',
-    'page arguments' => array(1),
+    'page callback' => 'theme_guifi_node_data',
+    'page arguments' => array(1,'true'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $items['node/%guifi_node/view/devices'] = array(
     'title' => 'devices',
-    'page callback' => 'guifi_node_radio_list',
-    'page arguments' => array(1),
+    'page callback' => 'theme_guifi_node_devices_list',
+    'page arguments' => array(1,'true'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $items['node/%guifi_node/view/links'] = array(
     'title' => 'links',
-    'page callback' => 'guifi_node_links',
-    'page arguments' => array(1),
+    'page callback' => 'theme_guifi_node_links',
+    'page arguments' => array(1,'true'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $items['node/%guifi_node/view/graphs'] = array(
     'title' => 'graphs',
-    'page callback' => 'guifi_node_graph_overview',
-    'page arguments' => array(1),
+    'page callback' => 'theme_guifi_node_graphs_overview',
+    'page arguments' => array(1,'true'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
@@ -988,7 +988,7 @@ function guifi_link($type, $node = 0){
     if (module_exists('budgets')) {
       $links['budgets'] = array(
         'title'=> t('budgets'),
-        'href'=>"budgets/$node->nid",
+        'href'=>"budgets/$node->nid/list",
         'attributes'=>array('title'=>t('view budgets for this zone')));
     }
   }

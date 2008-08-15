@@ -452,49 +452,6 @@ function guifi_node_nick_validate($element, &$form_state) {
   }
 }
 
-/**
- * guifi_node_graph_overview
- * outputs an overiew graph of the node
-**/
-function guifi_node_graph_overview($node) {
-
-  /**
-   *   Get the zone
-   **/
-
-  $server_mrtg = guifi_graphs_get_node_url($node->id);
-
-  // print "server_mrtg: ".$server_mrtg."\n<br>";
-  $radios = array();
-  $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
-  while ($radio = db_fetch_array($query)) {
-    $radios[] = $radio;
-  }
-  // print "Count radios: ".count($radios)."\n<br>";
-  if (count($radios)) {
-    if (substr($server_mrtg,0,3)=="fot"){
-      //  graph all devices.about a node. Ferran Ot
-      while ($radio = db_fetch_object($query)){
-        $ssid=get_SSID_radio($radio->id);
-        $ssid=strtolower($ssid);
-        $mrtg_url=substr($server_mrtg,3);
-        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
-        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
-      }
-      $ret = array_merge($rows);
-    }else{
-      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
-      $ret = array_merge($rows);
-    }
-  } else {
-    $radio = db_fetch_array($query);
-    $ret = guifi_device_graph_overview($radio);
-  }
-
-  return theme('table',null,$ret);
-}
 
 
 function guifi_node_get_service($id, $type ,$path = false) {
@@ -667,64 +624,8 @@ function guifi_node_delete($node) {
   return;
 }
 
-function guifi_node_print($node) {
-
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
-
-  $table = theme('table', null, guifi_node_print_data($node));
-  $output .= theme('box', t('Node information'), $table);
-
-  return $output;
-}
-
 /** node visualization (view) function calls */
 
-/** guifi_node_print_data(): outputs the node information (d)ata
-
-  guifi_node_print_data($node:Obj-node):array
-  functions
-    ???->user_access(p1:string):boolean
-**/
-function guifi_node_print_data($node) {
-
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
-  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
-  $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
-
-  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
-  $rows[] = array(t('zone'),$zone->title,$node->zone_description);
-  $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
-                   $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
-  $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
-
-  if (($node->notification) and (user_access('administer guifi networks')))
-    $rows[] = array(
-      t('changes notified to (visible only if you have privileges)'),
-      array(
-        'data'=>
-          '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
-          'colspan'=>2));
-
-
-  $rows[] = array(t('graphs provided from'),array(
-    'data'=>l(guifi_service_str($node->graph_server),
-              guifi_node_get_service($node->id,'graph_server',true)),
-     'colspan'=>2));
-
-
-  $rows[] = array(null,null,null);
-  $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
-  if ($node->timestamp_created > 0)
-    $rows[] = array(t('created by'),
-      array('data'=>l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created),
-      'colspan'=>2));
-  if ($node->timestamp_changed > 0)
-    $rows[] = array(t('updated by'),
-      array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
-      'colspan'=>2));
-
-  return array_merge($rows);
-}
 
 /** guifi_node_view(): outputs the node information
 
@@ -742,16 +643,40 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
 
   if ($page) {
-    $node->content['body']['#value'] =
-      theme_table(null,array(
-          array($node->body),
-          array(theme_table(null,array(array(array('data'=>'<small>'.guifi_node_print($node).'</small>','width'=>'50%'),
-                                             array('data'=>guifi_node_simple_map($node),'width'=>'50%'))))),
-          array(guifi_node_graph_overview($node)),
-          array(guifi_node_radio_list($node)),
-          array(guifi_node_links($node)),         )
-      );
-
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    $node->content['data'] = array(
+      '#value'=> theme_table(null,
+         array(
+           array(
+             array(
+               'data'=>'<small>'.
+                  theme_guifi_node_data($node).
+                  '</small>',
+                  'width'=>'50%'
+             ),
+             array(
+               'data'=>theme_guifi_node_map($node),
+               'width'=>'50%'
+             )
+           )
+         )
+       ),
+      '#weight'=> 1);   
+    $node->content['graphs'] = array(
+      '#value'=> theme_guifi_node_graphs_overview($node),
+      '#weight'=> 2);   
+    $node->content['devices'] = array(
+      '#value'=> theme_guifi_node_devices_list($node),
+      '#weight'=> 3);   
+    $node->content['wdsLinks'] = array(
+      '#value'=> theme_guifi_node_links_by_type($node->id,'wds'),
+      '#weight'=> 4);   
+    $node->content['cableLinks'] = array(
+      '#value'=> theme_guifi_node_links_by_type($node->id,'cable'),
+      '#weight'=> 5);   
+    $node->content['clientLinks'] = array(
+      '#value'=> theme_guifi_node_links_by_type($node->id,'ap/client'),
+      '#weight'=> 6);   
     return $node;
   }
 
@@ -766,173 +691,6 @@ function guifi_node_hidden_map_fileds($node) {
   return $output;
 }
 
-/** guifi_zone_simple_map(): Print de page show de zone map and nodes without zoom.
- */
-function guifi_node_simple_map($node) {
-  if (guifi_gmap_key()) {
-    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_point.js','module');
-    $output = '<div id="map" style="width: 100%; height: 340px; margin:5px;"></div>';
-    $output .= guifi_node_hidden_map_fileds($node);
-  } else {
-    $output = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
-    $output .= t('Sorry, your browser can\'t display the embedded map');
-    $output .= '</IFRAME>';
-  }
-  return $output;
-}
-/*
-&$node, $teaser = FALSE, $page = FALSE) {
-
-  if (is_numeric($node)) {
-    $node = node_load($node);
-  }
-
-  $output = '<div id="guifi">';
-
-  $node = node_prepare($node);
-
-//  print_r($node->content);
-
-  switch (arg(3)) {
-    case 'data':
-    case 'graphs':
-    case 'devices':
-    case 'interfaces':
-    case 'links':
-    case 'services':
-    case 'users':
-    case 'distances':
-      $op = arg(3);
-      break;
-    default:
-      $op = "default";
-      break;
-  }
-  switch ($op) {
-    case 'all': case 'data': case 'default':
-      // node details
-      if ($op == 'data') {
-        $output .= theme('table',null,guifi_node_print_data($node));
-        break;
-      }
-      if ($page)
-        $node->content['body']['#value'] =  $node->body.theme('table', NULL, guifi_node_print_data($node));
-      if ($teaser)
-        $node->content['body']['#value'] =  $node->body;
-      if ($op == 'view') {
-        $output .= $node->body;
-        break;
-      }
-    case 'graphs':
-      // node graphs
-      $output .= theme('table', array(t('traffic overview')), guifi_node_graph_overview($node));
-      if ($op == 'graphs') break;
-    case 'devices':
-      // listing node devices
-      $output .= guifi_node_radio_list($node->nid);
-      if ($op == 'devices') break;
-    case 'links':
-      // listing node links
-      $output .= guifi_node_link_list($node->nid,'cable');
-      $output .= guifi_node_link_list($node->nid,'wds');
-      $output .= guifi_node_link_list($node->nid,'ap/client');
-      break;
-    case 'distances':
-      // listing node neighbours
-      $output .= drupal_get_form('guifi_node_distances',$node->nid);
-      break;
-    case 'services':
-      // listing node services
-      $output .= guifi_list_services($node);
-      break;
-    case 'users':
-      // listing node users
-      $output .= guifi_list_users($node);
-      break;
-  }
-  $output .= "</div>";
-
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
-  if ($op == 'default') {
-    $node->content['body']['#value'] .= $output;
-    return $node;
-  }
-  drupal_set_title(t('node').': '.$node->title.' ('.t($op).')');
-  print theme('page', $output,FALSE);
-  exit(0);
-
-//  drupal_set_title($node->title.' ('.t($op).')');
-//  print theme('page',$output);
-//  exit(0);
-//}
-
-//  $node->body .= theme('box', t('node information'), $output);
-
-//  if ($op == 'default')
-//    print theme('page',$output,t('node').': '.$node->title.' ('.t($op).')');
-}
-*/
-/** guifi_node_radio_list(): list of node devices
-
-  guifi_node_radio_list($id:int):form
-  functions
-    ???->guifi_device_load(???):????
-    ???->guifi_availabilitystr(???):????
-    ???->guifi_device_access(???):????
-    ???->guifi_main_ip(???):????
-    ???->guifi_graphs_get_node_url(???):????
-**/
-function guifi_node_radio_list($node) {
-
-  function _guifi_line_edit_device_form($node,$id) {
-    $form['id'] = array('#type' => 'hidden', '#value' => $id);
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
-    $form['#action'] = url('guifi/device/'. $id.'/edit');
-    return $form;
-  }
-
-  $id = $node->id;
-  $rows = array();
-
-  $header = array('<h2>'.t('device').'</h2>', t('type'), t('ip'), t('status'),
-                  array('data'=>t('last available'),'align'=>'right'));
-
-  // Form for adding a new device
-  $form = drupal_get_form('guifi_device_create_form',$id);
-
-  $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
-  while ($d = db_fetch_object($query)) {
-     $device = guifi_device_load($d->id);
-     $status_str = guifi_availabilitystr($device);
-     if (guifi_device_access('update',$device['id'])) {
-       // form to allow editing the device
-       $edit_radio = '<td>'.drupal_get_form('_guifi_line_edit_device_form',$device['id']);
-       $edit_radio .= "<td/>";
-
-     }
-     if ($device->variable['firmware'] != "n/d") {
-       $unsolclic = '<td><a href="'.url('guifi/device/' .$device[id] .'/view/unsolclic').'" title="' .t("Get radio configuration with singleclick") .'">' .$device[variable]['firmware'] .'</a></td>';
-     }
-     $ip = guifi_main_ip($device[id]);
-     $graph_url = guifi_graphs_get_node_url($id,FALSE);
-     if ($graph_url != NULL)
-       $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
-     else
-       $img_url = NULL;
-     $rows[] = array('<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
-                 $device[type],
-                 array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
-                 array('data' => t($device[flag]),'class' => $device['flag']),
-                 array('data' => $img_url,'class' => $device['flag']),
-                 $edit_radio,
-                 $unsolclic
-                    );
-  }
-  if (count($rows)==0)
-     $rows[] = array(t('This node does not have any device.'));
-
-  return '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
-}
 
 /** guifi_node_print_distances(): list of neighbors
 
@@ -1300,12 +1058,229 @@ function guifi_node_distances_form_submit($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
 }
 
-/** guifi_node_link_list(): list of node links
+function guifi_node_set_flag($id) {
+  
+  $scores = array(
+    'Dropped'=>0,
+    'Planned'=>1,
+    'Reserved'=>2,
+    'Building'=>3,
+    'Testing'=>4,
+    'Working'=>5
+    );
+  $score = -1; 
+  $query = db_query(
+    "SELECT d.id, d.flag " .
+    "FROM {guifi_devices} d " .
+    "WHERE d.nid = %d",
+    $id);
+  while ($device = db_fetch_object($query)) {
+    if ($scores[$device->flag] > $score)
+      $score = $scores[$device->flag];
+  } // eof while devices
+  
+  if ($score == -1)
+    // no devices status found, default Planned
+    $score = 1;
+    
+  // set the highest score found  
+  $scores = array_flip($scores);
+  db_query("UPDATE {guifi_location} " .
+      "SET status_flag = '%s' " .
+      "WHERE id = %d",
+      $scores[$score],
+      $id);
+}
 
-  guifi_node_link_list($id:int,$ltype:???):form
-  functions
+/* Themes (presentation) functions */
+
+function theme_guifi_node_data($node,$links = false) {
+
+  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
+  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
+  $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
+
+  $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
+  $rows[] = array(t('zone'),$zone->title,$node->zone_description);
+  $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
+                   $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
+  $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
+
+  if (($node->notification) and (user_access('administer guifi networks')))
+    $rows[] = array(
+      t('changes notified to (visible only if you have privileges)'),
+      array(
+        'data'=>
+          '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
+          'colspan'=>2));
+
+
+  $rows[] = array(t('graphs provided from'),array(
+    'data'=>l(guifi_service_str($node->graph_server),
+              guifi_node_get_service($node->id,'graph_server',true)),
+     'colspan'=>2));
+
+
+  $rows[] = array(null,null,null);
+  $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
+  if ($node->timestamp_created > 0)
+    $rows[] = array(t('created by'),
+      array('data'=>l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created),
+      'colspan'=>2));
+  if ($node->timestamp_changed > 0)
+    $rows[] = array(t('updated by'),
+      array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
+      'colspan'=>2));
+      
+  $output = theme('table',null,array_merge($rows));
+  
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  }
+
+  return $output;
+}
+
+
+function theme_guifi_node_map($node) {
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_point.js','module');
+    $output = '<div id="map" style="width: 100%; height: 340px; margin:5px;"></div>';
+    $output .= guifi_node_hidden_map_fileds($node);
+  } else {
+    $output = '<IFRAME FRAMEBORDER="0" ALIGN=right SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=300,240&Lat='.$node->lat.'&Lon='.$node->lon.'&Layers=all" WIDTH="350" HEIGHT="290" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
+    $output .= t('Sorry, your browser can\'t display the embedded map');
+    $output .= '</IFRAME>';
+  }
+  return $output;
+}
+
+/**
+ * guifi_node_graph_overview
+ * outputs an overiew graph of the node
 **/
-function guifi_node_link_list($id = 0, $ltype = '%') {
+function theme_guifi_node_graphs_overview($node,$links = false) {
+
+  $server_mrtg = guifi_graphs_get_node_url($node->id);
+
+  $radios = array();
+  $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
+  while ($radio = db_fetch_array($query)) {
+    $radios[] = $radio;
+  }
+  // print "Count radios: ".count($radios)."\n<br>";
+  if (count($radios)) {
+    if (substr($server_mrtg,0,3)=="fot"){
+      //  graph all devices.about a node. Ferran Ot
+      while ($radio = db_fetch_object($query)){
+        $ssid=get_SSID_radio($radio->id);
+        $ssid=strtolower($ssid);
+        $mrtg_url=substr($server_mrtg,3);
+        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
+        $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
+      }
+      $ret = array_merge($rows);
+    }else{
+      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
+      $ret = array_merge($rows);
+    }
+  } else {
+    $radio = db_fetch_array($query);
+    $ret = guifi_device_graph_overview($radio);
+  }
+
+  $output = theme('table',null,$ret);
+  
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  }
+  
+  return $output; 
+}
+
+function theme_guifi_node_devices_list($node,$links = false) {
+
+  function _guifi_line_edit_device_form($node,$id) {
+    $form['id'] = array('#type' => 'hidden', '#value' => $id);
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
+    $form['#action'] = url('guifi/device/'. $id.'/edit');
+    return $form;
+  }
+
+  $id = $node->id;
+  $rows = array();
+
+  $header = array('<h2>'.t('device').'</h2>', t('type'), t('ip'), t('status'),
+                  array('data'=>t('last available'),'align'=>'right'));
+
+  // Form for adding a new device
+  $form = drupal_get_form('guifi_device_create_form',$id);
+
+  $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
+  while ($d = db_fetch_object($query)) {
+     $device = guifi_device_load($d->id);
+     $status_str = guifi_availabilitystr($device);
+     if (guifi_device_access('update',$device['id'])) {
+       // form to allow editing the device
+       $edit_radio = '<td>'.drupal_get_form('_guifi_line_edit_device_form',$device['id']);
+       $edit_radio .= "<td/>";
+
+     }
+     if ($device->variable['firmware'] != "n/d") {
+       $unsolclic = '<td><a href="'.url('guifi/device/' .$device[id] .'/view/unsolclic').'" title="' .t("Get radio configuration with singleclick") .'">' .$device[variable]['firmware'] .'</a></td>';
+     }
+     $ip = guifi_main_ip($device[id]);
+     $graph_url = guifi_graphs_get_node_url($id,FALSE);
+     if ($graph_url != NULL)
+       $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
+     else
+       $img_url = NULL;
+     $rows[] = array('<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
+                 $device[type],
+                 array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
+                 array('data' => t($device[flag]),'class' => $device['flag']),
+                 array('data' => $img_url,'class' => $device['flag']),
+                 $edit_radio,
+                 $unsolclic
+                    );
+  }
+  if (count($rows)==0)
+     $rows[] = array(t('This node does not have any device.'));
+
+  $output = '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
+  
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  }
+  
+  return $output;
+}
+
+function theme_guifi_node_links($node, $links = false) {
+  $output =
+    theme_guifi_node_links_by_type($node->id,'wds').
+    theme_guifi_node_links_by_type($node->id,'cable').
+    theme_guifi_node_links_by_type($node->id,'ap/client');
+    
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  }
+  
+  return $output;
+}
+
+
+function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
   $oGC = new GeoCalc();
 
   $total = 0;
@@ -1382,51 +1357,5 @@ function guifi_node_link_list($id = 0, $ltype = '%') {
   return NULL;
 
 }
-
-
-function guifi_node_links($node)
-{
-  $output .= guifi_node_link_list($node->id,'cable');
-  $output .= guifi_node_link_list($node->id,'wds');
-  $output .= guifi_node_link_list($node->id,'ap/client');
-
-  return $output;
-}
-
-function guifi_node_set_flag($id) {
-  
-  $scores = array(
-    'Dropped'=>0,
-    'Planned'=>1,
-    'Reserved'=>2,
-    'Building'=>3,
-    'Testing'=>4,
-    'Working'=>5
-    );
-  $score = -1; 
-  $query = db_query(
-    "SELECT d.id, d.flag " .
-    "FROM {guifi_devices} d " .
-    "WHERE d.nid = %d",
-    $id);
-  while ($device = db_fetch_object($query)) {
-    if ($scores[$device->flag] > $score)
-      $score = $scores[$device->flag];
-  } // eof while devices
-  
-  if ($score == -1)
-    // no devices status found, default Planned
-    $score = 1;
-    
-  // set the highest score found  
-  $scores = array_flip($scores);
-  db_query("UPDATE {guifi_location} " .
-      "SET status_flag = '%s' " .
-      "WHERE id = %d",
-      $scores[$score],
-      $id);
-}
-
-
 
 ?>
