@@ -7,6 +7,7 @@ function guifi_uninstall() {
   variable_del('guifi_license');
   variable_del('guifi_title');
   variable_del('guifi_root');
+  variable_del('guifi_forums');
   variable_del('guifi_contact');
   variable_del('hotspot_ssid');
   variable_del('guifi_loglevel');

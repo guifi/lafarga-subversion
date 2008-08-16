@@ -47,7 +47,15 @@ function guifi_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
-   // General guifi menu
+  $items['guifi'] = array(
+     'title' => 'guifi.net main page',
+     'description' => 'Main menu for guifi.net network management & utilities',
+     'page callback' => 'guifi_page',
+     'page arguments' => array('true'),
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+  );
+  // General guifi menu
   $items['guifi/menu'] = array(
      'title' => 'guifi.net menus',
      'description' => 'Main menu for guifi.net network management & utilities',
@@ -61,17 +69,64 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+
+  $items['guifi/menu/main'] = array(
+    'title' => 'Main navigation options',
+    'description' => 'The most important options to browse and use this site',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access content'),
+    'weight'=>0,
+  );
+  $items['guifi/menu/main/browse_zones'] = array(
+    'title' => 'Browse the network',
+    'description' => 'Browse the network zones starting from the root zone',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('node/'.guifi_zone_root()),
+    'access arguments' => array('access content'),
+  );
+  
+  if (variable_get('guifi_forums','forum') != '')
+  $items['guifi/menu/main/forums'] = array(
+    'title' => 'Forums',
+    'description' => 'Do you have questions? Browse the questions or post your own question to the formus',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array(variable_get('guifi_forums','forum')),
+    'access arguments' => array('access content'),
+  );
+  $items['guifi/menu/main/addnode'] = array(
+    'title' => 'Create a node',
+    'description' => 'Join to the network by creating yor node',
+    'page callback' => 'node/add/guifi-node',
+    'access arguments' => array('access content'),
+  );
+  if (variable_get('guifi_faq','') != '')
+  $items['guifi/menu/main/faq'] = array(
+    'title' => 'FAQ',
+    'description' => 'Browse the most common questions',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array(variable_get('guifi_faq','')),
+    'access arguments' => array('access content'),
+  );
+  if (variable_get('guifi_docs','') != '')
+  $items['guifi/menu/main/docs'] = array(
+    'title' => 'Documentation',
+    'description' => 'Browse the guide and documentation',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array(variable_get('guifi_docs','')),
+    'access arguments' => array('access content'),
+  );
+  
   $items['guifi/menu/ip'] = array(
     'title' => 'IP tools',
     'description' => 'Toolset for IPv4 address management',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
+    'weight'=>1,
   );
   $items['guifi/menu/ip/search'] = array(
     'title' => 'Search IPv4',
     'description' => 'Get information about an used IPv4 address',
     'page callback' => 'guifi_tools_ip_search',
-//    'page arguments' => array('guifi_tools_ip_search'),
     'access arguments' => array('access content'),
     'file' => 'guifi_tools.inc.php'
   );
@@ -696,14 +751,34 @@ function guifi_admin_settings() {
     '#description' => t("Title of guifi block..."),
     '#weight' => $form_weight++,
   );
-  $form['guifi_root'] = array(
+  $form['guifi_forums'] = array(
     '#type' => 'textfield',
-    '#title' => t('Root zone'),
+    '#title' => t('Forums'),
     '#required' => FALSE,
-    '#default_value' => variable_get("guifi_root", 'guifi_zones'),
+    '#default_value' => variable_get("guifi_forums", 'forum'),
     '#size' => 35,
     '#maxlength' => 255,
-    '#description' => t("URL of the root zone..."),
+    '#description' => t("URL for the forums, leave it blank if none."),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_faq'] = array(
+    '#type' => 'textfield',
+    '#title' => t('FAQ root page'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_faq", ''),
+    '#size' => 35,
+    '#maxlength' => 255,
+    '#description' => t("URL for FAQ, leave it blank if none."),
+    '#weight' => $form_weight++,
+  );
+  $form['guifi_docs'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Documentation'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_docs", ''),
+    '#size' => 35,
+    '#maxlength' => 255,
+    '#description' => t("URL for the Guide/Documentation of how to use this site, leave it blank if none."),
     '#weight' => $form_weight++,
   );
   $form['guifi_pagelimit'] = array(
@@ -893,7 +968,7 @@ function guifi_display_block_1() {
     $content = theme('table', $header, $rows);
     $content .= '<div class="more-link">'.
       l(t('node list and maps...'),
-        variable_get('guifi_root', 'guifi_zones'),
+        guifi_zone_root(),
         array(
           'title' => t('Go to the list of nodes root page and their maps.'))) .'</div>';
 
@@ -1023,7 +1098,7 @@ function guifi_link($type, $node = 0){
   return $links;
 }
 
-function guifi_page() {
+function guifi_page($full = false) {
 
   $blocks = array();
   if ($menus = db_fetch_array(db_query(
@@ -1065,6 +1140,10 @@ function guifi_page() {
   }
   if ($blocks) {
     ksort($blocks);
+    if ($full) {
+      print theme('page',theme_guifi_menu_page($blocks),FALSE);
+      return;
+    }
     return theme_guifi_menu_page($blocks);
   }
   else {
