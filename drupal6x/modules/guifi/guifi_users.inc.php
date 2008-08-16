@@ -910,6 +910,7 @@ function guifi_dump_passwd($node) {
 
 // Aquesta funcio volca a pantalla la llista d'usuaris i passwd que genera guifi_dump_passwd_return
 
+  drupal_set_header('Content-Type: text/plain; charset=utf-8');
   print guifi_dump_passwd_return($node);
   exit;
 }
@@ -942,7 +943,7 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
   $query = db_query("SELECT * FROM {guifi_users} WHERE status='Approved'");
   $users = array();
   while ($item = db_fetch_object($query)) {
-    $user = object();
+    $user = (object)null;
     $user->username = $item->username;
     $user->password = $item->password;
     $user->nid = $item->nid;
@@ -1037,12 +1038,14 @@ if (is_array($node->var[fed]))
 
 function guifi_dump_federated($node) {
   $output = _guifi_dump_federated($node);
+  drupal_set_header('Content-Type: text/plain; charset=utf-8');
   print $output;
   exit;
 }
 
 function guifi_dump_federated_md5($node) {
   $dump = _guifi_dump_federated($node);
+  drupal_set_header('Content-Type: text/plain; charset=utf-8');
   print md5($dump);
   exit;
 }
