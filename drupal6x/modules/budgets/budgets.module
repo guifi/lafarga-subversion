@@ -246,15 +246,15 @@ function budgets_menu() {
     'type' => MENU_LOCAL_TASK);
     
   $items['guifi/menu/main/browse_suppliers'] = array(
-    'title' => 'Providers & Suppliers',
-    'description' => 'Find out where you can buy equipment or hire services to help you',
+    'title' => 'Service providers & Commercial suppliers',
+    'description' => 'Find out shops where you can buy equipment and can understand what do you require or hire professional services to help you in building infrastructure',
     'page callback' => 'drupal_goto',
     'page arguments' => array('node/'.guifi_zone_root().'/view/suppliers'),
     'weight'=>100,
     'access arguments' => array('access content'),
   );
   $items['guifi/menu/main/browse_budgets'] = array(
-    'title' => 'Proposals & Budgets',
+    'title' => 'Proposals, Budgets & Fundings',
     'description' => 'Browse the proposals/budgets, find out the costs and help by funding them',
     'page callback' => 'drupal_goto',
     'page arguments' => array('budgets/'.guifi_zone_root().'/list'),
