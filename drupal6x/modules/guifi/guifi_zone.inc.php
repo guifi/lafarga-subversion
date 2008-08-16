@@ -562,27 +562,6 @@ function guifi_zone_simple_map($node) {
   return $output;
 }
 
-
-/** * guifi_zone_map(): Print de page show de zone map and nodes.
- */
-function guifi_zone_map($node) {
-
-//  $node = guifi_zone_load($node);
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
-
-  if (guifi_gmap_key()) {
-    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
-    $output = '<div id="map" style="width: 100%; height: 480px; margin:5px;"></div>';
-    $output .= guifi_zone_hidden_map_fileds($node);
-  } else {
-    $output = guifi_zone_map_help($node->id);
-    $output .= '<IFRAME FRAMEBORDER="0" SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=600,450&REGION_ID='.$node->id.'" ALIGN="CENTER" WIDTH="670" HEIGHT="500" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
-    $output .= t('Sorry, your browser can\'t display the embedded map');
-    $output .= '</IFRAME>';
-  }
-  return $output;
-}
-
 function guifi_zone_title_validate($element, &$form_state) {
   if (empty($element['#value']))
     form_error($element,t('You must specify a title for the zone.'));
@@ -862,9 +841,9 @@ $ret[] = l(t('Home'), NULL);
   }
   return $ret;
 }
-/** guifi_zone_print_data(): outputs the zone information data
+/** guifi_zone_data(): outputs the zone information data
 **/
-function guifi_zone_print_data($zone) {
+function guifi_zone_data($zone) {
 
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $zone->user_created));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $zone->user_changed));
@@ -918,38 +897,6 @@ function guifi_zone_get_service($id, $type ,$path = false) {
   return $ret;
 }
 
-/** guifi_zone_print():  outputs the zone information
-**/
-function guifi_zone_print($id) {
-
-  $zone = guifi_zone_load($id);
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
-
-  $table = theme('table', null, guifi_zone_print_data($zone));
-  $output .= theme('box', t('zone information'), $table);
-
-  return $output;
-}
-
-/** guifi_zone_ipv4(): outputs the zone networks
-**/
-function guifi_zone_ipv4($zone) {
-
-  $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));
-
-  $rows = guifi_ipv4_print_data($zone);
-  if (user_access('administer guifi networks')) {
-    $rows[] = array(l('add network','node/'.$zone->id.'/view/ipv4/add'));
-    $header = array_merge($header,array(t('operations')));
-  }
-
-  $table = theme('table', $header, $rows);
-  $output .= theme('box', t('zone &#038; parent(s) network allocation(s)'), $table);
-
-  return $output;
-}
-
-
 /** guifi_zone_node_totals(): summary of a zone
 **/
 function guifi_zone_totals($zones) {
@@ -966,91 +913,6 @@ function guifi_zone_totals($zones) {
   }
 
   return $summary;
-}
-
-/** guifi_zone_nodes(): list nodes of a given zone and its childs
-*/
-function guifi_zone_nodes($node,$embeded = false) {
-
-  if (!isset($node->id))
-    $node->id=$node->nid;
-
-  if (!$embeded)
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
-
-  $output = '<h2>' .t('Nodes listed at') .' ' .$node->title .'</h2>';
-
-  // Going to list child zones totals
-  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->id);
-
-  $rows = array();
-
-  $header = array(
-      array('data' => t('Zone name')),
-      array('data' => t('Online'),'class' => 'Online'),
-      array('data' => t('Planned'),'class' => 'Planned'),
-      array('data' => t('Building'),'class' => 'Building'),
-      array('data' => t('Testing'),'class' => 'Testing'),
-      array('data' => t('Total'),'class' => 'Total'));
-  while ($zone = db_fetch_object($result)) {
-    $summary = guifi_zone_totals(guifi_zone_childs($zone->id));
-    $rows[] = array(
-      array('data' => guifi_zone_l($zone->id,$zone->title,'node/'),'class' => 'zonename'),
-      array('data' => number_format($summary['Working'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Working','align'=>'right'),
-      array('data' => number_format($summary['Planned'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Planned','align'=>'right'),
-      array('data' => number_format($summary['Building'],0,null,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
-      array('data' => number_format($summary['Testing'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Testing','align'=>'right'),
-      array('data' => number_format($summary['Total']   ,0,null,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
-    if (!empty($summary))
-      foreach ($summary as $key => $sum)
-        $totals[$key] = $totals[$key] + $sum;
-  }
-  $rows[] = array(
-    array(
-      'data' => NULL,
-      'class' => 'zonename'),
-    array('data' => number_format($totals['Working'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Online','align'=>'right'),
-    array('data' => number_format($totals['Planned'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Planned','align'=>'right'),
-    array('data' => number_format($totals['Building'],0,null,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
-    array('data' => number_format($totals['Testing'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Testing','align'=>'right'),
-    array('data' => number_format($totals['Total']   ,0,null,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
-
-   if (count($rows)>1)
-     $output .= theme('table', $header, $rows);
-
-  // Going to list the zone nodes
-  $rows = array();
-  $result = pager_query('
-    SELECT l.id,l.nick, l.notification, l.zone_description,
-      l.status_flag, count(*) radios
-    FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid
-    WHERE l.zone_id = %d
-    GROUP BY 1,2,3,4,5
-    ORDER BY radios DESC, l.nick',
-    50,0,
-    'SELECT count(*)
-    FROM {guifi_location}
-    WHERE zone_id = %d',
-  $node->id);
-  $header = array(
-    array('data' => t('nick (shortname)')),
-    array('data' => t('supernode')),
-    array('data' => t('area')),
-    array('data' => t('status')));
-  while ($loc = db_fetch_object($result)) {
-    if ($loc->radios == 1)
-      $loc->radios = t('No');
-    $rows[] = array(
-      array('data' => guifi_zone_l($loc->id,$loc->nick,'node/')),
-      array('data' => $loc->radios),
-      array('data' => $loc->zone_description),
-      array('data' => t($loc->status_flag),'class' => $loc->status_flag));
-  }
-  if (count($rows)>0) {
-    $output .= theme('table', $header, $rows);
-    $output .= theme_pager(null, 50);
-  }
-  return $output;
 }
 
 function guifi_zone_childs_and_parents($zid) {
@@ -1249,17 +1111,26 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
 
   if ($page) {
-    $node->content['table']= array(
-    '#value' =>
-      theme_table(null,array(
-          array(theme_table(null,array(array(array('data'=>'<small>'.guifi_zone_print($node->nid).'</small>','width'=>'50%'),
-                                             array('data'=>guifi_zone_simple_map($node),'width'=>'50%'))))),
- //         array(guifi_zone_print($node->nid)),
-          array(guifi_zone_nodes($node,true))
-        ),array('width'=>'100%')
+    $node->content['data']= array(
+      '#value' => theme_table( 
+        null,
+        array(
+          array(
+            array(
+              'data'=>'<small>'.theme_guifi_zone_data($node,false).'</small>',
+              'width'=>'50%'
+            ),
+            array(
+              'data'=>guifi_zone_simple_map($node),
+              'width'=>'50%'
+            )
+          )
+        )
       ),
-     '#weight' => 1,
-      );
+      '#weight' => 1);
+    $node->content['nodes']= array(
+      '#value' => theme_guifi_zone_nodes($node,false),
+      '#weight' => 2);
 
     return $node;
   }
@@ -1317,5 +1188,164 @@ function guifi_zone_l($id, $title = null, $linkto = 'node/') {
   return l($title, $linkto. $id);
 }
 
+function theme_guifi_zone_nodes($node,$links = true) {
+
+  if (!isset($node->id))
+    $node->id=$node->nid;
+
+  $output = '<h2>' .t('Nodes listed at') .' ' .$node->title .'</h2>';
+
+  // Going to list child zones totals
+  $result = db_query('SELECT z.id, z.title FROM {guifi_zone} z WHERE z.master = %d ORDER BY z.weight, z.title',$node->id);
+
+  $rows = array();
+
+  $header = array(
+      array('data' => t('Zone name')),
+      array('data' => t('Online'),'class' => 'Online'),
+      array('data' => t('Planned'),'class' => 'Planned'),
+      array('data' => t('Building'),'class' => 'Building'),
+      array('data' => t('Testing'),'class' => 'Testing'),
+      array('data' => t('Total'),'class' => 'Total'));
+  while ($zone = db_fetch_object($result)) {
+    $summary = guifi_zone_totals(guifi_zone_childs($zone->id));
+    $rows[] = array(
+      array('data' => guifi_zone_l($zone->id,$zone->title,'node/'),'class' => 'zonename'),
+      array('data' => number_format($summary['Working'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Working','align'=>'right'),
+      array('data' => number_format($summary['Planned'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Planned','align'=>'right'),
+      array('data' => number_format($summary['Building'],0,null,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
+      array('data' => number_format($summary['Testing'] ,0,null,variable_get('guifi_thousand','.')),'class' => 'Testing','align'=>'right'),
+      array('data' => number_format($summary['Total']   ,0,null,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
+    if (!empty($summary))
+      foreach ($summary as $key => $sum)
+        $totals[$key] = $totals[$key] + $sum;
+  }
+  $rows[] = array(
+    array(
+      'data' => NULL,
+      'class' => 'zonename'),
+    array('data' => number_format($totals['Working'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Online','align'=>'right'),
+    array('data' => number_format($totals['Planned'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Planned','align'=>'right'),
+    array('data' => number_format($totals['Building'],0,null,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
+    array('data' => number_format($totals['Testing'] ,0,null,variable_get('guifi_thousand','.')), 'class' => 'Testing','align'=>'right'),
+    array('data' => number_format($totals['Total']   ,0,null,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
+
+   if (count($rows)>1)
+     $output .= theme('table', $header, $rows);
+
+  // Going to list the zone nodes
+  $rows = array();
+  $result = pager_query('
+    SELECT l.id,l.nick, l.notification, l.zone_description,
+      l.status_flag, count(*) radios
+    FROM {guifi_location} l LEFT JOIN {guifi_radios} r ON l.id = r.nid
+    WHERE l.zone_id = %d
+    GROUP BY 1,2,3,4,5
+    ORDER BY radios DESC, l.nick',
+    50,0,
+    'SELECT count(*)
+    FROM {guifi_location}
+    WHERE zone_id = %d',
+  $node->id);
+  $header = array(
+    array('data' => t('nick (shortname)')),
+    array('data' => t('supernode')),
+    array('data' => t('area')),
+    array('data' => t('status')));
+  while ($loc = db_fetch_object($result)) {
+    if ($loc->radios == 1)
+      $loc->radios = t('No');
+    $rows[] = array(
+      array('data' => guifi_zone_l($loc->id,$loc->nick,'node/')),
+      array('data' => $loc->radios),
+      array('data' => $loc->zone_description),
+      array('data' => t($loc->status_flag),'class' => $loc->status_flag));
+  }
+  if (count($rows)>0) {
+    $output .= theme('table', $header, $rows);
+    $output .= theme_pager(null, 50);
+  }
+  
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
+  }
+    
+  return $output;
+}
+
+
+/** * guifi_zone_map(): Print de page show de zone map and nodes.
+ */
+function theme_guifi_zone_map($node) {
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+  $node = node_load(array('nid'=>$node->id));
+
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
+    $output = '<div id="map" style="width: 100%; height: 640px; margin:5px;"></div>';
+    $output .= guifi_zone_hidden_map_fileds($node);
+  } else {
+    $output = guifi_zone_map_help($node->id);
+    $output .= '<IFRAME FRAMEBORDER="0" SRC="'.variable_get("guifi_maps", 'http://maps.guifi.net').'/world.phtml?IFRAME=Y&MapSize=600,450&REGION_ID='.$node->id.'" ALIGN="CENTER" WIDTH="670" HEIGHT="500" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="AUTO">';
+    $output .= t('Sorry, your browser can\'t display the embedded map');
+    $output .= '</IFRAME>';
+  }
+  
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    
+  print theme('page',$output,false);
+  return;
+}
+
+/** guifi_zone_networks(): outputs the zone networks
+**/
+function theme_guifi_zone_networks($zone) {
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
+  $zone = node_load(array('nid'=>$zone->id));
+
+  $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));
+
+  $rows = guifi_ipv4_print_data($zone);
+  if (user_access('administer guifi networks')) {
+    $rows[] = array(l('add network','node/'.$zone->id.'/view/ipv4/add'));
+    $header = array_merge($header,array(t('operations')));
+  }
+
+  $table = theme('table', $header, $rows);
+  $output .= theme('box', t('zone &#038; parent(s) network allocation(s)'), $table);
+
+  $output .= theme_links(module_invoke_all('link', 'node', $zone, false));
+    
+  print theme('page',$output,false);
+  return;
+}
+
+/** theme_guifi_zone_data():  outputs the zone information
+**/
+function theme_guifi_zone_data($zone,$links = true) {
+
+  $zone = node_load(array('nid'=>$zone->id));
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
+
+  $table = theme('table', null, guifi_zone_data($zone));
+  $output .= theme('box', t('zone information'), $table);
+
+  if ($links) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+    $node = node_load(array('nid'=>$node->id));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
+  }  
+
+  return $output;
+}
 
 ?>

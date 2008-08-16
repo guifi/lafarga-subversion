@@ -139,7 +139,7 @@ function guifi_menu() {
   //
   $items['node/%guifi_zone/view/nodes'] = array(
     'title' => 'nodes',
-    'page callback' => 'guifi_zone_nodes',
+    'page callback' => 'theme_guifi_zone_nodes',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
@@ -147,7 +147,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/map'] = array(
     'title' => 'map',
-    'page callback' => 'guifi_zone_map',
+    'page callback' => 'theme_guifi_zone_map',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
@@ -155,7 +155,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/data'] = array(
     'title' => 'data',
-    'page callback' => 'guifi_zone_print',
+    'page callback' => 'theme_guifi_zone_data',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
@@ -187,7 +187,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/ipv4'] = array(
     'title' => 'networks',
-    'page callback' => 'guifi_zone_ipv4',
+    'page callback' => 'theme_guifi_zone_networks',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
