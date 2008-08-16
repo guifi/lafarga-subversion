@@ -48,13 +48,35 @@ function guifi_menu() {
   );
 
    // General guifi menu
-   $items['guifi/menu'] = array(
+  $items['guifi/menu'] = array(
      'title' => 'guifi.net menus',
      'description' => 'Main menu for guifi.net network management & utilities',
      'page callback' => 'guifi_page',
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
-   );
+  );
+  $items['guifi/menu/compact'] = array(
+    'title' => 'Compact mode',
+    'page callback' => 'guifi_menu_compact_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['guifi/menu/ip'] = array(
+    'title' => 'IP tools',
+    'description' => 'Toolset for IPv4 address management',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access content'),
+  );
+  $items['guifi/menu/ip/search'] = array(
+    'title' => 'Search IPv4',
+    'description' => 'Get information about an used IPv4 address',
+    'page callback' => 'guifi_tools_ip_search',
+//    'page arguments' => array('guifi_tools_ip_search'),
+    'access arguments' => array('access content'),
+    'file' => 'guifi_tools.inc.php'
+  );
+
+
 
   //
   // ZONE menus & tabs
@@ -1004,12 +1026,20 @@ function guifi_link($type, $node = 0){
 function guifi_page() {
 
   $blocks = array();
-  if ($admin = db_fetch_array(db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin' AND module = 'system'"))) {
+  if ($menus = db_fetch_array(db_query(
+    "SELECT menu_name, mlid " .
+    "FROM {menu_links} " .
+    "WHERE link_path = 'guifi/menu'" .
+    " AND module = 'system'"))) {
     $result = db_query("
       SELECT m.*, ml.*
       FROM {menu_links} ml
       INNER JOIN {menu_router} m ON ml.router_path = m.path
-      WHERE ml.link_path != 'admin/help' AND menu_name = '%s' AND ml.plid = %d AND hidden = 0", $admin);
+      WHERE ml.link_path != 'guifi/menu/help' 
+        AND menu_name = '%s' 
+        AND ml.plid = %d
+        AND hidden = 0", 
+      $menus['menu_name'],$menus['mlid']);
     while ($item = db_fetch_array($result)) {
       _menu_link_translate($item);
       if (!$item['access']) {
@@ -1026,7 +1056,8 @@ function guifi_page() {
         $function = $item['block_callback'];
         $block['content'] .= $function();
       }
-      $block['content'] .= theme('admin_block_content', system_admin_menu_block($item));
+      $block['content'] .= 
+        theme_guifi_menu_block_content(system_admin_menu_block($item));
       // Prepare for sorting as in function _menu_tree_check_access().
       // The weight is offset so it is always positive, with a uniform 5-digits.
       $blocks[(50000 + $item['weight']) .' '. $item['title'] .' '. $item['mlid']] = $block;
@@ -1034,10 +1065,10 @@ function guifi_page() {
   }
   if ($blocks) {
     ksort($blocks);
-    return theme('admin_page', $blocks);
+    return theme_guifi_menu_page($blocks);
   }
   else {
-    return t('You do not have any administrative items.');
+    return t('You do not have any active items.');
   }
 }
 
@@ -1146,7 +1177,169 @@ function guifi_purge() {
     print $SqlDel;
     db_query($SqlDel);
   }
-
 }
+  
+/**
+ * Provide a single block from the administration menu as a page.
+ * This function is often a destination for these blocks.
+ * For example, 'admin/content/types' needs to have a destination to be valid
+ * in the Drupal menu system, but too much information there might be
+ * hidden, so we supply the contents of the block.
+ *
+ * @return
+ *   The output HTML.
+ */
+function guifi_menu_block_page() {
+  $item = menu_get_item();
+  if ($content = system_admin_menu_block($item)) {
+    $output = theme_guifi_menu_block_content($content);
+  }
+  else {
+    $output = t('You do not have any active items.');
+  }
+  return $output;
+}
+
+/**
+ * Provide a single block on the guifi menu overview page.
+ *
+ * @param $item
+ *   The menu item to be displayed.
+ */
+function guifi_menu_block($item) {
+  $content = array();
+  if (!isset($item['mlid'])) {
+    $item += db_fetch_array(db_query(
+      "SELECT mlid, menu_name " .
+      "FROM {menu_links} ml " .
+      "WHERE ml.router_path = '%s' " .
+      " AND module = 'system'", 
+      $item['path']));
+  }
+  $result = db_query("
+    SELECT m.load_functions, m.to_arg_functions, m.access_callback
+      m.access_arguments, m.page_callback, m.page_arguments, m.title, 
+      m.title_callback, m.title_arguments, m.type, m.description, ml.*
+    FROM {menu_links} ml
+    LEFT JOIN {menu_router} m ON ml.router_path = m.path
+    WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", 
+    $item['mlid'], $item['menu_name']);
+  while ($item = db_fetch_array($result)) {
+    _menu_link_translate($item);
+    if (!$item['access']) {
+      continue;
+    }
+    // The link 'description' either derived from the hook_menu 'description' or
+    // entered by the user via menu module is saved as the title attribute.
+    if (!empty($item['localized_options']['attributes']['title'])) {
+      $item['description'] = $item['localized_options']['attributes']['title'];
+    }
+    // Prepare for sorting as in function _menu_tree_check_access().
+    // The weight is offset so it is always positive, with a uniform 5-digits.
+    $content[(50000 + $item['weight']) .' '. $item['title'] .' '. $item['mlid']] = $item;
+  }
+  ksort($content);
+  return $content;
+}
+
+/**
+ * Determine if a user is in compact mode.
+ */
+function guifi_menu_compact_mode() {
+  global $user;
+  return (isset($user->guifi_menu_compact_mode)) ? $user->guifi_menu_compact_mode : variable_get('guifi_menu_compact_mode', FALSE);
+}
+
+/**
+ * Menu callback; Sets whether the guifi menu is in compact mode or not.
+ *
+ * @param $mode
+ *   Valid values are 'on' and 'off'.
+ */
+function guifi_menu_compact_page($mode = 'off') {
+  global $user;
+
+  user_save($user, array('guifi_menu_compact_mode' => ($mode == 'on')));
+  drupal_goto('guifi/menu');
+}
+
+/**
+ * This function formats the content of an administrative block.
+ *
+ * @param $block
+ *   An array containing information about the block. It should
+ *   include a 'title', a 'description' and a formatted 'content'.
+ * @ingroup themeable
+ */
+function theme_guifi_menu_block_content($content) {
+  if (!$content) {
+    return '';
+  }
+
+  if (guifi_menu_compact_mode()) {
+    $output = '<ul class="menu">';
+    foreach ($content as $item) {
+      $output .= '<li class="leaf">'. l($item['title'], $item['href'], $item['localized_options']) .'</li>';
+    }
+    $output .= '</ul>';
+  }
+  else {
+    $output = '<dl class="admin-list">';
+    foreach ($content as $item) {
+      $output .= '<dt>'. l($item['title'], $item['href'], $item['localized_options']) .'</dt>';
+      $output .= '<dd>'. $item['description'] .'</dd>';
+    }
+    $output .= '</dl>';
+  }
+  return $output;
+}
+
+/**
+ * This function formats an administrative page for viewing.
+ *
+ * @param $blocks
+ *   An array of blocks to display. Each array should include a
+ *   'title', a 'description', a formatted 'content' and a
+ *   'position' which will control which container it will be
+ *   in. This is usually 'left' or 'right'.
+ * @ingroup themeable
+ */
+function theme_guifi_menu_page($blocks) {
+  $stripe = 0;
+  $container = array();
+
+  foreach ($blocks as $block) {
+    if ($block_output = theme('admin_block', $block)) {
+      if (empty($block['position'])) {
+        // perform automatic striping.
+        $block['position'] = ++$stripe % 2 ? 'left' : 'right';
+      }
+      if (!isset($container[$block['position']])) {
+        $container[$block['position']] = '';
+      }
+      $container[$block['position']] .= $block_output;
+    }
+  }
+
+  $output = '<div class="admin clear-block">';
+  $output .= '<div class="compact-link">';
+  if (guifi_menu_compact_mode()) {
+    $output .= l(t('Show descriptions'), 'guifi/menu/compact/off', array('title' => t('Expand layout to include descriptions.')));
+  }
+  else {
+    $output .= l(t('Hide descriptions'), 'guifi/menu/compact/on', array('title' => t('Compress layout by hiding descriptions.')));
+  }
+  $output .= '</div>';
+
+  foreach ($container as $id => $data) {
+    $output .= '<div class="'. $id .' clear-block">';
+    $output .= $data;
+    $output .= '</div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+
 
 ?>
