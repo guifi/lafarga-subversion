@@ -48,15 +48,14 @@ function guifi_menu() {
   );
 
    // General guifi menu
-/*   $items['guifi/users'] = array(
-     'title' => 'proxy users list',
-     'description' => 'Handles proxy users queues',
-     'page callback' => 'guifi_zone_map',
-     'page arguments' => array(0),
+   $items['guifi/menu'] = array(
+     'title' => 'guifi.net menus',
+     'description' => 'Main menu for guifi.net network management & utilities',
+     'page callback' => 'guifi_page',
      'access callback' => 'user_access',
-     'access arguments' => array('administer guifi networks'),
-     'type' => MENU_LOCAL_TASK);
-*/
+     'access arguments' => array('access content'),
+   );
+
   //
   // ZONE menus & tabs
   //
@@ -1003,9 +1002,43 @@ function guifi_link($type, $node = 0){
 }
 
 function guifi_page() {
-  //TODO: Make some welcome page
-  return $output;
 
+  $blocks = array();
+  if ($admin = db_fetch_array(db_query("SELECT menu_name, mlid FROM {menu_links} WHERE link_path = 'admin' AND module = 'system'"))) {
+    $result = db_query("
+      SELECT m.*, ml.*
+      FROM {menu_links} ml
+      INNER JOIN {menu_router} m ON ml.router_path = m.path
+      WHERE ml.link_path != 'admin/help' AND menu_name = '%s' AND ml.plid = %d AND hidden = 0", $admin);
+    while ($item = db_fetch_array($result)) {
+      _menu_link_translate($item);
+      if (!$item['access']) {
+        continue;
+      }
+      // The link 'description' either derived from the hook_menu 'description'
+      // or entered by the user via menu module is saved as the title attribute.
+      if (!empty($item['localized_options']['attributes']['title'])) {
+        $item['description'] = $item['localized_options']['attributes']['title'];
+      }
+      $block = $item;
+      $block['content'] = '';
+      if ($item['block_callback'] && function_exists($item['block_callback'])) {
+        $function = $item['block_callback'];
+        $block['content'] .= $function();
+      }
+      $block['content'] .= theme('admin_block_content', system_admin_menu_block($item));
+      // Prepare for sorting as in function _menu_tree_check_access().
+      // The weight is offset so it is always positive, with a uniform 5-digits.
+      $blocks[(50000 + $item['weight']) .' '. $item['title'] .' '. $item['mlid']] = $block;
+    }
+  }
+  if ($blocks) {
+    ksort($blocks);
+    return theme('admin_page', $blocks);
+  }
+  else {
+    return t('You do not have any administrative items.');
+  }
 }
 
 function guifi_cron() {

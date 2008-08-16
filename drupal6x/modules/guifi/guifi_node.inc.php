@@ -69,19 +69,7 @@ function guifi_node_load($node) {
 /** node editing functions
 **/
 
-/** guifi_node_form(): Present the node preparing form.
-  *                   modifica el objecte $node pasat per parametro reomplint camps buits
-  *                   crida a la funcio guifi_node_form_supernode que presenta el formulari
-  *                   i retorna la form que retorna dita funcio.
-
-  guifi_node_form($node:obj-node,$param:Not_use):form
-  globals
-    $user:Obj-user
-  functions
-    guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
-    guifi_includes.inc->guifi_coord_dtodms($coord:float):Array($deg:int,$min:int,$seg:int) or NULL
-*/
-function guifi_node_form($node, $param){
+function guifi_node_prepare(&$node){
   global $user;
 
   if(empty($node->nid)){
@@ -96,7 +84,7 @@ function guifi_node_form($node, $param){
     $node->status_flag = 'Planned';
   }
   // Position
-  // if not came at get/post, fill lat/lon
+  // if given parameters get/post, fill lat/lon
   if (isset($_POST['lat'])){$node->lat = $_POST['lat'];}
   if (isset($_POST['lon'])){$node->lon = $_POST['lon'];}
   if (isset($_GET['lat'])){$node->lat = $_GET['lat'];}
@@ -116,18 +104,9 @@ function guifi_node_form($node, $param){
     $node->lonmin = $coord[1];
     $node->lonseg = $coord[2];
   }
-
-  $output = guifi_node_form_supernode($node, $param);
-  return $output;
 }
 
-/** guifi_node_form_supernode(): Present the node editing form.
-
-  guifi_node_form($node:obj-node,$param:Not_use):form
-  globals
-    $user:Obj-user
-*/
-function guifi_node_form_supernode($node, $param) {
+function guifi_node_form(&$node, $form_state) {
   global $user;
 
   $type = node_get_types('type',$node);
@@ -143,14 +122,8 @@ function guifi_node_form_supernode($node, $param) {
       '#default_value' => $node->title,
     );
   }
-  $form['title']['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Title'),
-    '#required' => TRUE,
-    '#default_value' => $node->title,
-    '#weight' => 0,
-  );
-  $form['title']['nick'] = array(
+
+  $form['nick'] = array(
     '#type' => 'textfield',
     '#title' => t('Nick'),
     '#required' => FALSE,
@@ -161,7 +134,7 @@ function guifi_node_form_supernode($node, $param) {
     '#description' => t("Unique identifier for this node. Avoid generic names such 'MyNode', use something that really identifies your node.<br />Short name, single word with no spaces, 7-bit chars only, will be used for  hostname, reports, etc."),
     '#weight' => 1,
   );
-  $form['title']['notification'] = array(
+  $form['notification'] = array(
     '#type' => 'textfield',
     '#title' => t('Contact'),
     '#required' => FALSE,
@@ -173,11 +146,7 @@ function guifi_node_form_supernode($node, $param) {
     '#weight' => 2,
   );
 
-  // ----
-  // El títol settings
-  // ------------------------------------------------
-
-  $form['title']['settings'] = array(
+  $form['settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Node settings'),
     '#weight' => 4,
@@ -186,7 +155,7 @@ function guifi_node_form_supernode($node, $param) {
   );
     // Si ets administrador pots definir el servidor de dades
   if (user_access('administer guifi zones')){
-    $form['title']['settings']['graph_server'] = array(
+    $form['settings']['graph_server'] = array(
       '#type' => 'select',
       '#title' => t("Server which collects traffic and availability data"),
       '#required' => FALSE,
@@ -199,7 +168,7 @@ function guifi_node_form_supernode($node, $param) {
       '#weight' => 0,
     );
   }
-  $form['title']['settings']['stable'] = array(
+  $form['settings']['stable'] = array(
     '#type' => 'select',
     '#title' => t("It's supposed to be a stable online node?"),
     '#required' => FALSE,
@@ -254,20 +223,8 @@ function guifi_node_form_supernode($node, $param) {
     '#title' => t('Node postion settings'),
     '#weight' => 4,
     '#collapsible' => false,
-//    '#collapsed' => FALSE,
   );
 
-  /*
-  $form['position']['zone_id'] = array(
-    '#type' => 'select',
-    '#title' => t("Zone"),
-    '#required' => FALSE,
-    '#default_value' => $node->zone_id,
-    '#options' => guifi_zones_listbox(),
-    '#description' => t('The zone where this node where this node belongs to.'),
-    '#weight' => 0,
-  );
-  */
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_node.js','module');
     $form['position']['GMAP'] = array(
@@ -390,10 +347,6 @@ function guifi_node_form_supernode($node, $param) {
     '#weight' => 10,
   );
 
-  // ----
-  // body
-  // ------------------------------------------------
-
   if (($type->has_body)) {
     $form['body_field'] = node_body_field(
       $node,
@@ -401,31 +354,12 @@ function guifi_node_form_supernode($node, $param) {
       $type->min_word_count
     );
   } 
-//  $form['body'] = array(
-//    '#type' => 'textarea',
-//    '#title' => t('Body'),
-//    '#default_value' => $node->body,
-//    '#cols' => 60,
-//    '#rows' => 20,
-//    '#required' => FALSE,
-//    '#description' => t("Textual description of the wifi node"),
-//    '#weight' => 11,
-//  );
-
-  // ----
-  // flags
-  // ------------------------------------------------
-
-  // Això no sé benbé què és
-  //  $output .= implode("", taxonomy_node_form("wifi", $node));
   $form['status_flag']= array(
     '#type' => 'hidden',
     '#default_value' => $node->status_flag,
-    '#weight' => $form_weight++,
   );
 
   return $form;
-  //return $output;
 }
 
 function guifi_node_agreement_validate($element, &$form_state) {
