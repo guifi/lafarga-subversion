@@ -54,6 +54,7 @@ function guifi_menu() {
      'page arguments' => array('true'),
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
+     'type' => MENU_CALLBACK,
   );
   // General guifi menu
   $items['guifi/menu'] = array(
