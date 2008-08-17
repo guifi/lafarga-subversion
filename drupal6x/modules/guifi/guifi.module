@@ -71,6 +71,7 @@ function guifi_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // General options
   $items['guifi/menu/main'] = array(
     'title' => 'Main navigation options',
     'description' => 'The most important options to browse and use this site',
@@ -117,13 +118,44 @@ function guifi_menu() {
     'page arguments' => array(variable_get('guifi_docs','')),
     'access arguments' => array('access content'),
   );
+
+  // Database review & pending actions
+  $items['guifi/menu/workflow'] = array(
+    'title' => 'Data to review & Pending actions',
+    'description' => 'Clean and review the database and take the appropriate pending actions',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access content'),
+    'weight'=>1,
+  );
+  $items['guifi/menu/workflow/usersqueue'] = array(
+    'title' => 'Users queue',
+    'description' => 'Track the users assigned to nodes detected as active, and therefore pending for approval',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('node/'.guifi_zone_root().'/view/userqueue'),
+    'access arguments' => array('access content'),
+  );
+  $items['guifi/menu/workflow/pending'] = array(
+    'title' => 'Node queue',
+    'description' => 'Track the status of the not active nodes, pending for getting connected',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('node/'.guifi_zone_root().'/view/pending'),
+    'access arguments' => array('access content'),
+  );
+  $items['guifi/menu/workflow/availability'] = array(
+    'title' => 'Availability report',
+    'description' => 'Report of the status and availability of all nodes',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('node/'.guifi_zone_root().'/view/availability'),
+    'access arguments' => array('access content'),
+  );
   
+  // Network management tools
   $items['guifi/menu/ip'] = array(
     'title' => 'IP & Network management tools',
     'description' => 'Utilities toolset for various network addressing & management',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
-    'weight'=>1,
+    'weight'=>2,
   );
   $items['guifi/menu/ip/ipsearch'] = array(
     'title' => 'Search IPv4',
@@ -138,10 +170,8 @@ function guifi_menu() {
     'page callback' => 'guifi_tools_mac_search',
     'access arguments' => array('access content'),
     'file' => 'guifi_tools.inc.php'
-  );
-
-
-
+  );  
+    
   //
   // ZONE menus & tabs
   //
