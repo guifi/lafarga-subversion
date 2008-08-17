@@ -884,9 +884,14 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
 
     drupal_goto('node/'.$device['nid']);
   }
+  
+  $node = node_load(array('nid'=>$device['nid']));
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
 
-  return drupal_get_form('guifi_device_delete_confirm',
+  $output = drupal_get_form('guifi_device_delete_confirm',
     array('name'=>$device['nick'],'id'=>$device['id']));
+  print theme('page',$output,false);
+  return;
 }
 
 /* guifi_device_add(): Provides a form to create a new device */
@@ -1154,23 +1159,12 @@ function guifi_device_interfaces_print_data($id) {
 
 /* guifi_device_print(): main print function, outputs the device information and call the others */
 function guifi_device_print($device = NULL) {
-//  print_r($_GET);
-//  print arg(0)."\n<br />";
-//  print arg(1)."\n<br />";
-//  print arg(2)."\n<br />";
-//  print arg(3)."\n<br />";
-//  print arg(4)."\n<br />";
-
   $output = '<div id="guifi">';
-
-//  $device = guifi_device_load($id);
-//  if (empty($device))
-//    return print theme('page',null,t('device').': '.$id);
 
   $node = node_load(array('nid' => $device[nid]));
   $title = t('Node:').' <a href="'.url('node/'.$node->nid).'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
 
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
 
   switch (arg(4)) {
   case 'all': case 'data': default:
@@ -1192,16 +1186,17 @@ function guifi_device_print($device = NULL) {
     $output .= theme('box', t('interfaces information'), $table);
     break;
   case 'services':
-    $output .= theme('box', t('services information'), guifi_list_services($device[id]));
-    break;
+    $output .= theme('box', t('services information'), theme_guifi_services_list($device['id']));
+    $output .= '</div>';
+    return;
   }
 
   $output .= '</div>';
 
-//  $title = t('Node:').' <a href="node/'.$node->nid.'">'.$node->nick.'</a> &middot; '.t('Device:').'&nbsp;'.$device[nick];
   drupal_set_title(t('View device %dname',array('%dname'=>$device['nick'])));
-
-  return $output;
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;
 }
 
 function guifi_device_links_print($device,$ltype = '%') {

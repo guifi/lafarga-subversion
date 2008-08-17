@@ -607,7 +607,13 @@ function guifi_service_print_data($node) {
 function guifi_list_services_query($param, $typestr = 'by zone', $service = '%') {
 
   $rows = array();
-  $sqlprefix = "SELECT s.*,z.title zonename FROM {guifi_services} s LEFT JOIN {guifi_devices} d ON s.device_id=d.id LEFT JOIN {guifi_zone} z ON s.zone_id=z.id LEFT JOIN {guifi_location} l ON d.nid=l.id WHERE ";
+  $sqlprefix = 
+    "SELECT s.*,z.title zonename " .
+    "FROM {guifi_services} s " .
+    "  LEFT JOIN {guifi_devices} d ON s.device_id=d.id " .
+    "  LEFT JOIN {guifi_zone} z ON s.zone_id=z.id " .
+    "  LEFT JOIN {guifi_location} l ON d.nid=l.id " .
+    "WHERE ";
   switch ($typestr) {
     case t('by zone'):
       $childs = guifi_zone_childs($param->id);
@@ -643,13 +649,12 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
 /*
  * guifi_list_services
  */
-function theme_guifi_services_by_zone($node,$service = '%') {
-
-//  print "Enter list services by zone ".$node->nid."\n<br />";
+function theme_guifi_services_list($node,$service = '%') {
 
   if (is_numeric($node)) {
     $typestr = t('by device');
   } else {
+    $node = node_load(array('nid'=>$node->id));
     if ($node->type == 'guifi_node')
       $typestr = t('by node');
     else
@@ -659,10 +664,27 @@ function theme_guifi_services_by_zone($node,$service = '%') {
   $rows = guifi_list_services_query($node,$typestr);
   $output .= theme('table', array(t('service'),t('zone'),t('device'),t('status')), array_merge($rows),array('width'=>'100%'));
   
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/services'));
+  switch ($typestr) {
+    case 'by node':
+      drupal_set_title(t('services @ %node',array('%node'=>$node->title)));
+      drupal_set_breadcrumb(guifi_node_ariadna($node,'node/%d/view/services'));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      break;
+    case 'by zone':
+      drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/services'));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      break;
+    case 'by device':
+      $device = guifi_device_load($node);
+      drupal_set_title(t('View device %dname',
+        array('%dname'=>$device['nick'],
+              '%nid'=>$device['nid'])));      
+      $node = node_load(array('nid'=>$device['nid']));     
+      drupal_set_breadcrumb(guifi_node_ariadna($node));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      break;
+  }
   $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
-  $node = node_load(array('nid'=>$node->id));
-  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
   print theme('page',$output,false);
   return;
 }

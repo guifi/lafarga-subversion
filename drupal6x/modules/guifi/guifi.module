@@ -96,8 +96,8 @@ function guifi_menu() {
   );
   $items['guifi/menu/main/addnode'] = array(
     'title' => 'Create a node',
-    'description' => 'Join to the network by creating yor node',
-    'page callbak' => 'drupal_goto',
+    'description' => 'Join to the network by creating your node',
+    'page callback' => 'drupal_goto',
     'page arguments' => array('node/add/guifi-node'),
     'access arguments' => array('access content'),
   );
@@ -187,7 +187,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/services'] = array(
     'title' => 'services',
-    'page callback' => 'theme_guifi_services_by_zone',
+    'page callback' => 'theme_guifi_services_list',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
@@ -263,6 +263,14 @@ function guifi_menu() {
     'title' => 'data',
     'page callback' => 'theme_guifi_node_data',
     'page arguments' => array(1,'true'),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_LOCAL_TASK
+  );
+  $items['node/%guifi_node/view/services'] = array(
+    'title' => 'services',
+    'page callback' => 'theme_guifi_services_list',
+    'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK

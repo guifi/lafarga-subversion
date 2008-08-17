@@ -154,6 +154,11 @@ function guifi_node_form(&$node, $form_state) {
   global $user;
 
   $type = node_get_types('type',$node);
+  
+  if (!empty($node->zone_id))
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
+  else
+    drupal_set_breadcrumb(null);
 
   // ----
   // El títol el primer de tot
@@ -1122,6 +1127,7 @@ function theme_guifi_node_data($node,$links = false) {
   
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_title(t('%node data',array('%node'=>$node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
     print theme('page',$output, false);
@@ -1185,6 +1191,7 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
   
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_title(t('graph overview @ %node',array('%node'=>$node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
     print theme('page',$output,false);
@@ -1247,6 +1254,7 @@ function theme_guifi_node_devices_list($node,$links = false) {
   
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_title(t('devices @ %node',array('%node'=>$node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
     print theme('page',$output,false);
@@ -1264,6 +1272,7 @@ function theme_guifi_node_links($node, $links = false) {
     
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_title(t('links @ %node',array('%node'=>$node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
     print theme('page',$output,false);
