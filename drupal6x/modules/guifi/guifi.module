@@ -224,7 +224,7 @@ function guifi_menu() {
     'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('administer guifi networks'),
-    'type' => MENU_LOCAL_TASK
+    'type' => MENU_CALLBACK
   );
   $items['guifi/ipv4/%/delete'] = array(
     'title' => 'delete ipv4 network',
@@ -232,7 +232,7 @@ function guifi_menu() {
     'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('administer guifi networks'),
-    'type' => MENU_LOCAL_TASK
+    'type' => MENU_CALLBACK
   );
 
   // node (location) menus
@@ -598,12 +598,12 @@ function guifi_menu() {
     'type' => MENU_CALLBACK
   );
   $items['guifi/networks'] = array(
-    'title' => 'service',
+    'title' => 'networks',
     'page callback' => 'guifi_networks_list',
     'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_LOCAL_TASK
+    'type' => CALLBACK
   );
   $items['guifi/graph_detail'] = array(
     'title' => 'display detailed node graphs',
@@ -1340,7 +1340,10 @@ function guifi_menu_compact_page($mode = 'off') {
   global $user;
 
   user_save($user, array('guifi_menu_compact_mode' => ($mode == 'on')));
-  drupal_goto('guifi/menu');
+  if (arg(4) == 'full')
+    drupal_goto('guifi');
+  else
+    drupal_goto('guifi/menu');
 }
 
 /**
@@ -1403,11 +1406,16 @@ function theme_guifi_menu_page($blocks) {
 
   $output = '<div class="admin clear-block">';
   $output .= '<div class="compact-link">';
+  $dest = drupal_get_destination();
+  if ($dest == 'destination=guifi')
+    $suffix = '/full';
   if (guifi_menu_compact_mode()) {
-    $output .= l(t('Show descriptions'), 'guifi/menu/compact/off', array('title' => t('Expand layout to include descriptions.')));
+    $link = 'guifi/menu/compact/off';
+    $output .= l(t('Show descriptions'), $link.$suffix, array('title' => t('Expand layout to include descriptions.')));
   }
   else {
-    $output .= l(t('Hide descriptions'), 'guifi/menu/compact/on', array('title' => t('Compress layout by hiding descriptions.')));
+    $link = 'guifi/menu/compact/on';
+    $output .= l(t('Hide descriptions'), $link.$suffix, array('title' => t('Compress layout by hiding descriptions.')));
   }
   $output .= '</div>';
 
@@ -1419,6 +1427,20 @@ function theme_guifi_menu_page($blocks) {
   $output .= '</div>';
   return $output;
 }
+
+function guifi_menu_link_alter(&$item, &$menu) {
+  if ($item['link_path'] == 'guifi/menu/compact/%') {
+    $item['options']['alter'] = TRUE;
+  }
+}
+
+
+function guifi_menu_translated_menu_link_alter(&$item) {
+  if ($item['href'] == 'guifi/menu/compact/%') {
+    $item['localized_options']['query'] = drupal_get_destination();
+  }
+}
+
 
 
 
