@@ -482,11 +482,11 @@ function unsolclic_routeros($dev) {
   
   _outln_comment();
   _outln_comment(t('Internal addresses NAT'));
-  _outln(':foreach i in [/ip firewall nat find src-address="172.25.0.0/16"] do={/ip firewall nat remove $i;}');
+  _outln(':foreach i in [/ip firewall nat find src-address="172.16.0.0/12"] do={/ip firewall nat remove $i;}');
   _outln(':foreach i in [/ip firewall nat find src-address="192.168.0.0/16"] do={/ip firewall nat remove $i;}');
   _outln('/ip firewall nat');
   _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
-  _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
+  _outln(sprintf('add chain=srcnat src-address="172.16.0.0/12" dst-address=!172.16.0.0/12 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
 
   // BGP
   _outln_comment();
