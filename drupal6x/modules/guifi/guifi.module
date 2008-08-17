@@ -97,6 +97,7 @@ function guifi_menu() {
   $items['guifi/menu/main/addnode'] = array(
     'title' => 'Create a node',
     'description' => 'Join to the network by creating yor node',
+    'page callbak' => 'drupal_goto',
     'page callback' => 'node/add/guifi-node',
     'access arguments' => array('access content'),
   );

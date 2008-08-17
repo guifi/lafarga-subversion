@@ -1125,7 +1125,8 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
               'width'=>'50%'
             )
           )
-        )
+        ),
+        array('width'=>'100%')
       ),
       '#weight' => 1);
     $node->content['nodes']= array(
@@ -1202,11 +1203,11 @@ function theme_guifi_zone_nodes($node,$links = true) {
 
   $header = array(
       array('data' => t('Zone name')),
-      array('data' => t('Online'),'class' => 'Online'),
-      array('data' => t('Planned'),'class' => 'Planned'),
-      array('data' => t('Building'),'class' => 'Building'),
-      array('data' => t('Testing'),'class' => 'Testing'),
-      array('data' => t('Total'),'class' => 'Total'));
+      array('data' => t('Online'),null,null,'style'=>'text-align: right'),
+      array('data' => t('Planned'),null,null,'style'=>'text-align: right'),
+      array('data' => t('Building'),null,null,'style'=>'text-align: right'),
+      array('data' => t('Testing'),null,null,'style'=>'text-align: right'),
+      array('data' => t('Total'),null,null,'style'=>'text-align: right'));
   while ($zone = db_fetch_object($result)) {
     $summary = guifi_zone_totals(guifi_zone_childs($zone->id));
     $rows[] = array(
@@ -1334,7 +1335,7 @@ function theme_guifi_zone_data($zone,$links = true) {
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
 
-  $table = theme('table', null, guifi_zone_data($zone));
+  $table = theme('table', null, guifi_zone_data($zone),array('width'=>'100%'));
   $output .= theme('box', t('zone information'), $table);
 
   if ($links) {
