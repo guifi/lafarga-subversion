@@ -1616,8 +1616,6 @@ function budgets_page($zone = NULL,$status = NULL) {
   if (is_null($zone))
     $zone->id = 0;
     
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
-  
   $title = t('Proposals & budgets');
   if ($zone->title)
     $title .= ' @ '.$zone->title;
@@ -1654,7 +1652,12 @@ function budgets_page($zone = NULL,$status = NULL) {
       $output.
       theme('pager', NULL, variable_get('default_nodes_main', 10));
 
-  return $output;
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'budgets/%d/list'));
+//  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+  $node = node_load(array('nid'=>$node->id));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;
 }
 
 /**

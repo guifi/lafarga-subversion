@@ -131,7 +131,6 @@ function budgets_supplier_load($node) {
 }
 
 function budgets_supplier_list_by_zone($zone) {
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
   $parents = guifi_zone_get_parents($zone->id);
 
   $pager = pager_query(
@@ -146,8 +145,13 @@ function budgets_supplier_list_by_zone($zone) {
     $output .= node_view($supplier,true,false,true);
   }  
   $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
-  
-  return $output;
+
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/suppliers'));
+  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+  $node = node_load(array('nid'=>$zone->id));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;  
 }
 
 function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
