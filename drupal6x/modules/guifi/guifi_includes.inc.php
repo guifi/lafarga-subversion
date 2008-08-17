@@ -1529,10 +1529,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
   $msubject = str_replace('<em>',' *',$subject);
   $msubject = str_replace('</em>','* ',$msubject);
 
-  if (variable_get('guifi_loglevel',GUIFILOG_NONE))
-    drupal_set_message($log_html);
-  else
-    drupal_set_message($subject);
+  drupal_set_message($subject);
 
   if ($notify) {
     if ($to_mail != null) {
@@ -1557,8 +1554,8 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
     }
 
   }
-  watchdog('guifi',$log_html,WATCHDOG_NOTICE);
-  return $log_html;
+  watchdog('guifi',$msubject,null,WATCHDOG_NOTICE);
+  return $msubject;
 }
 
 /** guifi_notification_validate(): validates that the given emails are correct
@@ -1645,7 +1642,8 @@ function guifi_nodename_validate($nodestr,&$form_state) {
 }
 /** guifi_notify_send(): Delivers all the waiting messages and empties the queue
 */
-function guifi_notify_send() {
+function guifi_notify_send($send = true) {
+  global $user;
 
   $destinations = array();
   $messages     = array();
@@ -1661,47 +1659,75 @@ function guifi_notify_send() {
 
   // For every destination, construct a single mail with all messages
   $errors = false;
+  $output = '';
   foreach ($destinations as $to=>$msgs) {
     $body = str_repeat('-',72)."\n\n".
-      t('Complete messages')."\n".str_repeat('-',72)."\n";
-    $subjects = t('Summary:')."\n".str_repeat('-',72)."\n";
+      t('Complete trace messages (for trace purposes, to be used by developers)')."\n".str_repeat('-',72)."\n";
+    $subjects = t('Summary of changes:')."\n".str_repeat('-',72)."\n";
     foreach ($msgs as $msg_id) {
-      $subjects .= format_date($messages[$msg_id]['timestamp']).' ** '.
+      $subjects .= format_date($messages[$msg_id]['timestamp'],'small').' ** '.
         $messages[$msg_id]['who_name'].' '.
         $messages[$msg_id]['subject']."\n";
       $body .=
-        format_date($messages[$msg_id]['timestamp']).' ** '.
+        format_date($messages[$msg_id]['timestamp'],'small').' ** '.
         $messages[$msg_id]['who_name'].' '.
         $messages[$msg_id]['subject']."\n".
         $messages[$msg_id]['body']."\n".str_repeat('-',72)."\n";
     }
-//     if (count($msgs) == 1) {
-//     print "\n<br>Sending a mail to: $to\n<br>";
-//     print_r($msgs);
-    $error = drupal_mail(null,
-      $to,
-      t('[guifi.net notifications] Report of changes'),
-      $subjects.
-      $body,
-      variable_get('guifi_contact','webmestre@guifi.net')
-    );
 
-    if ($error)
+    $subject = t('[guifi.net notify] Report of changes at !date',
+        array('!date'=>format_date(time(),'small')));
+    $output .= '<h2>'.t('Sending a mail to: %to',
+      array('%to'=>$to)).'</h2>';
+    $output .= '<h3>'.$subject.'</h3>';
+    $output .= '<pre><small>'.$subjects.$body.'</small></pre>';
+
+    $params['mail']['subject']= $subject;
+    $params['mail']['body']=$subjects.$body;
+
+    $return = false;
+    if ($send) {
+      $return = drupal_mail('guifi_notify','notify',
+        $to,
+        user_preferred_language($user),
+        $params,
+        variable_get('guifi_contact',$user->mail));
+
+        guifi_log(GUIFILOG_TRACE,'return code for email sent:',$return);
+    }
+
+    if ($return['result'])
       watchdog('guifi','Report of changes sent to %name',
         array('%name'=>$to));
     else {
       watchdog('guifi',
-        'Report of changes was unable to be sent to %name',
+        'Unable to notify %name',
         array('%name'=>$to));
       $errors = true;
     }
 
   }
   // delete messages
-   if (!$errors)
+  if ((!$errors) and ($send))
      db_query("DELETE FROM {guifi_notify}
        WHERE id in (".implode(',',array_keys($messages)).")");
+
+  return $output;
 }
+
+function guifi_notify_mail($key, &$message, $params) {
+  $language = $message['language'];
+  $variables = user_mail_tokens($params['account'], $language);
+  switch($key) {
+    case 'notify':
+      $message['subject'] = $params['mail']['subject'];
+      $message['body'] = $params['mail']['body'];
+      break;
+  }
+}
+
+
+
 /** converteix les coordenades de graus,minuts i segons a graus amb decimals
  *  guifi_coord_dmstod($deg:int,$min:int,$seg:min):float or NULL..
 */

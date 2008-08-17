@@ -86,7 +86,7 @@ function guifi_menu() {
     'page arguments' => array('node/'.guifi_zone_root()),
     'access arguments' => array('access content'),
   );
-  
+
   if (variable_get('guifi_forums','forum') != '')
   $items['guifi/menu/main/forums'] = array(
     'title' => 'Forums',
@@ -148,7 +148,7 @@ function guifi_menu() {
     'page arguments' => array('node/'.guifi_zone_root().'/view/availability'),
     'access arguments' => array('access content'),
   );
-  
+
   // Network management tools
   $items['guifi/menu/ip'] = array(
     'title' => 'IP & Network management tools',
@@ -170,8 +170,40 @@ function guifi_menu() {
     'page callback' => 'guifi_tools_mac_search',
     'access arguments' => array('access content'),
     'file' => 'guifi_tools.inc.php'
-  );  
-    
+  );
+
+  // Administrator's tools
+  $items['guifi/menu/admin'] = array(
+    'title' => 'Administration tools',
+    'description' => 'Utilities for administrators, use with care, regular users shouldn\'t have this block.',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'weight'=>100,
+  );
+  $items['guifi/menu/admin/sendnotify'] = array(
+    'title' => 'Send notifications',
+    'description' => 'Flush the notification queue by sending all pending messages',
+    'page callback' => 'guifi_admin_notify',
+    'access arguments' => array('administer site configuration'),
+    'weight' => 0,
+    'file' => 'guifi_tools.inc.php'
+  );
+  $items['guifi/menu/admin/viewnotify'] = array(
+    'title' => 'View notifications',
+    'description' => 'View the notification queue by printing all pending messages on the screen, this will not flush the queue',
+    'page callback' => 'guifi_admin_notify',
+    'page arguments' => array('true'),
+    'access arguments' => array('administer site configuration'),
+    'weight' => 1,
+    'file' => 'guifi_tools.inc.php'
+  );  $items['guifi/menu/admin/guifisettings'] = array(
+    'title' => 'guifi.net module settings',
+    'description' => 'Change the settings for guifi.net module ',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('admin/settings/guifi'),
+    'access arguments' => array('administer site configuration'),
+    'weight' => 100,  );
+
   //
   // ZONE menus & tabs
   //
@@ -1157,10 +1189,10 @@ function guifi_page($full = false) {
       SELECT m.*, ml.*
       FROM {menu_links} ml
       INNER JOIN {menu_router} m ON ml.router_path = m.path
-      WHERE ml.link_path != 'guifi/menu/help' 
-        AND menu_name = '%s' 
+      WHERE ml.link_path != 'guifi/menu/help'
+        AND menu_name = '%s'
         AND ml.plid = %d
-        AND hidden = 0", 
+        AND hidden = 0",
       $menus['menu_name'],$menus['mlid']);
     while ($item = db_fetch_array($result)) {
       _menu_link_translate($item);
@@ -1178,7 +1210,7 @@ function guifi_page($full = false) {
         $function = $item['block_callback'];
         $block['content'] .= $function();
       }
-      $block['content'] .= 
+      $block['content'] .=
         theme_guifi_menu_block_content(system_admin_menu_block($item));
       // Prepare for sorting as in function _menu_tree_check_access().
       // The weight is offset so it is always positive, with a uniform 5-digits.
@@ -1304,7 +1336,7 @@ function guifi_purge() {
     db_query($SqlDel);
   }
 }
-  
+
 /**
  * Provide a single block from the administration menu as a page.
  * This function is often a destination for these blocks.
@@ -1339,16 +1371,16 @@ function guifi_menu_block($item) {
       "SELECT mlid, menu_name " .
       "FROM {menu_links} ml " .
       "WHERE ml.router_path = '%s' " .
-      " AND module = 'system'", 
+      " AND module = 'system'",
       $item['path']));
   }
   $result = db_query("
     SELECT m.load_functions, m.to_arg_functions, m.access_callback
-      m.access_arguments, m.page_callback, m.page_arguments, m.title, 
+      m.access_arguments, m.page_callback, m.page_arguments, m.title,
       m.title_callback, m.title_arguments, m.type, m.description, ml.*
     FROM {menu_links} ml
     LEFT JOIN {menu_router} m ON ml.router_path = m.path
-    WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0", 
+    WHERE ml.plid = %d AND ml.menu_name = '%s' AND hidden = 0",
     $item['mlid'], $item['menu_name']);
   while ($item = db_fetch_array($result)) {
     _menu_link_translate($item);
