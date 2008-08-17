@@ -810,7 +810,8 @@ function guifi_zone_get_parents($id) {
 **/
 function guifi_zone_ariadna($id = 0, $link = 'node/%d') {
   $ret = array();
-$ret[] = l(t('Home'), NULL);
+  $ret[] = l(t('Home'), NULL);
+  $ret[] = l(t('Main menu'),'guifi');
   foreach (array_reverse(guifi_zone_get_parents($id)) as $parent)
   if ($parent > 0) {
     $parentData = db_fetch_array(db_query(
@@ -841,6 +842,7 @@ $ret[] = l(t('Home'), NULL);
   }
   return $ret;
 }
+
 /** guifi_zone_data(): outputs the zone information data
 **/
 function guifi_zone_data($zone) {
@@ -1014,19 +1016,22 @@ function guifi_zone_availability($zone,$desc = "all") {
     return $rows;  
   }
   
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/availability'));
   $childs = guifi_zone_childs($zone->id);
   $childs[] = $zone->id;
   
   switch ($desc) {
     case t('pending'):
       $msg = t('Pending/to review');
+      $lbreadcrumb = 'node/%d/view/pending';
       $qstatus = "Working"; 
       break;
     case t('all'):
+    default:
       $msg = t('Availability');
+      $lbreadcrumb = 'node/%d/view/availability';
       $qstatus = "all";
   }
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,$lbreadcrumb));
   
   $output = '<h2>' .$msg.' @  ' .$zone->title .'</h2>';
   
@@ -1093,11 +1098,12 @@ function guifi_zone_availability($zone,$desc = "all") {
         
   }
   
-  
-//  $rows[] = array(guifi_zone_availability_recurse($node));
   $output .= theme('table', null, $rows,array('width'=>'100%'));
   $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
-  return $output;
+  $node = node_load(array('nid'=>$zone->id));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;
 }
 
 /**  guifi_zone_view(): zone view page
@@ -1268,7 +1274,7 @@ function theme_guifi_zone_nodes($node,$links = true) {
   }
   
   if ($links) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/nodes'));
     $node = node_load(array('nid'=>$node->id));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
     print theme('page',$output,false);
@@ -1283,7 +1289,7 @@ function theme_guifi_zone_nodes($node,$links = true) {
  */
 function theme_guifi_zone_map($node) {
 
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/map'));
   $node = node_load(array('nid'=>$node->id));
 
   if (guifi_gmap_key()) {
@@ -1307,7 +1313,7 @@ function theme_guifi_zone_map($node) {
 **/
 function theme_guifi_zone_networks($zone) {
 
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/ipv4'));
   $zone = node_load(array('nid'=>$zone->id));
 
   $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));

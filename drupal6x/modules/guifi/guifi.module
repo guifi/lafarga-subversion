@@ -187,7 +187,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/services'] = array(
     'title' => 'services',
-    'page callback' => 'guifi_list_services',
+    'page callback' => 'theme_guifi_services_by_zone',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),

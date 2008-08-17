@@ -511,12 +511,17 @@ function guifi_users_queue($zone) {
   function _guifi_user_queue_device_form($form_state, $d = array()) {
 
     guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form()',$d);
-    
+       
     if (count($d['radios']) != 1)
       return;
     if ($d['radios'][0]['mode'] != 'client')
       return;
+
+    if (!isset($d['radios'][0]['interfaces']))
+      return;    
     $iid = key($d['radios'][0]['interfaces']);
+    if (!isset($d['radios'][0]['interfaces'][$iid]['ipv4'][0]['links']))
+      return;        
     $lid = key($d['radios'][0]['interfaces'][$iid]['ipv4'][0]['links']);
     if ((empty($iid)) or (empty($lid)))
       return;
@@ -640,7 +645,7 @@ function guifi_users_queue($zone) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list()',$zone);
 
-  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
+  drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/userqueue'));
   $title = t('Queue of pending users @') .' ' .$zone->title;
   drupal_set_title($title);
 
@@ -735,6 +740,9 @@ function guifi_users_node_list($node) {
   guifi_log(GUIFILOG_TRACE,'function guifi_users_node_list()',$node);
   $output = drupal_get_form('guifi_users_node_list_form',$node);
 
+  $node = node_load(array('nid'=>$node->id));
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
   // To gain space, save bandwith and CPU, omit blocks
   print theme('page', $output, FALSE);
 }

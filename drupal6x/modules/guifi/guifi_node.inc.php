@@ -34,6 +34,50 @@ function guifi_node_access($op, $node) {
   }
 }
 
+/** guifi_node_ariadna(): Get an array of zone hierarchy and node devices
+ * to build the breadcrumb
+**/
+function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d', $zlink = 'node/%s') {
+  if (is_numeric($node))
+    $node = guifi_node_load($node);
+    
+  $ret = array();
+  $ret[] = l(t('Home'), NULL);
+  $ret[] = l(t('Main menu'),'guifi');
+  
+  foreach (array_reverse(guifi_zone_get_parents($node->zone_id)) as $parent)
+  if ($parent > 0) {
+    $parentData = db_fetch_array(db_query(
+      'SELECT z.id, z.title ' .
+      'FROM {guifi_zone} z ' .
+      'WHERE z.id = %d ',
+      $parent));
+    $ret[] = l($parentData['title'],sprintf($zlink,$parentData['id']));
+  }
+  $ret[] = l($node->title,sprintf($nlink,$node->id));
+  
+  $ret[count($ret)-1] = '<b>'.$ret[count($ret)-1].'</b>';
+
+  $child = array();
+  $query = db_query('SELECT d.id, d.nick, d.type ' .
+      'FROM {guifi_devices} d ' .
+      'WHERE d.nid = %d ',
+      $node->id);
+  while ($dChild = db_fetch_array($query)) {
+    $child[] = l($dChild['nick'],sprintf($dlink,$dChild['id']),
+      array(
+        'attributes'=>array('title'=>$dChild['type'])
+      ));
+  }
+  if (count($child)) {
+    $child[0] = '<br><small>('.$child[0];
+    $child[count($child)-1] = $child[count($child)-1].')</small>';
+    $ret = array_merge($ret,$child);
+  }
+  return $ret;
+}
+
+
 /** guifi_node_add(): creates a new node
 
   guifi_node_add($id:int):Void
@@ -577,7 +621,7 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
     return $node;
 
   if ($page) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
     $node->content['data'] = array(
       '#value'=> theme_table(null,
          array(
@@ -672,8 +716,12 @@ function guifi_node_distances_map($node) {
       '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
       '</form>';
   }
-
-  return $output;
+  
+  $node = node_load(array('nid'=>$node->id));
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;
 }
 
 
@@ -682,7 +730,11 @@ function guifi_node_distances($node) {
     guifi_get_zone_nick($node->zone_id).
     '-'.$node->nick);
   $output .= drupal_get_form('guifi_node_distances_form',$node);
-  return $output;
+  $node = node_load(array('nid'=>$node->id));
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;  
 }
 
 function guifi_node_distances_form($form_state,$node) {
@@ -1069,9 +1121,11 @@ function theme_guifi_node_data($node,$links = false) {
   $output = theme('table',null,array_merge($rows));
   
   if ($links) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output, false);
+    return;
   }
 
   return $output;
@@ -1130,9 +1184,11 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
   $output = theme('table',null,$ret);
   
   if ($links) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
   }
   
   return $output; 
@@ -1190,9 +1246,11 @@ function theme_guifi_node_devices_list($node,$links = false) {
   $output = '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
   
   if ($links) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
   }
   
   return $output;
@@ -1205,9 +1263,11 @@ function theme_guifi_node_links($node, $links = false) {
     theme_guifi_node_links_by_type($node->id,'ap/client');
     
   if ($links) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
     $node = node_load(array('nid'=>$node->id));
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
   }
   
   return $output;

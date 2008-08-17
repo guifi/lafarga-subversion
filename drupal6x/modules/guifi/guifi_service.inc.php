@@ -643,7 +643,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
 /*
  * guifi_list_services
  */
-function guifi_list_services($node,$service = '%') {
+function theme_guifi_services_by_zone($node,$service = '%') {
 
 //  print "Enter list services by zone ".$node->nid."\n<br />";
 
@@ -658,7 +658,13 @@ function guifi_list_services($node,$service = '%') {
   $output = '<h2>' .t('Services of ') .' ' .$node->title .' ('.$typestr.')</h2>';
   $rows = guifi_list_services_query($node,$typestr);
   $output .= theme('table', array(t('service'),t('zone'),t('device'),t('status')), array_merge($rows),array('width'=>'100%'));
-  return $output;
+  
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/services'));
+  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+  $node = node_load(array('nid'=>$node->id));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  print theme('page',$output,false);
+  return;
 }
 /**
  * outputs the node information
