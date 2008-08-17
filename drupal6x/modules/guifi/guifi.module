@@ -98,7 +98,7 @@ function guifi_menu() {
     'title' => 'Create a node',
     'description' => 'Join to the network by creating yor node',
     'page callbak' => 'drupal_goto',
-    'page callback' => array('node/add/guifi-node'),
+    'page arguments' => array('node/add/guifi-node'),
     'access arguments' => array('access content'),
   );
   if (variable_get('guifi_faq','') != '')
@@ -119,16 +119,23 @@ function guifi_menu() {
   );
   
   $items['guifi/menu/ip'] = array(
-    'title' => 'IP tools',
-    'description' => 'Toolset for IPv4 address management',
+    'title' => 'IP & Network management tools',
+    'description' => 'Utilities toolset for various network addressing & management',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
     'weight'=>1,
   );
-  $items['guifi/menu/ip/search'] = array(
+  $items['guifi/menu/ip/ipsearch'] = array(
     'title' => 'Search IPv4',
-    'description' => 'Get information about an used IPv4 address',
+    'description' => 'Query information about assigned IPv4 addresses',
     'page callback' => 'guifi_tools_ip_search',
+    'access arguments' => array('access content'),
+    'file' => 'guifi_tools.inc.php'
+  );
+  $items['guifi/menu/ip/macsearch'] = array(
+    'title' => 'Search MAC',
+    'description' => 'Query information about existing MAC addresses',
+    'page callback' => 'guifi_tools_mac_search',
     'access arguments' => array('access content'),
     'file' => 'guifi_tools.inc.php'
   );
