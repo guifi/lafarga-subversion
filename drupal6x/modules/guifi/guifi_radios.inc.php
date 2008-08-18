@@ -180,18 +180,19 @@ function guifi_radio_form(&$edit,$form_weight) {
         '#attributes'=>array('title'=>t('Delete radio')), 
         '#submit' => array('guifi_radio_delete_submit'),
         '#weight'=>$bw++);
-      $form['r']['radios'][$key]['change'] = array(
-        '#type'=>'image_button',
-        '#src'=>drupal_get_path('module', 'guifi').'/icons/move.png',
-        '#parents'=>array('radios',$key,'move'),
-        '#attributes'=>array('title'=>t('Move radio to another device')), 
-        '#ahah' => array(
-          'path' => 'guifi/js/move-device/'.$key,
-          'wrapper' => 'move-device-'.$key,
-          'method' => 'replace',
-          'effect' => 'fade',
-        ),
-        '#weight'=>$bw++);
+        // TODO: Fix ticket# 
+//      $form['r']['radios'][$key]['change'] = array(
+//        '#type'=>'image_button',
+//        '#src'=>drupal_get_path('module', 'guifi').'/icons/move.png',
+//        '#parents'=>array('radios',$key,'move'),
+//        '#attributes'=>array('title'=>t('Move radio to another device')), 
+//        '#ahah' => array(
+//          'path' => 'guifi/js/move-device/'.$key,
+//          'wrapper' => 'move-device-'.$key,
+//          'method' => 'replace',
+//          'effect' => 'fade',
+//        ),
+//        '#weight'=>$bw++);
     }
 
     // if not first, allow to move up  
