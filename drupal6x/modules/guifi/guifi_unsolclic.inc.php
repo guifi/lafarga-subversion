@@ -1,20 +1,17 @@
 <?php
 
 // Generador dels unsolclic
-function guifi_unsolclic($id, $format = 'html') {
+function guifi_unsolclic($dev, $format = 'html') {
   global $rc_startup;
   global $ospf_zone;
   global $otype;
 
   $otype = $format;
 
-  $rc_startup = "";
-  $dev = (object) guifi_device_load($id);
-//  print_r($dev);
-
-
+  $dev = (object)$dev;
+  
   if ($dev->variable['firmware'] == 'n/a') {
-	_outln_comment(t("ERROR: I do need a firmware selected at the radio web interface: ").'<a href=/guifi/device/'.$id.'/edit>http://guifi.net/guifi/device/'.$id.'/edit');
+	_outln_comment(t("ERROR: I do need a firmware selected at the radio web interface: ").'<a href=/guifi/device/'.$dev->id.'/edit>http://guifi.net/guifi/device/'.$dev->id.'/edit');
         return;
   } else {
 	_outln_comment(t("Generated for:"));
@@ -59,7 +56,7 @@ function guifi_unsolclic($id, $format = 'html') {
       }
     }
     if ($links == 0) {
-	_outln_comment(t("ERROR: Radio is in client mode but has no AP selected, please add a link to the AP at: ").'<a href='.base_path().'guifi/device/'.$id.'/edit>http://guifi.net/guifi/device/'.$id.'/edit');
+	_outln_comment(t("ERROR: Radio is in client mode but has no AP selected, please add a link to the AP at: ").'<a href='.base_path().'guifi/device/'.$dev->id.'/edit>http://guifi.net/guifi/device/'.$dev->id.'/edit');
         return;
     }
   }
