@@ -1,5 +1,45 @@
 <?php
 
+function guifi_user_access($op, $id) {
+  global $user;
+
+  guifi_log(GUIFILOG_TRACE,'function guifi_user_access()',$id);
+  guifi_log(GUIFILOG_FULL,'user=',$user);
+
+  if ($user->uid==0)
+    return FALSE;
+
+  if (empty($id) || ($id < 1))
+   return FALSE;
+
+  if (is_array($id))
+    $guifi_user = $id;
+  else
+    $guifi_user = guifi_user_load($id);
+
+  $node = node_load(array('nid'=>$guifi_user['nid']));
+
+  switch($op) {
+    case 'create':
+      return user_access("create guifi nodes");
+    case 'update':
+      if ((user_access('administer guifi networks')) ||
+        (user_access('administer guifi zones')) ||
+        (user_access('administer guifi users')) ||
+        ($guifi_user['user_created'] == $user->uid) ||
+        ($node->user_created == $user->uid))
+        return TRUE;
+      return FALSE;
+    case 'administer':
+      if ((user_access('administer guifi networks')) ||
+        (user_access('administer guifi zones')) ||
+        (user_access('administer guifi users')))
+        return TRUE;
+      return FALSE;  
+    }
+}
+
+
 /**
  * user editing functions
 **/
@@ -60,58 +100,9 @@ function guifi_user_edit($id = 0) {
   guifi_log(GUIFILOG_TRACE,'function guifi_user_edit()',$id);
 
   $output = drupal_get_form('guifi_user_form',$id);
-
-  return $output;
-
-  $op = $_POST['op'];
-  $edit = $_POST['edit'];
-
-  $output = '';
-
-  switch ($op) {
-    case t('Submit'):
-      guifi_edit_user_validate($edit);
-      if (!form_get_errors()) {
-        guifi_edit_user_save($edit);
-        drupal_goto($_GET['q']);
-      }
-      $output .= guifi_edit_user_form($edit);
-      break;
-    case t('Delete user'):
-      guifi_edit_user_validate($edit);
-      if (form_get_errors()) {
-        $output .= guifi_edit_user_form($edit);
-        break;
-      }
-    case t('Delete'):
-      guifi_delete_user($edit);
-      break;
-    case t('Reset password'):
-      guifi_user_reset_password($edit);
-      $output .= guifi_edit_user_form($edit);
-      break;
-    default:
-      if ($id > 0) {
-
-        $item = guifi_get_user($id);
-
-        $edit = object2array($item);
-
-      }
-      else {
-        $edit['id'] = 0; //Add a new user
-        $item = arg(1);
-        if (is_numeric($item)) {
-          $node = node_load(array('nid'=>$item));
-          if ($node->type == 'guifi_node')
-            $edit['nid'] = $item;
-        }
-      }
-      $output .= guifi_edit_user_form($edit);
-  }
-
-//  print theme('page', $output);
-  return $output;
+  
+  print theme('page',$output,false);
+  return;
 }
 
 function guifi_user_reset_password($edit) {
@@ -190,7 +181,10 @@ function guifi_user_load($id) {
   $item = db_fetch_array(db_query('SELECT * FROM {guifi_users} WHERE id = %d', $id));
   $item['services'] = unserialize($item['services']);
   $item['vars'] = unserialize($item['extra']);
-  $item['content_filters'] = unserialize($item['content_filters']);
+  if (!empty($item['content_filters']))
+    $item['content_filters'] = unserialize($item['content_filters']);
+  $user = user_load(array('uid'=>$item['user_created']));
+  $item['username_created'] = $user->name;
 
   return $item;
 }
@@ -368,13 +362,34 @@ function guifi_user_form($form_state, $params = array()) {
     '#title'=>t('content filters'),
     '#options'=> guifi_types('filter'),
     '#multiple'=>true,
-    '#default_value'=> $form_state['values']['content_filters'],
+//    '#default_value'=> $form_state['values']['content_filters'],
     '#description'=>t('Content to be filtered.<br>Check the type of content ' .
         'which will be filtered to this user. ' .
         'Note that this filters will work only on those sites ' .
         'which have enabled this feature, ' .
         'so don\'t think that is safe to rely on this.')
   );
+  if (!empty($form_state['values']['content_filters']))
+    $f['services']['filters']['#default_value'] = 
+      $form_state['values']['content_filters'];
+      
+  $f['author'] = array(
+    '#type' => 'fieldset',
+    '#access' => user_access('administer guifi users'),
+    '#title' => t('Authoring information'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $f['author']['username_created'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authored by'),
+    '#maxlength' => 60,
+    '#autocomplete_path' => 'user/autocomplete',
+    '#default_value' => $form_state['values']['username_created'],
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+  );
+  
 
   $f['submit'] = array (
     '#type'=>'submit',
@@ -440,7 +455,12 @@ function guifi_user_form_validate($form, &$form_state) {
   guifi_log(GUIFILOG_TRACE,'function guifi_user_form_validate()',$form_state);
 
   $edit = &$form_state['values'];
-
+  
+  if (isset($edit['username_created'])) {
+    if (user_load(array('name'=>$edit['username_created']))==false)
+        form_set_error('username_created',t('Invalid user name.'));
+  }
+      
   if ((isset($edit['id'])) and (isset($edit['previous_pwd']))) {
     if ($form_state['clicked_button']['#value'] != t('Reset password')) {
       if (empty($edit['previous_pwd']))
@@ -508,7 +528,7 @@ function guifi_user_form_validate($form, &$form_state) {
 
 function guifi_users_queue($zone) {
 
-  function _guifi_user_queue_device_form($form_state, $d = array()) {
+  function _guifi_user_queue_device_form($form_state, $d = array()) {   
 
     guifi_log(GUIFILOG_TRACE,'function guifi_user_queue_device_form()',$d);
        
@@ -587,19 +607,9 @@ function guifi_users_queue($zone) {
       '#suffix'=>'</td></tr></table>'
     );
     return $f;
-    $f['submit'] = array (
-      '#type'=>'submit',
-      '#value'=>t('Change user status'),
-      '#name'=>$form_state['values']['id'],
-      '#submit'=>array('_guifi_user_queue_device_form_submit'),
-      '#prefix'=>'<td>',
-      '#suffix'=>'</td></tr></table>'
-    );
-    // $f['#submit'][] = '_guifi_user_queue_device_form_submit';
-    return $f;
   }
 
-  function _guifi_user_queue_devices($u) {
+  function _guifi_user_queue_devices($u) {  
 
     $query = db_query(
       'SELECT d.id ' .
@@ -612,8 +622,22 @@ function guifi_users_queue($zone) {
     while ($d = db_fetch_array($query)) {
      $d = guifi_device_load($d['id']);
      $d['uid']=$u['id'];
-//     print_r($d);
-//     print "<br>\n";
+
+     if (guifi_device_access('update',$d['id'])) {
+       $edit_device_icon = 
+         l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
+           array('html'=>true,'attributes'=>array('target'=>'_blank')));
+     } else
+       $edit_device_icon = '';
+       
+     if (user_access('administer guifi users')) {
+       $edit_ok_icon = drupal_get_form('_guifi_user_queue_device_form',$d);
+     } else {
+       $edit_ok_icon = $d['flag'];
+       if ( (count($d['radios']) == 1) and ($d['radios'][0]['mode']=='client'))
+         $edit_ok_icon .= ' '.$d['radios'][0]['mac']; 
+     }
+       
 
      $ip = guifi_main_ip($d['id']);
      $graph_url = guifi_graphs_get_node_url($u['nid'],FALSE);
@@ -622,21 +646,19 @@ function guifi_users_queue($zone) {
      else
        $img_url = 'NULL';
      $rows[] = array(
-       l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
-         array('html'=>true,'attributes'=>array('target'=>'_blank'))).
-         l($d['nick'],'guifi/device/'.$d['id'],
-           array('attributes'=>array('target'=>'_blank'))),
-           array(
-             'data'=>l($ip['ipv4'].'/'.$ip['maskbits'],
-               guifi_device_admin_url($d,$ip['ipv4']),
-               array('attributes'=>array('title'=>t('Connect to the device on a new window'),
-                 'target'=>'_blank'))),
-                 'align'=>'right'),
-                 array('data' => drupal_get_form('_guifi_user_queue_device_form',$d), 'class' => $d['flag']),
-                 array('data' => $img_url, 'class' => $d['flag']),
+       $edit_device_icon.
+       l($d['nick'],'guifi/device/'.$d['id'],
+         array('attributes'=>array('target'=>'_blank'))),
+         array(
+           'data'=>l($ip['ipv4'].'/'.$ip['maskbits'],
+             guifi_device_admin_url($d,$ip['ipv4']),
+             array('attributes'=>array('title'=>t('Connect to the device on a new window'),
+               'target'=>'_blank'))),
+               'align'=>'right'),
+               array('data' => $edit_ok_icon, 'class' => $d['flag']),
+               array('data' => $img_url, 'class' => $d['flag']),
      );
     }
-    // return theme('table',null,$rows);
     return $rows;
   }
 
@@ -663,17 +685,47 @@ function guifi_users_queue($zone) {
   $rows = array();
   $nrow = 0;
   
+  if ((user_access('administer guifi networks')) ||
+    (user_access('administer guifi zones')) ||
+    (user_access('administer guifi users'))) 
+      $administer = true;
+    else
+      $administer = false;
+ 
   while ($u = db_fetch_array($query)) {
+  
     $srows =  _guifi_user_queue_devices($u);
     $nsr   = count($srows);
+    
     if (empty($nsr))
       $nsr = 1;
+    
+    $node = node_load(array('nid'=>$u['nid']));
+    if (guifi_node_access('update',$node)) {
+      $edit_node_icon = l(guifi_img_icon('edit.png'),
+             'node/'.$u['nid'].'/edit',
+             array('html'=>true));      
+    } else {
+      $edit_node_icon = '';      
+    }
+    
+    if (guifi_user_access('update',$u)) {
+      $edit_user_icon = l(guifi_img_icon('edit.png'),
+         'guifi/user/'.$u['id'].'/edit',
+          array('html'=>true,'attributes'=>array('target'=>'_blank')));      
+    } else {
+      $edit_user_icon = '';      
+    }
+    
+    if ($administer) {
+      $edit_user_form = drupal_get_form('_guifi_user_queue_form',$u);
+    } else {
+      $edit_user_form = $u['status'];
+    }
         
     $rows[] = array(
       array('data'=>
-        l(guifi_img_icon('edit.png'),
-         'guifi/user/'.$u['id'].'/edit',
-          array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+        $edit_user_icon.
         l($u['username'],'node/'.$u['nid'].'/view/users',
           array('attributes'=>array(
             'title'=>$u['lastname'].", ".$u['firstname'],
@@ -686,9 +738,7 @@ function guifi_users_queue($zone) {
       array(
         'data'=>
            guifi_get_zone_nick($u['zone_id'])."<br><strong>".
-           l(guifi_img_icon('edit.png'),
-             'node/'.$u['nid'].'/edit',
-             array('html'=>true)).
+           $edit_node_icon.
            l($u['nnick'],'node/'.$u['nid']).
            '</strong><br><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
@@ -699,7 +749,7 @@ function guifi_users_queue($zone) {
         'class'=>$u['nflag'],
         'rowspan'=>$nsr
         ),
-      array('data'=>drupal_get_form('_guifi_user_queue_form',$u),
+      array('data'=>$edit_user_form,
         'rowspan'=>$nsr
         )
       );
@@ -900,13 +950,15 @@ function guifi_user_save($edit) {
     $edit['extra'] = serialize($edit['var']);
   if (isset($edit['content_filters']))
     $edit['content_filters'] = serialize($edit['content_filters']);
+  if (isset($edit['username_created'])) {
+    $cuser = user_load(array('name'=>$edit['username_created']));
+    $edit['user_created'] = $cuser->uid;
+  }
 
   guifi_log(GUIFILOG_TRACE,'function guifi_user_save()',$edit);
 
   _guifi_db_sql('guifi_users',array('id'=>$edit['id']),$edit,$log,$to_mail);
 
-//  drupal_set_message($log);
-//  drupal_set_message($to_mail);
   drupal_set_message(t('%user saved. Note that in some cases the change will not take effect until after some time.', array('%user' => $edit['username'])));
   guifi_notify(
     $to_mail,

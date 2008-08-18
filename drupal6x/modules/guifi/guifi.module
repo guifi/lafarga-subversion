@@ -196,13 +196,15 @@ function guifi_menu() {
     'access arguments' => array('administer site configuration'),
     'weight' => 1,
     'file' => 'guifi_tools.inc.php'
-  );  $items['guifi/menu/admin/guifisettings'] = array(
-    'title' => 'guifi.net module settings',
-    'description' => 'Change the settings for guifi.net module ',
+  );  
+  $items['guifi/menu/admin/guifisettings'] = array(
+    'title' => 'guifi.net settings',
+    'description' => 'Change the settings for "guifi.net" module ',
     'page callback' => 'drupal_goto',
     'page arguments' => array('admin/settings/guifi'),
     'access arguments' => array('administer site configuration'),
-    'weight' => 100,  );
+    'weight' => 100,  
+  );
 
   //
   // ZONE menus & tabs
@@ -277,7 +279,7 @@ function guifi_menu() {
     'page callback' => 'guifi_users_queue',
     'page arguments' => array(1),
     'access callback' => 'user_access',
-    'access arguments' => array('administer guifi users'),
+    'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
   $items['node/%guifi_zone/view/ipv4/add'] = array(
@@ -379,15 +381,15 @@ function guifi_menu() {
   $items['guifi/user/%/edit'] = array(
     'page callback' => 'guifi_user_edit',
     'page arguments' => array(2),
-    'access callback' => 'user_access',
-    'access arguments' => array('access content'),
+    'access callback' => 'guifi_user_access',
+    'access arguments' => array('update',2),
     'type' => MENU_CALLBACK
   );
   $items['guifi/user/%/delete'] = array(
     'page callback' => 'guifi_user_delete',
     'page arguments' => array(2),
-    'access callback' => 'user_access',
-    'access arguments' => array('access content'),
+    'access callback' => 'guifi_user_access',
+    'access arguments' => array('update',2),
     'type' => MENU_CALLBACK
   );
 
