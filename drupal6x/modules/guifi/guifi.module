@@ -1058,7 +1058,7 @@ function guifi_display_block_1() {
     $content = theme('table', $header, $rows);
     $content .= '<div class="more-link">'.
       l(t('node list and maps...'),
-        guifi_zone_root(),
+        'node/'.guifi_zone_root(),
         array(
           'title' => t('Go to the list of nodes root page and their maps.'))) .'</div>';
 
