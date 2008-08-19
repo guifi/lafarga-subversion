@@ -21,6 +21,22 @@ function guifi_unsolclic($dev, $format = 'html') {
   foreach (glob(drupal_get_path('module', 'guifi') .'/firmware/*.inc.php', GLOB_BRACE) as $firm_inc_php){
     include_once("$firm_inc_php");
   }
+ if ($dev->radios[0]['mode'] == 'client') {
+    $links = 0;
+     foreach ($dev->radios[0]['interfaces'] as $interface_id => $interface) 
+     foreach ($interface['ipv4'] as $ipv4_id => $ipv4) 
+     if (isset($ipv4['links'])) foreach ($ipv4['links'] as $key => $link) {
+       if ($link['link_type'] == 'ap/client') {
+        $links++;
+        break; 
+      }
+    }
+
+    if ($links == 0) {
+	_outln_comment(t("ERROR: Radio is in client mode but has no AP selected, please add a link to the AP at: ").'<a href='.base_path().'guifi/device/'.$dev->id.'/edit>http://guifi.net/guifi/device/'.$dev->id.'/edit');
+        return;
+    }
+  }
 
   switch ($dev->variable['firmware']) {
     case 'RouterOSv2.9':
@@ -35,6 +51,11 @@ function guifi_unsolclic($dev, $format = 'html') {
       unsolclic_wrt($dev);
       exit;
       break;
+    case 'AirOsv221':
+    case 'AirOsv30':
+      unsolclic_airos($dev);
+      exit;
+      break;
   }
 
   $unsolclic='unsolclic_'.$dev->variable['firmware'];
@@ -45,21 +66,7 @@ function guifi_unsolclic($dev, $format = 'html') {
   }
   else
     unsolclic_todo($dev);
-    
 
- if ($dev->radios[0]->mode == 'client') {
-    $links = 0;
-    if (!empty($dev->links)) foreach ($dev->links as $link) {
-      if ($link['link_type'] == 'ap/client') {
-        $links++;
-        break; 
-      }
-    }
-    if ($links == 0) {
-	_outln_comment(t("ERROR: Radio is in client mode but has no AP selected, please add a link to the AP at: ").'<a href='.base_path().'guifi/device/'.$dev->id.'/edit>http://guifi.net/guifi/device/'.$dev->id.'/edit');
-        return;
-    }
-  }
 }
 
 function _out_file($txt,$file) {
