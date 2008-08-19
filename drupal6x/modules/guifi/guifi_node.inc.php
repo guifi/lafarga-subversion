@@ -1165,7 +1165,7 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
     $radios[] = $radio;
   }
   // print "Count radios: ".count($radios)."\n<br>";
-  if (count($radios)) {
+  if (count($radios) > 1) {
     if (substr($server_mrtg,0,3)=="fot"){
       //  graph all devices.about a node. Ferran Ot
       while ($radio = db_fetch_object($query)){
@@ -1183,8 +1183,8 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
       $ret = array_merge($rows);
     }
   } else {
-    $radio = db_fetch_array($query);
-    $ret = guifi_device_graph_overview($radio);
+    if (count($radios)==1)
+    $ret = guifi_device_graph_overview($radios[0]);
   }
 
   $output = theme('table',null,$ret);

@@ -228,11 +228,9 @@ function guifi_device_graph_overview($radio) {
  }
  if (empty($radio['graph_server']))
    $server_mrtg = guifi_graphs_get_radio_url($radio['id']);
-//   $server_mrtg = guifi_graphs_get_node_url($radio['nid']);
  else
    $server_mrtg = guifi_graphs_get_graph_url($radio['graph_server']);
-
- // print "Server mrtg: $server_mrtg radio graph_server: $radio[graph_server] \n<br>";
+ 
  if (substr($server_mrtg,0,3) == "fot")
     {
     $ssid=get_SSID_radio($radio['id']);
@@ -245,14 +243,13 @@ function guifi_device_graph_overview($radio) {
     }
  else
     {
-      $filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile(guifi_get_hostname($radio['id'])).'_ping.rrd';
-      if (!((file_exists($filename)) | (substr($server_mrtg,0,7) == "http://")))    // Checks whether to display graph on not, checking if is an internal or external graphing
-      {
-        $rows[] = array(t('This radio is not being graphed yet.'));
-        return array_merge($rows);
-      }
-      $query = db_query("SELECT c.id FROM {guifi_links} c WHERE c.device_id=%d AND c.link_type in ('wds','ap/client','bridge')",$radio['id']);
-      if (db_result($query) > 1)  // several clients, Totals In & Out
+      $clients = db_fetch_object(db_query(
+        "SELECT count(c.id) count " .
+        "FROM {guifi_links} c " .
+        "WHERE c.device_id=%d " .
+        "  AND c.link_type IN ('wds','ap/client','bridge')",
+        $radio['id']));
+      if ($clients->count > 1)  // several clients, Totals In & Out
       {
         $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
         $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
@@ -267,7 +264,6 @@ function guifi_device_graph_overview($radio) {
       $rows[] = array('<a href='.base_path().'guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
       return array_merge($rows);
     }
-
 }
 
 /**
