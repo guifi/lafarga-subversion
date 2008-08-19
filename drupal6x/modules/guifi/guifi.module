@@ -56,6 +56,15 @@ function guifi_menu() {
      'access arguments' => array('access content'),
      'type' => MENU_CALLBACK,
   );
+  
+  // Refresh maps callback
+  $items['guifi/refresh'] = array(
+    'title' => t('check if data must be refreshed'),
+    'page callback' => 'guifi_refresh',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK);
+  
   // General guifi menu
   $items['guifi/menu'] = array(
      'title' => 'guifi.net menus',
@@ -692,7 +701,7 @@ function guifi_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_SUGGESTED_ITEM,
-  );
+  );  
 
   return $items;
 /*
