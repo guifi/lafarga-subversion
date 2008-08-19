@@ -213,7 +213,7 @@ function guifi_links_delete_submit(&$form,&$form_state) {
   } else
     $fbase = &$form_state['values'];
 
-  guifi_log(GUIFILOG_BASIC,
+  guifi_log(GUIFILOG_TRACE,
     sprintf('function guifi_radio_interface_link_delete_submit(radio: %d-%s, interface: %d, ipv4: %d, lid: %d, rnid: %d rdid: %d)',
       $radio_id,
       $form_state['values']['radios'][$radio_id]['mode'],
