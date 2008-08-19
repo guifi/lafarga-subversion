@@ -98,55 +98,62 @@ function guifi_gml_links($zid,$type) {
   $oGC = new GeoCalc();
   $minx = 180; $miny = 90; $maxx= -180; $maxy = -90;
 
-  $res = db_query("SELECT id,link_type,flag FROM {guifi_links} WHERE link_type != 'cable' GROUP BY 1,2 HAVING count(*) = 2");
+  $res = db_query(
+    "SELECT id,link_type,flag " .
+    "FROM {guifi_links} " .
+    "WHERE link_type != 'cable' " .
+    "GROUP BY 1,2 " .
+    "HAVING count(*) = 2");
 
   $zchilds = guifi_zone_childs($zid);
   $zchilds[$zid] = 'Top';
 
   while ($row = db_fetch_object($res)) {
-
-  $resnode = db_query("SELECT n.id, n.zone_id, n.nick,n.lat, n.lon, n.status_flag FROM {guifi_links} l, {guifi_location} n WHERE l.id = %d AND l.nid=n.id",$row->id);
-  $nl = array();
-  while ($n = db_fetch_object($resnode)) {
+    
+    $resnode = db_query(
+      "SELECT n.id, n.zone_id, n.nick,n.lat, n.lon, n.status_flag " .
+      "FROM {guifi_links} l, {guifi_location} n " .
+      "WHERE l.id = %d AND l.nid=n.id",
+      $row->id);
+    $nl = array();
+    while ($n = db_fetch_object($resnode)) {
       $nl[] = $n;
+    }
+    if (count($nl) == 2)
+      if ((in_array($nl[0]->zone_id,$zchilds)) || (in_array($nl[1]->zone_id,$zchilds))) {
+        $distance = round($oGC->EllipsoidDistance($nl[0]->lat,$nl[0]->lon, $nl[1]->lat, $nl[1]->lon),3);
+        
+        if (($nl[0]->status_flag != 'Working') or ($nl[1]->status_flag != 'Working'))
+          $status = 'Reserved';
+        else
+          $status = $row->flag;
+        
+        if ($type == 'gml') $output .= '
+          <gml:featureMember>
+          <dlinks fid="'.$row->id.'">
+          <NODE1_ID>'.$nl[0]->id.'</NODE1_ID>
+          <NODE1_NAME>'.$nl[0]->nick.'</NODE1_NAME>
+          <NODE2_ID>'.$nl[1]->id.'</NODE2_ID>
+          <NODE2_NAME>'.$nl[1]->nick.'</NODE2_NAME>
+          <KMS>'.$distance.'</KMS>
+          <LINK_TYPE>'.$row->link_type.'</LINK_TYPE>
+          <STATUS>'.$status.'</STATUS>
+          <ogr:geometryProperty><gml:LineString><gml:coordinates>'.$nl[0]->lon.','.$nl[0]->lat.' '.$nl[1]->lon.','.$nl[1]->lat.'</gml:coordinates></gml:LineString></ogr:geometryProperty>
+          </dlinks>
+          </gml:featureMember>';
+        else
+          $output .= $row->id.','.$nl[0]->id.','.$nl[0]->nick.','.$nl[1]->id.','.$nl[1]->nick.','.$distance.','.$row->link_type.','.$status.','.$nl[0]->lon.','.$nl[0]->lat.','.$nl[1]->lon.','.$nl[1]->lat."\n";
+        
+        if ($nl[0]->lon > $maxx) $maxx = $nl[0]->lon;
+        if ($nl[0]->lat > $maxy) $maxy = $nl[0]->lat;
+        if ($nl[0]->lon < $minx) $minx = $nl[0]->lon;
+        if ($nl[0]->lat < $miny) $miny = $nl[0]->lat;
+        if ($nl[1]->lon > $maxx) $maxx = $nl[1]->lon;
+        if ($nl[1]->lat > $maxy) $maxy = $nl[1]->lat;
+        if ($nl[1]->lon < $minx) $minx = $nl[1]->lon;
+        if ($nl[1]->lat < $miny) $miny = $nl[1]->lat;
+      }   
   }
-  if (count($nl) == 2)
-  if ((in_array($zchilds,$nl[0]->zone_id)) || (in_array($zchilds,$nl[1]->zone_id))) {
-    $distance = round($oGC->EllipsoidDistance($nl[0]->lat,$nl[0]->lon, $nl[1]->lat, $nl[1]->lon),3);
-
-    if (($nl[0]->status_flag != 'Working') or ($nl[1]->status_flag != 'Working'))
-      $status = 'Reserved';
-    else
-      $status = $row->flag;
-
-    if ($type == 'gml') $output .= '
-  <gml:featureMember>
-    <dlinks fid="'.$row->id.'">
-      <NODE1_ID>'.$nl[0]->id.'</NODE1_ID>
-      <NODE1_NAME>'.$nl[0]->nick.'</NODE1_NAME>
-      <NODE2_ID>'.$nl[1]->id.'</NODE2_ID>
-      <NODE2_NAME>'.$nl[1]->nick.'</NODE2_NAME>
-      <KMS>'.$distance.'</KMS>
-      <LINK_TYPE>'.$row->link_type.'</LINK_TYPE>
-      <STATUS>'.$status.'</STATUS>
-      <ogr:geometryProperty><gml:LineString><gml:coordinates>'.$nl[0]->lon.','.$nl[0]->lat.' '.$nl[1]->lon.','.$nl[1]->lat.'</gml:coordinates></gml:LineString></ogr:geometryProperty>
-    </dlinks>
-  </gml:featureMember>';
-    else
-      $output .= $row->id.','.$nl[0]->id.','.$nl[0]->nick.','.$nl[1]->id.','.$nl[1]->nick.','.$distance.','.$row->link_type.','.$status.','.$nl[0]->lon.','.$nl[0]->lat.','.$nl[1]->lon.','.$nl[1]->lat."\n";
-
-    if ($nl[0]->lon > $maxx) $maxx = $nl[0]->lon;
-    if ($nl[0]->lat > $maxy) $maxy = $nl[0]->lat;
-    if ($nl[0]->lon < $minx) $minx = $nl[0]->lon;
-    if ($nl[0]->lat < $miny) $miny = $nl[0]->lat;
-    if ($nl[1]->lon > $maxx) $maxx = $nl[1]->lon;
-    if ($nl[1]->lat > $maxy) $maxy = $nl[1]->lat;
-    if ($nl[1]->lon < $minx) $minx = $nl[1]->lon;
-    if ($nl[1]->lat < $miny) $miny = $nl[1]->lat;
-  }
-
-
-}
   drupal_set_header('Content-Type: application/xml; charset=utf-8');
   if ($type == 'gml') print '<?xml version="1.0" encoding="utf-8" ?>
 <ogr:FeatureCollection
@@ -156,10 +163,10 @@ function guifi_gml_links($zid,$type) {
      xmlns:gml="http://www.opengis.net/gml">
   <gml:boundedBy>
     <gml:Box>
-      <gml:coord><gml:X>'.$minx.'</gml:X><gml:Y>'.$miny.'</gml:Y></gml:coord>
-      <gml:coord><gml:X>'.$maxx.'</gml:X><gml:Y>'.$maxy.'</gml:Y></gml:coord>
-    </gml:Box>
-  </gml:boundedBy>';
+<gml:coord><gml:X>'.$minx.'</gml:X><gml:Y>'.$miny.'</gml:Y></gml:coord>
+<gml:coord><gml:X>'.$maxx.'</gml:X><gml:Y>'.$maxy.'</gml:Y></gml:coord>
+   </gml:Box>
+</gml:boundedBy>';
   print $output;
   if ($type == 'gml') print '</ogr:FeatureCollection>';
 
