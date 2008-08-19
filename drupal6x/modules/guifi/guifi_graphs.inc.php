@@ -252,16 +252,30 @@ function guifi_device_graph_overview($radio) {
       if ($clients->count > 1)  // several clients, Totals In & Out
       {
         $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
-        $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$radio['id']));
-        $rows[] = array(sprintf('<a href='.base_path().'guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$radio['id']));
+        $rows[] = array(array(
+          'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
+            $args.'in><img src="'.$server_mrtg.'?'.
+            $args.'in"></a>',$radio['id']),
+          'align'=>'center'));
+        $rows[] = array(array(
+          'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
+            $args.'out><img src="'.$server_mrtg.'?'.
+            $args.'out"></a>',$radio['id']),
+          'align'=>'center'));;
       }
-      else
+      else if ($clients->count == 1)
       {
         $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
-        $rows[] = array('<a href='.base_path().'guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
+        $rows[] = array(array(
+          'data'=>'<a href='.base_path().'guifi/graph_detail?'.
+            $args.'><img src="'.$server_mrtg.'?'.$args.'">',
+          'align'=>'center'));
       }
       $args = sprintf('type=pings&node=%d&radio=%d',$radio['nid'],$radio['id']);
-      $rows[] = array('<a href='.base_path().'guifi/graph_detail?'.$args.'><img src="'.$server_mrtg.'?'.$args.'">');
+      $rows[] = array(array(
+        'data'=>'<a href='.base_path().'guifi/graph_detail?'.
+          $args.'><img src="'.$server_mrtg.'?'.$args.'">',
+        'align'=>'center'));
       return array_merge($rows);
     }
 }
