@@ -332,7 +332,7 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
-  $items['node/%guifi_node/view/data'] = array(
+  $items['node/%guifi_node/view/nodedata'] = array(
     'title' => 'data',
     'page callback' => 'theme_guifi_node_data',
     'page arguments' => array(1,'true'),
@@ -340,7 +340,7 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
-  $items['node/%guifi_node/view/services'] = array(
+  $items['node/%guifi_node/view/nodeservices'] = array(
     'title' => 'services',
     'page callback' => 'theme_guifi_services_list',
     'page arguments' => array(1),
@@ -404,7 +404,7 @@ function guifi_menu() {
 
   // service menus
 
-  $items['node/%guifi_service/view/sdata'] = array(
+  $items['node/%guifi_service/view/servicedata'] = array(
     'title' => 'data',
     'page callback' => 'guifi_service_print_data',
     'page arguments' => array(1),
