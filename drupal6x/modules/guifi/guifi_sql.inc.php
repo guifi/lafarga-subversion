@@ -431,8 +431,15 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
   // delete users
   case 'guifi_users':
+    $item=db_fetch_object(db_query(
+     'SELECT * ' .
+     'FROM {guifi_users} u ' .
+     'WHERE id = %d', 
+      $key['id']));
+    $log .= t('User %id-%name deleted.',
+        array('%id'=>$key['id'],
+            '%name'=>$item->username));
     break;
-  
   case 'guifi_zone':
     break;
     

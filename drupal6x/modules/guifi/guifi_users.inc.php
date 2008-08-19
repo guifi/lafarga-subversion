@@ -65,31 +65,57 @@ function guifi_user_add($node) {
  * Menu callback; delete a single user.
  */
  function guifi_user_delete($id) {
-  $result = db_query(
-      'SELECT username, nid ' .
-      'FROM {guifi_users} ' .
-      'WHERE id = %d',
-      $id);
-  $guifi = db_fetch_object($result);
+  
+  $guifi_user = guifi_user_load($id);
+  guifi_log(GUIFILOG_TRACE,'guifi_delete_user()',$guifi_user);
 
-  if ($_POST['confirm']) {
-    db_query('DELETE FROM {guifi_users} WHERE id = %d', $id);
-    drupal_set_message(t('User %username deleted.',array('%username'=>$guifi->username)));
-    drupal_goto('node/'.$guifi->nid.'/view/users');
-  }
-  return drupal_get_form('guifi_user_delete_confirm',$guifi->username,$guifi->nid);
+  return drupal_get_form(
+    'guifi_user_delete_confirm',
+    $guifi_user['username'],
+    $guifi_user['nid'],
+    $guifi_user['id']);
 }
 
-/**
- * Hook callback; delkete a network
- */
-function guifi_user_delete_confirm($form_state,$username,$nid) {
-  return confirm_form(array(),
-                     t('Are you sure you want to delete the user %username?', array('%username' => $username)),
-                     'node/'.$nid.'/view/users',
-                     t('This action cannot be undone.'),
-                     t('Delete'),
-                     t('Cancel'));
+
+function guifi_user_delete_confirm($form_state,$username,$nid,$id) {
+  guifi_log(GUIFILOG_TRACE,'guifi_delete_user_confirm()',$username.'-'.$nid);
+
+  $form['id'] = array('#type' => 'hidden', '#value' => $id);
+  
+  return confirm_form(
+    $form,
+    t('Are you sure you want to delete the user %username?', 
+      array('%username' => $username)),
+    'node/'.$nid.'/view/users',
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel'));
+}
+
+function guifi_user_delete_confirm_submit($form, &$form_state) {
+//  global $user;
+  
+  guifi_log(GUIFILOG_TRACE,'guifi_delete_user_confirm_submit()',
+    $form_state['values']);
+  
+  if ($form_state['values']['op'] != t('Delete'))
+    return;
+  
+  $guifi_user = guifi_user_load($form_state['values']['id']);
+  $node = guifi_node_load($guifi_user['nid']);
+  $to_mail = array(); 
+  
+  $subject = t('User %username deleted by %user.',
+    array('%username'=>$guifi_user['username'],
+          '%user' => $user->name));  
+  $log .= '<br>'._guifi_db_delete(
+    'guifi_users',
+     array('id'=>$guifi_user['id']),
+     $to_mail);
+  guifi_notify($to_mail,
+      $subject,
+      $log);
+  drupal_goto('node/'.$guifi_user['nid'].'/view/users');
 }
 
 /**
@@ -626,6 +652,8 @@ function guifi_users_queue($zone) {
      if (guifi_device_access('update',$d['id'])) {
        $edit_device_icon = 
          l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
+           array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+         l(guifi_img_icon('drop.png'),'guifi/device/'.$d['id'].'/delete',
            array('html'=>true,'attributes'=>array('target'=>'_blank')));
      } else
        $edit_device_icon = '';
@@ -702,17 +730,25 @@ function guifi_users_queue($zone) {
     
     $node = node_load(array('nid'=>$u['nid']));
     if (guifi_node_access('update',$node)) {
-      $edit_node_icon = l(guifi_img_icon('edit.png'),
-             'node/'.$u['nid'].'/edit',
-             array('html'=>true));      
+      $edit_node_icon = 
+        l(guifi_img_icon('edit.png'),
+          'node/'.$u['nid'].'/edit',
+          array('html'=>true,'attributes'=>array('target'=>'_blank'))).      
+        l(guifi_img_icon('drop.png'),
+          'node/'.$u['nid'].'/delete',
+          array('html'=>true,'attributes'=>array('target'=>'_blank')));      
     } else {
       $edit_node_icon = '';      
     }
     
     if (guifi_user_access('update',$u)) {
-      $edit_user_icon = l(guifi_img_icon('edit.png'),
-         'guifi/user/'.$u['id'].'/edit',
-          array('html'=>true,'attributes'=>array('target'=>'_blank')));      
+      $edit_user_icon = 
+        l(guifi_img_icon('edit.png'),
+          'guifi/user/'.$u['id'].'/edit',
+           array('html'=>true,'attributes'=>array('target'=>'_blank'))).      
+        l(guifi_img_icon('drop.png'),
+          'guifi/user/'.$u['id'].'/delete',
+           array('html'=>true,'attributes'=>array('target'=>'_blank')));      
     } else {
       $edit_user_icon = '';      
     }
@@ -739,7 +775,8 @@ function guifi_users_queue($zone) {
         'data'=>
            guifi_get_zone_nick($u['zone_id'])."<br><strong>".
            $edit_node_icon.
-           l($u['nnick'],'node/'.$u['nid']).
+           l($u['nnick'],'node/'.$u['nid'],
+             array('html'=>true,'attributes'=>array('target'=>'_blank'))).
            '</strong><br><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
              array('fragment'=>'comment-form',
