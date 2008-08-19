@@ -213,9 +213,12 @@ function guifi_links_delete_submit(&$form,&$form_state) {
   } else
     $fbase = &$form_state['values'];
 
-  guifi_log(GUIFILOG_TRACE,
-    sprintf('function guifi_radio_interface_link_delete_submit(radio: %d, interface: %d, ipv4: %d, lid: %d, rnid: %d rdid: %d)',
-      $radio_id,$interface_id,$ipv4_id,$link_id,$remote_nid,$remote_did),
+  guifi_log(GUIFILOG_BASIC,
+    sprintf('function guifi_radio_interface_link_delete_submit(radio: %d-%s, interface: %d, ipv4: %d, lid: %d, rnid: %d rdid: %d)',
+      $radio_id,
+      $form_state['values']['radios'][$radio_id]['mode'],
+      $interface_id,
+      $ipv4_id,$link_id,$remote_nid,$remote_did),
     $values);
   
   $fbase['interfaces'][$interface_id]['unfold'] = true;
@@ -227,8 +230,13 @@ function guifi_links_delete_submit(&$form,&$form_state) {
   $flink['deleted'] = true;
   
   $flink['ipv4']['unfold'] = true;
-  
-  if ($flink['ipv4']['netmask'] == '255.255.255.252') {
+
+  // if P2P link or AP/Client link and radio is the client
+  // delete also the local IP  
+  if (
+       ($flink['ipv4']['netmask'] == '255.255.255.252') or 
+       ($form_state['values']['radios'][$radio_id]['mode']=='client')
+     ) {
     $fipv4['deleted'] = true;
   }
           

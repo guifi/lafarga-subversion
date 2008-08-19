@@ -344,7 +344,9 @@ function guifi_device_form($form_state, $params = array()) {
       $form_state['values']['variable']['firmware'] = 'DD-guifi';
       $form_state['values']['variable']['model_id'] = '16';
     }
-  }
+  } 
+    
+  drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['nid']));
 
   // Check permissions
   if ($params['edit']){
@@ -358,10 +360,7 @@ function guifi_device_form($form_state, $params = array()) {
   $node = node_load(array('nid'=>$form_state['values']['nid']));
 
   // Setting the breadcrumb
-  drupal_set_breadcrumb(array(l($node->title,
-    'node/'.$form_state['values']['nid']),
-    l($form_state['values']['nick'],'guifi/device/'.
-      $form_state['values']['id'])));
+  drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['nid']));
 
   // if contact is null, then get it from the node or the user logged in drupal
   if (is_null($form_state['values']['notification']))
