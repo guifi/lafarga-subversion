@@ -677,7 +677,7 @@ msgstr "any"
 
 #: guifi_graphs.inc.php:102;103
 msgid "graph details for"
-msgstr "detalls de gràfiqyes per"
+msgstr "detalls de gràfiques per"
 
 #: guifi_graphs.inc.php:251
 msgid "This radio is not being graphed yet."
@@ -776,7 +776,7 @@ msgstr "Estat del node"
 #: guifi_includes.inc.php:589
 #: guifi_node.inc.php:1137
 msgid "Azimuth"
-msgstr "Azimut"
+msgstr "Orientació"
 
 #: guifi_includes.inc.php:593
 #: guifi_node.inc.php:1159;1167
