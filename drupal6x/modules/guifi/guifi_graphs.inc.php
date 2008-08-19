@@ -28,7 +28,7 @@ function guifi_graph_detail() {
       return array_merge($rows);
     }
     if (empty($radio->graph_server))
-      $server_mrtg = guifi_radio_get_url_mrtg($radio->id);
+      $server_mrtg = guifi_graphs_get_node_url($radio->nid);
     else
       $server_mrtg = guifi_graphs_get_graph_url($radio->graph_server);
   }

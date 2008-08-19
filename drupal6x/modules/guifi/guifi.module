@@ -700,7 +700,7 @@ function guifi_menu() {
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_SUGGESTED_ITEM,
+    'type' => MENU_CALLBACK,
   );  
 
   return $items;
