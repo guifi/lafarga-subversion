@@ -262,7 +262,7 @@ function guifi_device_access($op, $id) {
 function guifi_device_admin_url($d,$ip) {
   if (is_numeric($d))
     $d = guifi_device_load($d);
-    
+
   guifi_log(GUIFILOG_TRACE,'function guifi_device_admin_url()',$d['variable']['firmware']);
 
   if (in_array($d['variable']['firmware'],array(
@@ -344,8 +344,8 @@ function guifi_device_form($form_state, $params = array()) {
       $form_state['values']['variable']['firmware'] = 'DD-guifi';
       $form_state['values']['variable']['model_id'] = '16';
     }
-  } 
-    
+  }
+
   drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['nid']));
 
   // Check permissions
@@ -883,7 +883,7 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
 
     drupal_goto('node/'.$device['nid']);
   }
-  
+
   $node = node_load(array('nid'=>$device['nid']));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
 
@@ -1199,22 +1199,28 @@ function guifi_device_print($device = NULL) {
 }
 
 function guifi_device_links_print($device,$ltype = '%') {
-//  guifi_log(GUIFILOG_TRACE,'function guifi_device_links_print()');
-//  guifi_log(GUIFILOG_TRACE,'device at function guifi_device_links_print()',$device);
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_device_links_print(%s)',$ltype),$device);
+
   $oGC = new GeoCalc();
   $dtotal = 0;
   $ltotal = 0;
   if ($ltype == '%')
     $title = t('links');
   else
-  $title = t('links').' ('.$ltype.')';
+    $title = t('links').' ('.$ltype.')';
 
   $rows_wds[] = array(array('data'=>'<strong>'.t('bridge wds/p2p').'</strong>','colspan'=>2));
   $rows_ap_client[] = array(array('data'=>'<strong>'.t('ap/client').'</strong>','colspan'=>2));
   $rows_cable[] = array(array('data'=>'<strong>'.t('cable').'</strong>','colspan'=>2));
   $rows=array();
-  $loc1 = db_fetch_object(db_query('SELECT lat, lon, nick FROM {guifi_location} WHERE id=%d',$device['nid']));
+  $loc1 = db_fetch_object(db_query(
+    'SELECT lat, lon, nick ' .
+    'FROM {guifi_location} WHERE id=%d',
+    $device['nid']));
   $graph_url = guifi_graphs_get_radio_url($device['id'],FALSE);
+
+  $curr_radio = 0;
+
   switch ($ltype) {
   case '%':
   case 'wds':
@@ -1224,7 +1230,9 @@ function guifi_device_links_print($device,$ltype = '%') {
     if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
     if ($ipv4['links']) foreach ($ipv4['links'] as $link_id=>$link) {
       guifi_log(GUIFILOG_FULL,'going to list link',$link);
-      $loc2 = db_fetch_object(db_query('SELECT lat, lon, nick FROM {guifi_location} WHERE id=%d',$link['nid']));
+      $loc2 = db_fetch_object(db_query(
+        'SELECT lat, lon, nick FROM {guifi_location} WHERE id=%d',
+        $link['nid']));
       $gDist = round($oGC->EllipsoidDistance($loc1->lat, $loc1->lon, $loc2->lat, $loc2->lon),3);
       $dAz = round($oGC->GCAzimuth($loc1->lat, $loc1->lon, $loc2->lat,$loc2->lon));
           // Calculo orientacio
@@ -1247,17 +1255,13 @@ function guifi_device_links_print($device,$ltype = '%') {
       $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$link['device_id']));
       if ($cr->count > 1) {
         $rn = db_fetch_object(db_query("SELECT ssid FROM {guifi_radios} r WHERE r.id=%d AND r.radiodev_counter=%d",$link['device_id'],$link['interface']['radiodev_counter']));
-        $dname = guifi_get_hostname($link['device_id']).'-'.$rn->ssid;
+        $dname = guifi_get_hostname($link['device_id']).'<br>'.$rn->ssid;
       }
       else
         $dname = guifi_get_hostname($link['device_id']);
 
-      if ($interface['interface_type'] == 'wds/p2p')
-        $from = '<small>'.$radio['ssid'].'</small>';
-      else
-        $from = '&nbsp';
-
-      $wrow = array($from,array('data'=>$link_id,'align'=>'right'),
+      $wrow = array('<small>'.$radio['ssid'].'</small>',
+                    array('data'=>$link_id,'align'=>'right'),
                     '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
                     '<a href="'.base_path().'node/'.$link['nid'].'">'.$loc2->nick.'</a>',
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
