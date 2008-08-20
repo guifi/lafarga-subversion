@@ -48,6 +48,12 @@ function guifi_zone_load($node) {
     $loaded->maxy = $coords['maxy'];
   }
 
+  // if notification is null, take from the user who created the zone
+  if (empty($loaded->notification)) {
+    $u = user_load($node->uid);
+    $loaded->notification = $u->mail;
+  }
+
   if ($loaded->id != null)
     return $loaded;
 
