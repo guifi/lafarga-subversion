@@ -167,7 +167,7 @@ function guifi_schema() {
          'radiodev_counter' => array('COMMENT' => 'primary key 2nd column', 'type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0, 'disp-width' => '2'),
          'nid' => array('COMMENT' => 'foreign key to guifi_location(id)', 'type' => 'int', 'not null' => TRUE, 'disp-width' => '11'),
          'model_id' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '10'),
-         'ssid' => array('type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => ''),
+         'ssid' => array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'default' => ''),
          'mode' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
          'protocol' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => '802.11bg'),
          'channel' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '3'),
@@ -803,6 +803,14 @@ function guifi_update_2() {
   db_drop_field($items,'guifi_devices', 'url_mrtg_server');
 
   return $items;
+}
+
+function guifi_update_540() {
+  $items = array();
+   
+  db_change_field($items,'guifi_radios','ssid','ssid',
+    array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'default' => ''));
+  return $items;	
 }
 
   /* Converting IPv4 tables from strings to long integers
