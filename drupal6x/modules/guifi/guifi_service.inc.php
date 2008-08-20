@@ -309,7 +309,7 @@ function guifi_service_form($node, $param) {
       );
       break;
     default:
-      $f['url'] = array(
+      $f['var']['url'] = array(
         '#type' => 'textfield',
         '#title' => t('url'),
         '#size' => 60,
