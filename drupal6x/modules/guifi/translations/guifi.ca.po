@@ -320,7 +320,7 @@ msgstr "Confirma que vols esborrar"
 
 #: guifi_devices.inc.php:857
 msgid "Delete device: (%name)"
-msgstr "Esborra tradto: (%dname)"
+msgstr "Esborra trasto: (%name)"
 
 #: guifi_devices.inc.php:875
 msgid "The device %name has been DELETED by %user."
