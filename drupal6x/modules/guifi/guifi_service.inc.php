@@ -466,6 +466,7 @@ function guifi_service_insert($node) {
   guifi_log(GUIFILOG_TRACE,'function guifi_service_insert()',$node);
 
   $node->new = true;
+  $node->id   = $node->nid;
   $nnode = _guifi_db_sql(
     'guifi_services',
     array('id'=>$node->id),
