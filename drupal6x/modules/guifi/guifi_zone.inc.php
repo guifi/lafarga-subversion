@@ -594,8 +594,10 @@ function guifi_zone_nick_validate($element, &$form_state) {
 }
 
 function guifi_lat_validate($element, &$form_state) {
-  if (empty($element['#value']))
-    form_error($element,t('Latitude must be specified.'));
+  if ($element['#value'] != '0') {
+    if (empty($element['#value']))
+      form_error($element,t('Latitude must be specified.'));
+  }
   if (!is_numeric($element['#value']))
     form_error($element,t('Latitude must be numeric'));
   if (($element['#value'] > 90) || ($element['#value'] < -90))
@@ -603,8 +605,10 @@ function guifi_lat_validate($element, &$form_state) {
 }
 
 function guifi_lon_validate($element, &$form_state) {
-  if (empty($element['#value']))
-    form_error($element,t('Longitude must be specified.'));
+  if ($element['#value'] != '0') {
+    if (empty($element['#value']))
+      form_error($element,t('Longitude must be specified.'));
+  }
   if (!is_numeric($element['#value']))
     form_error($element,t('Longitude must be numeric'));
   if (($element['#value'] > 180) || ($element['#value'] < -180))

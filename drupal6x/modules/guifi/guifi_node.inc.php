@@ -551,7 +551,7 @@ function guifi_node_update($node) {
 
   if ($node->lat == 0){$node->lat = NULL;}
   if ($node->lon == 0){$node->lon = NULL;}
-  print_r($node);
+ //print_r($node);
 
   $to_mail = explode(',',$node->notification);
 
