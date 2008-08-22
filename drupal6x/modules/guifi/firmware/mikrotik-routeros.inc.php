@@ -389,7 +389,10 @@ function unsolclic_routeros($dev) {
     _outln(':delay 1');
     _outln('/ip dhcp-server network');
     _outln(':foreach i in [find] do={remove $i}');
-    _outln(sprintf('add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=%s domain="guifi.net" comment=""',implode(',',$dns)));
+  if ($secondary_dns != null)
+    _outln(sprintf('add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=%s,%s domain="guifi.net" comment=""',$primary_dns,$secondary_dns));
+  else if ($primary_dns != null)
+    _outln(sprintf('add address=192.168.1.0/24 gateway=192.168.1.1 netmask=24 dns-server=%s domain="guifi.net" comment=""',$primary_dns));
     _outln(':delay 1');
 
     // be sure that there is no dhcp client requests since having a static ip
