@@ -874,7 +874,7 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
     drupal_set_message($log);
 
     $subject = t('The device %name has been DELETED by %user.',
-      array('%name' => $device['name'],
+      array('%name' => $device['nick'],
         '%user' => $user->name));
     drupal_set_message($subject);
     guifi_notify($to_mail,
