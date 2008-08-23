@@ -233,9 +233,7 @@ function guifi_ahah_add_cable_link() {
 
   $qry = db_query('SELECT id, nick ' .
                   'FROM {guifi_devices} ' .
-                  'WHERE nid=%d' .
-                  ' AND type = "radio" ',
-//                  ' AND id<>%d',
+                  'WHERE nid=%d',
                   $node[0]);
 
   while ($value = db_fetch_array($qry)) {
@@ -262,7 +260,7 @@ function guifi_ahah_add_cable_link() {
           'To link the device to a device defined at another node, ' .
         'you should save the node of this device before proceeding.')
       );
-    } else if (count($list)>1) {
+    } else if (count($list)) {
       $tree = $parents;
       $tree[] = 'to_did';
       $f['to_did'] = array(
@@ -273,7 +271,6 @@ function guifi_ahah_add_cable_link() {
         '#options'=>$list,
         '#prefix' => '<table style="width: 0"><td align="left">',
         '#suffix' => '</td>'
-        //        '#default_value'=>$orig_device_id
       );
       $tree = $parents;
       $tree[] = 'addLink';
@@ -534,16 +531,16 @@ function guifi_ahah_select_channel($rid){
   $cache = cache_get($cid, 'cache_form');
   $protocol = $_POST['radios'][$rid]['protocol'];
   $curr_channel = $_POST['radios'][$rid]['channel'];
-  
+
   if ($cache) {
     $form = $cache->data;
 
-    $form['r']['radios'][$rid]['s']['channel'] = 
+    $form['r']['radios'][$rid]['s']['channel'] =
         guifi_radio_channel_field(
           $rid,
           $curr_channel,
           $protocol);
-          
+
     cache_set($cid, $form, 'cache_form', $cache->expire);
     // Build and render the new select element, then return it in JSON format.
     $form_state = array();
