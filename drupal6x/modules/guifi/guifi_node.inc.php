@@ -1088,6 +1088,7 @@ function guifi_node_set_flag($id) {
 function theme_guifi_node_data($node,$links = false) {
 
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
+  $name_managed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->uid));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
@@ -1114,9 +1115,13 @@ function theme_guifi_node_data($node,$links = false) {
 
   $rows[] = array(null,null,null);
   $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
-  if ($node->timestamp_created > 0)
+  if ($node->uid > 0)
     $rows[] = array(t('created by'),
       array('data'=>l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created),
+      'colspan'=>2));
+  if ($node->uid != $node->user_created)
+    $rows[] = array(t('managed by'),
+      array('data'=>l($name_managed->name,'user/'.$node->uid),
       'colspan'=>2));
   if ($node->timestamp_changed > 0)
     $rows[] = array(t('updated by'),
@@ -1383,7 +1388,13 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
     if ($total)
       $output .= t('Total:').'&nbsp;'.$total.'&nbsp;'.t('kms.');
   } else
-    $output .= t('No links defined');
+    if ($ltype == '%')
+      $output .= '<p align="right">'.t('No links defined').'</p>';
+    else
+      $output .= '<p align="right">'.
+        t('No %type links defined',
+          array('%type'=>$ltype)).
+        '</p>';
   return $output;
 
 }

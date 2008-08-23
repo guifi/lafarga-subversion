@@ -224,7 +224,7 @@ function guifi_edit_ipv4_save($edit) {
 }
 
 
-function guifi_device_ipv4_link_form($ipv4,$tree) {
+function guifi_device_ipv4_link_form($ipv4,$tree, $cable = true) {
 
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
@@ -236,7 +236,6 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
     $rk = null;
 
   guifi_log(GUIFILOG_TRACE,'guifi_device_ipv4_link_form()',$ipv4);
-//  print_r($ipv4);
 
   $f['storage']['ipv4_local'] = guifi_form_hidden_var(
     $ipv4,
@@ -260,25 +259,25 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
         t('link(s)'),
       '#collapsible' => TRUE,
       '#collapsed' => !isset($ipv4['unfold']),
-//      '#weight' => $weight++,
     );
 
-    $f['local']['AddCableLink'] = array(
-      '#type'=>'image_button',
-      '#src'=>drupal_get_path('module', 'guifi').'/icons/addcable.png',
-      '#parents'=>array_merge($tree,array('AddCableLink')),
-      '#attributes'=>array('title'=>t('Link to another device using a public IPv4 address')),
-      '#ahah' => array(
-        'path' => 'guifi/js/add-cable-link/'.$ipv4['interface_id'].','.$ipv4['id'],
-        'wrapper' => 'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'],
-        'method' => 'replace',
-        'effect' => 'fade',
-       ),
-       '#prefix'=> '<div id="'.
-         'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'].'">',
-       '#suffix'=> '</div>',
-//     '#submit' => array('guifi_radio_add_wds_submit'),
-    );
+    if ($cable)
+      $f['local']['AddCableLink'] = array(
+        '#type'=>'image_button',
+        '#src'=>drupal_get_path('module', 'guifi').'/icons/addcable.png',
+        '#parents'=>array_merge($tree,array('AddCableLink')),
+        '#attributes'=>array('title'=>t('Link to another device using a public IPv4 address')),
+        '#ahah' => array(
+          'path' => 'guifi/js/add-cable-link/'.$ipv4['interface_id'].','.$ipv4['id'],
+          'wrapper' => 'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'],
+          'method' => 'replace',
+          'effect' => 'fade',
+        ),
+        '#prefix'=> '<div id="'.
+        'editInterface-'.$ipv4['interface_id'].'-'.$ipv4['id'].'">',
+        '#suffix'=> '</div>',
+        //     '#submit' => array('guifi_radio_add_wds_submit'),
+      );
 
     if ($ipv4['deleted'])
       $f['local']['deleteMsg'] = array(
@@ -289,12 +288,11 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
           'related links will be also deleted'),
       );
 
-
     $f['local']['id'] = array(
         '#type'=> 'hidden',
         '#parents'=>array_merge($tree,array('id')),
         '#default_value'=>$ipv4['id'],
-        '#prefix' => '<table style="width: 0"><tr>',
+//        '#prefix' => '<table style="width: 0"><tr>',
     );
 
     if ((user_access('administer guifi networks'))
@@ -368,6 +366,11 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
       '#suffix'=> '</td>',
     );
   }
+
+  $f['local']['beginTable'] = array(
+    '#value'=> '<table style="width: 0"><tr>',
+    '#weight' => -99
+  );
   $f['local']['endTable'] = array(
     '#value'=>'</tr></table>'
   );
@@ -385,9 +388,6 @@ function guifi_device_ipv4_link_form($ipv4,$tree) {
         $ipv4,
         $tree,
         $multilink);
-
-//   if ($multiset)
-
   } // foreach link
 
   return $f;

@@ -253,7 +253,7 @@ function guifi_device_access($op, $id) {
       if ((user_access('administer guifi networks')) ||
         (user_access('administer guifi zones')) ||
         ($device['user_created'] == $user->uid) ||
-        ($node->user_created == $user->uid))
+        ($node->uid == $user->uid))
         return TRUE;
       return FALSE;
   }
@@ -325,7 +325,9 @@ function guifi_device_form($form_state, $params = array()) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$form_state);
 
-  guifi_validate_js("#guifi-device-form");
+  // Local javascript validations not actve because of buf un Firefox
+  // Errors are not displayed when fieldset folder is collapsed
+  // guifi_validate_js("#guifi-device-form");
 
   // $form['#attributes'] = array('onsubmit' => 'kk');
   if (empty($form_state['values']))
@@ -655,7 +657,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
 
     // save the radio
     $nradio = _guifi_db_sql('guifi_radios',$keys,$radio,$log,$to_mail);
-    if (empty($nradio))
+    if ((empty($nradio)) or ($radio['deleted']))
       continue;
 
     // interfaces
@@ -927,27 +929,20 @@ function guifi_device_create_form($form_state, $nid) {
     '#type' => 'hidden',
     '#value' => $id
   );
-  $form['text_add'] = array(
-    '#type' => 'item',
-    '#value' => t('Add a new device'),
-    '#prefix' => '<table style="width: 40em"><tr><td style="wiiidth: 200px">',
-    '#description' => t('Type of device to be created'),
-    '#suffix' => '</td>',
-    '#weight' => 0
-  );
+
   $form['device_type'] = array(
     '#type' => 'select',
+    '#title' => t('Add a new device'),
+    '#description' => t('Type of device to be created'),
     '#options' => $types,
-    '#prefix' => '<td>',
+    '#prefix' => '<table style="width: 0px"><tr><td>',
     '#suffix' => '</td>',
-    '#weight' => 1
   );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('add'),
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
-    '#weight' => 2
   );
 
   return $form;
