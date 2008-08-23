@@ -1023,6 +1023,26 @@ function guifi_ADSL_form($edit) {
   return $form; //$output;
 }
 
+function guifi_generic_form($edit) {
+  if (!isset($edit['variable']['mrtg_index']))
+    $edit['variable']['mrtg_index'] = 4;
+  $form['mrtg_index'] = array(
+    '#type' => 'textfield',
+    '#id' => 'variable][mrtg_index',
+    '#title' => t('MRTG config'),
+    '#default_value' => $edit['variable']['mrtg_index'],
+    '#size' => 5,
+    '#maxlength' => 5,
+    //'#options' => array(2), //array('1', '2', '3'),
+    '#description' => t('SNMP interface index for getting traffic information ' .
+                        'of this device. User tools like cacti or snmpwalk ' .
+                        'to determine the index. Example:').
+                        '<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 ' .
+                        'interface</pre>'
+  );
+  return $form;
+}
+
 function guifi_bandwidth_types() {
   return    array(  '64000'=>'64k',
                                '128000'=>'128k',
@@ -1096,6 +1116,9 @@ function guifi_device_print_data($device) {
     $bandwidth = guifi_bandwidth_types();
     $rows[] = array(t('bandwidth'),$bandwidth[$device['variable']['download']].
             '/'.$bandwidth[$device['variable']['upload']]);
+    $rows[] = array(t('SNMP index to graph'),$device['variable']['mrtg_index']);
+  }
+  if (($device['type'] == 'generic') and ($device['variable'] != '')) {
     $rows[] = array(t('SNMP index to graph'),$device['variable']['mrtg_index']);
   }
 

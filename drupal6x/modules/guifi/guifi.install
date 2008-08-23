@@ -342,6 +342,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('5', 'device', 'nat', 'Firewall, private Network behind a NAT');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('6', 'device', 'ADSL', 'ADSL router or device providing internet access');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('7', 'device', 'cam', 'Network camera. Live view.');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('8', 'device', 'generic', 'Any device that uses a public IP (PC, game console, laptop, pda..)');");
 
   // --
   // -- service types
@@ -619,7 +620,7 @@ function guifi_install() {
 // But updates 1 and 2 are necessary if it is installed 
 // on the old database that contains data for migrating purposes.
 // Please, skip updates 1 and 2 if you work on a clean database.
-// These updates will be deleted when the new release is published.
+// These updates will be COMMENTED when the new release is published.
 // --
 // During development period, please create updates indicating the number of SVN revision.
 // (Ex: guifi_update_XXX) Where XXX equals the number of revision.
@@ -629,6 +630,7 @@ function guifi_install() {
 //
 // Database Updates!
 //
+/*
 function guifi_update_1() {
   $items = array();
 
@@ -804,6 +806,7 @@ function guifi_update_2() {
 
   return $items;
 }
+*/
 
 function guifi_update_540() {
   $items = array();
