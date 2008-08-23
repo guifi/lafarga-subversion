@@ -906,11 +906,11 @@ msgstr "Reanomena el nom actual de l'interfície"
 
 #: guifi_interfaces.inc.php:54
 msgid "Link to another device at the node using a private network"
-msgstr ""
+msgstr "Enllaça amb un altre trasto del mateix node fent servir una subxarxa privada"
 
 #: guifi_interfaces.inc.php:66
 msgid "Allocate a Public Subnetwork to the interface"
-msgstr ""
+msgstr "Crea una nova subxarxa d'adreces públiques en aquesta interfície"
 
 #: guifi_interfaces.inc.php:77
 msgid "New interface"
@@ -936,7 +936,7 @@ msgstr "Esborra la interfície"
 
 #: guifi_interfaces.inc.php:142
 msgid "Create a simple (ap/client) link to an Access Point"
-msgstr "Crea un simple enllaç (ap/client) cap a un Punt d'Accés"
+msgstr "Crea un enllaç simple (ap/client) cap a un Punt d'Accés"
 
 #: guifi_interfaces.inc.php:148
 msgid "address(es)"
@@ -1521,7 +1521,7 @@ msgstr ""
 
 #: guifi_radios.inc.php:24
 msgid "Device model, firmware & MAC address"
-msgstr "Model del trasto, frmware i adreça MAC"
+msgstr "Model del trasto, firmware i adreça MAC"
 
 #: guifi_radios.inc.php:33
 msgid "Radio Model"
