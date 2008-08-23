@@ -57,6 +57,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
         '#ahah' => array(
           'path' => 'guifi/js/add-cable-link/'.$key,
           'wrapper' => 'editInterface-'.$key,
+//          'wrapper'=> 'jscontainer',
           'method' => 'replace',
           'effect' => 'fade',
         )
@@ -72,6 +73,14 @@ function guifi_interfaces_form(&$interface,$ptree) {
           'method' => 'replace',
           'effect' => 'fade',
         )
+      );
+
+      $f['interface']['AddPublicSubnetMask'] = array(
+        '#type' => 'hidden',
+        '#value' => '255.255.255.224',
+        '#parents'=> array_merge($ptree,array('AddPublicSubnetMask')),
+        '#prefix' => '<div id="editInterface-'.$key.'">',
+        '#suffix' => '</div>'
       );
     } else {
       $f['interface']['msg'] = array(
@@ -110,13 +119,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
         '#submit' => array('guifi_interfaces_delete_submit'),
       );
   }
-  $f['interface']['AddPublicSubnetMask'] = array(
-      '#type' => 'hidden',
-      '#value' => '255.255.255.224',
-      '#parents'=> array_merge($ptree,array('AddPublicSubnetMask')),
-      '#prefix' => '<div id="editInterface-'.$interface['id'].'">',
-      '#suffix' => '</div>'
-  );
+
 
   $ipv4Count = 0;
   if (count($interface['ipv4']) > 0)
