@@ -969,73 +969,62 @@ function guifi_ADSL_form($edit) {
     $edit['variable']['upload'] = 640000;
   if (!isset($edit['variable']['mrtg_index']))
     $edit['variable']['mrtg_index'] = 5;
-  //$output .= form_select(t('Download'),'variable][download',
-  //                  $edit['variable']['download'],guifi_bandwidth_types(),
-  //                  t('Download bandwidth'));
-  $form['download'] = array(
+
+  $form['variable'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('DSL information & MRTG parameters'),
+    '#collapsible'=>true,
+    '#collapsed'=>false,
+    '#tree'=>true
+  );
+  $form['variable']['download'] = array(
     '#type' => 'select',
-    '#id' => 'variable][download',
     '#title' => t('Download'),
     '#default_value' => $edit['variable']['download'],
     '#options' => guifi_bandwidth_types(),
     '#description' => t('Download bandwidth')
   );
-  //$output .= form_select(t('Upload'),'variable][upload',
-  //                  $edit['variable']['upload'],guifi_bandwidth_types(),
-  //                  t('Upload bandwidth'));
-
-  $form['upload'] = array(
+  $form['variable']['upload'] = array(
     '#type' => 'select',
-    '#id' => 'variable][upload',
     '#title' => t('Upload'),
     '#default_value' => $edit['variable']['upload'],
     '#options' => guifi_bandwidth_types(),
     '#description' => t('Upload bandwidth')
   );
-  //$output .= form_textfield(t('MRTG config'),
-  //                  'variable][mrtg_index',
-  //                  $edit['variable']['mrtg_index'], 2,5,
-  //                  t('SNMP interface index for getting traffic information ' .
-  //                      'of this device. User tools like cacti or snmpwalk ' .
-  //                      'to determine the index. Example:').
-  //                      '<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 ' .
-  //                      'interface</pre>');
-  $form['mrtg_index'] = array(
-    '#type' => 'textfield',
-    '#id' => 'variable][mrtg_index',
-    '#title' => t('MRTG config'),
-    '#default_value' => $edit['variable']['mrtg_index'],
-    '#size' => 5,
-    '#maxlength' => 5,
-    //'#options' => array(2), //array('1', '2', '3'),
-    '#description' => t('SNMP interface index for getting traffic information ' .
-                        'of this device. User tools like cacti or snmpwalk ' .
-                        'to determine the index. Example:').
-                        '<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 ' .
-                        'interface</pre>'
-  );
-
-  return $form; //$output;
+  $form['variable']['mrtg_index'] =
+    guifi_device_mrtg_form($edit['variable']['mrtg_index']);
+  return $form;
 }
 
 function guifi_generic_form($edit) {
+
+  $form['variable'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('DSL information & MRTG parameters'),
+    '#collapsible'=>true,
+    '#collapsed'=>false,
+    '#tree'=>true
+  );
   if (!isset($edit['variable']['mrtg_index']))
     $edit['variable']['mrtg_index'] = 4;
-  $form['mrtg_index'] = array(
+  $form['variable']['mrtg_index'] =
+    guifi_device_mrtg_form($edit['variable']['mrtg_index']);
+  return $form;
+}
+
+function guifi_device_mrtg_form($mrtg) {
+  return array(
     '#type' => 'textfield',
-    '#id' => 'variable][mrtg_index',
     '#title' => t('MRTG config'),
-    '#default_value' => $edit['variable']['mrtg_index'],
+    '#default_value' => $mrtg,
     '#size' => 5,
     '#maxlength' => 5,
-    //'#options' => array(2), //array('1', '2', '3'),
     '#description' => t('SNMP interface index for getting traffic information ' .
                         'of this device. User tools like cacti or snmpwalk ' .
                         'to determine the index. Example:').
                         '<br /><pre>snmpwalk -Os -c public -v 1 10.138.25.66 ' .
                         'interface</pre>'
   );
-  return $form;
 }
 
 function guifi_bandwidth_types() {
