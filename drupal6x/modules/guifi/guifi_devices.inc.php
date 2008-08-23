@@ -882,6 +882,7 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
       $log,
       $verbose,
       $notify);
+    guifi_node_set_flag($device['nid']);
 
     drupal_goto('node/'.$device['nid']);
   }

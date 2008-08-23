@@ -128,6 +128,10 @@ function guifi_interfaces_form(&$interface,$ptree) {
       if (!$ipv4['deleted'])
         $ipv4Count++;
 
+      // TODO:
+      // if wds link has local ipv4 but no links, is orphan, so no
+      // ipv4/link form has to be given, and must be deleted the ipv4.
+
       $f['ipv4'][$ka] =
         guifi_device_ipv4_link_form(
           $ipv4,
