@@ -243,7 +243,8 @@ function budgets_menu() {
     'page arguments' => array(1),
     'access callback' => 'budgets_supplier_access',
     'access arguments' => array('create',arg(1)),
-    'file' => drupal_get_path('module','node').'/node.pages.inc',
+    'file' => 'node.pages.inc',
+    'file_path' => drupal_get_path('module','node'),
     'type' => MENU_LOCAL_TASK);
 
   $items['guifi/menu/main/browse_suppliers'] = array(
