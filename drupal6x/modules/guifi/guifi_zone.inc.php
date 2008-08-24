@@ -6,6 +6,30 @@
  * Manage guifi_zone and guifi_networks
  */
 
+/**
+ * Implementation of hook_access().
+ */
+function guifi_zone_access($op, $node) {
+  global $user;
+
+  if (is_numeric($node))
+    $node = node_load(array('nid'=>$node));
+
+  if ($op == 'create') {
+    return user_access('create guifi zones');
+  }
+
+  if ($op == 'update') {
+    if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+}
+
+
 
 /** zone editing functions
 **/

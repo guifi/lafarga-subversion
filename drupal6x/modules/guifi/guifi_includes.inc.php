@@ -1564,7 +1564,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
   * @returns: foretted str if all valid, FALSE otherwise
 **/
 function guifi_notification_validate($to) {
-  $to = trim(trim(str_replace(';',',',$to)),',');
+  $to = strtolower(trim(trim(str_replace(';',',',$to)),','));
   $emails = explode(',',$to);
   $trimmed = array();
   foreach ($emails as $email) {

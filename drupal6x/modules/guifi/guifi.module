@@ -56,7 +56,7 @@ function guifi_menu() {
      'access arguments' => array('access content'),
      'type' => MENU_CALLBACK,
   );
-  
+
   // Refresh maps callback
   $items['guifi/refresh'] = array(
     'title' => t('check if data must be refreshed'),
@@ -64,7 +64,7 @@ function guifi_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK);
-  
+
   // General guifi menu
   $items['guifi/menu'] = array(
      'title' => 'guifi.net menus',
@@ -171,14 +171,24 @@ function guifi_menu() {
     'description' => 'Query information about assigned IPv4 addresses',
     'page callback' => 'guifi_tools_ip_search',
     'access arguments' => array('access content'),
-    'file' => 'guifi_tools.inc.php'
+    'file' => 'guifi_tools.inc.php',
+    'weight' => 1
   );
   $items['guifi/menu/ip/macsearch'] = array(
     'title' => 'Search MAC',
     'description' => 'Query information about existing MAC addresses',
     'page callback' => 'guifi_tools_mac_search',
     'access arguments' => array('access content'),
-    'file' => 'guifi_tools.inc.php'
+    'file' => 'guifi_tools.inc.php',
+    'weight' => 2
+  );
+  $items['guifi/menu/ip/mailsearch'] = array(
+    'title' => 'Find/Replace contact emails',
+    'description' => 'Search and update existing notification e-mail addresses in all tables.',
+    'page callback' => 'guifi_tools_mail_search',
+    'access arguments' => array('create guifi nodes'),
+    'file' => 'guifi_tools.inc.php',
+    'weight' => 3
   );
 
   // Administrator's tools
@@ -205,14 +215,14 @@ function guifi_menu() {
     'access arguments' => array('administer site configuration'),
     'weight' => 1,
     'file' => 'guifi_tools.inc.php'
-  );  
+  );
   $items['guifi/menu/admin/guifisettings'] = array(
     'title' => 'guifi.net settings',
     'description' => 'Change the settings for "guifi.net" module ',
     'page callback' => 'drupal_goto',
     'page arguments' => array('admin/settings/guifi'),
     'access arguments' => array('administer site configuration'),
-    'weight' => 100,  
+    'weight' => 100,
   );
 
   //
@@ -701,7 +711,7 @@ function guifi_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-  );  
+  );
 
   return $items;
 /*

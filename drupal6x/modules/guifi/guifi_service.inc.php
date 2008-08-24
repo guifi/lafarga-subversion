@@ -11,6 +11,10 @@
  */
 function guifi_service_access($op, $node) {
   global $user;
+
+  if (is_numeric($node))
+    $node = node_load(array('nid'=>$node));
+
   if ($op == 'create') {
     return user_access('create guifi nodes');
   }
@@ -608,7 +612,7 @@ function guifi_service_print_data($node) {
 function guifi_list_services_query($param, $typestr = 'by zone', $service = '%') {
 
   $rows = array();
-  $sqlprefix = 
+  $sqlprefix =
     "SELECT s.*,z.title zonename " .
     "FROM {guifi_services} s " .
     "  LEFT JOIN {guifi_devices} d ON s.device_id=d.id " .
@@ -664,7 +668,7 @@ function theme_guifi_services_list($node,$service = '%') {
   $output = '<h2>' .t('Services of ') .' ' .$node->title .' ('.$typestr.')</h2>';
   $rows = guifi_list_services_query($node,$typestr);
   $output .= theme('table', array(t('service'),t('zone'),t('device'),t('status')), array_merge($rows),array('width'=>'100%'));
-  
+
   switch ($typestr) {
     case 'by node':
       drupal_set_title(t('services @ %node',array('%node'=>$node->title)));
@@ -679,8 +683,8 @@ function theme_guifi_services_list($node,$service = '%') {
       $device = guifi_device_load($node);
       drupal_set_title(t('View device %dname',
         array('%dname'=>$device['nick'],
-              '%nid'=>$device['nid'])));      
-      $node = node_load(array('nid'=>$device['nid']));     
+              '%nid'=>$device['nid'])));
+      $node = node_load(array('nid'=>$device['nid']));
       drupal_set_breadcrumb(guifi_node_ariadna($node));
       $output .= theme_links(module_invoke_all('link', 'node', $node, false));
       break;

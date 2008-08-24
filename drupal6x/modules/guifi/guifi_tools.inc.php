@@ -168,6 +168,267 @@ function guifi_tools_mac_search_form_submit($form, &$form_state) {
    return;
 }
 
+// Mail search & massive update
+function guifi_tools_mail_search($mail = null) {
+
+  $output = drupal_get_form('guifi_tools_mail_search_form',$mail);
+
+  // if a vaild mail has given, allow massive update
+  if ((!empty($mail)) and (valid_email_address($mail)))
+    $output .= drupal_get_form('guifi_tools_mail_update_form',$mail);
+
+  // Close the form table
+  $output .= '</table></table>';
+
+  if (is_null($mail))
+    return $output;
+
+  $output .= '<h2>'.t('Report for notification having LIKE "%mail"',
+    array('%mail'=>"'".$mail."'")).'</h2>';
+
+  $headers = array(t('table'),t('notification'),t('title'));
+
+  $tables = array('guifi_zone','guifi_location','guifi_devices','guifi_services','guifi_users');
+
+  foreach ($tables as $table) {
+    $sqlm = db_query('SELECT * FROM {%s} WHERE notification LIKE "%s"',$table,$mail);
+    while ($amails = db_fetch_object($sqlm)) {
+      $row = array();
+      $row[] = $table;
+      $row[] = $amails->notification;
+
+      // Check that the user has update access and creates the link
+      $continue = false;
+      if (!user_access('administer guifi networks'))
+        switch ($table) {
+          case 'guifi_users':
+            if (guifi_user_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_devices':
+            if (guifi_device_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_zone':
+            if (guifi_zone_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_location':
+            if (guifi_node_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_service':
+            if (guifi_service_access('update',$amails->id))
+              $continue = true;
+            break;
+        } else
+        $continue = true;
+
+      if (!$continue)
+        continue;
+
+      switch ($table) {
+        case 'guifi_users':
+          $row[] = l($amails->username,'guifi/user/'.$amails->id.'/edit');
+          break;
+        case 'guifi_devices':
+          $row[] = l($amails->nick,'guifi/device/'.$amails->id.'/edit');
+          break;
+        default:
+          $row[] = l($amails->nick,'node/'.$amails->id.'/edit');
+      }
+
+      $rows[] = $row;
+    } // foreach row with the email found
+
+  } // foreach table
+
+  if (count($rows))
+    $output .= theme('table',$headers,$rows);
+  return $output;
+}
+
+function guifi_tools_mail_search_form($form_state, $params = array()) {
+
+//  $form['submit'] = array(
+//    '#type' => 'submit',
+//    '#value'=>t('Search'),
+//    '#prefix'=> '<table><tr><td align="right">',
+//    '#suffix'=> '</td>',
+//  );
+  $form['mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('e-mail address'),
+    '#required' => true,
+    '#default_value' => $params,
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#description' => t('Enter a valid e-mail address to look for ' .
+        'to get a report of where it appears in all tables.' .
+        '<br>' .
+        'You can use valid SQL wilcards (%), for example, to query all the mail ' .
+        'addresses containing "guifi" you can use "%guifi%"...<br>' .
+        'Note that:<ul><li>If you use wildcards, massive update option ' .
+        'will not be enabled</li><li>You will get a list restricted to the items ' .
+        'which you are granted to update</li></ul>'),
+     '#prefix'=> '<table><tr><td>',
+     '#suffix'=> '</td>',
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value'=>t('Search'),
+    '#prefix'=> '<td align="left">',
+    '#suffix'=> '</td></tr>',
+  );
+  return $form;
+}
+
+function guifi_tools_mail_update_form($form_state, $params = array()) {
+
+  $form['mail_search'] = array(
+    '#type'=>'value',
+    '#value'=>$params);
+//  $form['submit'] = array(
+//    '#type' => 'submit',
+//    '#value'=>t('Replace with'),
+//    '#prefix'=> '<tr><td align="right">',
+//    '#suffix'=> '</td>',
+//  );
+  $form['mail_replacewith'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New e-mail address'),
+    '#required' => false,
+    '#default_value' => $params,
+    '#size' => 50,
+    '#maxlength' => 50,
+    '#description' => t('Enter a valid e-mail address to replace %mail for ' .
+        'all the rows of the report below.',
+        array('%mail'=>$params)),
+    '#prefix'=> '<td>',
+    '#suffix'=> '</td>',
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value'=>t('Replace with'),
+    '#prefix'=> '<td align="left">',
+    '#suffix'=> '</td></tr>',
+  );
+
+  return $form;
+}
+
+function guifi_tools_mail_update_form_validate($form, &$form_state) {
+  if (!valid_email_address($form_state['values']['mail_replacewith']))
+    form_set_error('mail_replacewith',
+      t('%email is not valid',
+        array('%email'=>$form_state['values']['mail_replacewith'])));
+  if ($form_state['values']['mail_search'] ==
+    $form_state['values']['mail_replacewith'])
+    form_set_error('mail_replacewith',
+      t('%email is equal to current value',
+        array('%email'=>$form_state['values']['mail_replacewith'])));
+}
+
+function guifi_tools_mail_search_form_submit($form, &$form_state) {
+  drupal_goto('guifi/menu/ip/mailsearch/'.$form_state['values']['mail']);
+}
+
+
+function guifi_tools_mail_update_form_submit($form, &$form_state) {
+  global $user;
+
+  guifi_log(GUIFILOG_TRACE,'guifi_tools_mail_update_submit()',
+    $form_state['values']);
+
+  // perform the massive update to the granted rows, using guifi db api
+  // instead of straight SQL to create the notificaton messages.
+
+  $tables = array('guifi_zone','guifi_location','guifi_devices','guifi_services','guifi_users');
+
+  foreach ($tables as $table) {
+    $sqlm = db_query('SELECT * FROM {%s} WHERE notification LIKE "%s"',
+      $table,
+      $form_state['values']['mail_search']);
+
+    while ($amails = db_fetch_object($sqlm)) {
+      // Check that the user has update access and creates the link
+      $continue = false;
+      if (!user_access('administer guifi networks'))
+        switch ($table) {
+          case 'guifi_users':
+            $title = $amails->username;
+            $type = t('User');
+            if (guifi_user_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_devices':
+            $title = $amails->nick;
+            $type = t('Device');
+            if (guifi_device_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_zone':
+            $title = $amails->nick;
+            $type = t('Zone');
+            if (guifi_zone_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_location':
+            $title = $amails->nick;
+            $type = t('Node');
+            if (guifi_node_access('update',$amails->id))
+              $continue = true;
+            break;
+          case 'guifi_service':
+            $title = $amails->nick;
+            $type = t('Service');
+            if (guifi_service_access('update',$amails->id))
+              $continue = true;
+            break;
+        } else
+        $continue = true;
+
+      if (!$continue)
+        continue;
+
+      // here we have update access, so perform the update
+
+      // Notify prevuious mail id, just in case...
+      $to_mail = $amails->notification;
+
+      $amails->notification = str_ireplace(
+        $form_state['values']['mail_search'],
+        strtolower($form_state['values']['mail_replacewith']),
+        $amails->notification
+        );
+
+      if ($to_mail == $amails->notification) {
+        //no changes, so next
+        continue;
+      }
+
+      $n = _guifi_db_sql(
+        $table,
+        array('id'=>$amails->id),
+        (array)$amails,
+        $log,$to_mail);
+      guifi_notify(
+        $to_mail,
+        t('The notification %notify for %type %title has been CHANGED to %new by %user.',
+          array('%notify' => $form_state['values']['mail_search'],
+            '%new'=>$form_state['values']['mail_replacewith'],
+            '%type'=>$type,
+            '%title'=>$title,
+            '%user' => $user->name)),
+            $log);
+
+    } // foreach row with the email found
+
+  } // foreach table
+
+  drupal_goto('guifi/menu/ip/mailsearch/'.$form_state['values']['mail_replacewith']);
+}
+
 // Administrative tools
 function guifi_admin_notify($view = 'false') {
   if ($view == 'false')

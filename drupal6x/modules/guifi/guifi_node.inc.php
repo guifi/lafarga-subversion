@@ -21,6 +21,9 @@
 function guifi_node_access($op, $node) {
   global $user;
 
+  if (is_numeric($node))
+    $node = node_load(array('nid'=>$node));
+
   if ($op == 'create') {
     return user_access('create guifi nodes');
   }

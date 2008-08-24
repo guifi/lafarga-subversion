@@ -10,7 +10,7 @@
  **/
 function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) {
   global $user;
-  
+
 //  print_r($key);
 //  print_r($data);
 //  exit(0);
@@ -21,14 +21,14 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
     sprintf('guifi_sql(table: %s, keys='.implode(',',$key).')',
       $table,key),
     $idata);
-  
+
   $dasta = array();
-  if (is_object($idata))  
+  if (is_object($idata))
     foreach ($idata as $k=>$v)
       $data[$k] = $v;
   else
     $data = &$idata;
-    
+
   // delete?
   if ($data['deleted']) {
     $log .= _guifi_db_delete($table,$key,$to_mail);
@@ -42,16 +42,16 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
   $qc = db_query('SHOW COLUMNS FROM '.$table);
   while ($column = db_fetch_object($qc))
     $columns[] = $column->Field;
-    
+
   // cleanup columns which doesn't exists into the database
   foreach ($columns as $cname) {
     if (isset($data[$cname]))
-      $sqldata[$cname] = $data[$cname]; 
+      $sqldata[$cname] = $data[$cname];
   }
   $data = $sqldata;
 
   // processing insert triggers to fill new ids etc...
-  if ($insert) 
+  if ($insert)
   switch ($table) {
   case 'budget_funds':
     $data['timestamp_created'] = time();
@@ -63,7 +63,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
     $data['id'] = $next_id['id'];
     break;
   case 'guifi_devices':
-  case 'guifi_users': 
+  case 'guifi_users':
     $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
     if (is_null($next_id['id']))
       $next_id['id'] = 1;
@@ -101,7 +101,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
     }
     break;
   } // insert triggers switch table
-  // processing update triggers 
+  // processing update triggers
   else switch ($table) {
     case 'guifi_zone':
     case 'guifi_location':
@@ -112,7 +112,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
       $data['timestamp_changed'] = time();
     break;
   }
-  
+
   // processing all cases triggers
   switch ($table) {
     case 'guifi_ipv4':
@@ -135,7 +135,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
      if (is_numeric($value)) {
        if (is_float($value)) {
          $values_data[$k] = "%f";
-       } else 
+       } else
          $values_data[$k] = "%d";
      } else
        $values_data[$k] = "'%s'";
@@ -146,31 +146,31 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
    // update
 
    // constructing where with primary keys
-   $where_data = array(); 
+   $where_data = array();
    foreach ($key as $k=>$value)
      if (is_null($value))
        $where_data[$k] = $k.' is NULL';
      else
        $where_data[$k] = $k.'='.$value;
-     
+
    // check what's being changed
    $sqlqc = 'SELECT '.implode(',',array_keys($data)).
            ' FROM {'.$table.
            ' WHERE '.implode(' AND ',$where_data);
-   $ck = 0;   
+   $ck = 0;
    $qc = db_query($sqlqc);
-   
-   
+
+
    while ($odata = db_fetch_array($qc)) {
      $orig_data = $odata;
      $ck++;
    }
-//     
+//
 //   print "SQL:$sqlqc\n<br>Rows: $ck\n<br>";
 //   print_r($orig_data);
 //   exit;
-   
-   if ($ck != 1) 
+
+   if ($ck != 1)
    {
      drupal_set_message(
        t('Can\'t update %table while primary key (%where) doesn\'t give 1 row' .
@@ -182,7 +182,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
          '%where'=>implode(' AND ',$where_data))),
        'error'
      );
-         
+
      return;
    }
    //$orig_data = db_fetch_array($qc);
@@ -191,11 +191,25 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
      if (is_float($value)) {
        $orig_data[$k] = (float) $orig_data[$k];
      }
-   $new_data = array_diff_assoc($data,$orig_data);
-   if (count($new_data) == 0) {
-//     $log .= "no changes at ".$table;
-     return $orig_data;
+
+   // perform the update only if there are changes in real data (excluding
+   // user changed and timestamp)
+   $input = $orig_data;
+   $output = $data;
+   if (isset($input['timestamp_changed'])) {
+     unset($input['timestamp_changed']);
+     unset($output['timestamp_changed']);
    }
+   if (isset($input['user_changed'])) {
+     unset($input['user_changed']);
+     unset($output['user_changed']);
+   }
+
+   $new_data = array_diff_assoc($output,$input);
+   if (count($new_data) == 0)
+     return $orig_data;
+
+   $new_data = array_diff_assoc($data,$orig_data);
 
    // constructing update
    $log .= $table.' '.t('UPDATED').":<br />";
@@ -223,7 +237,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 ***/
 function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = true) {
   global $user;
-  
+
   if ($depth == 0)
     $dlinks = array();
 
@@ -241,14 +255,14 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     // cascade to node devices
     $qc = db_query("SELECT id FROM {guifi_devices} where nid = '%s'",
                     $key['id']);
-    while ($device = db_fetch_array($qc)) 
+    while ($device = db_fetch_array($qc))
       $log .= '<br>'._guifi_db_delete('guifi_devices',$device,$to_mail,$depth);
 
     // cascade to node users
     $qc = db_query("SELECT id FROM {guifi_users} where nid = '%s'",
                     $key['id']);
     while ($quser = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_users',$quser,$to_mail,$depth);      
+      $log .= '<br>'._guifi_db_delete('guifi_users',$quser,$to_mail,$depth);
 
     break;
   // delete Device
@@ -256,8 +270,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $item=db_fetch_object(db_query(
       'SELECT d.nick dname, d.notification, d.nid, d.type, d.comment,
         l.nick nname, l.notification ncontact
-       FROM {guifi_devices} d LEFT JOIN {guifi_location} l ON d.nid=l.id 
-       WHERE d.id = %d', 
+       FROM {guifi_devices} d LEFT JOIN {guifi_location} l ON d.nid=l.id
+       WHERE d.id = %d',
        $key['id']));
     $log .= t('Device (%type) %id-%name at node %nname deleted.',array('%type'=>$item->type,'%id'=>$key['id'],'%name'=>$item->dname,'%nname'=>$item->nname));
 
@@ -276,15 +290,15 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete Radio
   case 'guifi_radios':
     $item=db_fetch_object(db_query(
-       'SELECT 
-          r.protocol, r.ssid sid, r.mode, r.radiodev_counter, 
+       'SELECT
+          r.protocol, r.ssid sid, r.mode, r.radiodev_counter,
           d.nick dname, d.notification, d.nid, l.nick nname
-        FROM {guifi_radios} r, {guifi_devices} d, {guifi_location} l 
+        FROM {guifi_radios} r, {guifi_devices} d, {guifi_location} l
         WHERE  r.id = %d AND r.radiodev_counter = %d AND
-          r.id=d.id AND d.nid=l.id', 
+          r.id=d.id AND d.nid=l.id',
         $key['id']), $key['radiodev_counter']);
     $log .= t('Radio (%mode-%protocol) %id-%rc %ssid at device %dname deleted.',array('%mode'=>$item->mode,'%protocol'=>$item->protocol,'%id'=>$key['id'],'%rc'=>$key['radiodev_counter'],'%ssid'=>$item->sid,'%dname'=>$item->dname));
-  
+
     // cascade to radio interfaces
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d',$key['id'],$key['radiodev_counter']);
     while ($interface = db_fetch_array($qc))
@@ -295,16 +309,16 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   // delete Interfaces
   case 'guifi_interfaces':
     $item=db_fetch_object(db_query(
-       'SELECT i.interface_type, i.radiodev_counter, 
-               d.nick dname, 
+       'SELECT i.interface_type, i.radiodev_counter,
+               d.nick dname,
                d.notification, d.nid, l.nick nname
-        FROM {guifi_interfaces} i LEFT JOIN {guifi_devices} d ON i.device_id=d.id 
-             LEFT JOIN {guifi_location} l ON d.nid=l.id 
-        WHERE i.id = %d', 
+        FROM {guifi_interfaces} i LEFT JOIN {guifi_devices} d ON i.device_id=d.id
+             LEFT JOIN {guifi_location} l ON d.nid=l.id
+        WHERE i.id = %d',
         $key['id']));
     $log .= t('interface (%type) %id - %rc at device %dname deleted.',array('%type'=>$item->interface_type,'%id'=>$key['id'],'%rc'=>$item->radiodev_counter,'%dname'=>$item->dname));
-  
-  
+
+
     // cascade ipv4
     $qc = db_query('SELECT id, interface_id FROM {guifi_ipv4} WHERE interface_id=%d',$key['id']);
     while ($ipv4 = db_fetch_array($qc))
@@ -315,13 +329,13 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   case 'guifi_ipv4':
     $item=db_fetch_object(db_query(
        'SELECT a.id, a.interface_id, a.ipv4, i.interface_type, d.nick dname, d.notification, d.nid, l.nick nname
-        FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id LEFT JOIN {guifi_devices} d ON i.device_id=d.id LEFT JOIN {guifi_location} l ON d.nid=l.id 
-        WHERE a.id = %d AND a.interface_id=%d', 
+        FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id LEFT JOIN {guifi_devices} d ON i.device_id=d.id LEFT JOIN {guifi_location} l ON d.nid=l.id
+        WHERE a.id = %d AND a.interface_id=%d',
         $key['id'],$key['interface_id']));
     $log .= t('address (%addr) at device %dname deleted.',array('%addr'=>$item->ipv4,'%dname'=>$item->dname));
- 
+
     if (!$cascade)
-      break;   
+      break;
     // cascade links
     $qc = db_query('SELECT id, device_id FROM {guifi_links} WHERE ipv4_id=%d AND interface_id=%d',$key['id'],$key['interface_id']);
     while ($link = db_fetch_array($qc))
@@ -336,9 +350,9 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         FROM {guifi_links} l ' .
         '    LEFT JOIN {guifi_interfaces} i ON l.interface_id=i.id ' .
         '    LEFT JOIN {guifi_devices} d ON l.device_id=d.id ' .
-        '    LEFT JOIN {guifi_location} n ON l.nid=n.id 
+        '    LEFT JOIN {guifi_location} n ON l.nid=n.id
         WHERE l.id = %d' .
-        '    AND l.device_id=%d', 
+        '    AND l.device_id=%d',
         $key['id'],$key['device_id']));
     $log .= t('link %id-%did (%type) at %nname-%dname deleted.',
         array('%id'=>$key['id'],
@@ -346,17 +360,17 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
             '%type'=>$item->link_type,
             '%nname'=>$item->nname,
             '%dname'=>$item->dname));
-  
+
     if (!$cascade)
-      break;   
-      
+      break;
+
     // cascade to remote link
     $qc = db_query('SELECT id, ipv4_id, interface_id, device_id ' .
         'FROM {guifi_links} ' .
         'WHERE id=%d ' .
         '  AND device_id !=%d',
         $key['id'],$key['device_id']);
-        
+
     while ($link = db_fetch_array($qc)) {
       $log .= '<br>'._guifi_db_delete('guifi_links',$link,$to_mail,$depth,false);
 
@@ -379,7 +393,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
             $to_mail,
             $depth,
             false);
-            
+
           if ($ripv4['netmask'] == '255.255.255.252')
            // cascade to local ipv4
             $log .= '<br>'._guifi_db_delete(
@@ -389,11 +403,11 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
               $to_mail,
               $depth,
               false);
-           
+
         }
 //        guifi_log(GUIFILOG_BASIC,'function delete cascade remote address()',$link);
 
-            
+
         // cleanup remote interface when appropriate
         $qir = db_query('SELECT i.id id, i.interface_type, count(a.id) na ' .
            'FROM {guifi_interfaces} i ' .
@@ -402,18 +416,18 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
            'WHERE i.id=%d ' .
            'GROUP BY i.id, i.interface_type',
            $link['interface_id']);
-           
+
         while ($na = db_fetch_array($qir)) {
-          
+
 //          guifi_log(GUIFILOG_BASIC,'function delete cascade remote interface()',$na);
-          
-          // delete the interface, if has no other ipv4 address and is not 
+
+          // delete the interface, if has no other ipv4 address and is not
           // in the list Wan, wLan/Lan, Lan or wds
           if ((in_array($na['interface_type'],array('Wan','wLan/Lan','Lan','wds')))
               or ($na['na'] != 0)
           )
             continue;
-            
+
           $log .= '<br>'._guifi_db_delete(
             'guifi_interfaces',
             array('id'=>$na['id']),
@@ -434,7 +448,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $item=db_fetch_object(db_query(
      'SELECT * ' .
      'FROM {guifi_users} u ' .
-     'WHERE id = %d', 
+     'WHERE id = %d',
       $key['id']));
     $log .= t('User %id-%name deleted.',
         array('%id'=>$key['id'],
@@ -442,16 +456,16 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     break;
   case 'guifi_zone':
     break;
-    
+
   case 'budgets':
     if (!$cascade)
-      break;   
+      break;
     $qc = db_query(
       'SELECT id, budget_id ' .
       'FROM {budget_items} ' .
       'WHERE budget_id=%d',
       $key['id']);
-      
+
     while ($item = db_fetch_array($qc))
       $log .= '<br>'._guifi_db_delete('budget_items',$item,$to_mail,$depth);
 
@@ -460,7 +474,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
       'FROM {budget_funds} ' .
       'WHERE budget_id=%d',
       $key['id']);
-      
+
     while ($fund = db_fetch_array($qc))
       $log .= '<br>'._guifi_db_delete('budget_funds',$fund,$to_mail,$depth);
     break;
@@ -471,7 +485,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
   foreach ($key as $k=>$value) {
     if ($where_str != '')
-      $where_str .= ' AND '; 
+      $where_str .= ' AND ';
     $where_str .= $k.' = '.$value;
   }
   $count = db_fetch_array(db_query("
@@ -488,7 +502,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   $where_str = '';
   foreach ($key as $k=>$value) {
     if ($where_str != '')
-      $where_str .= ' AND '; 
+      $where_str .= ' AND ';
     $where_str .= $k.' = '.$value;
   }
   $delete_str = 'DELETE FROM {'.$table.'} WHERE '.$where_str;

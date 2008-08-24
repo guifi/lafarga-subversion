@@ -617,7 +617,7 @@ function guifi_install() {
 
 // --
 // This new release can be installed in a clean database.
-// But updates 1 and 2 are necessary if it is installed 
+// But updates 1 and 2 are necessary if it is installed
 // on the old database that contains data for migrating purposes.
 // Please, skip updates 1 and 2 if you work on a clean database.
 // These updates will be COMMENTED when the new release is published.
@@ -810,10 +810,52 @@ function guifi_update_2() {
 
 function guifi_update_540() {
   $items = array();
-   
+
   db_change_field($items,'guifi_radios','ssid','ssid',
     array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'default' => ''));
-  return $items;	
+  return $items;
+}
+
+function guifi_update_556() {
+
+  // Data cleaning for backward compatibility purposes.
+  // All notifications will be validated
+  // In the meantime, empty notifications will remain empty, just leaving the
+  // code commented for further reference
+
+  $items = array();
+
+  $tables = array('guifi_zone','guifi_location','guifi_devices','guifi_services','guifi_users');
+
+  foreach ($tables as $table)  {
+    $qmails = db_query('SELECT * FROM {%s}',$table);
+    while ($amails = db_fetch_object($qmails)) {
+      // validate the email
+      if (!empty($amails->notification))
+        $dmails = guifi_notification_validate($amails->notification);
+
+      // if mails empty or not valid, take from uid or user_created
+//      if (empty($dmails)) {
+//        if (!isset($amails->nid))
+//          $amails->nid = $amails->id;
+//        $n = node_load(array('nid'=>$amails->nid));
+//        $u = user_load($n->uid);
+//        $dmails = $u->mail;
+//      } // if was no mail
+
+      // there was changes? then save the change
+      if ($dmails != $amails->notification) {
+        $items[] = update_sql(sprintf(
+            'UPDATE {%s} SET notification = "%s" WHERE id = %d',
+            $table,$dmails,$amails->id)
+          );
+      }
+
+    } // foreach row
+
+  } // foreach table
+
+  return $items;
 }
 
   /* Converting IPv4 tables from strings to long integers
