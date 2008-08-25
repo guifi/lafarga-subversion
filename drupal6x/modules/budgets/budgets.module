@@ -423,7 +423,7 @@ To contribute to this budget, please allocate your desired contribution and:
 <li>Provide your contact information (name, telf. or email) so a promoter will be able to contact you,</li>
 <li>... or if you wish, make a money transfer to the account EEEE OOOO DD CCCCCC specifying clearly your name for validation purposes.</li>
 </ul>
-Your contribution will be in 'Submitted' status. Once is verified, the promoter will update the status of your contibution to <i>'Approved'<i/> if accepts it, <i>'Declined'</i> if for any reason this contribution can't be acceped, or <i>'Paid'</i> to confirm that the money has arrived.");
+Your contribution will be in 'Submitted' status. Once is verified, the promoter will update the status of your contibution to <i>'Approved'</i> if accepts it, <i>'Declined'</i> if for any reason this contribution can't be acceped, or <i>'Paid'</i> to confirm that the money has arrived.");
 
 $terms_default = t("<ol>
 <li>An open project budget may change without advice depending in how many funds is receiving. Contributors may ask for a return of their funds if they not agree with those changes.</li>
@@ -431,7 +431,7 @@ $terms_default = t("<ol>
 <li>Promoters are not liable for the results of the project, just for spending the funds in a similar way as described in the budget.</li>
 <li>If a project does not execute, promoters will be responsible of returning funds to contributors or allocate them to a another project.</li>
 <li>The promoters/contributors are liable by their budgets and fundings. This site just provides a way to communicate between them, with no other responibilities.</li>
-</ul>");
+</ol>");
 
   switch ($var) {
     case 'budget_payment':
@@ -687,8 +687,7 @@ function budgets_form(&$node, &$param) {
   guifi_log(GUIFILOG_TRACE,'function budgets_form()',$param);
 
   if (!empty($param['values'])) {
-     foreach ($param['values'] as $k=>$v)
-       $node->$k = $v;
+     $node = (object)$param['values'];
      guifi_log(GUIFILOG_TRACE,'function budgets_form(READ)',$node);
   }
 
@@ -830,7 +829,7 @@ function budgets_form(&$node, &$param) {
   );
   $form['batch']['loadquote'] = array(
     '#type'=>'textfield',
-    '#title'=>t('Supplier'),
+    '#title'=>t('Supplier quote'),
     '#description'=>t('Find an existng quote provided by a supplier, ' .
         'and then press "Load Quote"' .
         ' to get the that quote loaded into this proposal.'),
@@ -1022,11 +1021,20 @@ function budgets_item_form($item,$ki) {
     '#prefix' => '<td>',
     '#suffix' => '</td>',
   );
-  $f['delete'] = array(
-    '#type' => 'submit',
+  // adding an OK button just to avoid delete as default action if enter
+  $f['ok'] = array(
+    '#type' => 'button',
+    '#value' => t('Ok'),
+    '#name' => 'ok-'.$ki,
+    '#prefix' => '<td>',
+    '#suffix' => '</td>',
+  );
+  $f['delete_button'] = array(
+    '#type' => 'button',
     '#submit' => array('budgets_form_item_delete'),
     '#value' => t('Delete item'),
-    '#name' => $ki,
+    '#name' => 'delete-'.$ki,
+    '#executes_submit_callback' => true,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
   );
@@ -1041,7 +1049,7 @@ function budgets_item_form($item,$ki) {
   $f['comments'] = array(
     '#type' => 'textarea',
     '#description' => t('Comments'),
-    '#value' => $item['comments'],
+    '#default_value' => $item['comments'],
   );
 
   return $f;
@@ -1056,7 +1064,7 @@ function budgets_items_form($items) {
     '#tree' => true,
     '#collapsible' => true,
     '#collapsed' => false,
-    '#description' => $txtmore
+//    '#description' => $txtmore
   );
 
   // Sort items by weight
@@ -1097,8 +1105,12 @@ function budgets_items_form($items) {
 }
 
 function budgets_form_item_delete($form,&$form_state) {
-  guifi_log(GUIFILOG_TRACE,'function budgets_form_item_delete()',$form_state['clicked_button']['#name']);
-  $form_state['values']['items'][$form_state['clicked_button']['#name']]['deleted']=true;
+  $params = explode('-',$form_state['clicked_button']['#name']);
+  guifi_log(GUIFILOG_TRACE,'function budgets_form_item_delete()',$params);
+
+  if ($params[0]=='delete') {
+    $form_state['values']['items'][$params[1]]['deleted']=true;
+  }
   $form_state['rebuild'] = true;
 }
 
@@ -1731,24 +1743,27 @@ function theme_budgets_items($node,$links = false) {
   if (!empty($node->items)) foreach ($node->items as $item_id => $item) {
     $subtotal = $item['quantity'] * $item['cost'];
     $total = $total + $subtotal;
-    if (!empty($item['title']))
-      $rows[]= array(array('data'=>'<strong>'.$item['title'].'</strong>','colspan'=>5));
+
+    $rows[]= array(
+      array('data'=>'<strong>'.t('Item:').' '.$item['title'].'</strong>'),
+      array('data'=>number_format($item['quantity'],2,',','.'),'align'=>'right'),
+      array('data'=>number_format($item['cost'],2,'.',',').$node->currency_symbol,'align'=>'right'),
+      array('data'=>number_format($subtotal,2,',','.').$node->currency_symbol,'align'=>'right')
+    );
     $rows[] = array(
-    $item['description'],
-    $item['comments'],
-    array('data'=>number_format($item['quantity'],2,',','.'),'align'=>'right'),
-    array('data'=>number_format($item['cost'],2,'.',',').$node->currency_symbol,'align'=>'right'),
-    array('data'=>number_format($subtotal,2,',','.').$node->currency_symbol,'align'=>'right'));
+      array(
+       'data'=>$item['description'].'<hr><small>'.$item['comments'].'</small><hr>',
+       'colspan'=>0));
+
   }
   $rows[] = array(
                  '<strong>Total</strong',
-  null,null,null,
-  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right')
+  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right','colspan'=>0)
   );
-  $header = array(t('Description'),t('Comments'),
-  array('data'=>t('Units'),'align'=>'right'),
-  array('data'=>t('Cost per unit'),'align'=>'right'),
-  array('data'=>t('Subtotal'),'align'=>'right'));
+  $header = array(t('Description'),
+    array('data'=>t('Units'),'style'=>'text-align: right;'),
+    array('data'=>t('Cost per unit'),'style'=>'text-align: right;'),
+    array('data'=>t('Subtotal'),'style'=>'text-align: right;'));
 
   $output .=theme('table', $header, $rows);
 
@@ -1966,12 +1981,12 @@ function budgets_ahah_select_quote($string){
 
   $qry = db_query(
     'SELECT ' .
-    '  CONCAT(id, "-", partno, ", ", title) str '.
-    'FROM {supplier_quote}  ' .
-    'WHERE ' .
-    '  (CONCAT(id, "-", upper(partno), ", ",upper(title)) ' .
+    '  CONCAT(s.title, " ",q.id, "-", q.partno, ", ", q.title) str '.
+    'FROM {supplier_quote} q, {supplier} s ' .
+    'WHERE q.supplier_id = s.id ' .
+    '  AND (CONCAT(upper(s.title), " ",q.id, "-", q.partno, ", ", upper(q.title)) ' .
     '    LIKE "%'.$string.'%") ' .
-    'ORDER BY supplier_id, title, partno');
+    'ORDER BY s.title, q.title, q.partno');
 
   $c = 0;
   $matches = array();
