@@ -50,10 +50,14 @@ function guifi_device_load($id,$ret = 'array') {
         SELECT *
         FROM {guifi_interfaces}
         WHERE device_id=%d AND radiodev_counter=%d
-        ORDER BY id, interface_type, radiodev_counter',
-        $device['id'],
+        ORDER BY FIND_IN_SET(interface_type,"wLan/Lan,wLan,wds/p2p"),id',
+        $id,
         $radio['radiodev_counter']);
       while ($i = db_fetch_array($qi)) {
+
+        // force first interface to wLan/Lan
+        if ((!count($listi)) and ($i['interface_type'] == 'wLan'))
+          $i['interface_type'] = 'wLan/Lan';
 
         // can't have 2 wLan/Lan bridges
         if (in_array($i['interface_type'],$listi))
@@ -639,7 +643,15 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
         $radio['id'],$radio['to_id']),
       null);
     if (isset($radio['to_did']))
+
+    // if radio has moved to another device:
+    // -obtain the radiodev_counter of that device
+    // -if has wLan/Lan interface:
+    //   -convert to wlan
+    //   -don't save it again at cable interfaces section'
     if ($radio['to_did'] != $radio['id']) {
+
+      // -obtain the radiodev_counter of that device
       $radio['id'] = $radio['to_did'];
       $qry = db_query('SELECT  max(radiodev_counter) + 1 rc ' .
                       'FROM {guifi_radios} ' .
@@ -653,6 +665,20 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
           '%id2'=>$radio['radiodev_counter'],
           '%dname'=>guifi_get_hostname($radio['to_did'])
         )));
+
+      // -if has wLan/Lan interface:
+      //   -convert to wlan if is not going a be the main radio
+      //   -don't save it again at cable interfaces section'
+      if ($radio['interfaces']) foreach ($radio['interfaces'] as $iid=>$interface)
+        if ($interface['interface_type'] == 'wLan/Lan') {
+          foreach ($edit['interfaces'] as $ciid=>$cinterface)
+            // unset from cable section
+            if ($cinterface['interface_type']=='wLan/Lan')
+              unset($edit['interfaces'][$ciid]);
+            // if not radio#0, set as wLan at the other device
+            if ($nrc['rc'])
+              $radio['interfaces'][$iid]['interface_type'] = 'wLan';
+        }
     }
 
     // save the radio
@@ -670,7 +696,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     if ($interface['interface_type'] == 'wLan/Lan')
       $interface['radiodev_counter'] = 0;
 
-      $log .= guifi_device_interface_save($interface,$interface_id,$ndevice['nid'],$to_mail);
+      $log .= guifi_device_interface_save($interface,$interface_id,$edit['id'],$ndevice['nid'],$to_mail);
 
     } // foreach interface
     $rc++;
@@ -680,7 +706,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     $interface['device_id'] = $ndevice['id'];
     $interface['mac'] = $radio['mac'];
 
-    $log .= guifi_device_interface_save($interface,$iid,$ndevice['nid'],$to_mail);
+    $log .= guifi_device_interface_save($interface,$iid,$edit['id'],$ndevice['nid'],$to_mail);
   }
 
   $to_mail = explode(',',$edit['notification']);
@@ -707,7 +733,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
 
 }
 
-function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
+function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
   $log = '';
 
   guifi_log(GUIFILOG_TRACE,sprintf('guifi_device_edit_interface_save (id=%d)',$iid),$interface);
@@ -749,7 +775,7 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
       guifi_log(GUIFILOG_TRACE,'going to SQL for local link',$llink);
       $nllink = _guifi_db_sql(
         'guifi_links',
-        array('id'=>$link['id'],'device_id'=>$interface['device_id']),$llink,$log,$to_mail);
+        array('id'=>$link['id'],'device_id'=>$did),$llink,$log,$to_mail);
       if (empty($nllink) or ($llink['deleted']))
         continue;
 
@@ -757,6 +783,10 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
       if ($link['interface']) {
         if (!isset($link['interface']['device_id']))
           $link['interface']['device_id'] = $link['device_id'];
+
+        guifi_log(GUIFILOG_TRACE,sprintf('remote interface (id=%d)',
+          $link['interface']['id']),
+          $link['interface']);
         $rinterface = _guifi_db_sql(
           'guifi_interfaces',
           array('id'=>$link['interface']['id'],
@@ -772,6 +802,7 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
           $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
         }
         $link['interface']['ipv4']['interface_id'] = $rinterface['id'];
+
         guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 remote (id=%d, iid=%d)',
           $link['interface']['ipv4']['id'],
           $link['interface']['ipv4']['interface_id']),
