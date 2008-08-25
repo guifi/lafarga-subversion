@@ -230,7 +230,7 @@ function guifi_device_graph_overview($radio) {
    $server_mrtg = guifi_graphs_get_radio_url($radio['id']);
  else
    $server_mrtg = guifi_graphs_get_graph_url($radio['graph_server']);
- 
+
  if (substr($server_mrtg,0,3) == "fot")
     {
     $ssid=get_SSID_radio($radio['id']);
@@ -262,9 +262,8 @@ function guifi_device_graph_overview($radio) {
             $args.'out><img src="'.$server_mrtg.'?'.
             $args.'out"></a>',$radio['id']),
           'align'=>'center'));;
-      }
-      else if ($clients->count == 1)
-      {
+      } else if (($radio['type']=='radio') or
+        ($radio['variable']['mrtg_index']!='')) {
         $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
         $rows[] = array(array(
           'data'=>'<a href='.base_path().'guifi/graph_detail?'.
@@ -285,7 +284,7 @@ function guifi_device_graph_overview($radio) {
 **/
 
 function guifi_mrtg() {
-  
+
   if (is_numeric(arg(1)))
     $zoneid = arg(1);
   else
@@ -309,7 +308,7 @@ function guifi_mrtg() {
        $output .= $nl.$html;
      else
        $output .= $nl.htmlentities($html);
-  
+
      return $nl.$output;
   }
   function wlan_routeros_traffic($rrdfile,$row,$ifid,$nl) {
@@ -329,7 +328,7 @@ function guifi_mrtg() {
        $output .= $nl.$html;
      else
        $output .= $nl.htmlentities($html);
-  
+
      return $nl.$output;
   }
   function ping($rrdfile,$row,$nl) {
@@ -373,7 +372,7 @@ function guifi_mrtg() {
   print $nl."Forks: 24";
   print $nl."SnmpOptions: retries => 2, only_ip_address_matching => 0";
   print $nl."SnmpOptions: timeout => 1";
-  
+
   $listed = array();
   $query = db_query(
     "SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra " .
@@ -407,7 +406,7 @@ function guifi_mrtg() {
    print $nl.'# '.$row['title'].' - '.$row['ip'];
    $rrdfile = guifi_rrdfile($row['title']);
    $query_linksys_buffalo = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('WRT54Gv1-4','WRT54GSv1-2','WRT54GSv4','WRT54GL','WHR-HP-G54, WHR-G54S')",$row['id']);
-   if (db_result($query_linksys_buffalo) > 0)  
+   if (db_result($query_linksys_buffalo) > 0)
       print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
    $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
    if (db_result($query_routeros) > 0)   {
@@ -416,7 +415,7 @@ function guifi_mrtg() {
        print wlan_routeros_traffic(guifi_rrdfile($radio[ssid]),$row,$radio_id+1,$nl);
      }
    }
-   
+
    // ADSL
    if (($row['type'] == 'ADSL') || ($row['type'] == 'generic'))  {
      $adsl = unserialize($row['extra']);
