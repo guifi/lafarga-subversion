@@ -400,9 +400,6 @@ function guifi_device_ipv4_link_form($ipv4,$tree, $cable = true) {
 function guifi_ipv4_link_form(&$f,$ipv4,$interface,$tree,&$weight) {
   global $definedBridgeIpv4;
 
-//  if ($ipv4['deleted'])
-//    return 0;
-
   $ki = $tree[count($tree)-3];
   $ka = $tree[count($tree)-1];
   if (count($tree)>4)

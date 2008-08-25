@@ -1221,8 +1221,13 @@ function theme_guifi_node_devices_list($node,$links = false) {
   $id = $node->id;
   $rows = array();
 
-  $header = array('<h2>'.t('device').'</h2>', t('type'), t('ip'), t('status'),
-                  array('data'=>t('last available'),'align'=>'right'));
+  $header = array(
+    '<h2>'.t('device').'</h2>',
+    t('type'),
+    t('ip'),
+    t('status'),
+    array('data'=>t('last available'),'style'=>'text-align: right;'),
+    t('unsolclic'));
 
   // Form for adding a new device
   $form = drupal_get_form('guifi_device_create_form',$id);
@@ -1232,13 +1237,22 @@ function theme_guifi_node_devices_list($node,$links = false) {
      $device = guifi_device_load($d->id);
      $status_str = guifi_availabilitystr($device);
      if (guifi_device_access('update',$device['id'])) {
-       // form to allow editing the device
-       $edit_radio = '<td>'.drupal_get_form('_guifi_line_edit_device_form',$device['id']);
-       $edit_radio .= "<td/>";
-
+       $edit_radio =  '<table><tr><td>'.l(guifi_img_icon('edit.png'),'guifi/device/'.$device['id'].'/edit',
+            array(
+              'html'=>true,
+              'title' => t('edit device'),
+              'attributes'=>array('target'=>'_blank'))).'</td><td>'.
+          l(guifi_img_icon('drop.png'),'guifi/device/'.$device['id'].'/delete',
+            array(
+              'html'=>true,
+              'title' => t('delete device'),
+              'attributes'=>array('target'=>'_blank'))).'</td></tr></table>';
      }
      if ($device->variable['firmware'] != "n/d") {
-       $unsolclic = '<td><a href="'.url('guifi/device/' .$device[id] .'/view/unsolclic').'" title="' .t("Get radio configuration with singleclick") .'">' .$device[variable]['firmware'] .'</a></td>';
+       $unsolclic = l($device[variable]['firmware'],
+         'guifi/device/'.$device['id'].'/view/unsolclic',
+         array('attributes'=>array('title'=>t("Get radio configuration with singleclick")))
+       );
      }
      $ip = guifi_main_ip($device[id]);
      $graph_url = guifi_graphs_get_node_url($id,FALSE);
@@ -1246,19 +1260,23 @@ function theme_guifi_node_devices_list($node,$links = false) {
        $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
      else
        $img_url = NULL;
-     $rows[] = array('<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
+     $rows[] = array(
+                 '<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
                  $device[type],
                  array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
                  array('data' => t($device[flag]),'class' => $device['flag']),
                  array('data' => $img_url,'class' => $device['flag']),
-                 $edit_radio,
-                 $unsolclic
+                 $unsolclic,
+                 $edit_radio
                     );
   }
   if (count($rows)==0)
      $rows[] = array(t('This node does not have any device.'));
 
-  $output = '<h4>'.t('devices').'</h4>'.theme('table', $header, $rows).$form;
+  $output = '<h4>'.t('devices').'</h4>'.
+    theme('table', $header, $rows,
+      array('style'=>'width: 0%;')).
+    $form;
 
   if ($links) {
     $node = node_load(array('nid'=>$node->id));

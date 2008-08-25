@@ -323,7 +323,7 @@ function guifi_device_form_submit($form, &$form_state) {
 function guifi_device_form($form_state, $params = array()) {
   global $user;
 
-  guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$form_state);
+  guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$params);
 
   // Local javascript validations not actve because of buf un Firefox
   // Errors are not displayed when fieldset folder is collapsed
@@ -710,7 +710,6 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
 function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
   $log = '';
 
-
   guifi_log(GUIFILOG_TRACE,sprintf('guifi_device_edit_interface_save (id=%d)',$iid),$interface);
 
   $ninterface = _guifi_db_sql(
@@ -729,9 +728,14 @@ function guifi_device_interface_save($interface,$iid,$nid,&$to_mail) {
     guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)',
       $ipv4_id,$ipv4['interface_id']),
       $ipv4);
+
+    if (($ipv4['netmask']=='255.255.255.252') and (!count($ipv4['links'])))
+      $ipv4['deleted'] = true;
+
     $nipv4 = _guifi_db_sql(
       'guifi_ipv4',
       array('id'=>$ipv4_id,'interface_id'=>$ipv4['interface_id']),$ipv4,$log,$to_mail);
+
     if (empty($nipv4))
       continue;
 
