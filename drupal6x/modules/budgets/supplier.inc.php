@@ -4,7 +4,7 @@
  *
  * functions for managing supplier node types
  */
- 
+
 function budgets_supplier_help($path, $arg) {
   if ($path == 'admin/help#budgets_supplier') {
     $txt = 'A supplier is either ean individual or a compani who provides ' .
@@ -14,10 +14,10 @@ function budgets_supplier_help($path, $arg) {
     return '<p>'.t($txt,$replace).'</p>';
   }
 }
- 
+
 function budgets_supplier_form(&$node) {
   $type = node_get_types('type',$node);
-  
+
   if (($type->has_title)) {
     $form['title'] = array(
       '#type' => 'textfield',
@@ -26,7 +26,7 @@ function budgets_supplier_form(&$node) {
       '#default_value' => $node->title,
     );
   }
-  
+
   $form['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
 
   if (($type->has_body)) {
@@ -35,26 +35,26 @@ function budgets_supplier_form(&$node) {
       $type->body_label,
       $type->min_word_count
     );
-  } 
-    
+  }
+
   return $form;
 }
 
 function budgets_supplier_access($op, $node, $account = null) {
   global $user;
-  
+
   if (is_numeric($node))
     $k = $node;
   else
-    $k = $node->id;    
+    $k = $node->id;
   $node = node_load(array('nid'=>$k));
-  
+
   switch($op) {
     case 'create':
       return user_access('create suppliers',$account);
     case 'update':
       if ($node->type == 'supplier') {
-        if ((user_access('administer suppliers',$account)) 
+        if ((user_access('administer suppliers',$account))
           or ($node->uid == $user->uid)) {
           return TRUE;
         }
@@ -70,10 +70,10 @@ function budgets_supplier_access($op, $node, $account = null) {
 
 function budgets_supplier_save($node) {
   global $user;
-  
+
   $to_mail = $user->mail;
   $log = '';
-  
+
   $sid = _guifi_db_sql(
     'supplier',
     array('id'=>$node->nid),
@@ -93,7 +93,7 @@ function budgets_supplier_save($node) {
       '%user'=>$user->name));
 
   drupal_set_message($subject);
-  
+
   guifi_notify(
     $to_mail,
     $subject,
@@ -103,16 +103,16 @@ function budgets_supplier_save($node) {
 function budgets_supplier_insert($node) {
   $node->new = true;
   $node->id = $node->nid;
-  budgets_supplier_save($node); 
+  budgets_supplier_save($node);
 }
 
 function budgets_supplier_delete($node) {
   $node->delete = true;
-  budgets_supplier_save($node); 
+  budgets_supplier_save($node);
 }
 
 function budgets_supplier_update($node) {
-  budgets_supplier_save($node); 
+  budgets_supplier_save($node);
 }
 
 function budgets_supplier_load($node) {
@@ -120,13 +120,13 @@ function budgets_supplier_load($node) {
     $k = $node->nid;
   else
     $k = $node;
-        
+
   $node = db_fetch_object(
     db_query("SELECT * FROM {supplier} WHERE id = '%d'", $k));
-    
+
   if (is_null($node->id))
     return false;
-  
+
   return $node;
 }
 
@@ -143,7 +143,7 @@ function budgets_supplier_list_by_zone($zone) {
   while ($s = db_fetch_object($pager)) {
     $supplier = node_load(array('nid'=>$s->id));
     $output .= node_view($supplier,true,false,true);
-  }  
+  }
   $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/suppliers'));
@@ -151,31 +151,33 @@ function budgets_supplier_list_by_zone($zone) {
   $node = node_load(array('nid'=>$zone->id));
   $output .= theme_links(module_invoke_all('link', 'node', $node, false));
   print theme('page',$output,false);
-  return;  
+  return;
 }
 
 function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
-  
+
   $qquotes = pager_query(
     sprintf('SELECT id ' .
     'FROM {supplier_quote} ' .
     'WHERE supplier_id = %d ' .
     'ORDER BY title, partno, id',
     $node->nid),
-    variable_get('default_nodes_main', 10) 
+    variable_get('default_nodes_main', 10)
   );
-  
-  $output = '<h2>'.t('Quotes').'</h2>';  
-  while ($quote = db_fetch_object($qquotes)) {;
-    $output .= node_view(node_load(array('nid'=>$quote->id)),true,false);
+
+  if (!$teaser) {
+    $output = '<h2>'.t('Quotes').'</h2>';
+    while ($quote = db_fetch_object($qquotes)) {;
+      $output .= node_view(node_load(array('nid'=>$quote->id)),true,false);
+    }
+
+    $node->content['quotes'] = array(
+      '#value'=> $output.
+         theme('pager', NULL, variable_get('default_nodes_main', 10)),
+      '#weight' => 1,
+    );
   }
-  
-  $node->content['quotes'] = array(
-    '#value'=> $output.
-       theme('pager', NULL, variable_get('default_nodes_main', 10)),
-    '#weight' => 1,
-  );
 
   return $node;
 }

@@ -1600,12 +1600,10 @@ function budgets_insert($node) {
   $node->new = true;
   $node->id = $node->nid;
   budgets_save($node);
-  drupal_goto('node/'.$node->nid);
 }
 
 function budgets_update($node) {
   budgets_save($node);
-  drupal_goto('node/'.$node->nid);
 }
 
 /**
@@ -1698,21 +1696,22 @@ function budgets_view($node, $teaser = FALSE, $page = FALSE) {
   if ($page)
     drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
 
-  $node->content['header'] = array(
-    '#value'=>theme_budgets_header($node,$teaser),
-    '#weight' => -10
-  );
-
-  if ($page)
-    $node->content['items'] = array(
-      '#value'=>theme_budgets_items($node),
-      '#weight' => 1
+    $node->content['header'] = array(
+      '#value'=>theme_budgets_header($node,$teaser),
+      '#weight' => -10
     );
-  if (!$teaser)
+
+  if (!$teaser) {
     $node->content['footer'] = array(
       '#value'=>theme_budgets_footer($node,$teaser),
       '#weight' => 10
     );
+    $node->content['items'] = array(
+      '#value'=>theme_budgets_items($node),
+      '#weight' => 1
+    );
+
+  }
 
   return $node;
 }
@@ -1743,6 +1742,8 @@ function theme_budgets_items($node,$links = false) {
   if (!empty($node->items)) foreach ($node->items as $item_id => $item) {
     $subtotal = $item['quantity'] * $item['cost'];
     $total = $total + $subtotal;
+    if (!$subtotal)
+      continue;
 
     $rows[]= array(
       array('data'=>'<strong>'.t('Item:').' '.$item['title'].'</strong>'),
@@ -1757,8 +1758,9 @@ function theme_budgets_items($node,$links = false) {
 
   }
   $rows[] = array(
-                 '<strong>Total</strong',
-  array('data'=>'<strong>'.number_format($total,2,',','.').$node->currency_symbol.'</strong>','align'=>'right','colspan'=>0)
+                 '<h2>Total</h2',
+  array('data'=>'<h2>'.number_format($total,2,',','.').$node->currency_symbol.
+    '</h2>','align'=>'right','colspan'=>0)
   );
   $header = array(t('Description'),
     array('data'=>t('Units'),'style'=>'text-align: right;'),
@@ -2115,9 +2117,11 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
 function theme_refquote($quote,$supplier,$teaser = false) {
   if ($teaser)
     return t('Ref.').': '.l($quote->partno,'node/'.$quote->nid).'-'.
-      l($supplier->title,'node/'.$supplier->nid);
+      l($supplier->title,'node/'.$supplier->nid).', '.
+      t('Cost').': '.number_format($quote->cost,2,',','.');
 
-  return t('Reference').': <ul><li>'.
+  return t('Cost').': '.number_format($quote->cost,2,',','.').'<br>'.
+    t('Reference').': <ul><li>'.
     t('Supplied by').': '.$quote->supplier_id.
     '-'.l($supplier->title,'node/'.$supplier->nid).
     '</li><li>'.
@@ -2127,6 +2131,11 @@ function theme_refquote($quote,$supplier,$teaser = false) {
 }
 
 function theme_budgets_header($node,$teaser) {
+  $node->expires = mktime(0,0,0,
+    $node->arrexpires['month'],
+    $node->arrexpires['day'],
+    $node->arrexpires['year']
+    );
   if ($teaser) {
     $output =
       '<small>'.
@@ -2134,6 +2143,20 @@ function theme_budgets_header($node,$teaser) {
       t('Status').': '.$node->budget_status;
     if (in_array($node->budget_status,array('Open','Preparation')))
       $output .= ', '.t('until').' '.format_date($node->expires.'small');
+
+    $total = 0;
+    $items = 0;
+    if ($node->items) foreach ($node->items as $item) {
+      $subtotal = ($item['quantity'] * $item['cost']);
+      if (($item['deleted']) or (!$subtotal))
+        continue;
+
+      print "Subtotal: ".$subtotal."\n<br>";
+      $total += $subtotal;
+      $items++;
+    }
+    $output .= ', '.format_plural($items,t('1 item'),'@count items').', '.
+      t('Total').' '.number_format($total,2,',','.').$node->currency_symbol;
     $output .= '</small>';
   } else {
     $output =

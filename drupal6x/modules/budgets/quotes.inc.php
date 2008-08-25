@@ -319,7 +319,7 @@ function budgets_quote_view($node, $teaser = FALSE, $page = FALSE) {
   $supplier = node_load(array('nid'=>$node->supplier_id));
 
   $node->content['refquote'] = array(
-    '#value'=> theme_refquote($node,$supplier,$teaser).'<hr>',
+    '#value'=> '<small>'.theme_refquote($node,$supplier,$teaser).'</small><hr>',
     '#weight' => -1,
   );
 
