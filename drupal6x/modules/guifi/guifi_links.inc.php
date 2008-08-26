@@ -607,6 +607,9 @@ function guifi_links_validate_subnet($remoteIp,&$form_state) {
     $ipv4 = &$form_state['values']['interfaces'][$interface_id]
                                   ['ipv4'][$ipv4_id];
 
+  if ($ipv4['links'][$link_id]['deleted'])
+    return;
+
   $item1 = _ipcalc($ipv4['ipv4'],$ipv4['netmask']);
   $item2 = _ipcalc($remoteIp['#value'],$ipv4['netmask']);
   if (($item1[netstart] != $item2[netstart]) or ($item1[netend] != $item2[netend])) {

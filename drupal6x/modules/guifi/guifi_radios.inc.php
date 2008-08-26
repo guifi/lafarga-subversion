@@ -928,7 +928,7 @@ function guifi_radio_delete_submit($form, &$form_state) {
 function guifi_radio_add_link2ap_submit(&$form,&$form_state) {
   $radio_id    =$form_state['clicked_button']['#parents'][1];
   $interface_id=$form_state['clicked_button']['#parents'][2];
-  guifi_log(GUIFILOG_BASIC,
+  guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_link2ap_submit(Radio: %d, Interface: %d)",
       $radio_id, $interface_id),
     $form_state['clicked_button']['#parents']);
