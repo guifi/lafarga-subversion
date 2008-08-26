@@ -338,6 +338,13 @@ function guifi_interfaces_add_cable_public_link_submit(&$form,&$form_state) {
   $item = _ipcalc($base_ip['ipv4'],$base_ip['netmask']);
   $ip= guifi_next_ip($item['netid'],$base_ip['netmask'],$ips_allocated);
 
+  // no IP was given, so raise a message amd don't create the link'
+  if (empty($ip)) {
+    drupal_set_message(t('Unable to assign a free ip, link not created, ' .
+        'contact the administrator.'));
+    return;
+  }
+
   $newlk['new']=true;
   $newlk['interface']=array();
   $newlk['link_type']='cable';

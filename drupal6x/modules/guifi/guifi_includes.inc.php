@@ -1069,7 +1069,7 @@ function guifi_next_ip($base_ip = '0.0.0.0',
 
   drupal_set_message(t('Network %net/%mask is full',
     array('%net' => $base_ip, '%mask' => $mask_range)),
-    'error');
+    'warning');
   return false;
 }
 

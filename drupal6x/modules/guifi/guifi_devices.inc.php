@@ -762,7 +762,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
       'guifi_ipv4',
       array('id'=>$ipv4_id,'interface_id'=>$ipv4['interface_id']),$ipv4,$log,$to_mail);
 
-    if (empty($nipv4))
+    if (empty($nipv4) or ($ipv4['deleted']))
       continue;
 
     // links (local)
