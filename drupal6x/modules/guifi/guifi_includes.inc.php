@@ -1073,11 +1073,19 @@ function guifi_next_ip($base_ip = '0.0.0.0',
   return false;
 }
 
-function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $network_type = 'public',$ips_allocated = null) {
+function guifi_get_subnet_by_nid(
+  $nid,                                 // node id to allocate the network
+  $mask_allocate = '255.255.255.224',   // mask size to look for & allocate
+  $network_type = 'public',             // public or backbone
+  $ips_allocated = null,                // sorted array containing current used ips
+  $verbose=false)                       // create time&trace output
+{
 
   // print "Going to allocate network ".$mask_allocate."-".$network_type;
 
   global $user;
+
+  $tbegin = microtime(true);
 
   $zone_fetch = db_fetch_object(db_query(
       "SELECT l.zone_id id, z.master
@@ -1090,7 +1098,21 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
 
   $depth = 0;
   $root_zone = $zone->id;
+
+  $lbegin = microtime(true);
+  if ($verbose)
+    guifi_log(GUIFILOG_BASIC,
+      sprintf('get subnet by nid, starting loops for %s, elapsed %0.4f',
+        $zone->title,$lbegin-$tbegin
+      ));
+
   do {
+
+    if ($verbose)
+      guifi_log(GUIFILOG_BASIC,
+        sprintf('finding network range to look for, elapsed: %0.4f',
+          (float)(microtime(true)-$lbegin)));
+
     $result = db_query(
         'SELECT n.id, n.base, n.mask ' .
         'FROM {guifi_networks} n ' .
@@ -1102,11 +1124,18 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
 
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
+
     $tnets = 0;
 
     while ($net = db_fetch_object($result)) {
       $tnets++;
-      //  print "Going to find a slot ".$mask_allocate." at: ".$net->base."/".$net->mask."\n<br />";
+
+      if ($verbose)
+        guifi_log(GUIFILOG_BASIC,
+          sprintf('finding slot %s at %s/%s network, elapsed: %0.4f',
+            $mask_allocate,$net->base,$net->mask,
+            (float)(microtime(true)-$lbegin)));
+
       $item = _ipcalc($net->base,$net->mask);
       if ($ip = guifi_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {
         if ($depth) {
@@ -1129,18 +1158,28 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
 //         print "IP found: $ip[ipv4]";
         return $ip;
       }
-    }
+    } // while there is a network defined at the zone
 
     // Network was not allocated
+    if ($verbose)
+      guifi_log(GUIFILOG_BASIC,
+        sprintf('no network defined for %s, elapsed: %0.4f',
+          $zone->title,
+          (float)(microtime(true)-$lbegin)));
 
+    // Need for an unused range,
     // already allocated networks should be considered as allocated ip
+
+    // This have to be done once, so do if is the zone being asked for
     if ($root_zone == $zone->id ) {
       $query = db_query('SELECT base ipv4 FROM {guifi_networks}');
       while ($nip = db_fetch_array($query)) {
         $nip[ipv4] = guifi_ip_op($nip[ipv4],1);
         $nip[netmask] = $mask_allocate;
-        guifi_merge_ip($nip, $ips_allocated,true);
+        guifi_merge_ip($nip, $ips_allocated,false);
       }
+      // once merged, sort
+      sort($ips_allocated);
     }
 
     // calculating the needed mask
@@ -1170,6 +1209,8 @@ function guifi_get_subnet_by_nid($nid,$mask_allocate = '255.255.255.224', $netwo
     $master = $zone->master;
     if ( $zone->master > 0)
       $zone = guifi_zone_load($zone->master);
+
+
   } while ( $master  > 0);
 
   return false;

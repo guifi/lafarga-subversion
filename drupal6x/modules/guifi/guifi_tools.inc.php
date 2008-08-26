@@ -450,4 +450,44 @@ function guifi_admin_notify($view = 'false') {
   return $output;
 }
 
+// development tools
+function guifi_admin_get_ips2() {
+  $tbegin = microtime(true);
+
+  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0');
+
+  $tend = microtime(true);
+
+  $output = sprintf('Got & sorted %d ips in %f seconds.',
+    count($ips_allocated),$tend-$tbegin);
+
+  return $output;
+}
+
+function guifi_admin_get_ips() {
+  $tgetipsbegin = microtime(true);
+
+  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0');
+
+  $tgetipsend = microtime(true);
+
+  $output = sprintf('Got & sorted %d ips in %0.4f seconds.<br>',
+    count($ips_allocated),$tgetipsend-$tgetipsbegin);
+
+  $net = guifi_get_subnet_by_nid(1568,
+            '255.255.255.252',
+            'backbone',
+            $ips_allocated,
+            true);
+
+  $tgetsubnetbynid = microtime(true);
+
+  $output .= sprintf('Got %s in %0.4f seconds.<br>',
+    $net,$tgetsubnetbynid-$tgetipsend);
+  $output .= sprintf('Total elapsed was %0.4f seconds.<br>',
+    $tgetsubnetbynid-$tgetipsbegin);
+
+  return $output;
+}
+
 ?>

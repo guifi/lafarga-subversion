@@ -225,6 +225,24 @@ function guifi_menu() {
     'weight' => 100,
   );
 
+
+  // Developer's tools
+  $items['guifi/menu/devel'] = array(
+    'title' => 'Development tools',
+    'description' => 'Utilities for developers, use with care, regular users shouldn\'t have this block.',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access devel information'),
+    'weight'=>100,
+  );
+  $items['guifi/menu/devel/get_ips'] = array(
+    'title' => 'get_ips callback',
+    'description' => 'Test for load&sort the ip tables',
+    'page callback' => 'guifi_admin_get_ips',
+    'access arguments' => array('access devel information'),
+    'weight' => 0,
+    'file' => 'guifi_tools.inc.php'
+  );
+
   //
   // ZONE menus & tabs
   //
