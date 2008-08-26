@@ -222,6 +222,11 @@ function guifi_graphs_get_radio_url($radio, $old_mrtg = TRUE ) {
 **/
 function guifi_device_graph_overview($radio) {
 
+ guifi_log(GUIFILOG_TRACE,'guifi_device_graph_overview()',$radio);
+
+ if (isset($radio['mode']))
+   $radio['type'] = 'radio';
+
  if ($radio['graph_server'] == -1) {
    $rows[] = array(t('This device has the graphs disabled.'));
    return array_merge($rows);
@@ -261,7 +266,7 @@ function guifi_device_graph_overview($radio) {
           'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
             $args.'out><img src="'.$server_mrtg.'?'.
             $args.'out"></a>',$radio['id']),
-          'align'=>'center'));;
+          'align'=>'center'));
       } else if (($radio['type']=='radio') or
         ($radio['variable']['mrtg_index']!='')) {
         $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
