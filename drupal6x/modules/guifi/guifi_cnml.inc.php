@@ -131,7 +131,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
   // load radio models in memory for faster execution
   global $models;
-  $qmodel = db_query("SELECT mid, model FROM guifi_model ORDER BY mid");
+  $qmodel = db_query("SELECT mid, fid, model FROM guifi_model ORDER BY mid");
   while ($model = db_fetch_object($qmodel)) {
      $models[$model->mid] = $model->model;
   }
@@ -245,8 +245,18 @@ function guifi_cnml($cnmlid,$action = 'help') {
                  $radioXML->addAttribute('snmp_index',6);
                }
               } else if  (in_array($model_name,
-                     array('Supertrasto RB532 guifi.net' , 'Supertrasto RB133C guifi.net' , 'Supertrasto RB133 guifi.net' , 'Supertrasto RB112 guifi.net' , 'Supertrasto RB153 guifi.net' ,
-                     'Supertrasto RB600 guifi.net' , 'Supertrasto RB333 guifi.net' , 'Supertrasto RB412 guifi.net'))) {
+                // TODO, for mikrotiks would be better to use fid instead of model name?
+                     array(
+                       'Supertrasto RB532 guifi.net' ,
+                       'Supertrasto RB133C guifi.net' ,
+                       'Supertrasto RB133 guifi.net' ,
+                       'Supertrasto RB112 guifi.net' ,
+                       'Supertrasto RB153 guifi.net' ,
+                       'Supertrasto RB600 guifi.net' ,
+                       'Supertrasto RB333 guifi.net' ,
+                       'Supertrasto RB411 guifi.net',
+                       'Supertrasto RB412 guifi.net',
+                       'Supertrasto RB433 guifi.net'))) {
                 $radioXML->addAttribute('snmp_name','wlan'.(string)$id);
               }
                 else if  (in_array($model_name,
