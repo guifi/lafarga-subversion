@@ -7,11 +7,18 @@ New Features:
   doesn't provide it. The abbreviation is used while constructing the SSID using
   the mask:
     guifi.net-ZoneNodeRd#mode
-- Now the multiple radio devices are always numbered sequentally starting from 0 
+- Now the multiple radio devices are always numbered in sequence starting from 0 
   and radios can be moved up & down, so can be reordered to match the position
   on the device.
 - New profiles maps with the ability to dynamically create profiles directly
   over the map, working worldwide and based on heywhatsthat.com calls.
+- New IPv4 engine, much faster and CPU effective.
+- Users are now able to create their users at nodes, admins can approve through
+  a new queue report to chech status and confirm the connection.
+- Improved report for availability
+- Improved reports for network & ip allocation at zones, much richer.
+- New menus with most used options ant tools & utilities, with options for 
+  finding available free sloots, used ip's, query MAC's, etc...
 
   
 User interface:
@@ -38,7 +45,8 @@ User interface:
   by ahah calls without having to reload the page.
 - Enabled jquery/validation scripts for client-site validations without having
   to submit the entire form
-- Added image buttons to simplify the user interfice while editing devices.
+- Added image buttons to simplify the user interface while editing devices.
+- Improved reports
 
 Database:
 - Add comments on tables to document primary/foreign key relationships
@@ -55,19 +63,9 @@ BUG FIXES:
 TODO: 
   -Integration of zone & node location
   	-KML export for GoogleEarth
-  -Revisit node & device management for drupal 6.x
-  -Migrate node user creation forms to drupal 6.x, create a new workflow for the
-   authorization ad verification process.
   -Define ap/client links
-  -Migrate budgets module to drupal 6.x
-    -Include the feature of define templates for budget items
   -Generate a simple cnml (xml) for export/import nodes
   -Create guifi statistics/versions of nodes and track history.
-  -Generate utilities page for several tools like
-    -Find for an IP 
-    -Used networks
-    -Newly detected nodes to be verified
-    -Workflow for creating/verifying users...
   
   
 ... and much more! :)

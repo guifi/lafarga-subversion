@@ -174,13 +174,29 @@ function guifi_menu() {
     'file' => 'guifi_tools.inc.php',
     'weight' => 1
   );
+  $items['guifi/menu/ip/networksearch'] = array(
+    'title' => 'Available subnetwork range',
+    'description' => 'Search for a not used range of network addresses at the database',
+    'page callback' => 'guifi_tools_ip_rangesearch',
+    'access arguments' => array('access content'),
+    'file' => 'guifi_tools.inc.php',
+    'weight' => 2
+  );
+//  $items['guifi/menu/ip/availableipsearch'] = array(
+//    'title' => 'Free IPv4 in a subnetwork',
+//    'description' => 'Search for unused IPv4 addresses in a given range',
+//    'page callback' => 'guifi_tools_ip_ipavailable',
+//    'access arguments' => array('access content'),
+//    'file' => 'guifi_tools.inc.php',
+//    'weight' => 3
+//  );
   $items['guifi/menu/ip/macsearch'] = array(
     'title' => 'Search MAC',
     'description' => 'Query information about existing MAC addresses',
     'page callback' => 'guifi_tools_mac_search',
     'access arguments' => array('access content'),
     'file' => 'guifi_tools.inc.php',
-    'weight' => 2
+    'weight' => 4
   );
   $items['guifi/menu/ip/mailsearch'] = array(
     'title' => 'Find/Replace contact emails',
@@ -188,7 +204,7 @@ function guifi_menu() {
     'page callback' => 'guifi_tools_mail_search',
     'access arguments' => array('create guifi nodes'),
     'file' => 'guifi_tools.inc.php',
-    'weight' => 3
+    'weight' => 5
   );
 
   // Administrator's tools
@@ -227,22 +243,29 @@ function guifi_menu() {
 
 
   // Developer's tools
-  $items['guifi/menu/devel'] = array(
-    'title' => 'Development tools',
-    'description' => 'Utilities for developers, use with care, regular users shouldn\'t have this block.',
-    'page callback' => 'guifi_menu_block_page',
-    'access arguments' => array('access devel information'),
-    'weight'=>100,
-  );
-  $items['guifi/menu/devel/get_ips'] = array(
-    'title' => 'get_ips callback',
-    'description' => 'Test for load&sort the ip tables',
-    'page callback' => 'guifi_admin_get_ips',
-    'access arguments' => array('access devel information'),
-    'weight' => 0,
-    'file' => 'guifi_tools.inc.php'
-  );
-
+//  $items['guifi/menu/devel'] = array(
+//    'title' => 'Development tools',
+//    'description' => 'Utilities for developers, use with care, regular users shouldn\'t have this block.',
+//    'page callback' => 'guifi_menu_block_page',
+//    'access arguments' => array('access devel information'),
+//    'weight'=>100,
+//  );
+//  $items['guifi/menu/devel/get_ips'] = array(
+//    'title' => 'get_ips callback',
+//    'description' => 'Test for load&sort the ip tables',
+//    'page callback' => 'guifi_admin_get_ips',
+//    'access arguments' => array('access devel information'),
+//    'weight' => 0,
+//    'file' => 'guifi_tools.inc.php'
+//  );
+//  $items['guifi/menu/devel/get_ips_new'] = array(
+//    'title' => 'get_ips_new callback',
+//    'description' => 'Test for NEW load&sort the ip tables',
+//    'page callback' => 'guifi_admin_get_ips_new',
+//    'access arguments' => array('access devel information'),
+//    'weight' => 0,
+//    'file' => 'guifi_tools.inc.php'
+//  );
   //
   // ZONE menus & tabs
   //

@@ -231,14 +231,14 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
     sprintf('function guifi_interfaces_add_subnet_submit(%d)',$iid),
     $mask);
 
-  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
-  $net = guifi_get_subnet_by_nid($form_state['values']['nid'],$mask,'public',$ips_allocated);
+  $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],$mask,'public',$ips_allocated);
 //  guifi_log(GUIFULOG_TRACE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['newSubnetMask']);
   drupal_set_message(t('New subnetwork %net/%mask will be allocated.',
     array('%net'=>$net,
       '%mask'=>$mask)));
   $ipv4['new']=true;
-  $ipv4['ipv4']=guifi_ip_op($net);
+  $ipv4['ipv4']=long2ip(ip2long($net) + 1);
   guifi_log(GUIFILOG_TRACE,"assigned IPv4: ".$ipv4['ipv4']);
   $ipv4['netmask']=$mask;
   $ipv4['interface_id'] = $iid;
@@ -269,20 +269,24 @@ function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
     "WHERE d.id=%d",
     $to_did));
 
-  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
 
   // get backbone /30 subnet
   $mask = '255.255.255.252';
-  $net = guifi_get_subnet_by_nid(
+  $net = guifi_ipcalc_get_subnet_by_nid(
     $form_state['values']['nid'],
     $mask,
     'backbone',
     $ips_allocated);
 
-  $ip1 = guifi_ip_op($net);
-  $ip2 = guifi_ip_op($ip1);
-  guifi_merge_ip(array('ipv4'=>$ip1,'netmask'=>$mask),$ips_allocated,false);
-  guifi_merge_ip(array('ipv4'=>$ip2,'netmask'=>$mask),$ips_allocated,true);
+  if (!$net) {
+    drupal_set_message(t('Unable to create link, no networks available'),'warning');
+    return false;
+  }
+
+  $dnet = ip2long($net);
+  $ip1 = long2ip($dnet + 1);
+  $ip2 = long2ip($dnet + 2);
 
   $newlk['new']=true;
   $newlk['interface']=array();
@@ -330,13 +334,13 @@ function guifi_interfaces_add_cable_public_link_submit(&$form,&$form_state) {
 //      $form_state['values']);
       $form_state['clicked_button']['#parents']);
 
-  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
 
   // get next available ip address
   $base_ip=
     $form_state['values']['interfaces'][$iid]['ipv4'][$ipv4_id];
   $item = _ipcalc($base_ip['ipv4'],$base_ip['netmask']);
-  $ip= guifi_next_ip($item['netid'],$base_ip['netmask'],$ips_allocated);
+  $ip= guifi_ipcalc_find_ip($item['netid'],$base_ip['netmask'],$ips_allocated);
 
   // no IP was given, so raise a message amd don't create the link'
   if (empty($ip)) {

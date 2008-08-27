@@ -22,7 +22,6 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
       $table,key),
     $idata);
 
-  $dasta = array();
   if (is_object($idata))
     foreach ($idata as $k=>$v)
       $data[$k] = $v;
@@ -71,6 +70,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
   case 'guifi_zone':
   case 'guifi_services':
   case 'guifi_location':
+  case 'guifi_networks':
     $data['user_created'] = $user->uid;
     $data['timestamp_created'] = time();
     break;

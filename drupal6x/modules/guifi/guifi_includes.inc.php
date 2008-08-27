@@ -761,7 +761,7 @@ function guifi_get_zone_nick($id) {
 
 function guifi_get_zone_name($id) {
   $node = db_fetch_object(db_query("SELECT title FROM {guifi_zone} WHERE id=%d",$id));
-  return $node->title;
+  return empty($node->title) ? t('None') : $node->title;
 }
 
 function guifi_get_interface_descr($iid) {
@@ -799,287 +799,89 @@ function guifi_abbreviate($str,$len = 5) {
 /** IP functions to get IP's within a subnet or allocate new subnets **/
 
 /**
- * guifi_get_ips
+ * guifi_ipcalc_get_ips
  *  gets a the allocated ips
  * @return ordered array
 **/
-function guifi_get_ips($start = '0.0.0.0', $mask = '0.0.0.0',$edit = null) {
 
-  $start_dec = _dec_addr($start);
+function guifi_ipcalc_get_maskbits($mask) {
+  return strlen(preg_replace("/0/", "", decbin(ip2long($mask))));
+}
+
+function guifi_ipcalc_get_ips(
+  $start = '0.0.0.0',   // start address to look for
+  $mask = '0.0.0.0',    // range, 0.0.0.0 means all
+  $edit = null,         // array which can contain ipv4 values to be added,
+                        //   must be labeled "ipv4"
+  $zid = null)          // zone id, to be used in the future
+                        //   to improve performance
+{
+//  if ($mask   = '0.0.0.0')
+//    $mask = '2  55.255.255.255';
+
+  $start_dec = is_numeric($start) ? $start : ip2long($start);
   $item = _ipcalc($start,$mask);
-  $end_dec = _dec_addr($item['broadcast']);
+  $end_dec = ip2long($item['broadcast']);
 
   $ips = array();
   $query = db_query("SELECT ipv4, netmask FROM {guifi_ipv4}");
   while ($ip = db_fetch_array($query)) {
     if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
-      $ip_dec = _dec_addr($ip['ipv4']);
-      if ( ($ip_dec >= $start_dec) and ($ip_dec <= $end_dec) )
-        guifi_merge_ip($ip, $ips,false);
+      $ip_dec = ip2long($ip['ipv4']);
+//      print "ip: $ip[ipv4] $ip_dec - ";
+      if ( (!isset($ips[$ip_dec]))
+           and ($ip_dec <= $end_dec)
+           and ($ip_dec >= $start_dec)
+         )
+        // save memory by storing just the maskbits
+        // by now, 1MB array contains 7,750 ips
+        $ips[$ip_dec] = guifi_ipcalc_get_maskbits($ip['netmask']);
     }
   }
 
-  // going to get current device ips
+  // going to get current device ips, if given
   if ($edit != null)
-    _ips_recurse($edit,$ips) ;
-
-  sort($ips);
-
+    guifi_ipcalc_get_ips_recurse($edit,$ips) ;
+  ksort($ips);
   return $ips;
 }
 
-function _ips_recurse($var,&$ips) {
-  foreach ($ips as $ip)
-    $ipK[$ip[ipv4]] = $ip[ipv4];
-
-//  print_r($ipK);
-
+function guifi_ipcalc_get_ips_recurse($var,&$ips) {
   foreach ($var as $k=>$value) {
-//    print "K: $k\n<br />";
-    if ($k == 'ipv4')
-    if (is_string($value)) {
-//      print "Net: $value ".print_r($ips[_dec_addr($value)])."\n<br />";
-      if (($ipK[$value] == null)  and ($value != null)) {
-        unset($ip);
-//        print "New Net: $value\n<br />";
-//        $ip[ipv4] = $var[ipv4];
-        $ip[ipv4] = $value;
-        $ip[netmask] = $var[netmask];
-//        print "Dec addr: "._dec_addr($ip['ipv4'])."\n<br />";
-//        print_r($ip);
-        guifi_merge_ip($ip, $ips, false);
+    if ($k == 'ipv4') {
+      $ip_dec = ip2long($value);
+      if ( ($ip_dec) and (!isset($ips[$ip_dec])) ) {
+        $ips[$ip_dec] = guifi_ipcalc_get_maskbits($var['netmask']);
       }
     }
     if (is_array($value))
-      _ips_recurse($value,$ips);
+      guifi_ipcalc_get_ips_recurse($value,$ips);
   }
 }
 
-function guifi_merge_ip($ip, &$ips_allocated, $sort = true) {
-  $ip_calc = _ipcalc($ip['ipv4'],$ip['netmask']);
-  $ips_allocated[] = array_merge(array('dec' => _dec_addr($ip['ipv4'])),$ip,$ip_calc);
-  if ($sort)
-    sort($ips_allocated);
-}
-
-/**
- * guifi_get_nets
- *  gets a the allocated networks for a given range
- * @return ordered array
-**/
-function guifi_get_nets($start = '0.0.0.0', $mask = '255.255.0.0') {
-
-  $start_dec = _dec_addr($start);
-  $item = _ipcalc($start,$mask);
-  $end_dec = _dec_addr($item['broadcast']);
-
-  $nets = array();
-  $query = db_query("SELECT base, mask from {guifi_networks}");
-  while ($net = db_fetch_array($query)) {
-    $net_dec = _dec_addr($net['base']);
-    if ( ($net_dec >= $start_dec) and ($net_dec <= $end_dec) ) {
-      $nets[] = array_merge(array('dec' => $net_dec),$net);
-    }
-  }
-  sort($nets);
-
-  return $nets;
-}
-
-/**
- * guifi_find_subnetcontact
- *  finds in the given range, the next free range to allocate a subnet
- *  without allocated ip's
- * @base_ip
- *   base ip address of the subnet to look into
- * @mask_range
- *   range of the subnet to look into
- * @mask_allocated
- *   subnet mask to allocate
- * @ips_allocated
- *   ordered array having the allocated addresses, if not given
- *   will take a look into the database
- *
- * @return
- *   base ip address of the next available slot to allocate
- *   in the  searched subnet, or 0 (false) if it's full.
-**/
-function guifi_find_subnet($base_ip, $mask_range, $mask_allocated, $ips_allocated = null) {
-
-  if ($ips_allocated == null) {
-    $ips_allocated = guifi_get_ips($base_ip,$mask_range);
-  }
-//  print_r($ips_allocated);
-
-  $net_dec = _dec_addr($base_ip);
-  $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;
-  $item = _ipcalc($base_ip,$mask_allocated);
-  $increment = $item['hosts'] + 2;
-
-  $key = 0;
-  $elem = count($ips_allocated);
-  reset($ips_allocated);
-
-//  print "Going 2 find the subnet bucle for ".$base_ip."/".$mask_range." - ".$mask_allocated."\n<br />";
-
-  // Shifts until reaches the searched zone
-  while (($ips_allocated[$key]['dec'] < $net_dec) and ($key < $elem))
-    $key++;
-
-  if ($key == $elem)
-   return false;
-
-  while ($net_dec < $end_dec) {
-
-    // is there any ip allocated in the range net_dec-increment?
-    $found = false;
-    $last  = $net_dec + $increment;
-    do {
-      $ip = $ips_allocated[$key];
-      $key++;
-//      print "net_dec: $net_dec last: $last Ip_dec: $ip[dec]"._dec_to_ip($ip[dec])." \n<br />";
-//      print_r($ip);
-
-      if (($ip['dec'] > $net_dec) and ($ip['dec'] < $last)) {
-        $found = true;
-        // if ip's broadcast > checked range, jumps to it's broadcast
-        $net_ends = _dec_addr($ip['broadcast']);
-        if ($net_ends > $last)
-          $last = $net_ends + 1;
-        break;
-      }
-      // ip is already higher
-      if ($ip['dec'] > $last)
-        break;
-    } while (($ip['dec'] < $last) and ($key < $elem));
-    // There was space for the subnet here, search ends
-    if (!$found) {
-//      print_r($ips_allocated);
-//      print "\n<br />Found: $net_dec "._dec_to_ip($net_dec)."\n<br />";
-      return _dec_to_ip($net_dec);
-    }
-
-    // going to look next range
-    $net_dec = $last;
-
-  }
-
-  // No space available
-  return false;
-
-}
-
-/**
- * guifi_next_subnet
- *  finds in the given range, the next free range to allocate a new subnet
- * @base_ip
- *   base ip address of the subnet to look into
- * @mask_range
- *   range of the subnet to look into
- * @mask_allocated
- *   subnet mask to allocate
- *
- * @return
- *   base ip address of the next available slot to allocate
- *   in the searched subnet, or 0 (false) if it's full.
-**/
-function guifi_next_subnet($base_ip, $mask_range, $mask_allocated) {
-
-  $nets_allocated = guifi_get_nets($base_ip,$mask_range);
-
-  $net_dec = _dec_addr($base_ip);
-  $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;
-  $item = _ipcalc($base_ip,$mask_allocated);
-  $increment = $item['hosts'] + 2;
-
-//  print "\n<br />Going to check: ".$net_dec. ' up to '.$end_dec;
-  $key = 0;
-  $elem = count($nets_allocated);
-  while ($net_dec < $end_dec) {
-    // is there any ip allocated in the range net_dec-increment?
-    $found = false;
-    $last  = $net_dec + $increment;
-    $net = $nets_allocated[$key];
-//    print "\n<br />Checking: ".$net_dec. ' ('._dec_to_ip($net_dec).') with '.$net['dec'].' ('._dec_to_ip($net['dec']).")\n";
-    if (($net['dec'] >= $net_dec) and ($net['dec'] < $last) ) {
-      $found = true;
-      // if net's broadcast > checked range, jumps to it's broadcast
-      $net_ends = _dec_addr($net['broadcast']);
-      if ($net_ends > $last)
-        $last = $net_ends + 1;
-    }
-
-    // There was space for the subnet here, search ends
-    if (!$found)
-      return _dec_to_ip($net_dec);
-
-    // going to look next range
-    $net_dec = $last;
-    while (($nets_allocated[$key]['dec'] < $net_dec) and ($key < $elem))
-      $key++;
-  }
-
-  // No space available
-  return false;
-
-}
-
-/**
- * guifi_next_ip
- *  finds the next available ip within a subnet
- * @base_ip:
- *   network base ip to look at
- * @netmask_range
- *   mask range to look at
- * @ips_allocated
- *   array with a list of current ip's, if ommited
- *   will take a look into the databass
- *
- * @ @return
- *   the next available IP or false if none available
-*/
-function guifi_next_ip($base_ip = '0.0.0.0',
-  $mask_range = '0.0.0.0', $ips_allocated = null) {
-
-  if ($ips_allocated == null) {
-    $ips_allocated = guifi_get_ips($base_ip,$mask_range);
-  }
-
-  $ip_dec = _dec_addr($base_ip) + 1;
-  $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = _dec_addr($item['broadcast']) + 1;
-
-  $key = 0;
-  $elem = count($ips_allocated);
-
-  // Shift array until reaches base ip
-  while (($ips_allocated[$key]['dec'] < $ip_dec) and ($key < $elem)) {
-    $key++;
-  }
-  while (($ips_allocated[$key]['dec'] == $ip_dec) and ($key < $elem)
-    and ($ips_allocated[$key]['dec'] < $end_dec ) ) {
-      $key++;
-      $ip_dec++;
-  }
-
-  if ($ip_dec < $end_dec-1)
-    return _dec_to_ip($ip_dec);
-
-  drupal_set_message(t('Network %net/%mask is full',
-    array('%net' => $base_ip, '%mask' => $mask_range)),
-    'warning');
-  return false;
-}
-
-function guifi_get_subnet_by_nid(
-  $nid,                                 // node id to allocate the network
+function guifi_ipcalc_get_subnet_by_nid(
+  $nid,                                 // node id
   $mask_allocate = '255.255.255.224',   // mask size to look for & allocate
   $network_type = 'public',             // public or backbone
   $ips_allocated = null,                // sorted array containing current used ips
+  $allocate = 'No',                     // if 'Yes' and network_type is public,
+                                        //   allocate the obtained range at the
+                                        //   guifi_networks table
   $verbose=false)                       // create time&trace output
 {
+
+  if (empty($nid)) {
+    drupal_set_message(t('Error: trying to search for a network for unknown node or zone'),'error');
+    return;
+  }
+  if (empty($mask_allocate)) {
+    drupal_set_message(t('Error: trying to search for a network of unknown size'),'error');
+    return;
+  }
+  if (empty($network_type)) {
+    drupal_set_message(t('Error: trying to search for a network for unknown type'),'error');
+    return;
+  }
 
   // print "Going to allocate network ".$mask_allocate."-".$network_type;
 
@@ -1087,32 +889,19 @@ function guifi_get_subnet_by_nid(
 
   $tbegin = microtime(true);
 
-  $zone_fetch = db_fetch_object(db_query(
-      "SELECT l.zone_id id, z.master
-       FROM {guifi_location} l
-         LEFT JOIN {guifi_zone} z ON l.zone_id=z.id
-       WHERE l.id=%d",
-       $nid));
-  $zone = guifi_zone_load($zone_fetch->id);
+  $zone = node_load(array('nid'=>$nid));
+
+  if ($zone->type == 'guifi_node')
+    $zone = guifi_zone_load($zone->zone_id);
+
   $rzone = $zone;
 
   $depth = 0;
   $root_zone = $zone->id;
 
   $lbegin = microtime(true);
-  if ($verbose)
-    guifi_log(GUIFILOG_BASIC,
-      sprintf('get subnet by nid, starting loops for %s, elapsed %0.4f',
-        $zone->title,$lbegin-$tbegin
-      ));
 
-  do {
-
-    if ($verbose)
-      guifi_log(GUIFILOG_BASIC,
-        sprintf('finding network range to look for, elapsed: %0.4f',
-          (float)(microtime(true)-$lbegin)));
-
+  do {  // while next is not the master, check within the already allocated ranges
     $result = db_query(
         'SELECT n.id, n.base, n.mask ' .
         'FROM {guifi_networks} n ' .
@@ -1122,6 +911,13 @@ function guifi_get_subnet_by_nid(
         'ORDER BY n.id',
         $zone->id,$network_type);
 
+    if ($verbose)
+      drupal_set_message(t(
+        'Finding if %mask is available at %zone, elapsed: %secs',
+         array('%mask'=>$mask_allocate,
+           '%zone'=>$zone->title,
+           '%secs'=>round(microtime(true)-$lbegin,4))));
+
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
 
@@ -1130,15 +926,21 @@ function guifi_get_subnet_by_nid(
     while ($net = db_fetch_object($result)) {
       $tnets++;
 
-      if ($verbose)
-        guifi_log(GUIFILOG_BASIC,
-          sprintf('finding slot %s at %s/%s network, elapsed: %0.4f',
-            $mask_allocate,$net->base,$net->mask,
-            (float)(microtime(true)-$lbegin)));
-
       $item = _ipcalc($net->base,$net->mask);
-      if ($ip = guifi_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {
-        if ($depth) {
+      if ($ip = guifi_ipcalc_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {
+        if ($verbose)
+          drupal_set_message(
+            t('Found %amask available at %ip/%rmask. got from %zone, elapsed: %secs',
+              array('%amask'=>$mask_allocate,
+                '%ip'=>$ip,
+                '%rmask'=>$net->mask,
+                '%zone'=>$zone->title,
+                '%secs'=>round(microtime(true)-$lbegin,4))));
+
+        // reserve the available range fount into databaseto database?
+        if ( ($depth) and
+             ( ($allocate=='Yes') and ($network_type=='public') )
+           ) {
           $msg = strip_tags(t('A new network (%base / %mask) has been allocated for zone %name, got from %name2 by %user.',
                           array('%base' => $ip,
                                 '%mask' => $mask_allocate,
@@ -1146,40 +948,58 @@ function guifi_get_subnet_by_nid(
                                 '%name2' => $zone->title,
                                 '%user' =>  $user->name
                                )));
-          drupal_mail(null,
-                    variable_get('guifi_contact','netadmin@guifi.net'),
-                    t('guifi: Network allocated for ').$rzone->title,
-                    $msg,
-                    'webmestre@guifi.net');
-          drupal_set_message($msg.'<br>'.variable_get('guifi_contact','netadmin@guifi.net').' '.t('has been notified'));
-          if ($network_type == 'public')
-            db_query("INSERT INTO {guifi_networks} (base, mask, zone, network_type, user_created, timestamp_created, valid) VALUES ('%s', '%s', %d, '%s', %d, %d, 1)", $ip, $mask_allocate, $root_zone, $network_type, $user->uid, time());
+
+          $to_mail = explode(',',$rzone->notification);
+          $to_mail[] = explode(',',$zone->notification);
+
+          $nnet = array(
+            'new'=>true,
+            'base'=>$ip,
+            'mask'=>$mask_allocate,
+            'zone'=>$root_zone,
+            'newtwork_type'=>$network_type
+          );
+          $nnet = _guifi_db_sql(
+            'guifi_networks',
+            null,
+            $nnet,
+            $log,
+            $to_mail);
+          guifi_notify(
+            $to_mail,
+            $msg,
+            $log);
+          drupal_set_message($msg);
         }
-//         print "IP found: $ip[ipv4]";
         return $ip;
       }
     } // while there is a network defined at the zone
 
     // Network was not allocated
     if ($verbose)
-      guifi_log(GUIFILOG_BASIC,
-        sprintf('no network defined for %s, elapsed: %0.4f',
-          $zone->title,
-          (float)(microtime(true)-$lbegin)));
+      drupal_set_message(t('Unable to find space at %zone, will look at parents, elapsed: %secs',
+        array('%zone'=>$zone->title,
+          '%secs'=>round(microtime(true)-$lbegin,4))));
 
     // Need for an unused range,
-    // already allocated networks should be considered as allocated ip
+    // already allocated networks from others than parents should be considered
+    // as allocated ips (skipped)
 
     // This have to be done once, so do if is the zone being asked for
     if ($root_zone == $zone->id ) {
-      $query = db_query('SELECT base ipv4 FROM {guifi_networks}');
+      $parents = guifi_zone_get_parents($root_zone);
+      $query = db_query(
+        'SELECT base ipv4, mask ' .
+        'FROM {guifi_networks} ' .
+        'WHERE zone NOT IN ('.
+          implode(',',guifi_zone_get_parents($root_zone)).
+          ')');
       while ($nip = db_fetch_array($query)) {
-        $nip[ipv4] = guifi_ip_op($nip[ipv4],1);
-        $nip[netmask] = $mask_allocate;
-        guifi_merge_ip($nip, $ips_allocated,false);
+        $ips_allocated[ip2long($nip['ipv4']) + 1] =
+          guifi_ipcalc_get_maskbits($nip['mask']);
       }
       // once merged, sort
-      sort($ips_allocated);
+      ksort($ips_allocated);
     }
 
     // calculating the needed mask
@@ -1197,12 +1017,9 @@ function guifi_get_subnet_by_nid(
         $maskbits = 24;
 
       $mitem = _ipcalc_by_netbits($net->base,$maskbits);
-      $mask_allocate = $mitem[netmask];
 
-//      if ($depth == 1)
-//       $mask_allocate = '255.255.254.0';
-//      else
-//       $mask_allocate = '255.255.252.0';
+      if (long2ip($mask_allocate) > long2ip($mitem['netmask']))
+        $mask_allocate = $mitem['netmask'];
     }
 
     // Take a look at the parent network zones
@@ -1216,9 +1033,94 @@ function guifi_get_subnet_by_nid(
   return false;
 }
 
-function guifi_ip_op($ip, $op = 1) {
-  return _dec_to_ip(_dec_addr($ip) + $op);
+function guifi_ipcalc_find_subnet(
+  $base_ip,              // base addres to start from
+  $mask_range,           // range too look (up to/total size)
+  $mask_allocated,       // size of free space to look for within the total range
+  $ips_allocated = null) // sorted array with the currently used ips
+{
+
+  // if current allocated addresses are not given,take it from the database
+  if (empty($ips_allocated)) {
+    $ips_allocated = guifi_ipcalc_get_ips($base_ip,$mask_range);
+  }
+
+  // print "Looking sizeof $mask_allocated at $base_ip / $mask_range into ".count($ips_allocated)." keys\n<br>";
+
+  // start looking at the given base ip to look at up to the size of mask_range
+  // in chunks of "increments"
+  $net_dec = is_numeric($base_ip) ? $base_ip : ip2long($base_ip);
+  $item = _ipcalc($base_ip,$mask_range);
+  $end_dec = ip2long($item['broadcast']) + 1;
+  $item = _ipcalc($base_ip,$mask_allocated);
+  $increment = ip2long($item['hosts'] + 2);
+
+  if ($end_dec < ($net_dec + $increment))
+    // space to look for is greater than the range to look at, no need to search
+    return false;
+
+  while (($net_dec) < ($end_dec)) {
+
+    // check that we are starting from a network base address, if not,
+    // advance to the end of the current subnetwork to find at the next,
+    // forcing $net_dec to be a valid base address
+    $item = _ipcalc(long2ip($net_dec),$mask_allocated);
+    if (ip2long($item['netid']) != $net_dec) {
+      $net_dec = ip2long($item['broadcast']) + 1;
+    }
+
+    $last  = $net_dec + $increment;
+    $key = $net_dec;
+
+    // is there any ip allocated in the range between net_dec and increment?
+    // print "Going to find between ".long2ip($net_dec)." and ".long2ip($last)." \n<br>";
+    while ($key < $last)
+      if (isset($ips_allocated[$key])) {
+        break;
+      } else
+        $key++;
+
+    // if no ips found (reached end of range), return succesfully
+    if ($key == $last)
+      return long2ip($net_dec);
+
+    // space was already used
+    // now advance the pointer up to the end of the network of the current
+    // address found
+    $item = _ipcalc_by_netbits(long2ip($key),$ips_allocated[$key]);
+    $net_dec = ip2long($item['broadcast']) + 1;
+  } // end while
+
+  // no space available
+  return false;
 }
+
+function guifi_ipcalc_find_ip($base_ip = '0.0.0.0',
+  $mask_range = '0.0.0.0', $ips_allocated = null) {
+
+  if ($ips_allocated == null) {
+    $ips_allocated = guifi_ipcalc_get_ips($base_ip,$mask_range);
+  }
+
+  $ip_dec = ip2long($base_ip) + 1;
+  $item = _ipcalc($base_ip,$mask_range);
+  $end_dec = ip2long($item['broadcast']);
+
+  $key = $ip_dec;
+
+  while ((isset($ips_allocated[$key])) and ($key < $end_dec))
+    $key++;
+
+  if ($key < $end_dec)
+    return long2ip($key);
+
+  drupal_set_message(t('Network %net/%mask is full',
+    array('%net' => $base_ip, '%mask' => $mask_range)),
+    'warning');
+  return false;
+}
+
+// EOF ipcalc funtions
 
 function guifi_get_interface($ipv4) {
   $if = db_fetch_object(db_query("SELECT i.*,a.ipv4, a.netmask FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON i.id=a.interface_id WHERE ipv4='%s'",$ipv4));

@@ -1,12 +1,12 @@
 <?php
 
 function unsolclic_routeros($dev) {
-  
+
   //Fixed testing mode
   $ospf_id = '0.0.0.0';
   $ospf_name = 'backbone';
   //
-  
+
   $defined_ips = array();
 
   function bgp_peer($id, $ipv4, $disabled) {
@@ -18,7 +18,7 @@ function unsolclic_routeros($dev) {
            $ipv4,
            $id));
     _outln(sprintf('multihop=no route-reflect=no ttl=1 in-filter=ospf-in out-filter=ospf-out disabled=%s', $disabled));
-   
+
   }
   function ospf_interface($iname, $netid, $maskbits, $ospf_name , $ospf_zone, $ospf_id, $disabled) {
     _outln('/ routing ospf interface');
@@ -39,17 +39,17 @@ function unsolclic_routeros($dev) {
 
 //  Check if there's any wLan/Lan interface defined on the device
 
-  $wlanlan=false;  
+  $wlanlan=false;
   foreach ($dev->radios as $ri)
     {
-      $ii=$ri[interfaces];	
+      $ii=$ri[interfaces];
       foreach ($ii as $iii)
 	{
 	    if ($iii[interface_type]=='wLan/Lan') $wlanlan=true;
 	}
 
     }
-    
+
   $node = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
@@ -128,7 +128,7 @@ function unsolclic_routeros($dev) {
   _outln_comment(t('Bandwidth-server'));
   _outln('/ tool bandwidth-server set enabled=yes authenticate=no allocate-udp-ports-from=2000');
 
-  // SNMP 
+  // SNMP
   _outln_comment();
   _outln_comment('SNMP');
   _outln(sprintf('/snmp set contact="guifi@guifi.net" enabled=yes location="%s"',$node->nick));
@@ -154,8 +154,8 @@ function unsolclic_routeros($dev) {
     _outln(':foreach i in [/ip address find interface=wLan/Lan] \ ');
     _outln('do={/ip address remove $i;};};');
     _outln('/interface bridge remove $i;}');
-      
-     // Construct bridge only if exists wlan/lan interface 
+
+     // Construct bridge only if exists wlan/lan interface
      if ($wlanlan){
     _outln_comment(t('Construct main bridge on wlan1 &#038; ether1'));
     _outln('/ interface bridge');
@@ -180,18 +180,18 @@ function unsolclic_routeros($dev) {
     case 'client';
     case 'clientrouted':
       $mode = 'station';
-      foreach ($radio[interfaces] as $interface) 
-      foreach ($interface[ipv4] as $ipv4) 
-      foreach ($ipv4[links] as $link) 
+      foreach ($radio[interfaces] as $interface)
+      foreach ($interface[ipv4] as $ipv4)
+      foreach ($ipv4[links] as $link)
         $ssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
       $mode = 'station';
       if ($radio[mode]=='client')
         $firewall=true;
-        
+
       break;
     }
 
-    if ($radio[channel] < 5000) 
+    if ($radio[channel] < 5000)
       $band = '2.4ghz-b';
     else
       $band = '5ghz';
@@ -211,7 +211,7 @@ function unsolclic_routeros($dev) {
     }
     if (
          (($band == '5ghz') and ($radio[channel] == 5000 /* 5ghz auto */)) or
-         (($band == '2.4ghz-b') and ($radio[channel] == 0 /* 2.4ghz auto */)) 
+         (($band == '2.4ghz-b') and ($radio[channel] == 0 /* 2.4ghz auto */))
        )
       _outln('    dfs-mode=radar-detect \ ');
     else
@@ -220,7 +220,7 @@ function unsolclic_routeros($dev) {
     if (empty($radio[antenna_mode])) {
 	_outln(sprintf('    wds-mode=static wds-default-bridge=none wds-default-cost=100 \ '));
     } else {
-    if ($radio[antenna_mode] != 'Main') 
+    if ($radio[antenna_mode] != 'Main')
           $radio[antenna_mode]= 'ant-b';
         else
           $radio[antenna_mode]= 'ant-a';
@@ -239,9 +239,9 @@ function unsolclic_routeros($dev) {
          _outln('do={:foreach inum in [/ip address find interface=$n] \ ');
          _outln('do={/ip address remove $inum;};}; \ ');
          _outln('/interface wireless wds remove $i;}');
-         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) 
+         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
          if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
-           if (preg_match("/(Working|Testing|Building)/",$link['flag'])) 
+           if (preg_match("/(Working|Testing|Building)/",$link['flag']))
              $disabled='no';
            else
              $disabled='yes';
@@ -253,7 +253,7 @@ function unsolclic_routeros($dev) {
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
            $ospf_zone = guifi_get_ospf_zone($zone);
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=%s comment="%s"',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$wdsname,$disabled,$wdsname));
-          
+
            if ($link['routing'] == 'OSPF') {
             ospf_interface($wdsname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'no');
             bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4'],'yes');
@@ -261,7 +261,7 @@ function unsolclic_routeros($dev) {
             ospf_interface($wdsname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'yes');
             bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4'],'no');
 }
-	   if (!isset($ospf_routerid)) $ospf_routerid=$ipv4[ipv4];  
+	   if (!isset($ospf_routerid)) $ospf_routerid=$ipv4[ipv4];
          } // each wds link (ipv4)
        } else { // wds
          // wLan, wLan/Lan, Hotspot or client
@@ -321,12 +321,12 @@ function unsolclic_routeros($dev) {
          // Not link only (AP), setting DHCP
          if ($mode=='ap-bridge') {
 
-           // DHCP 
+           // DHCP
            $dhcp = array();
            $dhcp[] = '/ip dhcp-server lease';
            $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
            $dhcp[] = ':delay 1';
-           $maxip = _dec_addr(guifi_ip_op($item[netstart]));
+           $maxip = ip2long($item[netstart]) + 1;
            if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
              if (isset($link['interface'][ipv4][ipv4]))
              if (_dec_addr($link['interface'][ipv4][ipv4]) >= $maxip)
@@ -345,7 +345,7 @@ function unsolclic_routeros($dev) {
            }
            _outln_comment();
            _outln_comment('DHCP');
-           foreach ($dhcp as $outln) 
+           foreach ($dhcp as $outln)
             _outln($outln);
            _outln(sprintf(':foreach i in [/ip dhcp-server network find address="%s/%d"] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
            //_outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net dns-server=%s ntp-server=%s comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],implode(',',array_merge(array($ipv4[ipv4]),explode(' ',guifi_get_dns($zone)))),guifi_get_ntp($zone),$iname));
@@ -355,11 +355,11 @@ function unsolclic_routeros($dev) {
            _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
            _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
 
-         }        
+         }
        } // wLan, wLan/Lan or client
        _outln_comment();
     } // foreach radio->interface
-  
+
     _outln(':delay 1');
 
   } // foreach radio
@@ -424,12 +424,12 @@ function unsolclic_routeros($dev) {
     _outln('add chain=forward action=drop comment="Drop anything else" disabled=no');
     _outln('add chain=input action=drop comment="Drop anything else" disabled=no');
     _outln(':delay 1');
- 
+
     // End of Unsolclic
     _outln_comment();
     _outln(sprintf(':log info "Unsolclic for %d-%s executed."',$dev->id,$dev->nick));
     _outln('/');
-    return; 
+    return;
   }
 
   _outln_comment();
@@ -457,7 +457,7 @@ function unsolclic_routeros($dev) {
         if (isset($ipv4[links])) {
           unset($comments);
           foreach ($ipv4[links] as $link_id=>$link) {
-            if (($disabled='yes') and (preg_match("/(Working|Testing|Building)/",$link['flag']))) 
+            if (($disabled='yes') and (preg_match("/(Working|Testing|Building)/",$link['flag'])))
               $disabled='no';
             $comments[] = guifi_get_hostname($link[device_id]);
             $ospf_zone = guifi_get_ospf_zone($zone);
@@ -482,7 +482,7 @@ function unsolclic_routeros($dev) {
   }
 
   // NAT for internal addresses while being used inside the router
-  
+
   _outln_comment();
   _outln_comment(t('Internal addresses NAT'));
   _outln(':foreach i in [/ip firewall nat find src-address="172.25.0.0/16"] do={/ip firewall nat remove $i;}');

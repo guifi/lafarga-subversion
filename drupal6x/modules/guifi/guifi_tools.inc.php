@@ -6,6 +6,7 @@
  */
 
 function guifi_tools_ip_search($ipv4 = null) {
+
   $output = drupal_get_form('guifi_tools_ip_search_form',$ipv4);
 
   if (is_null($ipv4))
@@ -14,12 +15,17 @@ function guifi_tools_ip_search($ipv4 = null) {
   $output .= '<h2>'.t('Query result for "ipv4 LIKE %ipv4"',
     array('%ipv4'=>"'".$ipv4."'")).'</h2>';
 
-  $headers = array(t('id'),t('ipv4/mask'),t('interface'),t('device'),t('node'));
-  $sqla = pager_query('SELECT * FROM {guifi_ipv4} WHERE ipv4 LIKE "'.$ipv4.'"',50);
+  $headers = array(t('id'),
+    array('data'=>t('nipv4')),
+    t('mask'),t('interface'),t('device'),t('node'));
+  $sql = 'SELECT *,inet_aton(ipv4) AS nipv4 FROM {guifi_ipv4} WHERE ipv4 LIKE "'.$ipv4.'" ORDER BY inet_aton(ipv4)';
+//  $sql .= tablesort_sql($header);
+  $sqla = pager_query($sql,50);
   while ($ipv4 = db_fetch_object($sqla)) {
     $row = array();
     $row[] = $ipv4->id.'/'.$ipv4->interface_id;
-    $row[] = $ipv4->ipv4.'/'.$ipv4->netmask;
+    $row[] = $ipv4->ipv4;
+    $row[] = $ipv4->netmask;
 
     // interface
     if ($interface = db_fetch_object(db_query(
@@ -88,7 +94,7 @@ function guifi_tools_ip_search_form($form_state, $params = array()) {
 }
 
 function guifi_tools_ip_search_form_submit($form, &$form_state) {
-   drupal_goto('guifi/menu/ip/ipsearch/'.$form_state['values']['ipv4']);
+   drupal_goto('guifi/menu/ip/ipsearch/'.urlencode($form_state['values']['ipv4']));
    return;
 }
 
@@ -167,6 +173,123 @@ function guifi_tools_mac_search_form_submit($form, &$form_state) {
    drupal_goto('guifi/menu/ip/macsearch/'.$form_state['values']['mac']);
    return;
 }
+
+function guifi_tools_ip_rangesearch($params) {
+
+  $output .=  drupal_get_form('guifi_tools_ip_rangesearch_form',$params);
+
+  if (empty($params))
+    return $output;
+
+  // for testing, load a device with quite a few ip's'
+  // $device = guifi_device_load(115);
+
+  $tgetipsbegin = microtime(true);
+
+  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0');
+
+  $tgetipsend = microtime(true);
+
+  $toutput = t('Got & sorted %num ips in %secs seconds',
+    array('%num'=>number_format(count($ips_allocated)),
+          '%secs'=>number_format($tgetipsend-$tgetipsbegin,4))).
+    '<br />';
+
+  list($mask,$network_type,$zone_id,$allocate) = explode(',',$params);
+
+  if (!user_access('administer guifi networks'))
+    $allocate = 'No';
+
+  $net = guifi_ipcalc_get_subnet_by_nid($zone_id,
+            $mask,
+            $network_type,
+            $ips_allocated,
+            $allocate,   // never allocate the obatined range at guifi_networks
+            true);   // verbose output
+
+  $tgetsubnetbynid = microtime(true);
+
+  $toutput .= t('Got %base/%net in %secs seconds',
+    array('%base'=>$net,
+          '%net'=>$mask,
+          '%secs'=>number_format($tgetsubnetbynid-$tgetipsend,4))).
+    '<br />';
+  $toutput .= t('Total elapsed was %secs seconds',
+    array('%secs'=>number_format($tgetsubnetbynid-$tgetipsbegin,4))).
+    '<br />';
+
+  $item=_ipcalc($net,$mask);
+  if ($net) {
+    foreach ($item as $k=>$value) {
+      $header[] = t($k);
+      $row[] = $value;
+    }
+    $qoutput .= theme('box',
+      t('Space found at %net',array('%net'=>$net)),
+      theme('table',$header,array($row)));
+  } else
+    drupal_set_message(t('Was not possible to find %type space for %mask',
+      array('%type'=>$network_type,
+        '%mask'=>$mask)),
+      'error');
+
+  return $qoutput.
+         theme('box',t('Find available space for a subnetwork'),$output).
+         theme('box',t('Performance'),'<small>'.$toutput.'</small>');
+}
+
+// IP search
+function guifi_tools_ip_rangesearch_form($form_state, $params = array()) {
+
+  if (empty($params)) {
+    $mask = '255.255.255.224';
+    $network_type = 'public';
+    $zone_id = guifi_zone_root();
+  } else
+    list($mask,$network_type,$zone_id,$allocate) = explode(',',$params);
+
+  $form['mask'] = array(
+    '#type' => 'select',
+    '#title' => t("Mask"),
+    '#required' => true,
+    '#default_value' => $mask,
+    '#options' => guifi_types('netmask',30,0),
+    '#description' => t('The mask of the network to search for. The number of the available hosts of each masks is displayed in the list box.'),
+  );
+  $form['network_type'] = array(
+    '#type' => 'select',
+    '#title' => t("Type"),
+    '#required' => true,
+    '#default_value' => $network_type,
+    '#options' => drupal_map_assoc(array('public','backbone')),
+    '#description' => t('The type of network addresses you are looking for. <ul><li><em>public:</em> is for addresses which will allow the users connect to the services, therefore must be unique across all the network and assigned with care for not being wasted.</li><li><em>backbone:</em> internal addresses for network operation, could be shared across distinct network segments, do not neet to be known as a service address to the users</li></ul>'),
+  );
+  $form['zone_id'] = guifi_zone_select_field($zone_id,'zone_id');
+  $form['allocate'] = array(
+    '#type' => 'select',
+    '#title' => t("Allocate"),
+    '#required' => true,
+    '#access' => user_access('administer guifi networks'),
+    '#default_value' => 'No',
+    '#options' => drupal_map_assoc(array('Yes','No')),
+    '#description' => t('If yes, the network found will be allocated at the database being assigned to the zone'),
+  );
+
+  $form['submit'] = array('#type' => 'submit','#value'=>t('Find space for the subnetwork'));
+
+  return $form;
+}
+
+function guifi_tools_ip_rangesearch_form_submit($form, $form_state) {
+   drupal_goto('guifi/menu/ip/networksearch/'.
+     $form_state['values']['mask'].','.
+     $form_state['values']['network_type'].','.
+     $form_state['values']['zone_id'].','.
+     $form_state['values']['allocate']
+   );
+   return;
+}
+
 
 // Mail search & massive update
 function guifi_tools_mail_search($mail = null) {
@@ -451,43 +574,7 @@ function guifi_admin_notify($view = 'false') {
 }
 
 // development tools
-function guifi_admin_get_ips2() {
-  $tbegin = microtime(true);
 
-  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0');
 
-  $tend = microtime(true);
-
-  $output = sprintf('Got & sorted %d ips in %f seconds.',
-    count($ips_allocated),$tend-$tbegin);
-
-  return $output;
-}
-
-function guifi_admin_get_ips() {
-  $tgetipsbegin = microtime(true);
-
-  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0');
-
-  $tgetipsend = microtime(true);
-
-  $output = sprintf('Got & sorted %d ips in %0.4f seconds.<br>',
-    count($ips_allocated),$tgetipsend-$tgetipsbegin);
-
-  $net = guifi_get_subnet_by_nid(1568,
-            '255.255.255.252',
-            'backbone',
-            $ips_allocated,
-            true);
-
-  $tgetsubnetbynid = microtime(true);
-
-  $output .= sprintf('Got %s in %0.4f seconds.<br>',
-    $net,$tgetsubnetbynid-$tgetipsend);
-  $output .= sprintf('Total elapsed was %0.4f seconds.<br>',
-    $tgetsubnetbynid-$tgetipsbegin);
-
-  return $output;
-}
 
 ?>

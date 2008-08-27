@@ -1352,20 +1352,23 @@ function theme_guifi_zone_networks($zone) {
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/ipv4'));
   $zone = node_load(array('nid'=>$zone->id));
 
-  $header = array(t('zone'),t('network'),t('mask'),t('start'),t('end'),t('hosts'),t('type'));
+  $ips_allocated = guifi_ipcalc_get_ips();
 
-  $rows = guifi_ipv4_print_data($zone);
-  if (user_access('administer guifi networks')) {
-    $rows[] = array(l('add network','node/'.$zone->id.'/view/ipv4/add'));
-    $header = array_merge($header,array(t('operations')));
-  }
+  if (user_access('administer guifi networks'))
+    $output = l(t('add network'),'node/'.$zone->id.'/view/ipv4/add');
 
-  $table = theme('table', $header, $rows);
-  $output .= theme('box', t('zone &#038; parent(s) network allocation(s)'), $table);
+  // zone & parents
+  $table = guifi_ipv4_print_data($zone,'parents',$ips_allocated);
+  $output .= theme('box', t('zone and zone parent(s) network allocation(s)'), $table);
+
+  // zone childs
+  $table = guifi_ipv4_print_data($zone,'childs',$ips_allocated);
+  $output .= theme('box', t('zone child(s) network allocation(s)'), $table);
 
   $output .= theme_links(module_invoke_all('link', 'node', $zone, false));
 
   print theme('page',$output,false);
+
   return;
 }
 

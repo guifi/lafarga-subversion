@@ -233,11 +233,7 @@ function guifi_node_form(&$node, $form_state) {
     '#weight' => 1,
   );
 
-  // ----
-  // license si es un node nou
-  // agreement
-  // ------------------------------------------------
-
+  // Ask for a license agreement if is a new node
   if (empty($node->nid)) {
     $form['license'] = array(
       '#type' => 'item',
@@ -1186,8 +1182,8 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
       $ret = array_merge($rows);
     }else{
       $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href=guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
+      $rows[] = array(sprintf('<a href=/guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href=/guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
       $ret = array_merge($rows);
     }
   } else {

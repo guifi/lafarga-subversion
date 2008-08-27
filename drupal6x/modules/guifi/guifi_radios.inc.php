@@ -204,10 +204,10 @@ function guifi_radio_form(&$edit,$form_weight) {
     // Add radio?
   if ($rc) {
     $dradios = db_fetch_object(db_query(
-       'SELECT radiodev_max max' .
+       'SELECT radiodev_max max ' .
        'FROM {guifi_model} ' .
-       'WHERE mid=%d',
-       $edit[variable][model_id]));
+       'WHERE mid=%s',
+       $edit['variable']['model_id']));
 
     if ($rc < $dradios->max)
       $form['r']['addRadio'] = array(
@@ -772,18 +772,22 @@ function guifi_radio_add_wlan_submit($form, &$form_state) {
   $interface = array();
   $interface['new']=true;
   $interface['unfold']=true;
-  $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
-  //   print_r($ips_allocated);
-  $net = guifi_get_subnet_by_nid(
+  $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $net = guifi_ipcalc_get_subnet_by_nid(
             $form_state['values']['nid'],'255.255.255.224','public',
             $ips_allocated);
+
+  if (!$net) {
+    drupal_set_message(t('Unable to allocate new range, no networks available'),'warning');
+    return false;
+  }
   guifi_log(GUIFILOG_FULL,
             "IPs allocated: ".count($ips_allocated).
             " Obtained new net: ".$net."/27");
   $interface['ipv4'][$radio]=array();
   $interface['ipv4'][$radio]['new']=true;
   $interface['ipv4'][$radio]['unfold']=true;
-  $interface['ipv4'][$radio]['ipv4']=guifi_ip_op($net);
+  $interface['ipv4'][$radio]['ipv4']=long2ip(ip2long($net)+1);
   $interface['ipv4'][$radio]['netmask']='255.255.255.224';
   $interface['ipv4'][$radio]['links']=array();
   $interface['interface_type']='wLan';
@@ -872,12 +876,12 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
         $radio['interfaces'][1]=array();
         $radio['interfaces'][1]['new']=true;
         $radio['interfaces'][1]['interface_type']='wLan/Lan';
-        $ips_allocated=guifi_get_ips('0.0.0.0','0.0.0.0',$edit);
-        $net = guifi_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
+        $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit);
+        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
         guifi_log(GUIFILOG_FULL,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/27');
         $radio['interfaces'][1]['ipv4'][$rc]=array();
         $radio['interfaces'][1]['ipv4'][$rc]['new']=true;
-        $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=guifi_ip_op($net);
+        $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=long2ip(ip2long($net)+1);
         guifi_log(GUIFILOG_FULL,"Assigned IP: ".$radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
         $radio['interfaces'][1]['ipv4'][$rc]['netmask']='255.255.255.224';
       }
@@ -1016,7 +1020,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
         explode(',',$form_state['values']['linked']);
 
   // get list of the current used ips
-  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
 
   $qAP = db_query(
     'SELECT i.id, i.radiodev_counter, i.mac, a.ipv4, a.netmask, a.id aid ' .
@@ -1031,7 +1035,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
 
   while ($ipAP = db_fetch_array($qAP)) {
     $item = _ipcalc($ipAP['ipv4'],$ipAP['netmask']);
-    $link['ipv4'] = guifi_next_ip($item['netid'],$ipAP['netmask'],$ips_allocated);
+    $link['ipv4'] = guifi_ipcalc_find_ip($item['netid'],$ipAP['netmask'],$ips_allocated);
     if ($link['ipv4'] != null)
       break;
 
@@ -1057,7 +1061,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
     return;
   }
 
-  drupal_set_message(t('Got IP address %net/%mask.<br>Link created.',
+  drupal_set_message(t('Got IP address %net/%mask',
     array(
       '%net' => $link[ipv4],
       '%mask' => $ipAP[netmask]))
@@ -1257,14 +1261,15 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
 function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $radio_id    =$form_state['clicked_button']['#parents'][1];
   $interface_id=$form_state['clicked_button']['#parents'][3];
-  guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
+
+  guifi_log(GUIFILOG_BASIC,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
     $form_state['clicked_button']['#parents']);
 
   $form_state['rebuild'] = true;
   $form_state['action'] = 'guifi_radio_add_wds_form';
 
   // get list of the current used ips
-  $ips_allocated = guifi_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
+  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values']);
 
   //
   // initializing WDS/p2p link parameters
@@ -1276,14 +1281,19 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $newlk['flag']='Planned';
   $newlk['routing'] = 'BGP';
   // get an ip addres for local-remote interfaces
-  $net = guifi_get_subnet_by_nid($form_state['values']['nid'],
+  $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],
             '255.255.255.252',
             'backbone',
             $ips_allocated);
-  $ip1 = guifi_ip_op($net);
-  $ip2 = guifi_ip_op($ip1);
-  guifi_merge_ip(array('ipv4'=>$ip1,'netmask'=>'255.255.255.252'),$ips_allocated,false);
-  guifi_merge_ip(array('ipv4'=>$ip2,'netmask'=>'255.255.255.252'),$ips_allocated,true);
+
+  if (!$net) {
+    drupal_set_message(t('Unable to create link, no networks available'),'warning');
+    return false;
+  }
+
+  $dnet = ip2long($net);
+  $ip1 = long2ip($dnet + 1);
+  $ip2 = long2ip($dnet + 2);
 
   $newlk['interface']['interface_type']='wds/p2p';
 
@@ -1315,14 +1325,7 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
     'from_radio' => $radio_id,
     'azimuth' => "0,360",
   );
-
   $form_state['newInterface'][$interface_id]['ipv4'][] = $newif;
 }
-
-//function _guifi_radio_mac_process($element, $form_state) {
-//  if ($element['#value']=='')
-//    $element['#value']  = $element['#default_value'];
-//  return $element;
-//}
 
 ?>

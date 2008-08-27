@@ -170,37 +170,105 @@ function guifi_edit_ipv4_form_validate($form,$form_state) {
 
 /* outputs the network information data
 **/
-function guifi_ipv4_print_data($zone) {
+function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
+  global $user;
+
+  $header = array(
+//    array('data'=>t('zone'),'style'=>'text-align: right;'),
+    array('data'=>t('network')),
+    t('start / end'),
+    array('data'=>t('hosts'),'style'=>'text-align: right;'),
+    t('type'),
+    t('min / max'),
+    array('data'=>t('ips used'),'style'=>'text-align: right;'),
+    array('data'=>t('used %'),'style'=>'text-align: right;'),
+  );
+
+  if (user_access('administer guifi networks'))
+    $header = array_merge($header,array(t('operations')));
+
+  if ($list == 'childs') {
+    $zones = guifi_zone_childs($zone->id);
+    $pager = 1;
+    $k = array_search($zone->id,$zones);
+    unset($zones[$k]);
+  } else {
+    $zones = guifi_zone_get_parents($zone->id);
+    $pager = 0;
+  }
+
+  $sql = 'SELECT
+            zone, id, base, mask, network_type
+          FROM {guifi_networks}
+          WHERE valid = 1
+            AND zone IN ('.implode(',',$zones).')
+          ORDER BY FIND_IN_SET(zone,"'.implode(',',$zones).'")';
 
   $rows = array();
-  do {
-    $result = db_query('SELECT
-                         n.id, n.base, n.mask, n.network_type
-                        FROM {guifi_networks} n
-                        WHERE n.valid = 1
-                         AND n.zone = "%s"
-                        ORDER BY n.base',
-        $zone->id);
-    while ($net = db_fetch_object($result)) {
-      $item = _ipcalc($net->base,$net->mask);
-      $row = array($zone->title,
-                  $net->base.'/'.$item['maskbits'],
-                  $net->mask,$item['netstart'],
-                  $item['netend'],$item['hosts'],
-                  $net->network_type);
-      if (user_access('administar guifi networks'))
-      $row = array_merge($row,
-                  array(l(t('edit'),'guifi/ipv4/'.$net->id.'/edit').
-                  ' '.
-                  l(t('delete'),'guifi/ipv4/'.$net->id.'/delete')));
-      $rows[] = $row;
-    }
-    $master = $zone->master;
-    if ( $zone->master > 0)
-      $zone = guifi_zone_load($zone->master);
-  } while ( $master  > 0);
 
-  return array_merge($rows);
+  $result = pager_query($sql,variable_get('guifi_pagelimit', 10));
+  $current_zoneid = -1;
+  while ($net = db_fetch_object($result)) {
+    $item = _ipcalc($net->base,$net->mask);
+
+    // obtaing the used ip's
+    $min = ip2long($item['netstart']);
+    $max = ip2long($item['netend']);
+
+    $ips = 0;
+    $k = $min;
+    $amin = null;
+    $amax = null;
+
+    while ($k <= $max) {
+      if (isset($ips_allocated[$k])) {
+        $ips++;
+        $amax = $k;
+        if ($ips == 1)
+          $amin = $k;
+      }
+      $k++;
+    }
+
+    if ($current_zoneid != $net->zone) {
+      $current_zoneid = $net->zone;
+      $rows[] = array(array('data'=>l(guifi_get_zone_name($net->zone),'node/'.$net->zone.'/view/ipv4'),
+        'colspan'=>'0'));
+    }
+
+    $row = array(
+//      $zonelink,
+      $net->base.'/'.$item['maskbits'].' ('.$net->mask.')',
+      $item['netstart'].' / '.$item['netend'],
+      array('data'=>number_format($item['hosts']),'align'=>'right'),
+      $net->network_type,
+      long2ip($amin).' / '.long2ip($amax),
+      array('data'=>number_format($ips),'align'=>'right'),
+      array('data'=>round(($ips*100)/$item['hosts']).'%','align'=>'right'),
+    );
+    if (user_access('administer guifi networks'))
+    $row[] = array('data'=>l(guifi_img_icon('edit.png'),'guifi/ipv4/'.$net->id.'/edit',
+          array(
+            'html'=>true,
+            'title' => t('edit network'),
+            'attributes'=>array('target'=>'_blank'))).
+        l(guifi_img_icon('drop.png'),'guifi/ipv4/'.$net->id.'/delete',
+          array(
+            'html'=>true,
+            'title' => t('delete device'),
+            'attributes'=>array('target'=>'_blank'))),
+        'align'=>'center');
+    $rows[] = $row;
+  }
+
+
+  if (count($rows)) {
+    $output .= theme('table', $header, $rows);
+    $output .= theme('pager', NULL, variable_get('guifi_pagelimit', 10));
+  } else
+    $output .= t('None');
+
+  return $output;
 }
 
 
