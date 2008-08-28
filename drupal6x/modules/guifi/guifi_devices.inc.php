@@ -304,7 +304,7 @@ function guifi_device_form_submit($form, &$form_state) {
   case t('Save & continue edit'):
   case t('Save & exit'):
     // save
-///    print_r($_POST);
+//    print_r($_POST);
 //    print_r($form_state['values']);
 //    exit;
     $id = guifi_device_save($form_state['values']);
@@ -692,9 +692,9 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
       $interface['mac'] = $radio['mac'];
       $interface['radiodev_counter'] = $nradio['radiodev_counter'];
 
-    // force wLan/Lan on radio#0
-    if ($interface['interface_type'] == 'wLan/Lan')
-      $interface['radiodev_counter'] = 0;
+      // force wLan/Lan on radio#0
+      if ($interface['interface_type'] == 'wLan/Lan')
+        $interface['radiodev_counter'] = 0;
 
       $log .= guifi_device_interface_save($interface,$interface_id,$edit['id'],$ndevice['nid'],$to_mail);
 
@@ -704,7 +704,6 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
 
   if (!empty($edit['interfaces'])) foreach ($edit['interfaces'] as $iid => $interface) {
     $interface['device_id'] = $ndevice['id'];
-    $interface['mac'] = $radio['mac'];
 
     $log .= guifi_device_interface_save($interface,$iid,$edit['id'],$ndevice['nid'],$to_mail);
   }

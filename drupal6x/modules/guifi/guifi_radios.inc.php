@@ -1262,7 +1262,7 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
   $radio_id    =$form_state['clicked_button']['#parents'][1];
   $interface_id=$form_state['clicked_button']['#parents'][3];
 
-  guifi_log(GUIFILOG_BASIC,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
+  guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
     $form_state['clicked_button']['#parents']);
 
   $form_state['rebuild'] = true;

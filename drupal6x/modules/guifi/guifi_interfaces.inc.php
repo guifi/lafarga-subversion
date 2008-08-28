@@ -381,7 +381,7 @@ function guifi_interfaces_delete_submit(&$form,&$form_state) {
   $values      = $form_state['clicked_button']['#parents'];
   $radio_id    = $values[count($values)-4];
   $interface_id= $values[count($values)-2];
-  guifi_log(GUIFILOG_BASIC,sprintf('function guifi_interface_delete_submit(radio: %d, interface: %d)',
+  guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interface_delete_submit(radio: %d, interface: %d)',
     $radio_id,$interface_id),$form_state['clicked_button']['#parents']);
   if ($values[0]=='interfaces') {
     $interface = &$form_state['values']['interfaces'][$interface_id];

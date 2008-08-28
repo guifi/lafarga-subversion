@@ -1144,7 +1144,7 @@ function guifi_display_block_1() {
         $dTotals[$type]['dTotal'] += $d;
         $dTotals[$type]['count'] ++;
       } else
-       guifi_log(GUIFILOG_BASIC,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
+       guifi_log(GUIFILOG_TRACE,sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
         $link->nid1,
         $link->nid2,
         $d));
