@@ -33,7 +33,7 @@ function xz()
     map.enableScrollWheelZoom();
     
     icon_start = new GIcon();
-    icon_start.image = '/modules/guifi/js/marker_start.png';
+    icon_start.image = document.getElementById("edit-jspath").value+'marker_start.png';
     icon_start.shadow = '';
     icon_start.iconSize = new GSize(32, 32);
     icon_start.shadowSize = new GSize(6, 20);

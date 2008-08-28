@@ -136,6 +136,8 @@ function guifi_node_prepare(&$node){
   if (isset($_POST['lon'])){$node->lon = $_POST['lon'];}
   if (isset($_GET['lat'])){$node->lat = $_GET['lat'];}
   if (isset($_GET['lon'])){$node->lon = $_GET['lon'];}
+  if (isset($_GET['Lat'])){$node->lat = $_GET['Lat'];}
+  if (isset($_GET['Lon'])){$node->lon = $_GET['Lon'];}
   if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
   if (isset($_GET['zone'])){$node->zone_id = $_GET['zone'];}
 
@@ -717,6 +719,7 @@ function guifi_node_distances_map($node) {
       '<input type=hidden value='.$node->lon.' id=lon />' .
       '<input type=hidden value='.$lat2.' id=lat2 />'.
       '<input type=hidden value='.$lon2.' id=lon2 />' .
+      '<input type=hidden value='.base_path().drupal_get_path('module','guifi').'/js/'.' id=edit-jspath />' .
       '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
       '</form>';
   }
@@ -1182,8 +1185,8 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
       $ret = array_merge($rows);
     }else{
       $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href=/guifi/graph_detail?'.$args.'in><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href=/guifi/graph_detail?'.$args.'out><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
+      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'out"><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
       $ret = array_merge($rows);
     }
   } else {
