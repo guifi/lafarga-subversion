@@ -212,8 +212,8 @@ function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
     $item = _ipcalc($net->base,$net->mask);
 
     // obtaing the used ip's
-    $min = _dec_addr($item['netstart']);
-    $max = _dec_addr($item['netend']);
+    $min = ip2long($item['netstart']);
+    $max = ip2long($item['netend']);
 
     $ips = 0;
     $k = $min;
@@ -242,7 +242,7 @@ function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
       $item['netstart'].' / '.$item['netend'],
       array('data'=>number_format($item['hosts']),'align'=>'right'),
       $net->network_type,
-      _dec_to_ip($amin).' / '._dec_to_ip($amax),
+      long2ip($amin).' / '.long2ip($amax),
       array('data'=>number_format($ips),'align'=>'right'),
       array('data'=>round(($ips*100)/$item['hosts']).'%','align'=>'right'),
     );

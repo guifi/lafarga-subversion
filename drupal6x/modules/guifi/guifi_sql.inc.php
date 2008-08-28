@@ -124,7 +124,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 // // set numeric & refix if ipv4
 // if ($table == 'guifi_ipv4') {
 //   if (isset($data['ipv4']))
-//     $data['lipv4'] = _dec_addr($data['ip4']);
+//     $data['lipv4'] = ip2long($data['ip4']);
 // }
 
  $sql_str = '';

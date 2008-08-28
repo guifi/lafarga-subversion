@@ -79,7 +79,7 @@ function guifi_device_load($id,$ret = 'array') {
           $i['id']);
 
         while ($a = db_fetch_array($qa)) {
-          $ipdec[$a['id']] = _dec_addr($a['ipv4']);
+          $ipdec[$a['id']] = ip2long($a['ipv4']);
           $iparr[$a['id']] = $a;
         }
         asort($ipdec);
@@ -120,7 +120,7 @@ function guifi_device_load($id,$ret = 'array') {
                 FROM {guifi_interfaces}
                 WHERE id=%d',
                 $l['interface_id']));
-              $ipdec2[$l['id']] = _dec_addr($ri['ipv4']);
+              $ipdec2[$l['id']] = ip2long($ri['ipv4']);
               $rinterface['ipv4']=$ri;
               $l['interface']=$rinterface;
               $iparr2[$l['id']] = $l;
@@ -167,7 +167,7 @@ function guifi_device_load($id,$ret = 'array') {
       WHERE interface_id=%d',
       $i['id']);
     while ($a = db_fetch_array($qa)) {
-      $ipdec[$a['id']] = _dec_addr($a['ipv4']);
+      $ipdec[$a['id']] = ip2long($a['ipv4']);
       $iparr[$a['id']] = $a;
     }
 
@@ -202,7 +202,7 @@ function guifi_device_load($id,$ret = 'array') {
           $l['ipv4_id'],
           $l['interface_id']);
         while ($ra = db_fetch_array($qra)) {
-          $ipdec2[$ra['id']] = _dec_addr($ra['ipv4']);
+          $ipdec2[$ra['id']] = ip2long($ra['ipv4']);
           $lr = $l;
           $lr['interface'] = db_fetch_array(db_query('
             SELECT *

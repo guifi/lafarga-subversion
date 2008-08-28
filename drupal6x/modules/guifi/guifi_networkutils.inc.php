@@ -16,17 +16,17 @@ function _dec_to_ip($ip) {
     .base_convert($hex4,16,10);
 }
 
-// got non 64-bit systems, let's avoid _dec_to_ip & _dec_addr
-function __dec_addr($str) {
-  return _dec_addr($str);
+// got non 64-bit systems, let's avoid long2ip & ip2long
+function _ip2long($str) {
+  return ip2long($str);
 }
 
-function __dec_to_ip32($f) {
-  return _dec_to_ip32($f);
+function _long2ip32($f) {
+  return long2ip32($f);
 }
 
 function _network_calcBase($ip="10.138.0.0", $netmask="255.255.255.224") {
-  return _dec_to_ip(_dec_addr($ip) & _dec_addr($netmask));
+  return long2ip(ip2long($ip) & ip2long($netmask));
 }
 
 function _ipcalc($ip,$mask) {
@@ -46,7 +46,7 @@ function _ipcalc($ip,$mask) {
     $return['netend'] = '255.255.255.254';
     $return['maskbits'] = '0';
     $return['wildcard'] = '255.255.255.255';
-    $return['hosts'] = _dec_addr($return['netend']) - _dec_addr($return['netstart']) + 1;
+    $return['hosts'] = ip2long($return['netend']) - ip2long($return['netstart']) + 1;
 
     return $return;
   }
@@ -82,7 +82,7 @@ function _ipcalc($ip,$mask) {
   $return['netend']  = bintoIP(substr($octets['ip']['binary'],0,$return["maskbits"]).str_repeat("1",32-$return["maskbits"]-1)."0");
   $return['wildcard']  = preg_replace(array("/1/","/0/"),array("a","b"),$octets['mask']['binary']);
   $return['wildcard']  = bintoIP(preg_replace(array("/a/","/b/"),array("0","1"),$return['wildcard']));
-  $return['hosts'] = _dec_addr($return['netend']) - _dec_addr($return['netstart']) + 1;
+  $return['hosts'] = ip2long($return['netend']) - ip2long($return['netstart']) + 1;
   return $return;
 }
 

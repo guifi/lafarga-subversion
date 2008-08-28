@@ -870,12 +870,12 @@ function guifi_update_556() {
      );
   $qi = db_query("SELECT * FROM comesfa46.guifi_ipv4");
   while ($ipv4 = db_fetch_object($qi)) {
-     if (_dec_addr($ipv4->ipv4) != -1)
+     if (ip2long($ipv4->ipv4) != -1)
   db_query("INSERT INTO {guifi_ipv4s} (id, interface_id, ipv4, netmask)
                VALUES (%d, %d, %d, %d)",
        $ipv4->id,
        $ipv4->interface_id,
-       _dec_addr($ipv4->ipv4),
+       ip2long($ipv4->ipv4),
        27);
     $c++;
   }

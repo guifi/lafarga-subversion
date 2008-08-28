@@ -296,14 +296,14 @@ function guifi_links_validate_subnet($remoteIp,&$form_state) {
 
 
   return;
-//  $longIp = _dec_addr($ip['#value']);
+//  $longIp = ip2long($ip['#value']);
 //
 //  if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
 //    form_error($ip,
 //      t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
 //        array('%addr'=>$ip['#value'])),'error');
 //  else
-//    $ip['#value'] = _dec_to_ip($longIp);
+//    $ip['#value'] = long2ip($longIp);
 //
 //  return $ip;
 }
