@@ -16,6 +16,15 @@ function _dec_to_ip($ip) {
     .base_convert($hex4,16,10);
 }
 
+// got non 64-bit systems, let's avoid _dec_to_ip & _dec_addr
+function __dec_addr($str) {
+  return _dec_addr($str);
+}
+
+function __dec_to_ip32($f) {
+  return _dec_to_ip32($f);
+}
+
 function _network_calcBase($ip="10.138.0.0", $netmask="255.255.255.224") {
   return _dec_to_ip(_dec_addr($ip) & _dec_addr($netmask));
 }
@@ -38,7 +47,7 @@ function _ipcalc($ip,$mask) {
     $return['maskbits'] = '0';
     $return['wildcard'] = '255.255.255.255';
     $return['hosts'] = _dec_addr($return['netend']) - _dec_addr($return['netstart']) + 1;
-                
+
     return $return;
   }
 

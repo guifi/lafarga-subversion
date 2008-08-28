@@ -787,7 +787,7 @@ function guifi_radio_add_wlan_submit($form, &$form_state) {
   $interface['ipv4'][$radio]=array();
   $interface['ipv4'][$radio]['new']=true;
   $interface['ipv4'][$radio]['unfold']=true;
-  $interface['ipv4'][$radio]['ipv4']=long2ip(ip2long($net)+1);
+  $interface['ipv4'][$radio]['ipv4']=_dec_to_ip(_dec_addr($net)+1);
   $interface['ipv4'][$radio]['netmask']='255.255.255.224';
   $interface['ipv4'][$radio]['links']=array();
   $interface['interface_type']='wLan';
@@ -881,7 +881,7 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
         guifi_log(GUIFILOG_FULL,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/27');
         $radio['interfaces'][1]['ipv4'][$rc]=array();
         $radio['interfaces'][1]['ipv4'][$rc]['new']=true;
-        $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=long2ip(ip2long($net)+1);
+        $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=_dec_to_ip(_dec_addr($net)+1);
         guifi_log(GUIFILOG_FULL,"Assigned IP: ".$radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
         $radio['interfaces'][1]['ipv4'][$rc]['netmask']='255.255.255.224';
       }
@@ -1291,9 +1291,9 @@ function guifi_radio_add_wds_submit(&$form,&$form_state) {
     return false;
   }
 
-  $dnet = ip2long($net);
-  $ip1 = long2ip($dnet + 1);
-  $ip2 = long2ip($dnet + 2);
+  $dnet = _dec_addr($net);
+  $ip1 = _dec_to_ip($dnet + 1);
+  $ip2 = _dec_to_ip($dnet + 2);
 
   $newlk['interface']['interface_type']='wds/p2p';
 

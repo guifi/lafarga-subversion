@@ -704,14 +704,14 @@ function guifi_validate_ip($ip,&$form_state) {
   if ($form_state['clicked_button']['#value'] == t('Reset'))
     return;
 
-  $longIp = ip2long($ip['#value']);
+  $longIp = _dec_addr($ip['#value']);
 
   if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
     form_error($ip,
       t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
         array('%addr'=>$ip['#value'])),'error');
   else
-    $ip['#value'] = long2ip($longIp);
+    $ip['#value'] = _dec_to_ip($longIp);
 
   return $ip;
 }
@@ -805,7 +805,7 @@ function guifi_abbreviate($str,$len = 5) {
 **/
 
 function guifi_ipcalc_get_maskbits($mask) {
-  return strlen(preg_replace("/0/", "", decbin(ip2long($mask))));
+  return strlen(preg_replace("/0/", "", decbin(_dec_addr($mask))));
 }
 
 function guifi_ipcalc_get_ips(
@@ -819,15 +819,15 @@ function guifi_ipcalc_get_ips(
 //  if ($mask   = '0.0.0.0')
 //    $mask = '2  55.255.255.255';
 
-  $start_dec = is_numeric($start) ? $start : ip2long($start);
+  $start_dec = is_numeric($start) ? $start : _dec_addr($start);
   $item = _ipcalc($start,$mask);
-  $end_dec = ip2long($item['broadcast']);
+  $end_dec = _dec_addr($item['broadcast']);
 
   $ips = array();
   $query = db_query("SELECT ipv4, netmask FROM {guifi_ipv4}");
   while ($ip = db_fetch_array($query)) {
     if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
-      $ip_dec = ip2long($ip['ipv4']);
+      $ip_dec = _dec_addr($ip['ipv4']);
 //      print "ip: $ip[ipv4] $ip_dec - ";
       if ( (!isset($ips[$ip_dec]))
            and ($ip_dec <= $end_dec)
@@ -849,7 +849,7 @@ function guifi_ipcalc_get_ips(
 function guifi_ipcalc_get_ips_recurse($var,&$ips) {
   foreach ($var as $k=>$value) {
     if ($k == 'ipv4') {
-      $ip_dec = ip2long($value);
+      $ip_dec = _dec_addr($value);
       if ( ($ip_dec) and (!isset($ips[$ip_dec])) ) {
         $ips[$ip_dec] = guifi_ipcalc_get_maskbits($var['netmask']);
       }
@@ -995,7 +995,7 @@ function guifi_ipcalc_get_subnet_by_nid(
           implode(',',guifi_zone_get_parents($root_zone)).
           ')');
       while ($nip = db_fetch_array($query)) {
-        $ips_allocated[ip2long($nip['ipv4']) + 1] =
+        $ips_allocated[_dec_addr($nip['ipv4']) + 1] =
           guifi_ipcalc_get_maskbits($nip['mask']);
       }
       // once merged, sort
@@ -1018,7 +1018,7 @@ function guifi_ipcalc_get_subnet_by_nid(
 
       $mitem = _ipcalc_by_netbits($net->base,$maskbits);
 
-      if (long2ip($mask_allocate) > long2ip($mitem['netmask']))
+      if (_dec_to_ip($mask_allocate) > _dec_to_ip($mitem['netmask']))
         $mask_allocate = $mitem['netmask'];
     }
 
@@ -1049,11 +1049,11 @@ function guifi_ipcalc_find_subnet(
 
   // start looking at the given base ip to look at up to the size of mask_range
   // in chunks of "increments"
-  $net_dec = is_numeric($base_ip) ? $base_ip : ip2long($base_ip);
+  $net_dec = is_numeric($base_ip) ? $base_ip : _dec_addr($base_ip);
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = ip2long($item['broadcast']) + 1;
+  $end_dec = _dec_addr($item['broadcast']) + 1;
   $item = _ipcalc($base_ip,$mask_allocated);
-  $increment = ip2long($item['hosts'] + 2);
+  $increment = _dec_addr($item['hosts'] + 2);
 
   if ($end_dec < ($net_dec + $increment))
     // space to look for is greater than the range to look at, no need to search
@@ -1064,16 +1064,16 @@ function guifi_ipcalc_find_subnet(
     // check that we are starting from a network base address, if not,
     // advance to the end of the current subnetwork to find at the next,
     // forcing $net_dec to be a valid base address
-    $item = _ipcalc(long2ip($net_dec),$mask_allocated);
-    if (ip2long($item['netid']) != $net_dec) {
-      $net_dec = ip2long($item['broadcast']) + 1;
+    $item = _ipcalc(_dec_to_ip($net_dec),$mask_allocated);
+    if (_dec_addr($item['netid']) != $net_dec) {
+      $net_dec = _dec_addr($item['broadcast']) + 1;
     }
 
     $last  = $net_dec + $increment;
     $key = $net_dec;
 
     // is there any ip allocated in the range between net_dec and increment?
-    // print "Going to find between ".long2ip($net_dec)." and ".long2ip($last)." \n<br>";
+    // print "Going to find between "._dec_to_ip($net_dec)." and "._dec_to_ip($last)." \n<br>";
     while ($key < $last)
       if (isset($ips_allocated[$key])) {
         break;
@@ -1082,13 +1082,13 @@ function guifi_ipcalc_find_subnet(
 
     // if no ips found (reached end of range), return succesfully
     if ($key == $last)
-      return long2ip($net_dec);
+      return _dec_to_ip($net_dec);
 
     // space was already used
     // now advance the pointer up to the end of the network of the current
     // address found
-    $item = _ipcalc_by_netbits(long2ip($key),$ips_allocated[$key]);
-    $net_dec = ip2long($item['broadcast']) + 1;
+    $item = _ipcalc_by_netbits(_dec_to_ip($key),$ips_allocated[$key]);
+    $net_dec = _dec_addr($item['broadcast']) + 1;
   } // end while
 
   // no space available
@@ -1102,9 +1102,9 @@ function guifi_ipcalc_find_ip($base_ip = '0.0.0.0',
     $ips_allocated = guifi_ipcalc_get_ips($base_ip,$mask_range);
   }
 
-  $ip_dec = ip2long($base_ip) + 1;
+  $ip_dec = _dec_addr($base_ip) + 1;
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = ip2long($item['broadcast']);
+  $end_dec = _dec_addr($item['broadcast']);
 
   $key = $ip_dec;
 
@@ -1112,7 +1112,7 @@ function guifi_ipcalc_find_ip($base_ip = '0.0.0.0',
     $key++;
 
   if ($key < $end_dec)
-    return long2ip($key);
+    return _dec_to_ip($key);
 
   drupal_set_message(t('Network %net/%mask is full',
     array('%net' => $base_ip, '%mask' => $mask_range)),

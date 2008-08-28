@@ -238,7 +238,7 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
     array('%net'=>$net,
       '%mask'=>$mask)));
   $ipv4['new']=true;
-  $ipv4['ipv4']=long2ip(ip2long($net) + 1);
+  $ipv4['ipv4']=_dec_to_ip(_dec_addr($net) + 1);
   guifi_log(GUIFILOG_TRACE,"assigned IPv4: ".$ipv4['ipv4']);
   $ipv4['netmask']=$mask;
   $ipv4['interface_id'] = $iid;
@@ -284,9 +284,9 @@ function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
     return false;
   }
 
-  $dnet = ip2long($net);
-  $ip1 = long2ip($dnet + 1);
-  $ip2 = long2ip($dnet + 2);
+  $dnet = _dec_addr($net);
+  $ip1 = _dec_to_ip($dnet + 1);
+  $ip2 = _dec_to_ip($dnet + 2);
 
   $newlk['new']=true;
   $newlk['interface']=array();

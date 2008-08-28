@@ -326,7 +326,7 @@ function unsolclic_routeros($dev) {
            $dhcp[] = '/ip dhcp-server lease';
            $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
            $dhcp[] = ':delay 1';
-           $maxip = ip2long($item[netstart]) + 1;
+           $maxip = _dec_addr($item[netstart]) + 1;
            if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
              if (isset($link['interface'][ipv4][ipv4]))
              if (_dec_addr($link['interface'][ipv4][ipv4]) >= $maxip)
