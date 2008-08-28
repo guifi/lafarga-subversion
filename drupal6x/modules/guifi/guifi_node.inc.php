@@ -1141,7 +1141,7 @@ function theme_guifi_node_data($node,$links = false) {
     return;
   }
 
-  return $output;
+  return theme('box',null,$output);
 }
 
 
@@ -1269,13 +1269,13 @@ function theme_guifi_node_devices_list($node,$links = false) {
                  $edit_radio
                     );
   }
-  if (count($rows)==0)
-     $rows[] = array(t('This node does not have any device.'));
-
-  $output = '<h4>'.t('devices').'</h4>'.
-    theme('table', $header, $rows,
-      array('style'=>'width: 0%;')).
-    $form;
+//  if (count($rows)==0)
+//     $rows[] = array(array('data'=>t('This node does not have any device.'),'colspan'=>0));
+  if (count($rows))
+    $output = '<h4>'.t('devices').'</h4>'.
+      theme('table', $header, $rows,
+        array('style'=>'width: 0%;')).
+      $form;
 
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
@@ -1313,9 +1313,10 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
 
   $total = 0;
   if ($ltype == '%')
-    $output = '<h4>'.t('links').'</h4>';
+    $titlebox = t('links');
   else
-    $output = '<h4>'.t('links').' ('.$ltype.')</h4>';
+    $titlebox = t('links').' ('.$ltype.')';
+
   $header = array(t('linked nodes (device)'), t('ip'), t('status'), t('kms.'),t('az.'));
 
   $listed = array('0');
@@ -1411,11 +1412,12 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
     if ($ltype == '%')
       $output .= '<p align="right">'.t('No links defined').'</p>';
     else
-      $output .= '<p align="right">'.
-        t('No %type links defined',
-          array('%type'=>$ltype)).
-        '</p>';
-  return $output;
+      return;
+//      $output .= '<p align="right">'.
+//        t('No %type links defined',
+//          array('%type'=>$ltype)).
+//        '</p>';
+  return theme('box',$titlebox,$output);
 
 }
 
