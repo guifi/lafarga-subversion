@@ -2151,7 +2151,6 @@ function theme_budgets_header($node,$teaser) {
       if (($item['deleted']) or (!$subtotal))
         continue;
 
-      print "Subtotal: ".$subtotal."\n<br>";
       $total += $subtotal;
       $items++;
     }
