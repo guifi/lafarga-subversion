@@ -1006,22 +1006,15 @@ function guifi_user_save($edit) {
     $log);
 }
 
-function guifi_dump_passwd($node) {
+function guifi_users_dump_passwd($node) {
 
-// Aquesta funcio volca a pantalla la llista d'usuaris i passwd que genera guifi_dump_passwd_return
-
+  // listing all users for a given service in "passwd" format
   drupal_set_header('Content-Type: text/plain; charset=utf-8');
-  print guifi_dump_passwd_return($node);
+  print guifi_users_dump_return($node);
   exit;
 }
 
-function _get_zonename($id) {
-  $zone = node_load(array('nid'=>$id));
-  return $zone->title;
-}
-
-
-function guifi_dump_passwd_return($node,$federated = FALSE) {
+function guifi_users_dump_return($node,$federated = false,$ldif = false) {
 
   /* Aquesta funcio retorna en una variable la llista d'usuaris i passwd dun proxy */
 
@@ -1057,10 +1050,12 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
 
   // dumping requested proxy users, starting by the users from the same zone
   foreach ($users[$node->id] as $user)
-    $passwd[$user->zId][] = $user->username.':'.$user->password;
+
+    ($ldif) ? $passwd[$user->zId][] = guifi_user_dump_ldif($user) :
+      $passwd[$user->zId][] = $user->username.':'.$user->password;
 
   $dump .=  "#\n";
-  $dump .=  "# passwd file for proxy: ".$node->nick." at zone ".$zones[$node->zone_id]."\n";
+  $dump .=  "# users for proxy: ".$node->nick." at zone ".$zones[$node->zone_id]."\n";
   $dump .=  "# users: ".count($passwd[$node->zone_id])."\n";
   $dump .=  "#\n";
   if (count($passwd[$node->zone_id]))
@@ -1085,7 +1080,9 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
   foreach ($users as $prId=>$prUsers)
     if (in_array($prId,$federated))
       foreach ($prUsers as $user)
-        $passwd[$node_zones[$user->nid]][] = $user->username.':'.$user->password;
+        ($ldif) ? $passwd[$user->zId][] = guifi_user_dump_ldif($user) :
+          $passwd[$user->zId][] = $user->username.':'.$user->password;
+
   $dump .=  "#\n";
   $dump .=  "# passwd file for ALL OTHER proxys\n";
   $dump .=  "#\n";
@@ -1100,16 +1097,14 @@ function guifi_dump_passwd_return($node,$federated = FALSE) {
   return $dump;
 }
 
-function _guifi_dump_federated($node) {
+function _guifi_users_dump_federated($node,$ldif = false) {
 
 
-// Si el proxy esta federat IN, afegim tots els usuaris dels proxys que estan federats OUT
-
-
+// Listing all the federated proxys
 if (is_array($node->var[fed]))
   if (in_array('IN',$node->var[fed])) {
     $head  = "#\n";
-    $head .= '# Federated User &#038; password list for Proxy : "'.$node->title.'"'."\n";
+    $head .= '# Federated users list for Proxy : "'.$node->nick.'"'."\n";
     $head .= "#\n";
     $head .= "#  Includes users from the following proxys :\n";
     $head .= "#\n";
@@ -1128,32 +1123,35 @@ if (is_array($node->var[fed]))
     }
     $head .="#\n";
   }
-
-  // Resum dels proxys federats
   $output .= $head;
-  // LLista de usuaris i passwords
-  $output .= guifi_dump_passwd_return($node,$federated_out);
+
+  // Listings users
+  $output .= guifi_users_dump_return($node,$federated_out,$ldif);
   return $output;
 }
 
-function guifi_dump_federated($node) {
-  $output = _guifi_dump_federated($node);
+function guifi_users_dump_federated($node) {
+  $output = _guifi_users_dump_federated($node);
   drupal_set_header('Content-Type: text/plain; charset=utf-8');
   print $output;
   exit;
 }
 
-function guifi_dump_federated_md5($node) {
-  $dump = _guifi_dump_federated($node);
+function guifi_users_dump_federated_md5($node) {
+  $dump = _guifi_users_dump_federated($node);
   drupal_set_header('Content-Type: text/plain; charset=utf-8');
   print md5($dump);
   exit;
 }
 
-function guifi_dump_ldif($node) {
+function guifi_users_dump_ldif($service) {
+  drupal_set_header('Content-Type: text/plain; charset=utf-8');
+  print _guifi_users_dump_federated($service,true);
+  exit;
+}
 
-  function user_dump_ldif($user) {
-    /* Format:
+function guifi_user_dump_ldif($user) {
+    /* format
 dn: uid=eloi.alsina,ou=People,dc=guifi,dc=net
 uid: eloi.alsina
 cn: Eloi Alsina
@@ -1177,61 +1175,18 @@ homePostalAddress: Mas Seri Xic
 objectClass: inetOrgPerson
 objectClass: top
      */
-     $dump  = "dn: uid=".$user->username.",ou=People,dc=guifi,dc=net\n";
-     $dump .= "uid:".$user->username."\n";
-     $dump .= "cn:".$user->lastname.", ".$user->firstname."\n";
-     $dump .= "objectClass: account\n";
-     $dump .= "objectClass: posixAccount\n";
-     $dump .= "objectClass: top\n";
-     $dump .= "userPassword: {crypt}".$user->password."\n";
-     $dump .= "uidNumber: 99\n";
-     $dump .= "gidNumber: 99\n";
-     $dump .= "homeDirectory: /home/nobody\n";
-     $dump .= "description: proxy(".$user->services['proxy'].")\n";
-
-     return $dump;
-  }
-
-
-  $query = db_query("SELECT id FROM {guifi_users} ORDER BY lastname, firstname");
-
-  $passwd = array();
-  $zones = array();
-  while ($item = db_fetch_object($query)) {
-    $user = guifi_get_user($item->id);
-    if ($user->services['proxy'] != $node->nid)
-      continue;
-    $usernode = db_fetch_object(db_query("SELECT zone_id FROM {guifi_location} WHERE id=%d",$user->nid));
-    $ldap[$usernode->zone_id][] = user_dump_ldif($user);
-    $zones[$usernode->zone_id] = true;
-  }
-
-  // Dumping passwd
-  // Starts with users in the same zone as the service
-  $dump .=  "#\n";
-  $dump .=  "# LDIF file for LDAP guifi.net directories: ".$node->nick." at zone "._get_zonename($node->zone_id)."\n";
-  $dump .= "#\n";
-  if (!empty($ldap[$node->zone_id]))
-    foreach ($ldap[$node->zone_id] as $p)
-      $dump .= $p."\n";
-  else
-      $dump .= '# '.t('there are no users at this proxy')."\n";
-
-  // Now dumping other zones
-  foreach ($zones as $z=>$dummy) {
-    if ($z == $node->zone_id)
-      continue;
-    $dump .= "#\n";
-    $dump .= "# At zone "._get_zonename($z)."\n";
-    $dump .= "#\n";
-    foreach ($ldap[$z] as $p) {
-       $dump .= $p."\n";
-    }
-  }
-
-
-  print $dump;
-  exit;
+  return
+"dn: uid=$user->username,ou=People,dc=guifi,dc=net
+uid:$user->username
+cn:$user->lastname,$user->firstname
+objectClass: account
+objectClass: posixAccount
+objectClass: top
+userPassword: {crypt}$user->password
+uidNumber: 99
+gidNumber: 99
+homeDirectory: /home/nobody
+description: proxy($user->services['proxy'])";
 }
 
 

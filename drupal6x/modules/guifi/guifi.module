@@ -457,7 +457,7 @@ function guifi_menu() {
 
   $items['node/%guifi_service/view/servicedata'] = array(
     'title' => 'data',
-    'page callback' => 'guifi_service_print_data',
+    'page callback' => 'theme_guifi_service_data',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
@@ -469,41 +469,81 @@ function guifi_menu() {
     'page callback' => 'guifi_users_node_list',
     'page arguments' => array(1),
     'access callback' => 'user_access',
-    'access arguments' => array('access content'),
+    'access arguments' => array('create guifi nodes'),
     'type' => MENU_LOCAL_TASK
   );
+
+//  TODO: To be deleted in the future to avoid include in the robots.txt
+// exclusion lists. In the future, will be /guifi/export/<service>/<export_type>
   $items['node/%guifi_service/view/passwd'] = array(
     'title' => 'passwd',
-    'page callback' => 'guifi_dump_passwd',
+    'page callback' => 'guifi_users_dump_passwd',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_CUSTOM_ITEM
+    'type' => MENU_CALLBACK
   );
   $items['node/%guifi_service/view/federated'] = array(
     'title' => 'federated',
-    'page callback' => 'guifi_dump_federated',
+    'page callback' => 'guifi_users_dump_federated',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_CUSTOM_ITEM
+    'type' => MENU_CALLBACK
   );
   $items['node/%guifi_service/view/federated_md5'] = array(
     'title' => 'federated_md5',
-    'page callback' => 'guifi_dump_federated_md5',
+    'page callback' => 'guifi_users_dump_federated_md5',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'type' => MENU_CUSTOM_ITEM
+    'type' => MENU_CALLBACK
   );
   $items['node/%guifi_service/view/ldif'] = array(
     'title' => 'ldif',
-    'page callback' => 'guifi_dump_ldif',
+    'page callback' => 'guifi_users_dump_ldif',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
    );
+
+   // New menu entries to substitute old entries
+   $items['guifi/export/%guifi_service/passwd'] = array(
+    'title' => 'passwd',
+    'page callback' => 'guifi_users_dump_passwd',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['guifi/export/%guifi_service/federated'] = array(
+    'title' => 'federated',
+    'page callback' => 'guifi_users_dump_federated',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['guifi/export/%guifi_service/federated_md5'] = array(
+    'title' => 'federated_md5',
+    'page callback' => 'guifi_users_dump_federated_md5',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['guifi/export/%guifi_service/ldif'] = array(
+    'title' => 'ldif',
+    'page callback' => 'guifi_users_dump_ldif',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+   );
+
+
+
 /*
    $items['guifi'] = array(
      'title' => 'guifi menu page',

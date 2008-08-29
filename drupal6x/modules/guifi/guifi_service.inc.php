@@ -520,7 +520,10 @@ function guifi_service_update($node) {
 /**
  * outputs the zone information data
 **/
-function guifi_service_print_data($node) {
+function theme_guifi_service_data($node, $links = true) {
+  if (!isset($node->nid))
+    $node = node_load(array('nid'=>$node->id));
+  guifi_log(GUIFILOG_TRACE,'guifi_service_print_data()',$node);
 
   $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
   $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
@@ -606,7 +609,17 @@ function guifi_service_print_data($node) {
     $rows[] = array(t('created by'),$name_created->name,null);
   if ($node->timestamp_changed > 0)
     $rows[] = array(t('last update'),$name_changed->name,format_date($node->timestamp_changed));
-  return array_merge($rows);
+
+  $output = theme('table',null,$rows);
+
+  if ($links) {
+    drupal_set_breadcrumb(guifi_node_ariadna($node));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    print theme('page',$output,false);
+    return;
+  }
+
+  return $output;
 }
 
 function guifi_list_services_query($param, $typestr = 'by zone', $service = '%') {
@@ -714,15 +727,15 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
     return $node;
 
   if ($page) {
-    drupal_set_breadcrumb(guifi_zone_ariadna($node->nid));
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id,'node/%d/view/services'));
+    $node->content['body']['#value'] =
+      theme('box',t('Description'),$node->content['body']['#value']);
+    $node->content['body']['#weight'] = 1;
     $node->content['data'] = array(
       array(
-        '#value' => theme('box', t('service information')),
-        '#weight' => 2,
-      ),
-      array(
-        '#value' => theme('table', NULL, guifi_service_print_data($node)),
-        '#weight' => 3,
+        '#value' => theme('box', t('service information'),
+           theme_guifi_service_data($node, false)),
+        '#weight' => -0,
       )
     );
   }

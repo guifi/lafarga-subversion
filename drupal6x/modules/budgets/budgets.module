@@ -2158,14 +2158,14 @@ function theme_budgets_header($node,$teaser) {
       t('Total').' '.number_format($total,2,',','.').$node->currency_symbol;
     $output .= '</small>';
   } else {
-    $output =
-      '<h3>'.t('Zone').'</h3>'.guifi_zone_l($node->zone_id).'</br>'.
-      '<h3>'.t('Status').'</h3>'.$node->budget_status;
+    $output = theme('box',t('Zone'),
+      guifi_zone_l($node->zone_id));
     if (in_array($node->budget_status,array('Open','Preparation')))
-      $output .= ', '.t('until').' '.format_date($node->expires.'large');
+      $until = ', '.t('until').' '.format_date($node->expires.'large');
+    $output .= theme('box',t('Status'),
+      $node->budget_status.$until);
     if (!empty($node->promoter)) {
-      $output .= '<h3>'.t('Promoter(s)').'</h3>';
-      $output .= $node->promoter;
+      $output .= theme('boox',t('Promoter(s)'),$node->promoter);
     }
   }
   return $output.
