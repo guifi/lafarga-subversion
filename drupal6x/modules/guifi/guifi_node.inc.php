@@ -1276,6 +1276,8 @@ function theme_guifi_node_devices_list($node,$links = false) {
       theme('table', $header, $rows,
         array('style'=>'width: 0%;')).
       $form;
+  else
+    $output = theme('box',t('This node does not have any device'),$form);
 
   if ($links) {
     $node = node_load(array('nid'=>$node->id));
