@@ -665,21 +665,31 @@ function theme_guifi_services_list($node,$service = '%') {
     else
       $typestr = t('by zone');
   }
-  $output = '<h2>' .t('Services of ') .' ' .$node->title .' ('.$typestr.')</h2>';
+
   $rows = guifi_list_services_query($node,$typestr);
-  $output .= theme('table', array(t('service'),t('zone'),t('device'),t('status')), array_merge($rows),array('width'=>'100%'));
+
+  ($rows) ?
+     $box .= theme('table',
+       array(t('service'),t('zone'),t('device'),t('status')),
+       array_merge($rows),
+       array('width'=>'100%'))
+     : $box .= t('There are no services defined at the database');
+
+  $output = theme('box',
+    t('Services of %node (%by)',array('%node'=>$node->title,'%by'=>$typestr)),
+    $box);
 
   switch ($typestr) {
-    case 'by node':
+    case t('by node'):
       drupal_set_title(t('services @ %node',array('%node'=>$node->title)));
       drupal_set_breadcrumb(guifi_node_ariadna($node,'node/%d/view/services'));
       $output .= theme_links(module_invoke_all('link', 'node', $node, false));
       break;
-    case 'by zone':
+    case t('by zone'):
       drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/services'));
       $output .= theme_links(module_invoke_all('link', 'node', $node, false));
       break;
-    case 'by device':
+    case t('by device'):
       $device = guifi_device_load($node);
       drupal_set_title(t('View device %dname',
         array('%dname'=>$device['nick'],
@@ -703,23 +713,21 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
   if ($block)
     return $node;
 
-      if ($page) {
-  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
-        $node->content['data'] = array(
-          array(
-            '#value' => theme('box', t('service information')),
-            '#weight' => 2,
-          ),
-          array(
-            '#value' => theme('table', NULL, guifi_service_print_data($node)),
-            '#weight' => 3,
-          )
-        );
-      }
-
-
-    return $node;
+  if ($page) {
+    drupal_set_breadcrumb(guifi_zone_ariadna($node->nid));
+    $node->content['data'] = array(
+      array(
+        '#value' => theme('box', t('service information')),
+        '#weight' => 2,
+      ),
+      array(
+        '#value' => theme('table', NULL, guifi_service_print_data($node)),
+        '#weight' => 3,
+      )
+    );
   }
+  return $node;
+}
 
 
 ?>

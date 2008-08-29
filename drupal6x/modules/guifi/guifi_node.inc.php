@@ -1269,8 +1269,7 @@ function theme_guifi_node_devices_list($node,$links = false) {
                  $edit_radio
                     );
   }
-//  if (count($rows)==0)
-//     $rows[] = array(array('data'=>t('This node does not have any device.'),'colspan'=>0));
+
   if (count($rows))
     $output = '<h4>'.t('devices').'</h4>'.
       theme('table', $header, $rows,
