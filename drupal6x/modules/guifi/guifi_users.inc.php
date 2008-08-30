@@ -1049,7 +1049,7 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
   $passwd = array();
 
   // dumping requested proxy users, starting by the users from the same zone
-  foreach ($users[$node->id] as $user)
+  if (count($users[$node->id])) foreach ($users[$node->id] as $user)
 
     ($ldif) ? $passwd[$user->zId][] = guifi_user_dump_ldif($user) :
       $passwd[$user->zId][] = $user->username.':'.$user->password;

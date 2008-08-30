@@ -1152,32 +1152,29 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
   if ($block)
     return $node;
 
-  if ($page) {
-    $node->content['data']= array(
-      '#value' => theme_table(
-        null,
+  $node->content['data']= array(
+    '#value' => theme_table(
+      null,
+      array(
         array(
           array(
-            array(
-              'data'=>'<small>'.theme_guifi_zone_data($node,false).'</small>',
-              'width'=>'50%'
-            ),
-            array(
-              'data'=>guifi_zone_simple_map($node),
-              'width'=>'50%'
-            )
+            'data'=>'<small>'.theme_guifi_zone_data($node,false).'</small>',
+            'width'=>'50%'
+          ),
+          array(
+            'data'=>guifi_zone_simple_map($node),
+            'width'=>'50%'
           )
-        ),
-        array('width'=>'100%')
+        )
       ),
-      '#weight' => 1);
-    $node->content['nodes']= array(
-      '#value' => theme_guifi_zone_nodes($node,false),
-      '#weight' => 2);
+      array('width'=>'100%')
+    ),
+    '#weight' => 1);
+  $node->content['nodes']= array(
+    '#value' => theme_guifi_zone_nodes($node,false),
+    '#weight' => 2);
 
-    return $node;
-  }
-
+  return $node;
 }
 
 /** Miscellaneous utilities related to zones

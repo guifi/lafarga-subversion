@@ -1626,9 +1626,10 @@ function budgets_delete(&$node) {
 * Implementation of hook_page().
 */
 function budgets_page($zone = NULL,$status = NULL) {
-
+  if (is_numeric($zone))
+    $zone = guifi_zone_load($zone);
   guifi_log(GUIFILOG_TRACE,sprintf('function budgets_page(%d)',$zone->id),
-    $status);
+    $zone);
 
   if ($status!=null)
     $status_str = "  AND budget_status='".$status."' ";
@@ -1648,13 +1649,12 @@ function budgets_page($zone = NULL,$status = NULL) {
   $zones = guifi_zone_childs_and_parents($zone->id);
 
   $sql =
-    "SELECT n.nid,b.zone_id " .
-    "FROM {node} n, {budgets} b " .
-    "WHERE n.nid=b.id " .
-    "  AND b.zone_id IN (".implode(',',$zones).") " .
+    'SELECT n.nid,b.zone_id
+     FROM {node} n, {budgets} b
+     WHERE n.nid=b.id
+       AND b.zone_id IN ('.implode(',',$zones).') '.
     $status_str.
-    "ORDER BY FIND_IN_SET(budget_status,'Open,Preparation,Closed'), " .
-    "  n.changed DESC";
+    'ORDER BY FIND_IN_SET(budget_status,"Open,Preparation,Closed"), n.nid';
 
   $result = pager_query($sql,variable_get('default_nodes_main', 10));
 

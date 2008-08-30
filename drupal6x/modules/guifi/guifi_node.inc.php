@@ -626,44 +626,41 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
   if ($block)
     return $node;
 
-  if ($page) {
-    drupal_set_breadcrumb(guifi_node_ariadna($node));
-    $node->content['data'] = array(
-      '#value'=> theme_table(null,
-         array(
-           array(
-             array(
-               'data'=>'<small>'.
-                  theme_guifi_node_data($node).
-                  '</small>',
-                  'width'=>'50%'
-             ),
-             array(
-               'data'=>theme_guifi_node_map($node),
-               'width'=>'50%'
-             )
-           )
-         )
-       ),
-      '#weight'=> 1);
-    $node->content['graphs'] = array(
-      '#value'=> theme_guifi_node_graphs_overview($node),
-      '#weight'=> 2);
-    $node->content['devices'] = array(
-      '#value'=> theme_guifi_node_devices_list($node),
-      '#weight'=> 3);
-    $node->content['wdsLinks'] = array(
-      '#value'=> theme_guifi_node_links_by_type($node->id,'wds'),
-      '#weight'=> 4);
-    $node->content['cableLinks'] = array(
-      '#value'=> theme_guifi_node_links_by_type($node->id,'cable'),
-      '#weight'=> 5);
-    $node->content['clientLinks'] = array(
-      '#value'=> theme_guifi_node_links_by_type($node->id,'ap/client'),
-      '#weight'=> 6);
-    return $node;
-  }
-
+  drupal_set_breadcrumb(guifi_node_ariadna($node));
+  $node->content['data'] = array(
+    '#value'=> theme_table(null,
+      array(
+        array(
+          array(
+            'data'=>'<small>'.
+            theme_guifi_node_data($node).
+            '</small>',
+            'width'=>'50%'
+          ),
+          array(
+            'data'=>theme_guifi_node_map($node),
+            'width'=>'50%'
+          )
+        )
+      )
+    ),
+    '#weight'=> 1);
+  $node->content['graphs'] = array(
+    '#value'=> theme_guifi_node_graphs_overview($node),
+    '#weight'=> 2);
+  $node->content['devices'] = array(
+    '#value'=> theme_guifi_node_devices_list($node),
+    '#weight'=> 3);
+  $node->content['wdsLinks'] = array(
+    '#value'=> theme_guifi_node_links_by_type($node->id,'wds'),
+    '#weight'=> 4);
+  $node->content['cableLinks'] = array(
+    '#value'=> theme_guifi_node_links_by_type($node->id,'cable'),
+    '#weight'=> 5);
+  $node->content['clientLinks'] = array(
+    '#value'=> theme_guifi_node_links_by_type($node->id,'ap/client'),
+    '#weight'=> 6);
+  return $node;
 }
 
 function guifi_node_hidden_map_fileds($node) {
@@ -1078,11 +1075,10 @@ function guifi_node_set_flag($id) {
 
   // set the highest score found
   $scores = array_flip($scores);
-  db_query("UPDATE {guifi_location} " .
-      "SET status_flag = '%s' " .
-      "WHERE id = %d",
-      $scores[$score],
-      $id);
+
+  $node = node_load(array('nid'=>$id));
+  $node->status_flag = $scores[$score];
+  node_save($node);
 }
 
 /* Themes (presentation) functions */
@@ -1208,15 +1204,8 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
   return $output;
 }
 
+
 function theme_guifi_node_devices_list($node,$links = false) {
-
-  function _guifi_line_edit_device_form($node,$id) {
-    $form['id'] = array('#type' => 'hidden', '#value' => $id);
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Edit'));
-    $form['#action'] = url('guifi/device/'. $id.'/edit');
-    return $form;
-  }
-
   $id = $node->id;
   $rows = array();
 
