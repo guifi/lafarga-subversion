@@ -852,9 +852,11 @@ function guifi_nodeapi($node, $op, $arg = 0) {
   }
 }
 
-function guifi_update_index($node) {
-  watchdog('guifi index',$node->nid,null,'WATCHDOG_NOTICE');
-  return '<h1>'.$node->nid.'</h1><h1>'.$node->nick.'</h1><h3>'.$node->title.'</h3>';
+function guifi_update_index($node = false) {
+  if ($node->nid) {
+//    watchdog('guifi index',$node->nid,null,'WATCHDOG_NOTICE');
+    return '<h1>'.$node->nid.'</h1><h1>'.$node->nick.'</h1><h3>'.$node->title.'</h3>';
+  }
 }
 
 
