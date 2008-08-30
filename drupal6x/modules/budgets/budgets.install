@@ -42,7 +42,7 @@ function budgets_schema() {
       'quantity' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '4'),
       'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
       'weight' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '3')),
-    'primary key' => array('buget_id', 'id'),
+    'primary key' => array('budget_id', 'id'),
   );
   $schema['supplier'] = array(
     'fields' => array(
