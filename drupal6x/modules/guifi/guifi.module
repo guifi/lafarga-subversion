@@ -847,8 +847,33 @@ function guifi_nodeapi($node, $op, $arg = 0) {
 //    case 'delete revision':
 //    case 'validate':
 //    case 'rss item':
+    case 'search result':
+      return guifi_search_result($node);
     case 'update index':
       return guifi_update_index($node);
+  }
+}
+
+function guifi_search_result($node = false) {
+  switch ($node->type) {
+    case 'guifi_node':
+      return l(guifi_img_icon('wifi.png'),'node/'.$node->nid.'/view',
+        array(
+          'attributes'=>array('title'=>t('View node %node at %zone',
+            array('%node'=>$node->nick,'%zone'=>guifi_get_zone_name($node->zone_id)))),
+          'html'=>true)).
+        l(guifi_img_icon('globe.png'),'node/'.$node->zone_id.'/view/map',
+        array('html'=>true,
+          'attributes'=>array('title'=>t('View map for %zone',array('%zone'=>guifi_get_zone_name($node->zone_id))))));
+    case 'guifi_zone':
+      return l(guifi_img_icon('globe.png'),'node/'.$node->nid.'/view/map',
+        array('html'=>true,
+          'attributes'=>array('title'=>t('View map of %zone',array('%zone'=>$node->title)))));
+    case 'guifi_service':
+      return l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/servicedata',
+        array('html'=>true,
+          'attributes'=>array('title'=>t('View %type service at %zone',
+            array('%type'=>$node->service_type,'%zone'=>guifi_get_zone_name($node->zone_id))))));
   }
 }
 
