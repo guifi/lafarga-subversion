@@ -873,7 +873,8 @@ function guifi_search_result($node = false) {
       return l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/servicedata',
         array('html'=>true,
           'attributes'=>array('title'=>t('View %type service at %zone',
-            array('%type'=>$node->service_type,'%zone'=>guifi_get_zone_name($node->zone_id))))));
+            array('%type'=>$node->service_type,'%zone'=>guifi_get_zone_name($node->zone_id)))))).' - '.
+        strtoupper($node->service_type);
   }
 }
 
