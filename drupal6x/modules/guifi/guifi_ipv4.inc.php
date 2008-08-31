@@ -197,6 +197,9 @@ function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
     $pager = 0;
   }
 
+  if (empty($zones))
+    return t('There is no zones to look at');
+
   $sql = 'SELECT
             zone, id, base, mask, network_type
           FROM {guifi_networks}
