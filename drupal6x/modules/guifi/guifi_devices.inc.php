@@ -36,8 +36,11 @@ function guifi_device_load($id,$ret = 'array') {
 
     $device['firewall'] = false; // Default: No firewall
 
+    $rc = 0;
+
     while ($radio = db_fetch_array($qr)) {
 
+      $rc++;
       if (!$device['firewall'])
         if ($radio['mode'] == 'client')
            $device['firewall'] = true;
@@ -56,7 +59,7 @@ function guifi_device_load($id,$ret = 'array') {
       while ($i = db_fetch_array($qi)) {
 
         // force first interface to wLan/Lan
-        if ((!count($listi)) and ($i['interface_type'] == 'wLan'))
+        if ((!count($listi)) and ($i['interface_type'] == 'wLan') and ($rc==1))
           $i['interface_type'] = 'wLan/Lan';
 
         // can't have 2 wLan/Lan bridges
