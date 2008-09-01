@@ -243,21 +243,21 @@ function guifi_menu() {
 
 
   // Developer's tools
-//  $items['guifi/menu/devel'] = array(
-//    'title' => 'Development tools',
-//    'description' => 'Utilities for developers, use with care, regular users shouldn\'t have this block.',
-//    'page callback' => 'guifi_menu_block_page',
-//    'access arguments' => array('access devel information'),
-//    'weight'=>100,
-//  );
-//  $items['guifi/menu/devel/get_ips'] = array(
-//    'title' => 'get_ips callback',
-//    'description' => 'Test for load&sort the ip tables',
-//    'page callback' => 'guifi_admin_get_ips',
-//    'access arguments' => array('access devel information'),
-//    'weight' => 0,
-//    'file' => 'guifi_tools.inc.php'
-//  );
+  $items['guifi/menu/devel'] = array(
+    'title' => 'Development tools',
+    'description' => 'Utilities for developers, experimental or under texting, use with care, regular users shouldn\'t have this block.',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access devel information'),
+    'weight'=>100,
+  );
+  $items['guifi/menu/devel/traceroute'] = array(
+    'title' => 'traceroute',
+    'description' => 'Software traceroute (under development)',
+    'page callback' => 'guifi_traceroute_search',
+    'access arguments' => array('access devel information'),
+    'weight' => 0,
+    'file' => 'guifi_traceroute.inc.php'
+  );
 //  $items['guifi/menu/devel/get_ips_new'] = array(
 //    'title' => 'get_ips_new callback',
 //    'description' => 'Test for NEW load&sort the ip tables',
@@ -681,7 +681,13 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
-  $items['guifi/js/select-service/%/%'] = array(
+  $items['guifi/js/select-node-device/%'] = array(
+    'title' => 'Javascript Select Device by node/zone/device nickname',
+    'page callback' => 'guifi_ahah_select_node_device',
+    'page_arguments'=> array(3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  $items['guifi/js/select-service/%/%'] = array(
     'title' => 'Javascript Select Service',
     'page callback' => 'guifi_ahah_select_service',
     'page_arguments'=>array(3),

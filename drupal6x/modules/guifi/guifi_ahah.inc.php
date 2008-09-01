@@ -128,6 +128,31 @@ function guifi_ahah_select_node(){
   exit();
 }
 
+function guifi_ahah_select_node_device(){
+  $matches = array();
+
+  $string = arg(3);
+
+  $qry = db_query('SELECT
+                     CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) str
+                  FROM {guifi_location} l, {guifi_zone} z, {guifi_devices} d
+                  WHERE l.zone_id=z.id AND l.id=d.nid
+                    AND ((CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) LIKE "%'.
+                       $string.'%")'.
+                  '  OR (d.id like "%'.$string.'%"'.
+                  '  OR l.nick like "%'.$string.'%"'.
+                  '  OR d.nick like "%'.$string.'%"'.
+                  '  OR z.title like "%'.$string.'%"))'
+                 );
+  $c = 0;
+  while (($value = db_fetch_array($qry)) and ($c < 50)) {
+    $c++;
+    $matches[$value['str']] = $value['str'];
+  }
+  print drupal_to_js($matches);
+  exit();
+}
+
 function guifi_ahah_select_zone() {
   $cid = 'form_'. $_POST['form_build_id'];
   $cache = cache_get($cid, 'cache_form');
