@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Guifi.net module for drupal6 v1.0\n"
 "POT-Creation-Date: 2008-08-09 00:57+0200\n"
-"PO-Revision-Date: 2008-08-31 12:52+0100\n"
+"PO-Revision-Date: 2008-09-01 23:49+0100\n"
 "Last-Translator: Miquel Martos <miquelmartos@gmail.com>\n"
 "Language-Team: Catalan <guifi-rdes@projectes.lafarga.guifi.net>\n"
 "MIME-Version: 1.0\n"
@@ -281,11 +281,11 @@ msgstr "Radio# %id s'ha mogut a la radio# %id2 al trasto %dname"
 
 #: guifi_devices.inc.php:714
 msgid "The device %name has been CREATED by %user."
-msgstr "El trasto %name ha estat CREAT per %user."
+msgstr "L'usuari/a %user ha CREAT el trasto %name."
 
 #: guifi_devices.inc.php:718
 msgid "The device %name has been UPDATED by %user."
-msgstr "El trasto %name ha estat ACTUALITZAT per %user."
+msgstr "L'usuari/a %user ha ACTUALITZAT el trasto %name."
 
 #: guifi_devices.inc.php:797
 msgid "Netmask on remote link %nname - %type was adjusted to %mask"
@@ -321,7 +321,7 @@ msgstr "Esborra trasto: (%name)"
 
 #: guifi_devices.inc.php:910
 msgid "The device %name has been DELETED by %user."
-msgstr "El trasto %name ha estat ESBORRAT per %user."
+msgstr "L'usuari/a %user ha ESBORRAT el trasto %name."
 
 #: guifi_devices.inc.php:958
 msgid "You are not allowed to update this node."
@@ -868,7 +868,7 @@ msgstr "COMPLET"
 
 #: guifi_includes.inc.php:1505
 msgid "A notification will be sent to: %to"
-msgstr "Una notificació ha estat enviada a: %to"
+msgstr "S'ha enviat una notificació a: %to"
 
 #: guifi_includes.inc.php:1527
 #: guifi_tools.inc.php:446
@@ -889,7 +889,7 @@ msgstr "El nom del node %name no és vàlid"
 
 #: guifi_includes.inc.php:1618
 msgid "Complete trace messages (for trace purposes, to be used by developers)"
-msgstr ""
+msgstr "Missatges amb traça completa (Amb propòsits de traça, per fer-ho servir els desenvolupadors)"
 
 #: guifi_includes.inc.php:1619
 msgid "Summary of changes:"
@@ -897,7 +897,7 @@ msgstr "Informe de canvis:"
 
 #: guifi_includes.inc.php:1631
 msgid "[guifi.net notify] Report of changes at !date"
-msgstr "[notificacions guifi.net] Informe de canvia a !date"
+msgstr "[notificacions guifi.net] Informe de canvis a !date"
 
 #: guifi_includes.inc.php:1633
 msgid "Sending a mail to: %to"
@@ -1158,7 +1158,7 @@ msgstr "L'adreça IP publica wLan/Lan és necessària. No es permet esborrar-la"
 
 #: guifi_ipv4.inc.php:570
 msgid "Can't delete this address. The device should have at least one public IP address."
-msgstr ""
+msgstr "Aquesta adreça no es pot esborrar. El trasto ha de tenir una adreça publica."
 
 #: guifi_ipv4.inc.php:581
 msgid "Delete ipv4 address"
@@ -1200,7 +1200,7 @@ msgstr "Menú principal"
 
 #: guifi_node.inc.php:126
 msgid "<nodename>"
-msgstr ""
+msgstr "<nomdelnode>"
 
 #: guifi_node.inc.php:182
 #: guifi_service.inc.php:98
@@ -1234,7 +1234,7 @@ msgstr "Si, aquesta ràdio estarà disponible per expandir la xarxa"
 
 #: guifi_node.inc.php:232
 msgid "I'm sorry. Will be connected just when I'm online"
-msgstr ""
+msgstr "Ho sento, es podran connectar només quan jo ho estigui"
 
 #: guifi_node.inc.php:234
 msgid "That helps while planning a mesh network. We should know which locations are likely available to provide stable links."
@@ -1263,7 +1263,7 @@ msgstr "Mapa"
 
 #: guifi_node.inc.php:283
 msgid "Select the point where the node has to be placed."
-msgstr ""
+msgstr "Selecciona el punt on s'ha de col·locar el node."
 
 #: guifi_node.inc.php:302
 #: guifi_zone.inc.php:468;496
@@ -1310,7 +1310,7 @@ msgstr ""
 #: guifi_node.inc.php:425
 #: guifi_zone.inc.php:615
 msgid "Zone nick has been set to:"
-msgstr ""
+msgstr "El nom curt de la zona s'ha definit com:"
 
 #: guifi_node.inc.php:473
 msgid "Can't be assigned to root zone, please assign the node to an appropiate zone."
@@ -1522,7 +1522,7 @@ msgstr "Adreça MAC del trasto"
 
 #: guifi_radios.inc.php:61
 msgid "Base/Main MAC Address.<br />Some configurations won't work if is blank"
-msgstr ""
+msgstr "Adreça MAC Base/Principal.<br />Algunes configuracions no funcionen si es deixa en blanc."
 
 #: guifi_radios.inc.php:71
 msgid "No radios"
@@ -1682,7 +1682,7 @@ msgstr "Aquest firmware NO esta suportat per aquest model de ràdio."
 
 #: guifi_radios.inc.php:762
 msgid "Radio #%old moved to #%new."
-msgstr ""
+msgstr "La ràdio #%old s'ha mogut a #%new."
 
 #: guifi_radios.inc.php:781
 msgid "Unable to allocate new range, no networks available"
@@ -1694,7 +1694,7 @@ msgstr ""
 
 #: guifi_radios.inc.php:815
 msgid "Hotspot added at radio#%radio"
-msgstr ""
+msgstr "HotSpot afegit a la ràdio #%radio"
 
 #: guifi_radios.inc.php:913
 msgid "Radio %ssid added in mode %mode."
@@ -1728,7 +1728,7 @@ msgstr[1] "@count ràdios"
 
 #: guifi_service.inc.php:64
 msgid "<service>"
-msgstr ""
+msgstr "<servei>"
 
 #: guifi_service.inc.php:79
 msgid "Service type"
@@ -1764,7 +1764,7 @@ msgstr "Tipus de servei"
 
 #: guifi_service.inc.php:150
 msgid "service_type"
-msgstr ""
+msgstr "servei_tipus"
 
 #: guifi_service.inc.php:160
 #: guifi_users.inc.php:817
@@ -1874,7 +1874,7 @@ msgstr ""
 
 #: guifi_service.inc.php:403
 msgid "Service nick has been set to:"
-msgstr ""
+msgstr "S'ha definit com a nom curt del servei:"
 
 #: guifi_service.inc.php:454
 msgid "Service %name not valid."
@@ -1886,7 +1886,7 @@ msgstr ""
 
 #: guifi_service.inc.php:516
 msgid "The service %name has been UPDATED by %user."
-msgstr ""
+msgstr "L'usuari/a %user ha ACTUALITZAT el servei %name."
 
 #: guifi_service.inc.php:533;686
 msgid "service"
@@ -2006,7 +2006,7 @@ msgstr ""
 
 #: guifi_sql.inc.php:453
 msgid "User %id-%name deleted."
-msgstr ""
+msgstr "S'ha esborrat l'usuari %id-%name"
 
 #: guifi_sql.inc.php:496
 msgid "There was nothing to delete at %table with (%where)"
@@ -2130,7 +2130,7 @@ msgstr "Usuari"
 
 #: guifi_tools.inc.php:540
 msgid "The notification %notify for %type %title has been CHANGED to %new by %user."
-msgstr ""
+msgstr "La notificació %notify per %type %title s'ha CANVIAT a %new per %user"
 
 #: guifi_tools.inc.php:564
 msgid "Queue is empty"
@@ -2162,7 +2162,7 @@ msgstr ""
 
 #: guifi_users.inc.php:108
 msgid "User %username deleted by %user."
-msgstr ""
+msgstr "L'usuari/a %user ha esborrat l'usuari/a %username"
 
 #: guifi_users.inc.php:188
 msgid "New password for user !username at guifi.net"
@@ -2332,7 +2332,7 @@ msgstr ""
 
 #: guifi_users.inc.php:1005
 msgid "The user !username has been UPDATED by !user."
-msgstr ""
+msgstr "L'usuari/a %user ha ACTUALITZAT l'usuari !username."
 
 #: guifi_users.inc.php:1065
 msgid "there are no users at this proxy"
@@ -2420,7 +2420,7 @@ msgstr "servidor de gràfiques per defecte"
 
 #: guifi_zone.inc.php:382
 msgid "Zone global network parameters"
-msgstr ""
+msgstr "Paràmetres de xarxa globals de la zona"
 
 #: guifi_zone.inc.php:388
 msgid "zone global network parameters"
@@ -2452,7 +2452,7 @@ msgstr "L'identificador que s'utilitzara quan es generin arxius de configuració
 
 #: guifi_zone.inc.php:426
 msgid "Zone mapping parameters"
-msgstr ""
+msgstr "Paràmetres del mapa de la zona"
 
 #: guifi_zone.inc.php:433
 msgid "zone mapping parameters"
@@ -2464,15 +2464,15 @@ msgstr ""
 
 #: guifi_zone.inc.php:455
 msgid "Bottom-left (SW) corner"
-msgstr ""
+msgstr "Cantonada Inferior-esquerra (SO)"
 
 #: guifi_zone.inc.php:456
 msgid "Coordinates (Lon/Lat) of the bottom-left (South-West) corner of the map."
-msgstr ""
+msgstr "Coordinates (Lon/Lat) of the bottom-left (South-West) corner of the map."
 
 #: guifi_zone.inc.php:484
 msgid "Upper-right (NE) corner"
-msgstr ""
+msgstr "Cantonada Superior-Dreta (NE)"
 
 #: guifi_zone.inc.php:485
 msgid "Coordinates (Lon/Lat) of the upper-right (North-East) corner of the map."
@@ -2480,7 +2480,7 @@ msgstr ""
 
 #: guifi_zone.inc.php:557
 msgid "View the map in full screen and rich mode"
-msgstr ""
+msgstr "Veure el mapa a pantalla completa i en mode enriquit"
 
 #: guifi_zone.inc.php:558
 msgid "Select the lens controls to zoom in/out or re-center the map at the clicked position. If the image has enough high resolution, you can add a node at the red star position by using the link that will appear."
@@ -2548,11 +2548,11 @@ msgstr "Latitud: Min ha de ser inferior que Max"
 
 #: guifi_zone.inc.php:714
 msgid "A new zone %nick-%name has been created"
-msgstr ""
+msgstr "S'ha creat una nova zona %nick-%name"
 
 #: guifi_zone.inc.php:759
 msgid "Zone %nick-%name has been updated"
-msgstr ""
+msgstr "S'ha actualitzat la Zona %nick-%name"
 
 #: guifi_zone.inc.php:779
 msgid "FATAL ERROR: Can't delete a zone which have networks allocated. Database broken. Contact your system administrator"
@@ -2568,7 +2568,7 @@ msgstr ""
 
 #: guifi_zone.inc.php:814
 msgid "Zone %nick-%name has been deleted"
-msgstr ""
+msgstr "S'ha esborrat la Zona %nick-%name"
 
 #: guifi_zone.inc.php:887
 msgid "zone name"
@@ -2730,7 +2730,7 @@ msgstr "Entra la informació de la zona."
 
 #: guifi.module:888
 msgid "Create a node. A node is a physical location (will be dynamically drawed on the maps using lat/lon coordinates) where there are network devices, servers, etc.<br />Every node have to assigned to a guifi zone."
-msgstr "Crear un node. Un node és un lloc físic (Es pot dibuixar dinàmicament als mapes fent ser servir coordenades lat/lon) on hi ha dispositius de xarxa, servidors, etc.. <br />Cada node té s'ha d'assignar a una zona."
+msgstr "Crear un node. Un node és un lloc físic (Es pot dibuixar dinàmicament als mapes fent ser servir coordenades lat/lon) on hi ha dispositius de xarxa, servidors, etc. <br />Cada node té s'ha d'assignar a una zona."
 
 #: guifi.module:918
 msgid "License agreement"
@@ -2766,11 +2766,11 @@ msgstr ""
 
 #: guifi.module:947
 msgid "FAQ root page"
-msgstr ""
+msgstr "Pàgina arrel PMF"
 
 #: guifi.module:952
 msgid "URL for FAQ, leave it blank if none."
-msgstr ""
+msgstr "URL del PMF, deixa-ho en blanc si no n'hi ha."
 
 #: guifi.module:957;124
 msgid "Documentation"
@@ -2782,7 +2782,7 @@ msgstr ""
 
 #: guifi.module:967
 msgid "Limit of items listed on every page"
-msgstr ""
+msgstr "Limit d'elements llistats a cada pàgina"
 
 #: guifi.module:972
 msgid "Number of rows to be displayed as default on every paged report..."
@@ -2870,7 +2870,7 @@ msgstr ""
 
 #: guifi.module:1037
 msgid "URL for WMS service"
-msgstr ""
+msgstr "URL del servei WMS"
 
 #: guifi.module:1042
 msgid "URL to call to get WMS guifi mapping services"
@@ -2878,7 +2878,7 @@ msgstr ""
 
 #: guifi.module:1047
 msgid "URL for maps module"
-msgstr ""
+msgstr "URL del mòdul de mapes"
 
 #: guifi.module:1052
 msgid "Base URL for the mapping GIS application (guifimaps)"
@@ -3030,7 +3030,7 @@ msgstr "Menú principal per l'administració i utilitats de guifi.net"
 
 #: guifi.module:70
 msgid "guifi.net menus"
-msgstr "Menús guifi.net"
+msgstr "Menú guifi.net"
 
 #: guifi.module:77
 msgid "Compact mode"
@@ -3270,55 +3270,55 @@ msgstr "tot"
 
 #: guifi.module:647
 msgid "Javascript Add WDS"
-msgstr ""
+msgstr "Javascript Afegir WDS"
 
 #: guifi.module:653
 msgid "Javascript Select Firmware by Model"
-msgstr ""
+msgstr "Javascript Selecciona el  Firmware per Model"
 
 #: guifi.module:659
 msgid "Javascript Select Channel by protocol"
-msgstr ""
+msgstr "Javascript Seleccion el Canal per protocol"
 
 #: guifi.module:666
 msgid "Javascript Select Zone"
-msgstr ""
+msgstr "Javascript Selecciona la Zona"
 
 #: guifi.module:672
 msgid "Javascript Select Device"
-msgstr ""
+msgstr "Javascript Selecciona el Trasto"
 
 #: guifi.module:678
 msgid "Javascript Select Node"
-msgstr ""
+msgstr "Javascript Selecciona el Node"
 
 #: guifi.module:685
 msgid "Javascript Select Service"
-msgstr ""
+msgstr "Javascript Selecciona el Servei"
 
 #: guifi.module:692
 msgid "Javascript Select Server"
-msgstr ""
+msgstr "Javascript Selecciona el servidor"
 
 #: guifi.module:699
 msgid "Javascript Move Device"
-msgstr ""
+msgstr "Javascript Moure Trasto"
 
 #: guifi.module:705
 msgid "Javascript Add Interface"
-msgstr ""
+msgstr "Javascript Afegir Interfície"
 
 #: guifi.module:711
 msgid "Javascript Add Public Subnetwork Mask"
-msgstr ""
+msgstr "Javascript Afegir una Màscara de Sub-Xarxa Publica"
 
 #: guifi.module:717
 msgid "Javascript Add Wireless Radio"
-msgstr ""
+msgstr "Javascript Afegir una Ràdio Sense Fils"
 
 #: guifi.module:723
 msgid "Javascript Add Cable Link"
-msgstr ""
+msgstr "Javascript Afegir un Enllaç per Cable"
 
 #: guifi.module:774
 msgid "generate mrtg config file"
