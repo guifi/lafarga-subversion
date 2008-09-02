@@ -1614,7 +1614,8 @@ function guifi_nodename_validate($nodestr,&$form_state) {
 }
 
 function guifi_devicename_validate($devicestr,&$form_state) {
-  if ($form_state['clicked_button']['#value'] == t('Reset'))
+  if (($form_state['clicked_button']['#value'] == t('Reset')) or
+    empty($devicestr['#value']))
     return;
 
   $dev = explode('-',$devicestr['#value']);

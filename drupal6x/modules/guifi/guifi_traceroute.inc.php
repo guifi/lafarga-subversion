@@ -6,6 +6,7 @@
  */
 
 function guifi_traceroute_search($params = null) {
+  print_r($params);
 
   if (count($params)) {
     $to = explode(',',$params);
@@ -17,8 +18,11 @@ function guifi_traceroute_search($params = null) {
   if (!count($to))
     return $output;
 
+  (is_numeric($to[0])) ? $dto=guifi_get_devicename($to[0],'nick') : $dto=$to[0];
+
+
   $output .= '<h2>'.t('Software traceroute result from %from to %to',
-    array('%from'=>$from,'%to'=>$to)).'</h2>';
+    array('%from'=>guifi_get_devicename($from,'nick'),'%to'=>$dto)).'</h2>';
 
 //  $headers = array(t('id'),
 //    array('data'=>t('nipv4')),
@@ -74,7 +78,7 @@ function guifi_traceroute_search($params = null) {
 //
 //  $output .= theme('table',$headers,$rows);
 //  $output .= theme_pager(null, 50);
-//  return $output;
+  return $output;
 }
 
 // IP search
@@ -115,7 +119,7 @@ function guifi_traceroute_search_form($form_state, $from = null, $to = array()) 
     } else {
       $dservice = $to[0];
       $dname = '';
-      $dtitle .= ' '.t('service %service',array('%service'=>$to[0]));
+      $dtitle .= ' '.t('Explore service !service',array('!service'=>$to[0]));
     }
   }
 
@@ -128,7 +132,6 @@ function guifi_traceroute_search_form($form_state, $from = null, $to = array()) 
   $form['to']['to_description'] = array(
     '#type' => 'textfield',
     '#title' => t('Device'),
-    '#required' => true,
     '#default_value' => $dname,
     '#size' => 60,
     '#maxlength' => 128,
@@ -136,19 +139,48 @@ function guifi_traceroute_search_form($form_state, $from = null, $to = array()) 
     '#autocomplete_path'=> 'guifi/js/select-node-device',
     '#description' => t('Target device to trace the route to.').'<br>'.
         $search_help,
+    '#prefix'=>'<table><tr><td>',
+    '#suffix'=>'</td>',
   );
-  $form['submit'] = array('#type' => 'submit','#value'=>t('Get traceroute'));
+  $types[] = t('<select one from this list>');
+  $form['to']['discover_service'] = array(
+    '#type' => 'select',
+    '#title' => t("Service"),
+    '#default_value' => $dservice,
+    '#options' => array_merge($types,guifi_types('service')),
+    '#description' => t('Type of service to be discovered'),
+    '#prefix'=>'<td>',
+    '#suffix'=>'</td>',
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value'=>t('Get traceroute'),
+    '#prefix'=>'<td>',
+    '#suffix'=>'</td></tr></table>',
+  );
 
   return $form;
 }
 
+function guifi_traceroute_search_form_validate($form, $form_state) {
+  if ((!$form_state['values']['discover_service']) and
+       ($form_state['values']['to_description'] == '')
+     )
+    form_set_error('discover_service', t('You must select either a service to discover or a device destination'));
+  if (($form_state['values']['discover_service']) and
+       ($form_state['values']['to_description'] != '')
+     )
+    form_set_error('to_description', t('You must select a service to discover or a device destination, not both'));
+}
+
 function guifi_traceroute_search_form_submit($form, &$form_state) {
    $from = explode('-',$form_state['values']['from_description']);
-   $to   = explode('-',$form_state['values']['to_description']);
+   ($form_state['values']['to_description'] != '') ?
+     $to = explode('-',$form_state['values']['to_description'])
+     : $to = array($form_state['values']['discover_service']);
+
    drupal_goto('guifi/menu/devel/traceroute/'.$from[0].','.$to[0]);
    return;
 }
-
-
 
 ?>
