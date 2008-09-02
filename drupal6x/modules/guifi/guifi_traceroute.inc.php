@@ -5,7 +5,7 @@
  * functions for tracroute tools
  */
 
-function guifi_traceroute_search($from = null, $params = null) {
+function guifi_traceroute_search($params = null) {
 
   if (count($params)) {
     $to = explode(',',$params);
@@ -80,25 +80,59 @@ function guifi_traceroute_search($from = null, $params = null) {
 // IP search
 function guifi_traceroute_search_form($form_state, $from = null, $to = array()) {
 
+  $ftitle = t('From:');
+  if ($from) {
+    $fname = guifi_get_devicename($from,'large');
+    $ftitle .= ' '.$fname;
+  }
+
   $search_help = t('To find the device, you can write some letters to find the available devices in the database.');
-  $form['from_description'] = array(
+  $form['from'] = array(
+    '#type' => 'fieldset',
+    '#title' => $ftitle,
+    '#collapsible' => true,
+    '#collapsed' => $from
+  );
+  $form['from']['from_description'] = array(
     '#type' => 'textfield',
-    '#title' => t('From device'),
+    '#title' => t('Device'),
     '#required' => true,
-    '#default_value' => $from,
+    '#default_value' => $fname,
     '#size' => 60,
     '#maxlength' => 128,
     '#autocomplete_path'=> 'guifi/js/select-node-device',
+    '#element_validate' => array('guifi_devicename_validate'),
     '#description' => t('Search for a device to trace the route from.').'<br>'.
         $search_help,
   );
-  $form['to_description'] = array(
+
+  $dtitle = t('To:');
+  if (count($to)) {
+    if (is_numeric($to[0])) {
+      $dname = guifi_get_devicename($to[0],'large');
+      $dservice = '';
+      $dtitle .= ' '.$dname;
+    } else {
+      $dservice = $to[0];
+      $dname = '';
+      $dtitle .= ' '.t('service %service',array('%service'=>$to[0]));
+    }
+  }
+
+  $form['to'] = array(
+    '#type' => 'fieldset',
+    '#title' => $dtitle,
+    '#collapsible' => true,
+    '#collapsed' => count($to)
+  );
+  $form['to']['to_description'] = array(
     '#type' => 'textfield',
-    '#title' => t('To device'),
+    '#title' => t('Device'),
     '#required' => true,
-    '#default_value' => $to,
+    '#default_value' => $dname,
     '#size' => 60,
     '#maxlength' => 128,
+    '#element_validate' => array('guifi_devicename_validate'),
     '#autocomplete_path'=> 'guifi/js/select-node-device',
     '#description' => t('Target device to trace the route to.').'<br>'.
         $search_help,

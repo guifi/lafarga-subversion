@@ -736,6 +736,25 @@ function guifi_get_ap_ssid($id,$radiodev_counter) {
   return guifi_to_7bits($radio->ssid);
 }
 
+function guifi_get_devicename($id, $format = 'nick') {
+  switch ($format) {
+  case 'large':
+    $device = db_fetch_object(db_query(
+      'SELECT
+        CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) str
+      FROM {guifi_location} l, {guifi_zone} z, {guifi_devices} d
+      WHERE d.id=%d AND l.id=d.nid AND l.zone_id=z.id',$id));
+    break;
+  case 'nick':
+  default:
+    $device = db_fetch_object(db_query(
+      'SELECT d.nick str
+      FROM {guifi_location} l, {guifi_zone} z, {guifi_devices} d
+      WHERE d.id=%d AND l.id=d.nid AND l.zone_id=z.id',$id));
+  }
+  return $device->str;
+}
+
 function guifi_get_nodename($id) {
   $node = db_fetch_object(db_query("SELECT d.nick FROM {guifi_location} d WHERE d.id=%d",$id));
   return guifi_to_7bits($node->nick);
@@ -1592,6 +1611,22 @@ function guifi_nodename_validate($nodestr,&$form_state) {
     t('Node name %name not valid.',array('%name'=>$nodestr['#value'])),'error');
 
   return $nodestr;
+}
+
+function guifi_devicename_validate($devicestr,&$form_state) {
+  if ($form_state['clicked_button']['#value'] == t('Reset'))
+    return;
+
+  $dev = explode('-',$devicestr['#value']);
+  $qry = db_query('SELECT id FROM {guifi_devices} WHERE id="%s"',$dev[0]);
+  while ($device = db_fetch_array($qry)) {
+    $form_state['values']['nid']=$device['id'];
+    return $devicestr;
+  }
+  form_error($devicestr,
+    t('Device name %name not valid.',array('%name'=>$devicestr['#value'])),'error');
+
+  return $devicestr;
 }
 /** guifi_notify_send(): Delivers all the waiting messages and empties the queue
 */
