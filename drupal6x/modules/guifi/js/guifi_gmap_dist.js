@@ -1,4 +1,5 @@
 var map = null;
+var oGMark = null; //GMarker
 
 if(Drupal.jsEnabled) {
 	  $(document).ready(function(){
@@ -82,8 +83,10 @@ function xz()
   }
 }
 
-function initialPosition(point) {
+function initialPosition(ppoint) {
   map.clearOverlays();
+  point=ppoint;  //save point in global var
+  oGMark = null;  //init global var
   var dNode = new GMarker(point);
   document.getElementById("profile").src =
     "http://www.heywhatsthat.com/bin/profile.cgi?"+
@@ -98,6 +101,139 @@ function initialPosition(point) {
   map.addOverlay(pLine);   
   map.addOverlay(oNode);
 }
+function profileclick(event){
+    var oProfile=document.getElementById("profile");
+    var pointClic=coord_relativ(event,oProfile);
+    var nLat=parseFloat(document.getElementById("lat").value);
+    var nLon=parseFloat(document.getElementById("lon").value);
+    var nLat2=point.y;
+    var nLon2=point.x;
+    var nDistance = GCDistance_js(nLat,nLon,nLat2,nLon2);
+    var nNewDistance=(pointClic.x-29)*nDistance/oProfile.width;
+    var nAzimut=GCAzimuth_js(nLat,nLon,nLat2,nLon2)
+    //alert('Distancia:'+nNewDistance+'  Azimut:'+nAzimut);
+    var pointNew=getDestPoint(nLat,nLon,nNewDistance,nAzimut);
+    //alert(' inici:'+nLat+'  '+nLon+'    newpoint:'+pointNew.lat+'  '+pointNew.lon+'   final:'+nLat2+'  '+nLon2);
+    var pointGMark=new GLatLng(pointNew.lat,pointNew.lon);
+    if(oGMark!=null){
+        map.removeOverlay(oGMark);
+    };
+    oGMark=new GMarker(pointGMark);
+    map.addOverlay(oGMark);
+}
 
+/*
+ * Calcula la coordenada relativa de un clic respecte a les coordenades del contenidor
+ */
+function coord_relativ(event,oProfile){
+    if (window.ActiveXObject) {  //for ie
+        pos_x = event.offsetX;
+        pos_y = event.offsetY;
+    } else { //for Firefox
+        var top = 0, left = 0;
+        var elm = oProfile;
+        while (elm) {
+            left += elm.offsetLeft;
+            top += elm.offsetTop;
+            elm = elm.offsetParent;
+        }
+        pos_x = event.pageX - left;
+        pos_y = event.pageY - top;
+    }
+    return {x:pos_x,y:pos_y}
+}
+
+/*
+ * Movable Type Scripts
+ * calculate destination point given start point, initial bearing (deg) and distance (km)
+ * see http://williams.best.vwh.net/avform.htm#LL
+ * original modified
+ */
+function getDestPoint(lat,lon,d,brng) {
+  var DE2RA = 0.01745329252;
+  var RA2DE = 57.2957795129;
+  var R = 6371; // earth's mean radius in km
+  var lat1 = lat * DE2RA;
+  var lon1 = lon * DE2RA;
+  brng = brng * DE2RA;
+  var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) + 
+                        Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+  var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1), 
+                               Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
+  lon2 = (lon2+Math.PI)%(2*Math.PI) - Math.PI;  // normalise to -180...+180
+  if (isNaN(lat2) || isNaN(lon2)) return null;
+  lat2 *= RA2DE;
+  lon2 *= RA2DE;
+  return {lat:lat2,lon:lon2}
+}
+
+/*
+ * GeoCalc
+ * funcio de php pasada a javascript
+ */
+function GCDistance_js(pLat1, pLon1, pLat2, pLon2) {  
+    var DE2RA = 0.01745329252;
+    var AVG_ERAD = 6371.0;
+    var nLat1 = pLat1 * DE2RA;
+    var nLon1 = pLon1 * DE2RA;
+    var nLat2 = pLat2 * DE2RA;
+    var nLon2 = pLon2 * DE2RA;
+    var d = Math.sin(nLat1)*Math.sin(nLat2) + Math.cos(nLat1)*Math.cos(nLat2)*Math.cos(nLon1 - nLon2);
+    return (AVG_ERAD * Math.acos(d));
+}
+
+/*
+ * GeoCalc
+ * funcio de php pasada a javascript
+ */
+function GCAzimuth_js(plat1, plon1, plat2, plon2) {  //GeoCalc
+    var DE2RA = 0.01745329252;
+    var RA2DE = 57.2957795129;
+    var result = 0.0;
+    var ilat1 = Math.floor(0.50 + plat1 * 360000.0);
+    var ilat2 = Math.floor(0.50 + plat2 * 360000.0);
+    var ilon1 = Math.floor(0.50 + plon1 * 360000.0);
+    var ilon2 = Math.floor(0.50 + plon2 * 360000.0);
+
+    var lat1 = plat1 * DE2RA;
+    var lon1 = plon1 * DE2RA;
+    var lat2 = plat2 * DE2RA;
+    var lon2 = plon2 * DE2RA;
+
+    if ((ilat1 == ilat2) && (ilon1 == ilon2)) {
+      return result;
+    }
+    else if (ilat1 == ilat2) {
+      if (ilon1 > ilon2)
+        result = 90.0;
+      else
+        result = 270.0;
+    }
+    else if (ilon1 == ilon2) {
+      if (ilat1 > ilat2)
+        result = 180.0;
+    }
+    else {
+      var c = Math.acos(Math.sin(lat2)*Math.sin(lat1) + Math.cos(lat2)*Math.cos(lat1)*Math.cos((lon2-lon1)));
+      var A = Math.asin(Math.cos(lat2)*Math.sin((lon2-lon1))/Math.sin(c));
+      result = (A * RA2DE);
+
+
+      if ((ilat2 > ilat1) && (ilon2 > ilon1)) {
+        result = result;
+      }
+      else if ((ilat2 < ilat1) && (ilon2 < ilon1)) {
+        result = 180.0 - result;
+      }
+      else if ((ilat2 < ilat1) && (ilon2 > ilon1)) {
+        result = 180.0 - result;
+      }
+      else if ((ilat2 > ilat1) && (ilon2 < ilon1)) {
+        result += 360.0;
+      }
+    }
+
+    return result;
+}
 
 
