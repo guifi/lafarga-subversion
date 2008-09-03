@@ -206,6 +206,14 @@ function guifi_menu() {
     'file' => 'guifi_tools.inc.php',
     'weight' => 5
   );
+  $items['guifi/menu/ip/traceroute'] = array(
+    'title' => 'Traceroute',
+    'description' => 'Software traceroute. Find out possible routes between devices or discover the closest services.',
+    'page callback' => 'guifi_traceroute_search',
+    'access arguments' => array('create guifi nodes'),
+    'weight' => 6,
+    'file' => 'guifi_traceroute.inc.php'
+  );
 
   // Administrator's tools
   $items['guifi/menu/admin'] = array(
@@ -641,7 +649,14 @@ function guifi_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_LOCAL_TASK
   );
-
+  $items['guifi/device/%guifi_device/view/traceroute'] = array(
+    'title' => 'traceroute',
+    'page callback' => 'guifi_device_traceroute',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('create guifi nodes'),
+    'type' => MENU_LOCAL_TASK
+  );
   // AHAH Calls
   $items['guifi/js/add_wds'] = array(
     'title' => 'Javascript Add WDS',

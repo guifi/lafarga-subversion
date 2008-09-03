@@ -1243,6 +1243,10 @@ function guifi_device_print($device = NULL) {
   return;
 }
 
+function guifi_device_traceroute($dev) {
+  //guifi_log(GUIFILOG_BASIC,'device traceroute',$dev);
+  drupal_goto('guifi/menu/ip/traceroute/'.$dev['id']);
+}
 function guifi_device_links_print($device,$ltype = '%') {
   guifi_log(GUIFILOG_TRACE,sprintf('function guifi_device_links_print(%s)',$ltype),$device);
 

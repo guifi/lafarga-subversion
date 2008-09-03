@@ -1236,6 +1236,13 @@ function theme_guifi_node_devices_list($node,$links = false) {
               'title' => t('delete device'),
               'attributes'=>array('target'=>'_blank'))).'</td></tr></table>';
      }
+     if (user_access('create guifi nodes')) {
+       $traceroute = l(guifi_img_icon('discover-routes.png'),'guifi/menu/ip/traceroute/'.$device['id'],
+            array(
+              'html'=>true,
+              'title' => t('trace routes, discover services from this device'),
+              'attributes'=>array('target'=>'_blank')));
+     } else $traceroute = '';
      if ($device->variable['firmware'] != "n/d") {
        $unsolclic = l($device[variable]['firmware'],
          'guifi/device/'.$device['id'].'/view/unsolclic',
@@ -1255,7 +1262,8 @@ function theme_guifi_node_devices_list($node,$links = false) {
                  array('data' => t($device[flag]),'class' => $device['flag']),
                  array('data' => $img_url,'class' => $device['flag']),
                  $unsolclic,
-                 $edit_radio
+                 $edit_radio,
+                 $traceroute
                     );
   }
 
