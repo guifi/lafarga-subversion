@@ -733,7 +733,7 @@ function guifi_get_hostname($id) {
 
 function guifi_get_ap_ssid($id,$radiodev_counter) {
   $radio = db_fetch_object(db_query("SELECT r.ssid, d.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE r.id=%d AND r.radiodev_counter=%d",$id,$radiodev_counter));
-  return guifi_to_7bits($radio->ssid);
+  return guifi_clean_ssid($radio->ssid);
 }
 
 function guifi_get_devicename($id, $format = 'nick') {
@@ -1257,6 +1257,18 @@ function guifi_to_7bits($str) {
 // $str_new = str_replace(str_split($from),str_split($to),$str_new);
  guifi_log(GUIFILOG_FULL,'Converted to 7 bits: '.$str_new);
  return $str_new;
+}
+
+function guifi_clean_ssid($str) {
+ $str = str_replace(array('Ã ','Ã¡','Ã€','Ã?','Ã','Ã?'),'a',$str);
+ $str = str_replace(array('Ãš','Ã©','Ã«','Ã?','Ã?','Ã?'),'e',$str);
+ $str = str_replace(array('Ã¬','Ã­','Ã¯','Ã','Ã?','Ã'),'i',$str);
+ $str = str_replace(array('Ã²','Ã³','Ã¶','Ã?','Ã?','Ã?'),'o',$str);
+ $str = str_replace(array('Ã¹','Ãº','ÃŒ','Ã?','Ã?','Ã?'),'u',$str);
+ $str = str_replace(array('Ã±','Ã?'),'n',$str);
+ $str = str_replace(array('Ã§','Ã?'),'c',$str);
+
+ return $str;
 }
 
 function guifi_zone_childs_recurse($id, $childs, $children) {
