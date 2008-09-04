@@ -468,7 +468,7 @@ function guifi_node_validate($node,$form) {
   guifi_validate_nick($node->nick);
 
   // not at root zone
-  if (($node->zone_id == 0) && (!empty($node->nick))){
+  if (($node->zone_id == 0) or ($node->zone_id == guifi_zone_root())){
     form_set_error('zone_id',
       t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
   }

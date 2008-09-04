@@ -5,7 +5,7 @@
  * functions for tracroute tools
  */
 
-function guifi_traceroute($path, $to, &$routes, $maxhops = 15,$cost = 0) {
+function guifi_traceroute($path, $to, &$routes, $maxhops = 18,$cost = 0, $alinks = array()) {
   $btime = microtime(true);
 
   $hop = count($path);
@@ -13,61 +13,128 @@ function guifi_traceroute($path, $to, &$routes, $maxhops = 15,$cost = 0) {
   end($path);
   $parent = key($path);
 
+  // if links array not loaded, fill the array
+  if (!count($alinks)) {
+    $lbegin = microtime(true);
+    $qry = db_query('SELECT * FROM {guifi_links} WHERE flag != "Dropped"');
+    while ($link = db_fetch_array($qry)) {
+
+      // alinks[devices] will contain all the links for every device
+      $alinks['devices'][$link['device_id']][] = $link['id'];
+
+      // alinks[links][link_id] will contain all the information of every link:
+      //  [0] => an array of every device and related data
+      //     [0] => type
+      //     [1] => status
+      //     [device_id] => (should have 2, one per peer)
+      //                [0] => links with device_id
+      //                [1] => node id
+      //                [2] => interface_id
+      //                [3] => ipv4_id
+
+      if (isset($alinks['links'][$link['id']])) {
+        // link data is alredy filled just adding a peer
+        // the other peer is the other key
+
+        end($alinks['links'][$link['id']]);
+        $peer = key($alinks['links'][$link['id']]);
+
+        // fill counterpart at previous peer
+        $alinks['links'][$link['id']][$peer][0] = $link['device_id'];
+
+        // fill the data of this peer
+        $alinks['links'][$link['id']][$link['device_id']] = array(
+          $peer,
+          $link['nid'],
+          $link['interface_id'],
+          $link['ipv4_id']
+        );
+      } else
+        // first peer of the link, the other peer is still unknown
+        $alinks['links'][$link['id']] = array(
+          0=>array($link['link_type'],$link['flag']),
+          $link['device_id']=>array(
+            0,  // peer still unknown
+            $link['nid'],
+            $link['interface_id'],
+            $link['ipv4_id']
+          ),
+        );
+    }
+//    print count($alinks['links'])." links loaded in ".
+//      number_format(microtime(true)-$lbegin,4).
+//      " seconds\n<br>";
+  }
+
+
 //  print "Hop# $hop path ".implode(',',$kpath)." parent $parent looking for ".implode(',',$to)."\n<br>";
 
-  $qry = db_query(
-    'SELECT l1.*, l2.device_id ddevice_id, l2.ipv4_id dipv4_id, l2.interface_id dinterface_id, l2.nid dnid
-     FROM {guifi_links} l1, {guifi_links} l2
-     WHERE l1.device_id=%d AND l1.id=l2.id AND l2.device_id != %d AND l1.flag != "Dropped" AND l1.flag="Working"',
-     $parent, $parent);
+//  $qry = db_query(
+//    'SELECT l1.*, l2.device_id ddevice_id, l2.ipv4_id dipv4_id, l2.interface_id dinterface_id, l2.nid dnid
+//     FROM {guifi_links} l1, {guifi_links} l2
+//     WHERE l1.device_id=%d AND l1.id=l2.id AND l2.device_id != %d AND l1.flag != "Dropped" AND l1.flag="Working"',
+//     $parent, $parent);
 
   $c = 0;
   $links = array();
-  while ($linked = db_fetch_object($qry)) {
-    // if loopback, ignore this link
-    if (in_array($linked->ddevice_id,$kpath))
+//  while ($linked = db_fetch_object($qry)) {
+//    // if loopback, ignore this link
+//    if (in_array($linked->ddevice_id,$kpath))
+//      continue;
+//
+//    $links[] = $linked;
+//  }
+
+  foreach ($alinks['devices'][$parent] as $lid) {
+    $link = $alinks['links'][$lid];
+    if (!(count($link) == 3))
+      // link ins incomplete, ignore
       continue;
 
-    $links[] = $linked;
-  }
+    $dest = $link[$parent][0];
 
-  foreach ($links as $linked) {
+    // if loopback, ignore this link
+    if (in_array($link[$parent][0],$kpath))
+      continue;
+
     $c++;
 
-//    print "Linked $linked->device_id to $linked->ddevice_id \n<br>";
+//    print "Linked $parent to $dest \n<br>";
 
     $npath = $path;
     $npath[$parent]['from'] = array(
-      $linked->id,
-      $linked->link_type,
-      $linked->flag,
-      $linked->interface_id,
-      $linked->ipv4_id
+      $lid,              // 0 link id
+      $link[0][0],       // 1 type
+      $link[0][1],       // 2 flag
+      $link[$parent][2], // 3 interface_id
+      $link[$parent][3], // 4 ipv4_id
+      $link[$parent][1]  // 5 node id
+
     );
-    $npath[$linked->ddevice_id]['to'] = array(
-      $linked->dnid,
-      $linked->dinterface_id,
-      $linked->dipv4_id
+    $npath[$dest]['to'] = array(
+      $link[$dest][1],   // 0 dest nid
+      $link[$dest][2],   // 1 dest interface_id
+      $link[$dest][3]    // 2 dest ipv4 id
     );
 
     $ncost = $cost;
     // calculating the current route cost
-    switch ($linked->link_type) {
+    switch ($link[0][0]) {
       case 'cable': $ncost += 1; break;
       case 'wds': $ncost += 5; break;
       default: $ncost += 10; break;
     }
-    if ($linked->flag != 'Working')
+    if ($link[0][1] != 'Working')
       $ncost += 100;
 
     // if linked device in target destinations, add to routes
-    if (in_array($linked->ddevice_id,$to)) {
+    if (in_array($dest,$to)) {
       $routes[] = array($ncost,$npath);
     }
 
     // if #hops < #maxhops and cost < 200, next hop
     if ((count($npath) < $maxhops) and ($ncost < 200)) {
-      $c += guifi_traceroute($npath,$to,$routes,$maxhops,$ncost);
+      $c += guifi_traceroute($npath,$to,$routes,$maxhops,$ncost,$alinks);
     }
   }
   return $c;
@@ -101,7 +168,7 @@ function guifi_traceroute_search($params = null) {
   $btime = microtime(true);
   $explored = guifi_traceroute(array($from=>array()),$to,$routes);
 
-  $trace = t('%results routes found.%explored routes analyzed in %secs seconds',
+  $trace = t('%results routes found. %explored routes analyzed in %secs seconds',
     array('%results'=>count($routes),
           '%explored'=>number_format($explored),
           '%secs'=>number_format(microtime(true)-$btime,4)));
@@ -112,16 +179,23 @@ function guifi_traceroute_search($params = null) {
 
   sort($routes);
 
+  $collapsed = false;
   foreach ($routes as $route) {
     end($route[1]);
     $target = key($route[1]);
 
-    $trace .= theme('box',t('Route from %oname to %dname, cost %cost',
-      array(
-        '%cost'=>$route[0],
-        '%oname'=>guifi_get_devicename($from,'nick'),
-        '%dname'=>guifi_get_devicename($target,'nick'))),
-      theme_guifi_traceroute($route[1]));
+    $trace .= theme('fieldset',array(
+      '#title'=>t('Route from !oname to !dname, !hops hops, cost !cost',
+        array(
+          '!cost'=>$route[0],
+          '!oname'=>guifi_get_devicename($from,'nick'),
+          '!hops'=>count($route[1]) - 1,
+          '!dname'=>guifi_get_devicename($target,'nick'))),
+      '#value'=>theme_guifi_traceroute($route[1]),
+      '#collapsible'=>true,
+      '#collapsed'=>$collapsed
+      ));
+    $collapsed = true;
   }
 
   $output .= theme('box',t('Software traceroute result from %from to %to',
@@ -287,16 +361,17 @@ function theme_guifi_traceroute($route) {
 
     $rows[] = $cols;
   }
-  $rows[] = array(
+  $rows[] = array(array('data'=>
     t('Total distance %tDist kms., %hops hops',
-      array('%tDist'=>$tDist,'%hops'=>count($route) - 1))
+      array('%tDist'=>$tDist,'%hops'=>count($route) - 1)),
+    'colspan'=>0)
   );
 
   $header = array(
     t('Device'),
     t('Node'),
-    t('From address'),
-    t('To address'),
+    t('In address'),
+    t('Out address'),
     t('Type'),
     t('Status'),
     t('Kms')

@@ -878,7 +878,7 @@ function guifi_nodeapi($node, $op, $arg = 0) {
 function guifi_search_result($node = false) {
   switch ($node->type) {
     case 'guifi_node':
-      return l(guifi_img_icon('wifi.png'),'node/'.$node->nid.'/view',
+      $extra = l(guifi_img_icon('wifi.png'),'node/'.$node->nid.'/view',
         array(
           'attributes'=>array('title'=>t('View node %node at %zone',
             array('%node'=>$node->nick,'%zone'=>guifi_get_zone_name($node->zone_id)))),
@@ -886,10 +886,34 @@ function guifi_search_result($node = false) {
         l(guifi_img_icon('globe.png'),'node/'.$node->zone_id.'/view/map',
         array('html'=>true,
           'attributes'=>array('title'=>t('View map for %zone',array('%zone'=>guifi_get_zone_name($node->zone_id))))));
+      $qry = db_query('SELECT s.service_type, s.id, s.nick FROM {guifi_services} s, {guifi_devices} d WHERE d.nid=%d AND s.device_id=d.id',$node->nid);
+      while ($s = db_fetch_object($qry)) {
+        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes'=>array('title'=>$s->nick)));
+      }
+      if (count($sextra))
+        $extra .= l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/nodeservices',
+        array(
+          'attributes'=>array('title'=>t('View services for node %node at %zone',
+            array('%node'=>$node->nick,'%zone'=>guifi_get_zone_name($node->zone_id)))),
+          'html'=>true)).' - '.
+          implode('·',$sextra);
+      return $extra;
     case 'guifi_zone':
-      return l(guifi_img_icon('globe.png'),'node/'.$node->nid.'/view/map',
+      $extra = l(guifi_img_icon('globe.png'),'node/'.$node->nid.'/view/map',
         array('html'=>true,
           'attributes'=>array('title'=>t('View map of %zone',array('%zone'=>$node->title)))));
+      $qry = db_query('SELECT s.service_type, s.id FROM {guifi_services} s WHERE s.zone_id=%d',$node->zone_id);
+      while ($s = db_fetch_object($qry)) {
+        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes'=>array('title'=>$s->nick)));
+      }
+      if (count($sextra))
+        $extra .= l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/zoneservices',
+        array(
+          'attributes'=>array('title'=>t('View services for %zone',
+            array('%zone'=>$node->title))),
+          'html'=>true)).' - '.
+          implode('·',$sextra);
+      return $extra;
     case 'guifi_service':
       return l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/servicedata',
         array('html'=>true,
@@ -900,10 +924,18 @@ function guifi_search_result($node = false) {
 }
 
 function guifi_update_index($node = false) {
-  if ($node->nid) {
-//    watchdog('guifi index',$node->nid,null,'WATCHDOG_NOTICE');
-    return '<h1>'.$node->nid.'</h1><h1>'.$node->nick.'</h1><h3>'.$node->title.'</h3>';
+  if (!$node->nid)
+    return;
+
+  $index = '<h1>'.$node->nid.'</h1><h1>'.$node->nick.'</h1><h3>'.$node->title.'</h3>';
+  if ($node->type == 'guifi_node') {
+    $qry = db_query('SELECT * FROM {guifi_users} WHERE nid=%d',$node->nid);
+    while ($u = db_fetch_object($qry))
+      $index .= '<h2>'.$u->username.'</h2>'.
+        '<h2>'.$u->firstname.'</h2>'.
+        '<h2>'.$u->lastname.'</h2>';
   }
+  return $index;
 }
 
 
