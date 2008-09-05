@@ -657,11 +657,11 @@ msgstr ""
 
 #: guifi_graphs.inc.php:75
 msgid "From:"
-msgstr "De:"
+msgstr "Desde:"
 
 #: guifi_graphs.inc.php:78
 msgid "To:"
-msgstr "Per:"
+msgstr "Fins a:"
 
 #: guifi_graphs.inc.php:87
 msgid "customized graph"
@@ -1878,11 +1878,11 @@ msgstr "S'ha definit com a nom curt del servei:"
 
 #: guifi_service.inc.php:454
 msgid "Service %name not valid."
-msgstr ""
+msgstr "El nom de servei %name no és vàlid."
 
 #: guifi_service.inc.php:481
 msgid "The service %name has been CREATED by %user."
-msgstr ""
+msgstr "En/na %user ha CREAT el servei %name."
 
 #: guifi_service.inc.php:516
 msgid "The service %name has been UPDATED by %user."
@@ -2158,7 +2158,7 @@ msgstr ""
 
 #: guifi_users.inc.php:87
 msgid "Are you sure you want to delete the user %username?"
-msgstr ""
+msgstr "N'estàs segur que vols esborrar l'usuari %username?"
 
 #: guifi_users.inc.php:108
 msgid "User %username deleted by %user."
@@ -2328,11 +2328,11 @@ msgstr ""
 
 #: guifi_users.inc.php:1002
 msgid "%user saved. Note that in some cases the change will not take effect until after some time."
-msgstr ""
+msgstr "L'usuari %user s'ha desat. Els canvis poden trigar una estona en ser efectius."
 
 #: guifi_users.inc.php:1005
 msgid "The user !username has been UPDATED by !user."
-msgstr "L'usuari/a %user ha ACTUALITZAT l'usuari !username."
+msgstr "L'usuari/a !user ha ACTUALITZAT l'usuari !username."
 
 #: guifi_users.inc.php:1065
 msgid "there are no users at this proxy"
@@ -2922,7 +2922,7 @@ msgstr ""
 
 #: guifi.module:1237
 msgid "Wireless<br />links"
-msgstr "Enllaços<br />Sense fIls"
+msgstr "Enllaços<br />Sensefils"
 
 #: guifi.module:1249
 msgid "create mrtg config"
