@@ -23,9 +23,14 @@ function stats($devices = array()) {
 		}
 		foreach ($files as $filename) {
 	      // only gathers statistics from devices updated in the last 12 hours
-	      if (filemtime($filename) > (time()-(60*60*12))) {
+	      $ctime = filemtime($filename);
+	      if ($ctime > (time()-(60*60*12))) {
 	  	    list($did) = sscanf(basename($filename,'.rrd'),"%d_ping");
 		    $devices[] = $did;
+	      } else {
+	      	// if not updated for a year, delete (must have permission)
+	      	if ($ctime < (time()-(60*60*24*365)))
+	      	  unlink($filename);
 	      }
 		}
 	}
@@ -40,7 +45,7 @@ function stats($devices = array()) {
 		$py = guifi_get_pings($did,$lastyear);
 		// now providing the availability stats
 		print $did;
-        print sprintf("|%.2f,%s,%s,%s,%d",$py['succeed'],$py['last_online'] > $pyt['last_online'] ? $py['last_online'] : $pyt['last_online'],$pyt['last_sample_date'],$pyt['last_sample'],$py['last_succeed']);
+        print sprintf("|%d,%d,%.2f,%s,%s,%s,%d",$pyt['max_latency'],$pyt['avg_latency'],$py['succeed'],$py['last_online'] > $pyt['last_online'] ? $py['last_online'] : $pyt['last_online'],$pyt['last_sample_date'],$pyt['last_sample'],$py['last_succeed']);
 		// now, getting the traffic, looking into the files <device_id>-<index>_traf.rrd
 		$files = glob(sprintf("%s/%d-*_traf.rrd",$rrddb_path,$did));
 		if (count($files)) foreach ($files as $filename) {
