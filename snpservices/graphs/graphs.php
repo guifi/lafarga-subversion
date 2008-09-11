@@ -45,7 +45,7 @@ function stats($devices = array()) {
 		$py = guifi_get_pings($did,$lastyear);
 		// now providing the availability stats
 		print $did;
-        print sprintf("|%d,%d,%.2f,%s,%s,%s,%d",$pyt['max_latency'],$pyt['avg_latency'],$py['succeed'],$py['last_online'] > $pyt['last_online'] ? $py['last_online'] : $pyt['last_online'],$pyt['last_sample_date'],$pyt['last_sample'],$py['last_succeed']);
+        print sprintf("|%d,%d,%.2f,%s,%s,%s,%d",$pyt['max_latency'],$pyt['avg_latency'],($py['succeed']==0)?$pyt['succeed']:$py['succeed'],$py['last_online'] > $pyt['last_online'] ? $py['last_online'] : $pyt['last_online'],$pyt['last_sample_date'],$pyt['last_sample'],$py['last_succeed']);
 		// now, getting the traffic, looking into the files <device_id>-<index>_traf.rrd
 		$files = glob(sprintf("%s/%d-*_traf.rrd",$rrddb_path,$did));
 		if (count($files)) foreach ($files as $filename) {
