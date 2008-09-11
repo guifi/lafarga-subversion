@@ -4,14 +4,20 @@
  *  * _guifi_tostrunits convert a number to string format in B,KB,MB...
  * **/
 function _guifi_tostrunits($num) {
-      $base = array('B','KB','MB','GB','TB','PB');
-      $str = sprintf("%3d B",$num);
+      $base = array(
+        0=>'b',              // 
+        1024=>'Kb',          // Kilobits
+        pow(1024,2)=>'Mb',   // Megabits
+        pow(1024,3)=>'Gb',   // Gigabits
+        pow(1024,4)=>'Tb',   // Terabits
+        pow(1024,5)=>'Pb');  // Pedabits
+//      $str = sprintf("%3d B",$num);
       foreach ($base as $key => $unit) {
-	      if ($num > pow(1024,$key))
-	          $str = sprintf("%7.2f %s",$num/pow(1024,$key),$unit);
-	      else
-	          return $str;
+        if ($num > $key)
+          if ($num < ($key + ($key*1024)))
+            return sprintf("%s %s",number_format(($num/$key),2),$unit);  	
       }
+      return sprintf("%s %s",number_format(($num/$key),2),$unit);
 }
 
   
@@ -24,7 +30,8 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
    
   global $rrdtool_path;
   global $rrddb_path;
-
+  
+  $now = time();
   $var = array();
   $var['max_latency'] = 0;
   $var['min_latency'] = NULL;
@@ -36,33 +43,51 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   if ($start == NULL)
     $start = time() - 60*60*24*7;
   if ($end == NULL)
-    $end = time() - 300;
-  $fp = popen(sprintf("%s fetch %s/%d_ping.rrd AVERAGE --start=%d --end=%d",$rrdtool_path,$rrddb_path,$did,$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $failed = 'nan';
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$failed,$latency);
-      if (is_numeric($failed) && ($n == 3)) {
-        $var['succeed'] += $failed;
-        $last_suceed = $failed;
-        if ($latency > 0) {
-          $var['avg_latency'] += $latency;
-          if ($var['max_latency'] < $latency)
-            $var['max_latency']    = $latency;
-          if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
-            $var['min_latency']    = $latency;
-        }
-        $var['last'] = $interval;
-        $var['samples']++;
-      }
+    $end = time();
+    
+  $opts = array(
+    'AVERAGE',
+    '--start',$start,
+    '--end',$end
+    );
+  $fname = sprintf("%s/%d_ping.rrd",$rrddb_path,$did);
+  $result = rrd_fetch($fname,$opts,count($opts));
+  $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
+  foreach ($result['data'] as $k=>$data) 
+    $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
+  ksort($fetched_data);
+  $var['last_online'] = 0;
+  
+  foreach ($fetched_data as $interval=>$data) {
+  	if ($interval > $now)
+  	  break;
+  	  
+  	list($failed,$latency) = $data;
+  	
+  	if (strtoupper($failed)=='NAN')
+  	  continue;
+  	  
+    $var['succeed'] += $failed;
+    $last_succeed = $failed;
+    if ($failed < 100) {
+      $var['last_online'] = $interval;
+      $var['avg_latency'] += $latency;
+      if ($var['max_latency'] < $latency)
+        $var['max_latency']    = $latency;
+      if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
+        $var['min_latency']    = $latency;
     }
+    $var['last'] = $interval;
+    $var['samples']++;  	
   }
-  pclose($fp);
+
   if ($var['samples'] > 0) {
     $var['succeed'] = 100 - ($var['succeed'] / $var['samples']);
     $var['avg_latency'] = $var['avg_latency'] / $var['samples'];
     $var['last_sample'] = date('H:i',$var['last']);
-    $var['last_succeed'] = 100 - $last_suceed;
+    $var['last_online'] = date('Ymd',$var['last_online']);
+    $var['last_sample_date'] = date('Ymd',$var['last']);
+    $var['last_succeed'] = 100 - $last_succeed;
   }
   return $var;
 }
@@ -79,28 +104,29 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
     $start = -86400;
   if ($end == NULL)
     $end = -300;
-    $fp = popen(sprintf("%s fetch %s AVERAGE --start=%d --end=%d",$rrdtool_path,$filename,$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$in,$out);
-      if (is_numeric($in) && ($n == 3)) {
-        if ($var['max'] < $in)
-          $var['max'] = $in;
-        if ($var['max'] < $out)
-          $var['max'] = $out;
-        $data[] = array('interval' => $interval, 'in' => $in, 'out' => $out);
-      }
-    }
-    foreach ($data as $key => $sample) {
-      if ($key == 0)
-        $secs = $data[1]['interval'] - $sample['interval'];
-      else
-        $secs = $sample['interval'] - $data[$key - 1]['interval'];
-      $var['in'] += $sample['in'] * $secs;
-      $var['out'] += $sample['out'] * $secs;
-    }
+
+  $opts = array(
+    'AVERAGE',
+    '--start',$start,
+    '--end',$end
+    );
+  $result = rrd_fetch($filename,$opts,count($opts));
+  $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
+  foreach ($result['data'] as $k=>$data) 
+    $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
+  ksort($fetched_data);
+  
+  foreach ($fetched_data as $interval=>$data) {
+  	list($in,$out) = $data;
+  	if (strtoupper($in)=='NAN')
+  	  continue;
+    if ($var['max'] < $in)
+      $var['max'] = $in;
+    if ($var['max'] < $out)
+      $var['max'] = $out;
+    $var['in'] += $result['step'] * $in;
+    $var['out'] += $result['step'] * $out;
   }
-  pclose($fp);
   return $var;
 }
 
