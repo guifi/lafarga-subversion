@@ -111,6 +111,8 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
     '--end',$end
     );
   $result = rrd_fetch($filename,$opts,count($opts));
+  if (!is_array($result['data']))
+    return;
   $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
   foreach ($result['data'] as $k=>$data) 
     $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
