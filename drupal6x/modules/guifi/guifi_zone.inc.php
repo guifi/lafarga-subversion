@@ -1073,9 +1073,8 @@ function guifi_zone_availability($zone,$desc = "all") {
   $sql =
     'SELECT z.id zid, z.title ztitle, z.nick znick, ' .
     '  l.id nid, l.nick nnick, l.status_flag nstatus ' .
-    'FROM {guifi_zone} z, {guifi_location} l, {guifi_devices} d ' .
+    'FROM {guifi_zone} z, {guifi_location} l ' .
     'WHERE z.id=l.zone_id ' .
-    '  AND l.id=d.nid '.
     '  AND l.status_flag != "'.$qstatus.'"' .
     '  AND z.id IN ('.implode(',',$childs).') '.
     'ORDER BY z.title, z.id, l.nick';

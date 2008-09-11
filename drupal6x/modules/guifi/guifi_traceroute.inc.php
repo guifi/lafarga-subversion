@@ -5,7 +5,7 @@
  * functions for tracroute tools
  */
 
-function guifi_traceroute($path, $to, &$routes, $maxhops = 18,$cost = 0, $alinks = array()) {
+function guifi_traceroute($path, $to, &$routes, $maxhops = 15,$cost = 0, $alinks = array()) {
   $btime = microtime(true);
 
   $hop = count($path);
