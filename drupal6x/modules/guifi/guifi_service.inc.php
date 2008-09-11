@@ -19,7 +19,7 @@ function guifi_service_access($op, $node) {
     return user_access('create guifi nodes');
   }
 
-  if ($op == 'update') {
+  if ($op == 'update' or $op == 'delete') {
     if ((user_access('administer guifi zones')) || ($node->uid == $user->uid)) {
       return TRUE;
     }
