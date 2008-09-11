@@ -1008,7 +1008,8 @@ function guifi_perm() {
     'administer guifi users',
     'manage guifi users',
     'edit own guifi zones',
-    'edit own guifi nodes');
+    'edit own guifi nodes',
+    'delete own guifi_node content');
 }
 
 function guifi_admin_settings() {

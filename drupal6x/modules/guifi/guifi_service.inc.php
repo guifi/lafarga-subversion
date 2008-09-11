@@ -486,6 +486,31 @@ function guifi_service_insert($node) {
 // Refresh maps?
 }
 
+function guifi_service_delete(&$node) {
+  global $user;
+  $log = '';
+
+  $delete = true;
+
+  $to = explode(',',$node->notification);
+  $to[] = variable_get('guifi_contact','webmestre@guifi.net');
+
+  // perform deletion
+  $node->deleted = true;
+  $nzone = _guifi_db_sql(
+    'guifi_services',
+    array('id'=>$node->id),
+    (array)$node,
+    $log,
+    $to);
+  guifi_notify(
+    $to,
+    t('Service %nick has been deleted by %user',
+      array('%nick'=>$node->nick,'%user'=>$user->name)),
+    $log);
+  return;
+}
+
 function guifi_service_multiplefield_clean(&$mfield) {
   if (!empty($mfield))
     foreach($mfield as $k=>$value)
