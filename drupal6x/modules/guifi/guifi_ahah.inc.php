@@ -53,15 +53,15 @@ function guifi_ahah_render_field($field){
 function guifi_ahah_select_server(){
   $matches = array();
 
-  $string = arg(3);
+  $string = strtoupper(arg(3));
 
   $qry = db_query('SELECT ' .
                   '  CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) str '.
                   'FROM {guifi_devices} d, {guifi_location} l, {guifi_zone} z ' .
                   'WHERE d.type IN ("server","cam") ' .
                   '  AND d.nid=l.id AND l.zone_id=z.id ' .
-                  '  AND ((CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) LIKE "%'.
-                       $string.'%")'.
+                  '  AND (UPPER(CONCAT(d.id,"-",z.nick,", ",l.nick," ",d.nick) LIKE "%'.
+                       strtoupper($string).'%")'.
                   '  OR (l.id like "%'.$string.'%"'.
                   '  OR l.nick like "%'.$string.'%"'.
                   '  OR d.nick like "%'.$string.'%"'.
@@ -82,14 +82,14 @@ function guifi_ahah_select_service(){
   $matches = drupal_map_assoc(array(t('No service'),t('Take from parents')));
 
   $service_type = arg(3);
-  $string = arg(4);
+  $string = strtoupper(arg(4));
 
   $qry = db_query('SELECT ' .
                   '  CONCAT(s.id,"-",z.title,", ",s.nick) str '.
                   'FROM {guifi_services} s, {guifi_zone} z ' .
                   'WHERE s.service_type like "%'.$service_type.'%" ' .
                   '  AND s.zone_id=z.id ' .
-                  '  AND ((CONCAT(s.id,"-",z.title,", ",s.nick) LIKE "%'.
+                  '  AND (UPPER(CONCAT(s.id,"-",z.title,", ",s.nick) LIKE "%'.
                        $string.'%")'.
                   '  OR (s.id like "%'.$string.'%"'.
                   '  OR s.nick like "%'.$string.'%"'.
@@ -107,13 +107,13 @@ function guifi_ahah_select_service(){
 function guifi_ahah_select_node(){
   $matches = array();
 
-  $string = arg(3);
+  $string = strtoupper(arg(3));
 
   $qry = db_query('SELECT ' .
                   '  CONCAT(l.id,"-",z.nick,", ",l.nick) str '.
                   'FROM {guifi_location} l, {guifi_zone} z ' .
                   'WHERE l.zone_id=z.id ' .
-                  '  AND ((CONCAT(l.id,"-",z.nick,", ",l.nick) LIKE "%'.
+                  '  AND (UPPER(CONCAT(l.id,"-",z.nick,", ",l.nick) LIKE "%'.
                        $string.'%")'.
                   '  OR (l.id like "%'.$string.'%"'.
                   '  OR l.nick like "%'.$string.'%"'.
@@ -131,13 +131,13 @@ function guifi_ahah_select_node(){
 function guifi_ahah_select_node_device(){
   $matches = array();
 
-  $string = arg(3);
+  $string = strtoupper(arg(3));
 
   $qry = db_query('SELECT
                      CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) str
                   FROM {guifi_location} l, {guifi_zone} z, {guifi_devices} d
                   WHERE l.zone_id=z.id AND l.id=d.nid
-                    AND ((CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) LIKE "%'.
+                    AND (UPPER(CONCAT(d.id,"-",d.nick," '.t('at').' ",z.title,", ",l.nick) LIKE "%'.
                        $string.'%")'.
                   '  OR (d.id like "%'.$string.'%"'.
                   '  OR l.nick like "%'.$string.'%"'.

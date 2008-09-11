@@ -881,14 +881,9 @@ function guifi_zone_ariadna($id = 0, $link = 'node/%d') {
 **/
 function guifi_zone_data($zone) {
 
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $zone->user_created));
-  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $zone->user_changed));
-
   $rows[] = array(t('zone name'),$zone->nick.' - <b>' .$zone->title .'</b>');
   if ($zone->homepage)
     $rows[] = array(t('homepage'),l($zone->homepage,$zone->homepage));
-  if (($zone->notification) and (user_access('administer guifi zones')))
-    $rows[] = array(t('changes notified to (visible only if you have privileges)'),'<a href="mailto:'.$zone->notification.'">'.$zone->notification.'</a>');
   $rows[] = array(t('default proxy'),
               l(guifi_service_str($zone->proxy_id),
                 guifi_zone_get_service($zone,'proxy_id',true))
@@ -904,11 +899,6 @@ function guifi_zone_data($zone) {
   $rows[] = array(t('OSPF zone'),$zone->ospf_zone);
   $tz = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type = 'tz' AND text = '%s'",$zone->time_zone));
   $rows[] = array(t('Time zone'),$tz->description);
-  $rows[] = array(t('log information').':',null);
-  if ($zone->timestamp_created > 0)
-    $rows[] = array(t('created by'),l($name_created->name,'user/'.$zone->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($zone->timestamp_created));
-  if ($zone->timestamp_changed > 0)
-    $rows[] = array(t('updated by'),l($name_changed->name,'user/'.$zone->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($zone->timestamp_changed));
 
   return array_merge($rows);
 }
@@ -1157,7 +1147,8 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       array(
         array(
           array(
-            'data'=>'<small>'.theme_guifi_zone_data($node,false).'</small>',
+            'data'=>'<small>'.theme_guifi_zone_data($node,false).'</small>'.
+              theme_guifi_contacts($node),
             'width'=>'50%'
           ),
           array(

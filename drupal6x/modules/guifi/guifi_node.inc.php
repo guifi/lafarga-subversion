@@ -1085,9 +1085,6 @@ function guifi_node_set_flag($id) {
 
 function theme_guifi_node_data($node,$links = false) {
 
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
-  $name_managed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->uid));
-  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
 
   $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
@@ -1096,37 +1093,13 @@ function theme_guifi_node_data($node,$links = false) {
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
 
-  if (($node->notification) and (user_access('administer guifi networks')))
-    $rows[] = array(
-      t('changes notified to (visible only if you have privileges)'),
-      array(
-        'data'=>
-          '<a href="mailto:'.$node->notification.'">'.$node->notification.'</a>',
-          'colspan'=>2));
-
-
   $rows[] = array(t('graphs provided from'),array(
     'data'=>l(guifi_service_str($node->graph_server),
               guifi_node_get_service($node->id,'graph_server',true)),
      'colspan'=>2));
 
-
-  $rows[] = array(null,null,null);
-  $rows[] = array(array('data'=>'<b>' .t('user and log information').'</b>','colspan'=>'3'));
-  if ($node->uid > 0)
-    $rows[] = array(t('created by'),
-      array('data'=>l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created),
-      'colspan'=>2));
-  if ($node->uid != $node->user_created)
-    $rows[] = array(t('managed by'),
-      array('data'=>l($name_managed->name,'user/'.$node->uid),
-      'colspan'=>2));
-  if ($node->timestamp_changed > 0)
-    $rows[] = array(t('updated by'),
-      array('data'=>l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed),
-      'colspan'=>2));
-
   $output = theme('table',null,array_merge($rows));
+  $output .= theme_guifi_contacts($node);
 
   if ($links) {
     $node = node_load(array('nid'=>$node->id));

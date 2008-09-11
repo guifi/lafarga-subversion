@@ -1085,19 +1085,6 @@ function guifi_bandwidth_types() {
 /* guifi_device_print_data(): outputs a detailed device information data */
 function guifi_device_print_data($device) {
 
-  $created = db_fetch_object(db_query('
-    SELECT u.name
-    FROM {users} u
-    WHERE u.uid = %d',
-    $device[user_created]));
-  $changed = db_fetch_object(db_query('
-    SELECT u.name
-    FROM {users} u
-    WHERE u.uid = %d',
-    $device[user_changed]));
-  $name_created = l($created->name,'user/'.$device['user_created']);
-  $name_changed = l($changed->name,'user/'.$device['user_changed']);
-
   $radios = db_query(
       'SELECT *
        FROM {guifi_radios}
@@ -1162,10 +1149,7 @@ function guifi_device_print_data($device) {
     $img_url = 'NULL';
 
   $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
-  if (($device['notification']) and (guifi_device_access('update',$device['id'])))
-    $rows[] = array(t('changes notified to (visible only if you have privileges)'),'<a href="mailto:'.$device['notification'].'">'.$device['notification'].'</a>');
-  $rows[] = array(t('created by:').' '.$name_created .'&nbsp;' .t('on') .'&nbsp;' .format_date($device[timestamp_created]),
-                  t('updated by:').' '.$name_changed .'&nbsp;' .t('on') .'&nbsp;' .format_date($device[timestamp_changed]));
+  $rows[] = array(array('data'=>theme_guifi_contacts($device),'colspan'=>0));
 
   return array_merge($rows);
 }

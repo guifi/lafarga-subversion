@@ -55,6 +55,9 @@ function guifi_service_form($node, $param) {
 
   guifi_log(GUIFILOG_TRACE,'guifi_service_form()',$node);
 
+  drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id,'node/%d/view/services'));
+
+
  // $f = guifi_form_hidden_var($node,array('id'));
 
   if ( (empty($node->nid)) and (is_numeric($node->title)) ) {
@@ -550,8 +553,6 @@ function theme_guifi_service_data($node, $links = true) {
     $node = node_load(array('nid'=>$node->id));
   guifi_log(GUIFILOG_TRACE,'guifi_service_print_data()',$node);
 
-  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
-  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
   $zone         = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id = %d', $node->zone_id));
   $type         = db_fetch_object(db_query('SELECT description FROM {guifi_types} WHERE type="service" AND text = "%s"', $node->service_type));
 
@@ -626,16 +627,8 @@ function theme_guifi_service_data($node, $links = true) {
       $rows[] = array(null,$domain,null);
   }
 
-  $rows[] = array(null,null,null);
-  $rows[] = array('<b>' .t('user and log information') .'<b>',null,null);
-  if ($node->timestamp_created > 0)
-    $rows[] = array(t('created by'),$name_created->name,format_date($node->timestamp_created));
-  else
-    $rows[] = array(t('created by'),$name_created->name,null);
-  if ($node->timestamp_changed > 0)
-    $rows[] = array(t('last update'),$name_changed->name,format_date($node->timestamp_changed));
-
   $output = theme('table',null,$rows);
+  $output .= theme_guifi_contacts($node);
 
   if ($links) {
     drupal_set_breadcrumb(guifi_node_ariadna($node));

@@ -1008,8 +1008,8 @@ function guifi_perm() {
     'administer guifi users',
     'manage guifi users',
     'edit own guifi zones',
-    'edit own guifi nodes',
-    'delete own guifi_node content');
+    'edit own guifi nodes'
+  );
 }
 
 function guifi_admin_settings() {
@@ -1849,6 +1849,35 @@ function theme_guifi_menu_page($blocks) {
   }
   $output .= '</div>';
   return $output;
+}
+
+function theme_guifi_contacts($node) {
+  global $user;
+
+  if (is_array($node))
+    $node = (object)$node;
+
+  if (!isset($node->uid))
+    $node->uid = $node->user_created;
+
+  $name_created = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_created));
+  $name_managed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->uid));
+  $name_changed = db_fetch_object(db_query('SELECT u.name FROM {users} u WHERE u.uid = %d', $node->user_changed));
+
+  if (($node->notification) and (user_access('create guifi nodes')))
+    $rows[] = '<a href="mailto:'.$node->notification.'">'.t('email contact (available if you are logged in)').'</a>';
+
+  if ($node->uid > 0)
+    $rows[] = t('created by').': '.
+      l($name_created->name,'user/'.$node->user_created) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_created,'small');
+  if ($node->uid != $node->user_created)
+    $rows[] = t('managed by').': '.
+      l($name_managed->name,'user/'.$node->uid);
+  if ($node->timestamp_changed > 0)
+    $rows[] = t('updated by').': '.
+      l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed);
+
+  return '<small>'.theme('box',t('contact information'),implode(' · ',$rows)).'</small>';
 }
 
 function guifi_menu_link_alter(&$item, &$menu) {
