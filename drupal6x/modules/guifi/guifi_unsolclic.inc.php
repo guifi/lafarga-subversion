@@ -40,7 +40,7 @@ function guifi_unsolclic($dev, $format = 'html') {
 
   switch ($dev->variable['firmware']) {
     case 'RouterOSv2.9':
-    case 'RouterOSv3.0':
+    case 'RouterOSv3.x':
       unsolclic_routeros($dev);
       exit;
       break;
