@@ -707,7 +707,7 @@ function guifi_node_distances_map($node) {
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
-    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight'),'align'=>'center'));
+    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight<br>Click on the path profile to see the point on the map'),'align'=>'center'));
     $rows[] = array(array('data'=>'<a href="javascript:;" onclick="profileclick(event)"><img id="profile" src="'.drupal_get_path('module', 'guifi').'/js/marker_start.png" /></a>','align'=>"center"));
     $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
     $output = theme('table',null,$rows);

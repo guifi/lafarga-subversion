@@ -78,7 +78,7 @@ function xz()
       bounds = pLine.getBounds();
       map.setCenter(bounds.getCenter(),map.getBoundsZoomLevel(bounds)); 
 	 }
-
+	
     
   }
 }
@@ -109,7 +109,7 @@ function profileclick(event){
     var nLat2=point.y;
     var nLon2=point.x;
     var nDistance = GCDistance_js(nLat,nLon,nLat2,nLon2);
-    var nNewDistance=(pointClic.x-29)*nDistance/oProfile.width;
+    var nNewDistance=(pointClic.x-29)*nDistance/(oProfile.width-29);
     var nAzimut=GCAzimuth_js(nLat,nLon,nLat2,nLon2)
     //alert('Distancia:'+nNewDistance+'  Azimut:'+nAzimut);
     var pointNew=getDestPoint(nLat,nLon,nNewDistance,nAzimut);
