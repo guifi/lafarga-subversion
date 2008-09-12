@@ -637,7 +637,8 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     $keys['radiodev_counter']=$radiodev_counter;
     $radio['id'] = $ndevice['id'];
     $radio['radiodev_counter'] = $rc;
-    $radio['nid']=$movenode[0];
+    if ($movenode[0])
+      $radio['nid']=$movenode[0];
     $radio['model_id']=$edit['variable']['model_id'];
 
     // check if device id has changed
