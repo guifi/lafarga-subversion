@@ -407,7 +407,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'firmware', 'kamikaze', 'OpenWRT kamikaze',
    'WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|NanoStation2|NanoStation5');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N', 'WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'firmware', 'RouterOSv3.0', 'RouterOS 3.0 from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|Supertrasto RB433 guifi.net');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'firmware', 'RouterOSv3.x', 'RouterOS 3.x from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|Supertrasto RB433 guifi.net');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'firmware', 'AirOsv221', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5')");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('12', 'firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR', 'WRT54Gv1-4|WRT54GL|WRT54GSv1|WRT54GSv2|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('13', 'firmware', 'AirOsv30', 'Ubiquti AirOs 3.0', 'NanoStation2|NanoStation5')");
@@ -528,8 +528,8 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'routing', 'n/a', 'None', '');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'routing', 'Static', 'Static routing', '');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'routing', 'Gateway', 'Gateway to AP', '');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'routing', 'OSPF', 'OSPF', 'Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'routing', 'BGP', 'BGP', 'Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'routing', 'OSPF', 'OSPF', 'Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9|RouterOSv3.x');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'routing', 'BGP', 'BGP', 'Alchemy|Talisman|DD-WRT|DD-guifi|RouterOSv2.9|RouterOSv3.x');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'routing', 'OLSR', 'OLSR', '');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('7', 'routing', 'OLSR-NG', 'OLSR-NG', '');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'routing', 'BATMAN', 'BATMAN', '');");
