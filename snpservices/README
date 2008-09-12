@@ -25,7 +25,7 @@ for the directory:
 
 Alias /snpservices /var/www/html/snpservices
 
-2.-Make the directoru snpservices/tmp writable to everybody
+2.-Make the directory snpservices/tmp writable to everybody
 chmod a+rw snpservices/tmp
 
 3.-Create a guifi service at the database. Use this url

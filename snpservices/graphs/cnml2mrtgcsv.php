@@ -52,7 +52,8 @@ function snmplist($did,$dev) {
       if (isset($tatt->snmp_index)) {
         $snmp[(int)$tatt->id] = (int)$tatt->snmp_index;
       } else if (isset($tatt->snmp_name))
-        $snmp[(int)$tatt->id] = 'wlan'.((int)$tatt->id + 1).';'.$tatt->ssid;
+//        $snmp[(int)$tatt->id] = 'wlan'.((int)$tatt->id + 1).';'.$tatt->ssid;
+        $snmp[(int)$tatt->id] = $tatt->snmp_name.';'.$tatt->ssid;
 
       break;
     case 'interface':
