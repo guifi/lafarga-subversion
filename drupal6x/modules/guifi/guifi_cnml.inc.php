@@ -86,6 +86,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      echo $CNML->asXML();
      return;
      break;
+   case 'ips':
+   	 $CNML=dump_guifi_ips($cnmlid);
+     drupal_set_header('Content-Type: application/xml; charset=utf-8');
+     echo $CNML->asXML();
+     return;
+     break;
   }
 
 
@@ -663,6 +669,41 @@ function fnodecount($cnmlid){
 	$classXML->addAttribute('result',$nreg);
 	break;
   }
+  return $CNML;
+}
+
+
+
+// Creates CNML with all guifi's IPs, used to generate DNS Reverse Resolution zones (RRZ)
+function dump_guifi_ips($cnmlid){
+  $CNML = new SimpleXMLElement('<cnml></cnml>');
+  $CNML->addAttribute('version','0.1');
+  $CNML->addAttribute('server_id','1');
+  $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
+  
+  // 172.x.x.x
+  $result=db_query("SELECT t1.ipv4, t2.device_id, t3.nick FROM guifi_ipv4 AS t1 JOIN guifi_interfaces AS t2 ON t1.interface_id = t2.id JOIN guifi_devices AS t3 ON t2.device_id = t3.id WHERE t1.ipv4 LIKE '172%' ");
+  $classXML = $CNML->addChild('subnet');
+	while ($record=db_fetch_object($result)){
+	  $reg = $classXML->addChild('IP');
+	  $reg->addAttribute('address',$record->ipv4);
+	  $reg->addAttribute('device_id',$record->device_id);
+	  $reg->addAttribute('nick',$record->nick);
+	};
+	$classXML->addAttribute('range','172');
+
+  // 10.x.x.x	
+  $result=db_query("SELECT t1.ipv4, t2.device_id, t3.nick FROM guifi_ipv4 AS t1 JOIN guifi_interfaces AS t2 ON t1.interface_id = t2.id JOIN guifi_devices AS t3 ON t2.device_id = t3.id WHERE t1.ipv4 LIKE '10%' ");
+  $classXML = $CNML->addChild('subnet');
+	while ($record=db_fetch_object($result)){
+	  $reg = $classXML->addChild('IP');
+	  $reg->addAttribute('address',$record->ipv4);
+	  $reg->addAttribute('device_id',$record->device_id);
+	  $reg->addAttribute('nick',$record->nick);
+	};
+	$classXML->addAttribute('range','10');
+  	
   return $CNML;
 }
 
