@@ -760,6 +760,11 @@ function guifi_get_nodename($id) {
   return guifi_to_7bits($node->nick);
 }
 
+function guifi_get_location($id) {
+  $node = db_fetch_object(db_query("SELECT d.lat,d.lon FROM {guifi_location} d WHERE d.id=%d",$id));
+  return array('lat'=>$node->lat, 'lon'=>$node->lon);
+}
+
 function guifi_get_zone_of_node($id) {
   $node = db_fetch_object(db_query("SELECT d.zone_id FROM {guifi_location} d WHERE d.id=%d",$id));
   return $node->zone_id;
