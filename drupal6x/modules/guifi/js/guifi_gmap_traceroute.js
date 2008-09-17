@@ -93,12 +93,17 @@ function xz()
             if(oNodes[oLink.tonode].subroute == undefined){
                   oNodes[oLink.tonode].subroute = nSubRoute;
                   oNodes[oLink.tonode].levelend = nLevel;
-            }else{
-                  nLevel = oNodes[oLink.tonode].levelend+1;
+                  oLink.subroute = nSubRoute;
+            }else if(oLink.fromnode != oLink.tonode){
+                  if(nLevel<=oNodes[oLink.tonode].levelend){
+                        nLevel = oNodes[oLink.tonode].levelend+1;
+                  }
                   oNodes[oLink.tonode].levelend = nLevel;
                   sw = 0;
+                  oLink.subroute = nSubRoute;
+            }else{
+                  oLink.subroute=0;
             }
-            oLink.subroute = nSubRoute;
             oLinkPaint[oLink.idlink] = 1;
             oSubRouteLevel[nSubRoute] = nLevel;
       }else{
