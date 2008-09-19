@@ -16,25 +16,57 @@ else
 
 $an = explode(',',$nodes);
 
-$cnml = simplexml_load_file($CNMLData);
-$nxml = $cnml->xpath('//node[@id='.implode(' or @id=',$an).']');
-$rxml = '<cnml>';
-foreach ($nxml as $n)
-  $rxml .= $n->asXML();
-$rxml .= '</cnml>';
-$CNML = simplexml_load_string($rxml);
+// Opening CNML source
+$doc = new DOMDocument;
+$doc->preserveWhiteSpace = false;
+$doc->Load('../data/guifi.cnml');
 
-$CNML->addAttribute('version','0.1');
-$CNML->addAttribute('server_id','1');
-$CNML->addAttribute('server_url','http://guifi.net');
-$CNML->addAttribute('generated',date('Ymd hi',time()));
-$classXML = $CNML->addChild('class');
+// building the xpath query for requested nodes
+$xpath = new DOMXPath($doc);
+$query = '//node[@id='.implode(' or @id=',$an).']';
+$entries = $xpath->query($query);
 
-$classXML->addAttribute('node_description',$nodes);
-$classXML->addAttribute('mapping','y');
+// Creating output CNML document
+$docout = new DOMDocument('1.0');
+// we want a nice output
+$docout->formatOutput = true;
+$root = $docout->createElement('cnml');
+$root = $docout->appendChild($root);
 
+// CNML attributes
+// TODO: Support for multi-site DATA servers, now creatied with fixed values
+$cVersion = $docout->createAttribute('version');
+$root->appendChild($cVersion);
+$cVersion->appendChild($docout->createTextNode('0.1')); 
+$cServerId = $docout->createAttribute('server_id');
+$root->appendChild($cServerId);
+$cServerId->appendChild($docout->createTextNode('1')); 
+$cServerUrl = $docout->createAttribute('server_url');
+$root->appendChild($cServerUrl);
+$cServerUrl->appendChild($docout->createTextNode('http://guifi.net')); 
+$cGenerated = $docout->createAttribute('generated');
+$root->appendChild($cGenerated);
+$cGenerated->appendChild($docout->createTextNode(date('Ymd hi',time()))); 
+
+// CNML class description
+$cClass = $docout->createElement('class');
+$class = $root->appendChild($cClass);
+$cType = $docout->createAttribute('node_description');
+$cClass->appendChild($cType);
+$cType->appendChild($docout->createTextNode($nodes)); 
+$cMap = $docout->createAttribute('Mapping');
+$cClass->appendChild($cMap);
+$cMap->appendChild($docout->createTextNode('yes')); 
+
+
+
+// iterate over the xpath result elements and add them to the output
+foreach ($entries as $entry)
+  $root->appendChild($docout->importNode($entry, true));
+  
+// Create output
 header('Content-type: application/xml; charset=utf-8');
-echo $CNML->asXML();
+echo $docout->saveXML();
 
 
 ?>

@@ -4,20 +4,23 @@
  *  * _guifi_tostrunits convert a number to string format in B,KB,MB...
  * **/
 function _guifi_tostrunits($num) {
-      $base = array(
-        0=>'b',              // 
-        1024=>'Kb',          // Kilobits
-        pow(1024,2)=>'Mb',   // Megabits
-        pow(1024,3)=>'Gb',   // Gigabits
-        pow(1024,4)=>'Tb',   // Terabits
-        pow(1024,5)=>'Pb');  // Pedabits
+  $base = array(
+    0=>'b',              // 
+    1024=>'Kb',          // Kilobits
+    pow(1024,2)=>'Mb',   // Megabits
+    pow(1024,3)=>'Gb',   // Gigabits
+    pow(1024,4)=>'Tb',   // Terabits
+    pow(1024,5)=>'Pb');  // Pedabits
 //      $str = sprintf("%3d B",$num);
-      foreach ($base as $key => $unit) {
-        if ($num > $key)
-          if ($num < ($key + ($key*1024)))
-            return sprintf("%s %s",number_format(($num/$key),2),$unit);  	
-      }
-      return sprintf("%s %s",number_format(($num/$key),2),$unit);
+  foreach ($base as $key => $unit) {
+    if ($num > $key)
+      if ($num < ($key + ($key*1024)))
+        return sprintf("%s %s",number_format(($num/$key),2),$unit);  	
+  }
+  $ret = sprintf("%s %s",number_format(($num/$key),2),$unit);
+  if ($ret == '0.00 Pb')
+    $ret = '-.--   ';
+  return $ret;
 }
 
   
@@ -32,6 +35,7 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   global $rrddb_path;
   
   $now = time();
+  $last_week = time() - (60*60*24*7);
   $var = array();
   $var['max_latency'] = 0;
   $var['min_latency'] = NULL;
@@ -41,7 +45,7 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   $var['samples'] = 0;
 
   if ($start == NULL)
-    $start = time() - 60*60*24*7;
+    $start = $last_week;
   if ($end == NULL)
     $end = time();
     
@@ -57,16 +61,19 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
     $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
   ksort($fetched_data);
   $var['last_online'] = 0;
+  $var['last_offline'] = 0;
   
   foreach ($fetched_data as $interval=>$data) {
   	if ($interval > $now)
   	  break;
   	  
   	list($failed,$latency) = $data;
+  	if ($failed > 100 or $failed < 0)
+  	  next;
   	
   	if (strtoupper($failed)=='NAN')
   	  continue;
-  	  
+  	
     $var['succeed'] += $failed;
     $last_succeed = $failed;
     if ($failed < 100) {
@@ -76,16 +83,26 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
         $var['max_latency']    = $latency;
       if (($var['min_latency'] > $latency) || ($var['min_latency'] == NULL))
         $var['min_latency']    = $latency;
-    }
+    } else
+      $var['last_offline'] = $interval;
+      
     $var['last'] = $interval;
     $var['samples']++;  	
   }
 
   if ($var['samples'] > 0) {
-    $var['succeed'] = 100 - ($var['succeed'] / $var['samples']);
+    $var['succeed'] = (100 - ($var['succeed'] / $var['samples']));
     $var['avg_latency'] = $var['avg_latency'] / $var['samples'];
     $var['last_sample'] = date('H:i',$var['last']);
-    $var['last_online'] = date('Ymd',$var['last_online']);
+
+    ($var['last_offline']) ? 
+      $var['last_offline'] = date('Y/m/d H:i',$var['last_offline']) :
+      $var['last_offline'] = 'n/a';
+
+    ($var['last_online']) ? 
+      $var['last_online'] = date('Y/m/d H:i',$var['last_online']) :
+      $var['last_online'] = 'n/a';
+
     $var['last_sample_date'] = date('Ymd',$var['last']);
     $var['last_succeed'] = 100 - $last_succeed;
   }
@@ -132,26 +149,94 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
   return $var;
 }
 
-function simplexml_node_file($n) {
-  global $CNMLSource;
+function customError($errno, $errstr)
+ { 
+ echo "<b>Error:</b> [$errno] $errstr";
+ }
 
-   $fn = '../tmp/'.$n.'.cnml';
-   if (file_exists($fn))
-   if (time () < (filectime($fn) + (60 * 60))) {
-     $xml = simplexml_load_file($fn);
-     if ($xml)
-       return $xml;
-   }
-  // new file, loading into a variable
-  $cnmlS = sprintf($CNMLSource,$n);
-  $xml = simplexml_load_file($cnmlS);
-  if ($xml) {
-    $wcnml = @fopen($fn, "w+") or die("Error caching XML, can't write $fn\n");
-    fwrite($wcnml,$xml->asXML());
-    fclose($wcnml);
-    return $xml;
+function simplexml_node_file($n,$waitcache=false) {
+  global $CNMLSource;
+  
+//  print "\n<br>Parameter: $n \n<br>";
+  $btime = microtime(true);
+  $CNML = '<cnml>';
+  
+  $perror = set_error_handler('customError');
+  
+  $nS = array();
+  $an = explode(',',$n);
+  foreach ($an as $nc) {
+  	$try = 0;
+  	$xml = false;
+    $fn = '../tmp/'.$nc.'.cnml';
+    do {
+//  	  print " Processing $nc try $try cache: $waitcache\n<br>";
+  	  if (file_exists($fn)) {
+        if (time () < (filectime($fn) + (60 * 60))) {
+          $xml = simplexml_load_file($fn);
+          if ($xml) {
+            $xpnxml = $xml->xpath('//node');
+            foreach ($xpnxml as $nxml) {
+//         	  print "node: ".$nxml->attributes()->id."\n<br>";
+//          	  $xmlstr = $nxml->asXML();
+//          	  print "\n<br>String XML:  $xmlstr \n<br>";
+              $CNML .= $nxml->asXML();
+            }
+          }
+        } 
+      }
+      if ($xml)
+        break;
+      
+      // haven't got anything
+      if ($waitcache) { 
+      	print "Waiting... $try waitcache $waitcache \n<br>";
+        $try++;
+        sleep(1);
+      }
+    } while (($waitcache==true) and ($try < 10));
+    
+    if (!$xml) {
+      $nS[] = $nc;
+    }
   }
-  return FALSE;
+  
+//  print "cache part, elapsed: ".(microtime(true)-$btime)."\n<br>";
+
+//  print "Not cached: ";
+//  print_r($nS);
+  
+  if (!count($nS)) {
+  	$CNML .= '</cnml>';
+//    print "\n<br>Cached: $CNML\n<br>";
+    $ret = simplexml_load_string($CNML);
+  	restore_error_handler();
+//    print "Out, elapsed: ".(microtime(true)-$btime)."\n<br>";
+    return $ret;
+  }
+    
+  // Not cached files, query CNML source
+  $cnmlS = sprintf($CNMLSource,implode(',',$nS));
+  
+  $xml = simplexml_load_file($cnmlS);
+//  print sprintf("got new data %s, elapsed: %f \n<br>",$cnmlS,(microtime(true)-$btime));
+    if ($xml) {
+    $xpnxml = $xml->xpath('//node');
+    foreach ($xpnxml as $nxml) {
+      $fn = '../tmp/'.$nxml->attributes()->id.'.cnml';    	
+      $wcnml = @fopen($fn, "w+") or die("\n<br>Error caching XML, can't write $fn\n");
+      fwrite($wcnml,'<cnml>'.$nxml->asXML().'</cnml>');
+      fclose($wcnml);
+      $CNML .=$nxml->asXML();
+    }
+  }
+  
+//  print "\n<br>Not cached: $CNML \n<br>";
+  $CNML .= '</cnml>';
+  $ret  = simplexml_load_string($CNML);
+  restore_error_handler();
+//  print "Out, elapsed: ".(microtime(true)-$btime)."\n<br>";
+  return $ret;
 }
 
 function guifi_get_traf_filename($did, $snmp_index, $snmp_name, $rid) {

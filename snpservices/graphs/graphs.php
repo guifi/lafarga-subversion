@@ -58,6 +58,15 @@ function stats($devices = array()) {
 	exit;
 }
 
+function cmp_traffic($a, $b)
+{
+	return $b['traffic']-$a['traffic'];
+//    if ($a == $b) {
+//        return 0;
+//    }
+//    return ($a < $b) ? -1 : 1;
+}
+
 $type    = $_GET['type'];
 
 $format='long';
@@ -120,34 +129,15 @@ if ($type == 'availability') {
 
 // going to create a graph
 
-
-if (isset($_GET['start']))
-	$start   = $_GET['start'];
-else
-	$start = -86400;
-if (isset($_GET['end']))
-	$end     = $_GET['end'];
-else
-	$end = -300;
-if (isset($_GET['width']))
-	$width   = $_GET['width'];
-else
-	$width = 600;
-if (isset($_GET['height']))
-	$height  = $_GET['height'];
-else
-	$height = 120;
-if (isset($_GET['thumb']))
-{
-	$thumb = "-j";  
-}
-else
-	$thumb = "";
-
-
+// reading parameters
+(isset($_GET['start']))  ? $start   = $_GET['start'] : $start  = -86400;
+(isset($_GET['end']))    ? $end     = $_GET['end']   : $end    = -300;
+(isset($_GET['width']))  ? $width   = $_GET['width'] : $width  = 600;
+(isset($_GET['height'])) ? $height  = $_GET['height']: $height = 120;
+(isset($_GET['thumb']))  ? $thumb   = "-j"           : $thumb  = "";
+(isset($_GET['cached'])) ? $cached  = true           : $cached = false;
 
 $radios = array();
-$totals = array();
 $key = 0;
 
 
@@ -167,7 +157,7 @@ $cmd = '';
 //  print_r($_GET);
 
 if (isset($_GET['node'])) {
-	$gxml = simplexml_node_file($_GET['node']);
+	$gxml = simplexml_node_file($_GET['node'],$cached);
 	//    print $gxml->asXML();
 }
 
@@ -208,6 +198,7 @@ switch ($type)
 		$vscale = 'b/sec';
 		
 	case 'clients':
+		$cmd = sprintf(' COMMENT:"%32s%11s%13s%12s%16s\n"<br />','     ','Now','Avg','Max','Total');
 		if ($type == 'clients')
 		{
 			$radios_dev = $radio_xml[0]->xpath('radio');
@@ -224,10 +215,9 @@ switch ($type)
 				$traffic['out']=$traffic['out'] + $traffic_radio['out'];
 				if ($traffic_radio['max'] > $traffic['max'])
 					$traffic['max']=$traffic_radio['max'];
-				$radios[] = array('title' => $radio_dev_attr['ssid'], 'change_direction' => true, 'filename' => $filename, 'max' => $traffic['max'] * 8);
+				$radios[] = array('title' => $radio_dev_attr['ssid'], 'change_direction' => true, 'filename' => $filename, 'max' => $traffic['max'],'traffic'=>$traffic_radio['out']);
 			}
-			$totals[] = $traffic[$otherdir];
-			//        $radios[] = array('nick' => $radio_attr['title'], 'change_direction' => true, 'filename' => $rrddb_path.'.rrd', 'max' => $traffic['max'] * 8);
+			// $radios[] = array('nick' => $radio_attr['title'], 'change_direction' => true, 'filename' => $rrddb_path.'.rrd', 'max' => $traffic['max'] * 8);
 			$title = sprintf('wLAN: %s (%s) - links (%s)',$radio_attr['title'],$otherdir,$direction);
 			$vscale = 'b/sec'; 
 		}
@@ -245,7 +235,7 @@ switch ($type)
 				$linked_radio_attr=$linked_radio->attributes();
 				$remote_clients[] = (int)$linked_radio_attr['linked_node_id']; 
 			}
-			$rxml = simplexml_node_file(implode(',',$remote_clients));
+			$rxml = simplexml_node_file(implode(',',$remote_clients),$cached);
 			reset($linked_radios);
 			foreach ($linked_radios as $linked_radio) {
 				$linked_radio_attr=$linked_radio->attributes();
@@ -256,10 +246,10 @@ switch ($type)
 		//----------  XML End Xpath Query -----------------------------------      
 		
 		if (!empty($result))
-			foreach ($result as $radiodev)
+			foreach ($result as $k=>$radiodev)
 			{
 			$radio_attr = $radiodev->attributes();
-			//          print_r($radio_attr);
+//            print_r($radio_attr);
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
 			$filename = guifi_get_traf_filename($radio_attr['device_id'],$radio_attr['snmp_index'],$radio_attr['snmp_name'],$radio_attr['id']);
@@ -267,18 +257,18 @@ switch ($type)
 			if (file_exists($filename))
 			{
 				$traffic = guifi_get_traffic($filename,$start,$end);
-				$totals[] = $traffic[$direction];
 				$radiofetch['change_direction'] = false;
 				$radiofetch['filename'] = $filename;
 				$radiofetch['max'] =  $traffic['max'];
+				$radiofetch['traffic'] = $traffic[$direction];
 				$radios[] = $radiofetch;
 				$key ++;
 				
 			}	  
 			}
-		//      print_r($radios);
-		arsort($totals);
-		reset($totals);
+
+        usort($radios,"cmp_traffic");
+//        print_r($radios);
 		$col = 0;
 		
 		if (isset($_GET['numcli']))
@@ -298,10 +288,9 @@ switch ($type)
 		}
 		
 		
-		foreach ($totals as $key => $total)
+		foreach ($radios as $key => $item)
 		{
-			$item = $radios[$key];
-			$totalstr = _guifi_tostrunits($total);	  
+			$totalstr = _guifi_tostrunits($item['traffic']);	  
 			if (($type == 'clients') && ($item['change_direction']))
 			{
 				$dir_str = $otherdir;
@@ -312,18 +301,20 @@ switch ($type)
 				$datasource = $ds;
 				$dir_str = $direction;
 			}
-			$cmd = $cmd.sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
-			$cmd = $cmd.sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
-			$cmd = $cmd.sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['title'],$dir_str);
-			$cmd = $cmd.sprintf(' GPRINT:val%da:LAST:"Ara\:%%8.2lf %%s"',$key);
-			$cmd = $cmd.sprintf(' GPRINT:val%da:AVERAGE:"Mig\:%%8.2lf %%s"',$key);
-			$cmd = $cmd.sprintf(' GPRINT:val%da:MAX:"Max\:%%8.2lf %%s"',$key);
-			$cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',$totalstr);
+			$cmd .= sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
+			$cmd .= sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
+			$cmd .= sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['title'],$dir_str);
+			$cmd .= sprintf(' <br />GPRINT:val%da:LAST:"%%8.2lf %%s"',$key);
+			$cmd .= sprintf(' GPRINT:val%da:AVERAGE:"%%8.2lf %%s"',$key);
+			$cmd .= sprintf(' GPRINT:val%da:MAX:"%%8.2lf %%s"',$key);
+			$cmd .= sprintf(' COMMENT:"%15s\n" ',$totalstr);
+			$cmd .= "<br />";
 			$col++;
 			if (($type == 'clients') && ($col > $numcli)) break; 
 		}
 		break;
 	case 'radio': 
+		$cmd = sprintf(' COMMENT:"%32s%11s%13s%12s%16s\n"<br />','     ','Now','Avg','Max','Total');
 		$vscale = 'b/sec';
 		$row = simplexml_load_string($radio_xml[0]->asXML());
 		$w = $row->xpath('//radio');
@@ -337,45 +328,55 @@ switch ($type)
 		$traffic = guifi_get_traffic($filename,$start,$end);
 		
 		
-		$cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
-		$cmd = $cmd.        ' CDEF:val0a=val0,1,* ';
-		$cmd = $cmd.sprintf(' AREA:val0a#0000FF:"%30s In "',$radio_attr['title']);
-		$cmd = $cmd.        ' GPRINT:val0a:LAST:"Ara\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val0a:AVERAGE:"Mig\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val0a:MAX:"Max\:%8.2lf %s"';
-		$cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',_guifi_tostrunits($traffic['in']));
-		$cmd = $cmd.sprintf(' DEF:val1="%s":ds1:AVERAGE',$filename);
-		$cmd = $cmd.        ' CDEF:val1a=val1,1,* ';
-		$cmd = $cmd.sprintf(' LINE2:val1a#00FF00:"%30s Out"',$radio_attr['title']);
-		$cmd = $cmd.        ' GPRINT:val1a:LAST:"Ara\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val1a:AVERAGE:"Mig\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val1a:MAX:"Max\:%8.2lf %s"';
-		$cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',_guifi_tostrunits($traffic['out']));
+		$cmd .= sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
+		$cmd .=         ' CDEF:val0a=val0,1,* ';
+		$cmd .= sprintf(' AREA:val0a#0000FF:"%30s In "',$radio_attr['title']);
+		$cmd .=         ' <br />GPRINT:val0a:LAST:"%8.2lf %s"';
+		$cmd .=         ' GPRINT:val0a:AVERAGE:"%8.2lf %s"';
+		$cmd .=         ' GPRINT:val0a:MAX:"%8.2lf %s"';
+		$cmd .= sprintf(' COMMENT:"%15s\n"',_guifi_tostrunits($traffic['in']));
+		$cmd .= sprintf(' DEF:val1="%s":ds1:AVERAGE',$filename);
+		$cmd .=         ' CDEF:val1a=val1,1,* ';
+		$cmd .= sprintf(' LINE2:val1a#00FF00:"%30s Out"',$radio_attr['title']);
+		$cmd .=         ' <br />GPRINT:val1a:LAST:"%8.2lf %s"';
+		$cmd .=         ' GPRINT:val1a:AVERAGE:"%8.2lf %s"';
+		$cmd .=         ' GPRINT:val1a:MAX:"%8.2lf %s"';
+		$cmd .= sprintf(' COMMENT:"%15s\n"',_guifi_tostrunits($traffic['out']));
 		break;
 	case 'pings': 
+		$cmd = sprintf(' COMMENT:"%14s%8s%16s%17s\n"<br />','     ','Now','Avg','Max');
 		$pings = guifi_get_pings($radio_attr['id'],$start,$end);
-		$vscale = 'Milisegons';
-		$title = sprintf('device: %s -  pings & disponibilitat (%.2f %%)',$radio_attr['title'],$pings['succeed']);
+		$vscale = 'latency (secs/1000)';
+		$title = sprintf('device: %s -  ping latency - online (%.2f %%)',$radio_attr['title'],$pings['succeed']);
 		$filename = $rrddb_path.$radio_attr['id'].'_ping.rrd';
-		$cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
-		$cmd = $cmd.sprintf(' AREA:val0#FFFF00:"%20s pings fallats "',$radio_attr['title']);
-		$cmd = $cmd.        ' GPRINT:val0:LAST:"Ara\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val0:AVERAGE:"Mig\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val0:MAX:"Max\:%8.2lf %s\n"';
-		$cmd = $cmd.sprintf(' DEF:val1="%s":ds1:AVERAGE',$filename);
-		$cmd = $cmd.sprintf(' LINE2:val1#00FF00:"%20s temps del ping"',$radio_attr['title']);
-		$cmd = $cmd.        ' GPRINT:val1:LAST:"Ara\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val1:AVERAGE:"Mig\:%8.2lf %s"';
-		$cmd = $cmd.        ' GPRINT:val1:MAX:"Max\:%8.2lf %s\n"';
+		$cmd .= sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
+		$cmd .= sprintf(' AREA:val0#FFFF00:"%12s "','offline');
+		$cmd .=         ' GPRINT:val0:LAST:"%8.2lf %%    "';
+		$cmd .=         ' GPRINT:val0:AVERAGE:"%8.2lf %%    "';
+		$cmd .=         ' GPRINT:val0:MAX:"%8.2lf %%    "';
+		$cmd .= sprintf(' COMMENT:"Last offline\: %s\n"',addcslashes($pings['last_offline'],':'));
+		$cmd .= sprintf(' <br />DEF:val1="%s":ds1:AVERAGE',$filename);
+		$cmd .= sprintf(' LINE2:val1#00FF00:"%12s "','latency');
+		$cmd .=         ' GPRINT:val1:LAST:"%8.2lf msec."';
+		$cmd .=         ' GPRINT:val1:AVERAGE:"%8.2lf msec."';
+		$cmd .=         ' GPRINT:val1:MAX:"%8.2lf msec."';
+		$cmd .= sprintf(' COMMENT:" Last online\: %s\n"',addcslashes($pings['last_online'],':'));
 		break;
 } //end switch $type:
 
-$cmd = sprintf("%s graph - --font DEFAULT:7 --title=\"%s\" --imgformat=PNG --width=%d  --height=%d %s --vertical-label=\"%s\"  --start=%d  --end=%d --base=1000 -E %s ",
+$cmd = sprintf("%s graph - --font DEFAULT:10:Arial --font LEGEND:8:Courier --font AXIS:8:Arial <br />" .
+		"--title=\"%s\" --imgformat=PNG --width=%d  --height=%d %s <br />" .
+		"--vertical-label=\"%s\" --start=%d --end=%d --base=1000 -E <br /> %s ",
 	$rrdtool_path,$title,$width,$height,$thumb,$vscale,$start,$end,$cmd);
-
+	
 if (isset($_GET['debug'])) {
-  echo $cmd;
+  header("Content-Type: text/plain");
+  $shell = explode('<br />',$cmd);
+  foreach ($shell as $line)
+    echo $line.'\\'."\n";
 }
+
+$cmd = str_replace('<br />','',$cmd);
 
 $fp = popen($cmd, "rb");
 if (isset($fp)) {
