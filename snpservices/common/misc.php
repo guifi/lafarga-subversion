@@ -72,7 +72,7 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   	
   	// ignore if obtained dity data
   	if ($failed > 100 or $failed < 0)
-  	  next;
+  	  continue;
   	
   	if (strtoupper($failed)=='NAN')
   	  continue;
