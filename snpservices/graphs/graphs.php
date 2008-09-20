@@ -252,13 +252,15 @@ switch ($type)
 		}
 		//----------  XML End Xpath Query -----------------------------------      
 
-        if (isset($_GET['debug']))
-          print_r($result);
-        
+        $rdone = array();
 		if (!empty($result))
-			foreach ($result as $k=>$radiodev)
-			{
+          foreach ($result as $k=>$radiodev) {
 			$radio_attr = $radiodev->attributes();
+			
+			if (isset($rdone[$radio_attr['device']][$radio_attr['id']]))
+			  continue;
+			  
+			$rdone[$radio_attr['device']][$radio_attr['id']] = true;
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
 			$filename = guifi_get_traf_filename($radio_attr['device_id'],$radio_attr['snmp_index'],$radio_attr['snmp_name'],$radio_attr['id']);
@@ -273,10 +275,9 @@ switch ($type)
 				$radios[] = $radiofetch;
 				$key ++;
 				
-			}	  
-			}
+		  }	  
+		}
 
-        $radios = array_unique($radios);
         if (isset($_GET['debug']))
           print_r($radios);
           
