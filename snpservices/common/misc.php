@@ -43,6 +43,8 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   $var['avg_latency'] = 0;
   $var['succeed'] = 0;
   $var['samples'] = 0;
+  $var['last_online'] = 0;
+  $var['last_offline'] = 0;
 
   if ($start == NULL)
     $start = $last_week;
@@ -54,16 +56,16 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
     '--start',$start,
     '--end',$end
     );
+    
   $fname = sprintf("%s/%d_ping.rrd",$rrddb_path,$did);
   $last = rrd_last($fname);
   $result = rrd_fetch($fname,$opts,count($opts));
   $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
   foreach ($result['data'] as $k=>$data) 
     $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
-  ksort($fetched_data);
-  $var['last_online'] = 0;
-  $var['last_offline'] = 0;
-  
+ 
+  (isset($fetched_data)) ? ksort($fetched_data); return $var;
+
   foreach ($fetched_data as $interval=>$data) {
   	if ($interval >= $last)
   	  break;
