@@ -60,11 +60,11 @@ function stats($devices = array()) {
 
 function cmp_traffic($a, $b)
 {
-	return $b['traffic']-$a['traffic'];
-//    if ($a == $b) {
-//        return 0;
-//    }
-//    return ($a < $b) ? -1 : 1;
+//	return $b['traffic']-$a['traffic'];
+    if ($a['traffic'] == $b['traffic']) {
+        return 0;
+    }
+    return ($b['traffic'] < $a['traffic']) ? -1 : 1;
 }
 
 $type    = $_GET['type'];
