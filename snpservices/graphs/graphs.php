@@ -260,7 +260,8 @@ switch ($type)
 			if (isset($rdone[$radio_attr['device_id']][$radio_attr['id']]))
 			  continue;
 			  
-			$rdone[$radio_attr['device']][$radio_attr['id']] = true;
+			$rdone[$radio_attr['device_id']][$radio_attr['id']] = true;
+			
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
 			$filename = guifi_get_traf_filename($radio_attr['device_id'],$radio_attr['snmp_index'],$radio_attr['snmp_name'],$radio_attr['id']);
