@@ -83,6 +83,8 @@ if ($type == 'stats') {
 if ($type == 'availability') {  
 	// Just creating the availability PNG, not a graph
 	$pingslast = guifi_get_pings($_GET['device'],time()-3600);
+	if (!isset($pingslast['last_sample']))
+	  $pingslast['last_sample'] = '--:--';
 	$pings = guifi_get_pings($_GET['device']);
 	if ($pings['samples'] > 0) {
 		$available = sprintf("%.2f%%",$pings['succeed']);
@@ -93,8 +95,13 @@ if ($type == 'availability') {
 	} else {
 		$last = 'number';
 	}
-	$var['available'] = $available;
-	$var['last'] = $last;
+	if (isset($available)) {
+      $var['available'] = $available;
+      $var['last'] = $last;
+	} else {
+      $var['available'] = 'n/a';
+      $var['last'] = 'Down';
+	}
 	
 	// create a image
 	if ($format=='short')
@@ -106,9 +113,9 @@ if ($type == 'availability') {
 	// white background and blue text
 	//$bg = imagecolorallocate($im,0x33, 0xff, 0);
 	
-	if ($last == "Up")
+	if ($var['last'] == "Up")
 		$bg = imagecolorallocate($im,0x33, 0xff, 0);
-	else if ($last == "Down")
+	else if ($var['last'] == "Down")
 		$bg = imagecolorallocate($im,0xff, 0x33, 0);
 	else
 		return;
@@ -117,9 +124,9 @@ if ($type == 'availability') {
 	
 	// write the string at the top left
 	if ($format=="short")
-		imagestring($im, 2, 3, 1, sprintf("%s (%s)",$last,$var['available']), $textcolor);
+		imagestring($im, 2, 3, 1, sprintf("%s (%s)",$var['last'],$var['available']), $textcolor);
 	else 
-		imagestring($im, 2, 3, 1, sprintf("%s %s (%s)",$last,$pingslast['last_sample'],$var['available']), $textcolor);
+		imagestring($im, 2, 3, 1, sprintf("%s %s (%s)",$var['last'],$pingslast['last_sample'],$var['available']), $textcolor);
 	
 	// output the image
 	header("Content-type: image/png");
