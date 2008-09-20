@@ -266,7 +266,7 @@ switch ($type)
 			  print "$dstr \n<br>";
 			}
 
-			if (isset($rdone[$d]))
+			if (isset($rdone[$dstr]))
               continue;
 			  
 			$rdone[$dstr] = true;
