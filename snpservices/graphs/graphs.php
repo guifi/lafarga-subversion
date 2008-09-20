@@ -217,7 +217,7 @@ switch ($type)
 				
 				$filename = guifi_get_traf_filename($radio_dev_attr['device_id'],$radio_dev_attr['snmp_index'],$radio_dev_attr['snmp_name'],$radio_dev_attr['id']);
 				
-				$traffic_radio = guifi_get_traffic($filename,time()-$start,time()-$end);
+				$traffic_radio = guifi_get_traffic($filename,$start,$end);
 				$traffic['in'] =$traffic['in']  + $traffic_radio['in'];
 				$traffic['out']=$traffic['out'] + $traffic_radio['out'];
 				if ($traffic_radio['max'] > $traffic['max'])
@@ -251,12 +251,11 @@ switch ($type)
 			}
 		}
 		//----------  XML End Xpath Query -----------------------------------      
-		
+
 		if (!empty($result))
 			foreach ($result as $k=>$radiodev)
 			{
 			$radio_attr = $radiodev->attributes();
-//            print_r($radio_attr);
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
 			$filename = guifi_get_traf_filename($radio_attr['device_id'],$radio_attr['snmp_index'],$radio_attr['snmp_name'],$radio_attr['id']);
@@ -275,50 +274,48 @@ switch ($type)
 			}
 
         usort($radios,"cmp_traffic");
+        
+        $total = array();
+        foreach ($radios as $r) {
+          $total['total'] += $r['traffic'];
+          $total['max'] += $r['max'];
+        }
+          
 //        print_r($radios);
 		$col = 0;
 		
-		if (isset($_GET['numcli']))
-		{	 
-			if ($_GET['numcli']=='max')
-			{   
-				$numcli=count($totals);
-			}
-			else
-			{    
-				$numcli=$_GET['numcli']; 
-			}
-		}
-		else
-		{ 
-			$numcli = 10;
+		if (isset($_GET['numcli'])) {	 
+		  if ($_GET['numcli']=='max') {   
+		    $numcli=count($totals);
+		  } else {    
+		    $numcli=$_GET['numcli']; 
+		  }
+		} else { 
+		  $numcli = 10;
 		}
 		
-		
-		foreach ($radios as $key => $item)
-		{
-			$totalstr = _guifi_tostrunits($item['traffic']);	  
-			if (($type == 'clients') && ($item['change_direction']))
-			{
-				$dir_str = $otherdir;
-				$datasource = $otherds;
-			}
-			else
-			{
-				$datasource = $ds;
-				$dir_str = $direction;
-			}
-			$cmd .= sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
-			$cmd .= sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
-			$cmd .= sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['title'],$dir_str);
-			$cmd .= sprintf(' <br />GPRINT:val%da:LAST:"%%8.2lf %%s"',$key);
-			$cmd .= sprintf(' GPRINT:val%da:AVERAGE:"%%8.2lf %%s"',$key);
-			$cmd .= sprintf(' GPRINT:val%da:MAX:"%%8.2lf %%s"',$key);
-			$cmd .= sprintf(' COMMENT:"%15s\n" ',$totalstr);
-			$cmd .= "<br />";
-			$col++;
-			if (($type == 'clients') && ($col > $numcli)) break; 
+		foreach ($radios as $key => $item) {
+		  $totalstr = _guifi_tostrunits($item['traffic']);	  
+		  if (($type == 'clients') && ($item['change_direction'])) {
+		    $dir_str = $otherdir;
+		    $datasource = $otherds;
+		  }	else {
+		    $datasource = $ds;
+	        $dir_str = $direction;
+		  }
+		  $cmd .= sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
+		  $cmd .= sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
+		  $cmd .= sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['title'],$dir_str);
+		  $cmd .= sprintf(' <br />GPRINT:val%da:LAST:"%%8.2lf %%s"',$key);
+		  $cmd .= sprintf(' GPRINT:val%da:AVERAGE:"%%8.2lf %%s"',$key);
+		  $cmd .= sprintf(' GPRINT:val%da:MAX:"%%8.2lf %%s"',$key);
+		  $cmd .= sprintf(' COMMENT:"%15s\n" ',$totalstr);
+		  $cmd .= "<br />";
+		  $col++;
+		  if (($type == 'clients') && ($col > $numcli)) break; 
 		}
+        $cmd .= sprintf(' <br />COMMENT:"TOTAL\: %83s\n" ',
+          _guifi_tostrunits($total['total']));
 		break;
 	case 'radio': 
 		$cmd = sprintf(' COMMENT:"%32s%11s%13s%12s%16s\n"<br />','     ','Now','Avg','Max','Total');
