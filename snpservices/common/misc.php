@@ -4,23 +4,14 @@
  *  * _guifi_tostrunits convert a number to string format in B,KB,MB...
  * **/
 function _guifi_tostrunits($num) {
-  $base = array(
-    0=>'b',              // 
-    1024=>'Kb',          // Kilobits
-    pow(1024,2)=>'Mb',   // Megabits
-    pow(1024,3)=>'Gb',   // Gigabits
-    pow(1024,4)=>'Tb',   // Terabits
-    pow(1024,5)=>'Pb');  // Pedabits
-//      $str = sprintf("%3d B",$num);
-  foreach ($base as $key => $unit) {
-    if ($num > $key)
-      if ($num < ($key + ($key*1024)))
-        return sprintf("%s %s",number_format(($num/$key),2),$unit);  	
+  $d = 0;
+  $rn = $num;
+  while (($rn / 1000) > 1) {
+  	$rn = ($rn / 1000);
+  	$d++;
   }
-  $ret = sprintf("%s %s",number_format(($num/$key),2),$unit);
-  if ($ret == '0.00 Pb')
-    $ret = '-.--   ';
-  return $ret;
+  $base = array('b ','Kb','Mb','Gb','Tb','Pb');
+  return sprintf("%s %s",number_format(($rn),2),$base[$d]);
 }
 
   
