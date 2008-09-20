@@ -60,7 +60,11 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   $fname = sprintf("%s/%d_ping.rrd",$rrddb_path,$did);
   $last = rrd_last($fname);
   $result = rrd_fetch($fname,$opts,count($opts));
-  $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
+  if (is_array($result['data']))
+    $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
+  else
+    return $var;
+    
   foreach ($result['data'] as $k=>$data) 
     $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
  
