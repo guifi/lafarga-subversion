@@ -252,6 +252,7 @@ switch ($type)
 		}
 		//----------  XML End Xpath Query -----------------------------------      
 
+        $rdone = array();
 		if (!empty($result))
           foreach ($result as $k=>$radiodev) {
 			$radio_attr = $radiodev->attributes();
@@ -260,14 +261,15 @@ switch ($type)
 //			  print "\n<br>";
 //			}
 			
-			$d = $radio_attr['device_id'];
-			$i = $radio_attr['id'];
+			$dstr = $radio_attr['device_id'].'-'.$radio_attr['id'];
+			if (isset($_GET['debug'])) {
+			  print "$dstr \n<br>";
+			}
 
 			if (isset($rdone[$d]))
-			  if (in_array($i,$rdone[$d]))
-			    continue;
+              continue;
 			  
-			$rdone[$d][] = $i;
+			$rdone[$dstr] = true;
 			
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
