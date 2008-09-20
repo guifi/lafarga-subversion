@@ -261,10 +261,12 @@ switch ($type)
 			  print "\n<br>";
 			}
 			
-			if (isset($rdone[$radio_attr['device_id']][$radio_attr['id']]))
+			$d = $radio_attr['device_id'];
+			$i = $radio_attr['id'];
+			if (isset($rdone[$d][$i]))
 			  continue;
 			  
-			$rdone[$radio_attr['device_id']][$radio_attr['id']] = true;
+			$rdone[$d][$i] = true;
 			
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
