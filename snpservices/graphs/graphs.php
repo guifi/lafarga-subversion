@@ -247,7 +247,7 @@ switch ($type)
 			foreach ($linked_radios as $linked_radio) {
 				$linked_radio_attr=$linked_radio->attributes();
 
-				if (isset($linked_radio_attr['linked_device_id']))
+				if (isset($result[$linked_radio_attr['linked_device_id']]))
                   continue;
 				
 				$result_client = $rxml->xpath('//device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
