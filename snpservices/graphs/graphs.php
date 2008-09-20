@@ -246,20 +246,15 @@ switch ($type)
 			reset($linked_radios);
 			foreach ($linked_radios as $linked_radio) {
 				$linked_radio_attr=$linked_radio->attributes();
-
-				if (isset($result[$linked_radio_attr['linked_device_id']]))
-                  continue;
-				
 				$result_client = $rxml->xpath('//device[@id='.$linked_radio_attr['linked_device_id'].']/radio');
-
-				if (is_array($result_client)) { 
-  				  $newattr=$linked_radio->attributes();
-				  $result[$newattr['id']] = $result_client;
-				}
+				if (is_array($result_client)) $result = array_merge($result,$result_client);
 			}
 		}
 		//----------  XML End Xpath Query -----------------------------------      
 
+        if (isset($_GET['debug']))
+          print_r($result);
+        
 		if (!empty($result))
 			foreach ($result as $k=>$radiodev)
 			{
@@ -281,6 +276,10 @@ switch ($type)
 			}	  
 			}
 
+        $radios = array_unique($radios);
+        if (isset($_GET['debug']))
+          print_r($radios);
+          
         usort($radios,"cmp_traffic");
         
         $total = array();
