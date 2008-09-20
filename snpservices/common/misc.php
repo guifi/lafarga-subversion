@@ -64,7 +64,10 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   foreach ($result['data'] as $k=>$data) 
     $fetched_data[$result['start'] + ($k * $result['step'])] = $data;  	
  
-  (isset($fetched_data)) ? ksort($fetched_data): return $var;
+  if (isset($fetched_data))
+    ksort($fetched_data);
+  else
+    return $var;
 
   foreach ($fetched_data as $interval=>$data) {
   	if ($interval >= $last)
