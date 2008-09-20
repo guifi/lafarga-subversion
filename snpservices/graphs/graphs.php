@@ -252,21 +252,22 @@ switch ($type)
 		}
 		//----------  XML End Xpath Query -----------------------------------      
 
-        $rdone = array();
 		if (!empty($result))
           foreach ($result as $k=>$radiodev) {
 			$radio_attr = $radiodev->attributes();
-			if (isset($_GET['debug'])) {
-			  print_r($radio_attr);
-			  print "\n<br>";
-			}
+//			if (isset($_GET['debug'])) {
+//			  print_r($radio_attr);
+//			  print "\n<br>";
+//			}
 			
 			$d = $radio_attr['device_id'];
 			$i = $radio_attr['id'];
-			if (isset($rdone[$d][$i]))
-			  continue;
+
+			if (isset($rdone[$d]))
+			  if (in_array($i,$rdone[$d]))
+			    continue;
 			  
-			$rdone[$d][$i] = true;
+			$rdone[$d][] = $i;
 			
 			$radiofetch['title'] = $radio_attr['ssid'];
 			
@@ -285,8 +286,8 @@ switch ($type)
 		  }	  
 		}
 
-        if (isset($_GET['debug']))
-          print_r($radios);
+//        if (isset($_GET['debug']))
+//          print_r($radios);
           
         usort($radios,"cmp_traffic");
         
