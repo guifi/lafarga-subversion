@@ -48,13 +48,14 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
     $start = $last_week;
   if ($end == NULL)
     $end = time();
-    
+     
   $opts = array(
     'AVERAGE',
     '--start',$start,
     '--end',$end
     );
   $fname = sprintf("%s/%d_ping.rrd",$rrddb_path,$did);
+  $last = rrd_last($fname);
   $result = rrd_fetch($fname,$opts,count($opts));
   $result['data'] = array_chunk($result['data'],$result['ds_cnt']);
   foreach ($result['data'] as $k=>$data) 
@@ -64,10 +65,12 @@ function guifi_get_pings($did, $start = NULL, $end = NULL) {
   $var['last_offline'] = 0;
   
   foreach ($fetched_data as $interval=>$data) {
-  	if ($interval > $now)
+  	if ($interval >= $last)
   	  break;
   	  
   	list($failed,$latency) = $data;
+  	
+  	// ignore if obtained dity data
   	if ($failed > 100 or $failed < 0)
   	  next;
   	
@@ -127,6 +130,7 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
     '--start',$start,
     '--end',$end
     );
+  $last = rrd_last($filename);
   $result = rrd_fetch($filename,$opts,count($opts));
   if (!is_array($result['data']))
     return;
@@ -136,6 +140,9 @@ function guifi_get_traffic($filename, $start = NULL, $end = NULL) {
   ksort($fetched_data);
   
   foreach ($fetched_data as $interval=>$data) {
+  	if ($interval >= $last)
+  	  break;
+  	  
   	list($in,$out) = $data;
   	if (strtoupper($in)=='NAN')
   	  continue;

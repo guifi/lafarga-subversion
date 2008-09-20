@@ -364,10 +364,16 @@ switch ($type)
 		break;
 } //end switch $type:
 
-$cmd = sprintf("%s graph - --font DEFAULT:10:Arial --font LEGEND:8:Courier --font AXIS:8:Arial <br />" .
+(isset($rrdtool_version) and ($rrdtool_version == '1.3')) ?
+  $fonts = '--font DEFAULT:10:Arial --font LEGEND:8:Courier --font AXIS:8:Arial' :
+  $fonts = '--font DEFAULT:10: --font LEGEND:8: --font AXIS:8:';
+  
+$cmd = sprintf("%s graph - %s <br />" .
 		"--title=\"%s\" --imgformat=PNG --width=%d  --height=%d %s <br />" .
 		"--vertical-label=\"%s\" --start=%d --end=%d --base=1000 -E <br /> %s ",
-	$rrdtool_path,$title,$width,$height,$thumb,$vscale,$start,$end,$cmd);
+	$rrdtool_path,$fonts,
+	$title,$width,$height,
+	$thumb,$vscale,$start,$end,$cmd);
 	
 if (isset($_GET['debug'])) {
   header("Content-Type: text/plain");
