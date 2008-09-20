@@ -256,15 +256,11 @@ switch ($type)
 		if (!empty($result))
           foreach ($result as $k=>$radiodev) {
 			$radio_attr = $radiodev->attributes();
-//			if (isset($_GET['debug'])) {
-//			  print_r($radio_attr);
-//			  print "\n<br>";
-//			}
 			
 			$dstr = $radio_attr['device_id'].'-'.$radio_attr['id'];
-			if (isset($_GET['debug'])) {
-			  print "$dstr \n<br>";
-			}
+//			if (isset($_GET['debug'])) {
+//			  print "$dstr \n<br>";
+//			}
 
 			if (isset($rdone[$dstr]))
               continue;
