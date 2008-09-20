@@ -257,7 +257,7 @@ switch ($type)
           foreach ($result as $k=>$radiodev) {
 			$radio_attr = $radiodev->attributes();
 			
-			if (isset($rdone[$radio_attr['device']][$radio_attr['id']]))
+			if (isset($rdone[$radio_attr['device_id']][$radio_attr['id']]))
 			  continue;
 			  
 			$rdone[$radio_attr['device']][$radio_attr['id']] = true;
