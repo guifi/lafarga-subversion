@@ -6,6 +6,18 @@ if (file_exists("../common/config.php")) {
   include_once("../common/config.php.template");
 }
 
+$now = time();
+$mlast= @fopen("/tmp/last_mrtg", "r");
+if ($mlast)
+  $last = fgets($mlast);
+else 
+  $last = 0;
+print "Last: ".date('Y/m/d H:i:s',(int)$last)."\n";
+if (($last) and ($now < ($last +  (60 * 60)))) {
+  fclose($mlast);
+  echo "Still fresh.\n";
+  exit();
+}
 
 $hlastnow = @fopen($SNPDataServer_url."/guifi/refresh/cnml", "r") or die('Error reading changes\n');
 $last_now = fgets($hlastnow);
@@ -14,6 +26,9 @@ $hlast= @fopen("/tmp/last_update.mrtg", "r");
 if (($hlast) and ($last_now == fgets($hlast))) {
   fclose($hlast);
   echo "No changes.\n";
+  $hlast= @fopen("/tmp/last_mrtg", "w+") or die('Error!');
+  fwrite($hlast,$now);
+  fclose($hlast);
   exit();
 }
 print $last_now;
@@ -24,6 +39,9 @@ $cf = @fopen('../data/mrtg.cfg','w+');
 fputs($cf,sprintf($rrdtool_header,$rrdimg_path,$rrdimg_path,$rrddb_path,$rrddb_path));
 
 while ( $buffer = fgets($hf, 4096) ) {
+	if (substr($buffer,0,1) == '#')
+	  continue;
+	  
 //  $buffer = substr($buffer,0,-1);
   $buffer = str_replace("\n","",$buffer);
   $dev=explode(',',$buffer);
@@ -92,6 +110,9 @@ fclose($cf);
 
 $hlast= @fopen("/tmp/last_update.mrtg", "w+") or die('Error!');
 fwrite($hlast,$last_now);
+fclose($hlast);
+$hlast= @fopen("/tmp/last_mrtg", "w+") or die('Error!');
+fwrite($hlast,$now);
 fclose($hlast);
 
 ?>
