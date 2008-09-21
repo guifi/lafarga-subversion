@@ -722,8 +722,8 @@ function guifi_zone_insert($node) {
    variable_set('guifi_refresh_cnml',time());
    variable_set('guifi_refresh_maps',time());
 
-   cache_clear_all();
  }
+ guifi_clear_cache($node->id);
 }
 
 /** guifi_zone_update(): Save zone changes into the database.
@@ -760,7 +760,7 @@ function guifi_zone_update($node) {
       array('%nick'=>$node->nick,'%name'=>$node->title)),
     $log);
 
-
+   guifi_clear_cache($node->nid);
 }
 
 /** guifi_zone_delete(): Delete a zone
@@ -888,10 +888,17 @@ function guifi_zone_data($zone) {
               l(guifi_service_str($zone->proxy_id),
                 guifi_zone_get_service($zone,'proxy_id',true))
               );
-  $rows[] = array(t('default graph server'),
-              l(guifi_service_str($zone->graph_server),
-                guifi_zone_get_service($zone,'graph_server',true))
-              );
+
+  if ($zone->graph_server > 0)
+    $gs = node_load(array('nid'=>$zone->graph_server));
+  else
+    $gs = node_load(array('nid'=>guifi_graphs_get_server($zone->id,'zone')));
+
+  $rows[] = array(t('default graph server'),array(
+    'data'=>l(guifi_service_str($zone->graph_server),
+              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
+    'colspan'=>2));
+
   $rows[] = array(t('network global information').':',null);
   $rows[] = array(t('Mode'),$zone->zone_mode);
   $rows[] = array(t('DNS Servers'),$zone->dns_servers);
@@ -1016,9 +1023,9 @@ function guifi_zone_availability($zone,$desc = "all") {
         $edit = null;
 
       $ip = guifi_main_ip($d['did']);
-      $graph_url = guifi_graphs_get_radio_url($d['did'],FALSE);
-      if ($graph_url != NULL)
-        $img_url = ' <img src='.$graph_url.'?device='.$d['did'].'&type=availability&format=long>';
+      $gs = guifi_service_load(guifi_graphs_get_server($d['did'],'device'));
+      if ($gs->var['url'] != NULL)
+        $img_url = ' <img src='.$gs->var['url'].'?device='.$d['did'].'&type=availability&format=long>';
       else
         $img_url = null;
 

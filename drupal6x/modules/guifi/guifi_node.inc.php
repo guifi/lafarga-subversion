@@ -209,17 +209,22 @@ function guifi_node_form(&$node, $form_state) {
   );
     // Si ets administrador pots definir el servidor de dades
   if (user_access('administer guifi zones')){
-    $form['settings']['graph_server'] = array(
-      '#type' => 'select',
-      '#title' => t("Server which collects traffic and availability data"),
+    $graphstr = guifi_service_str($node->graph_server);
+
+    $form['settings']['graph_serverstr'] = array(
+      '#type' => 'textfield',
+      '#title' => t('default graphs server'),
+      '#maxlength'=>60,
       '#required' => FALSE,
-      '#default_value' =>
-        ($node->graph_server ? $node->graph_server : 0),
-      '#options' => array(
-        '0'=>t('Default'),
-        '-1'=>t('None')) + guifi_services_select('SNPgraphs'),
-      '#description' => t("If not specified, inherits zone properties."),
-      '#weight' => 0,
+      '#default_value' => $graphstr,
+      '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
+      '#element_validate' => array('guifi_service_name_validate',
+        'guifi_zone_service_validate'),
+      '#description'=>t('Select the <em>graph server</em> to be used at this node.<br>You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br>You can refine the text to find your choice.'),
+    );
+    $form['settings']['graph_server'] = array(
+      '#type'=>'hidden',
+      '#value'=> $node->graph_server,
     );
   }
   $form['settings']['stable'] = array(
@@ -526,7 +531,7 @@ function guifi_node_insert($node) {
   variable_set('guifi_refresh_cnml',time());
   variable_set('guifi_refresh_maps',time());
 
-  cache_clear_all();
+  guifi_clear_cache($node->id);
 }
 
 /** guifi_node_update(): Update a node in the database
@@ -581,6 +586,8 @@ function guifi_node_update($node) {
     $to_mail,
     t('The node %name has been UPDATED by %user.',array('%name' => $node->title, '%user' => $user->name)),
     $log);
+
+  guifi_clear_cache($node->nid);
 }
 
 /** guifi_node_delete(): deletes a given node
@@ -1093,10 +1100,15 @@ function theme_guifi_node_data($node,$links = false) {
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
 
+  if ($node->graph_server > 0)
+    $gs = node_load(array('nid'=>$node->graph_server));
+  else
+    $gs = node_load(array('nid'=>guifi_graphs_get_server($node->id,'node')));
+
   $rows[] = array(t('graphs provided from'),array(
     'data'=>l(guifi_service_str($node->graph_server),
-              guifi_node_get_service($node->id,'graph_server',true)),
-     'colspan'=>2));
+              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
+    'colspan'=>2));
 
   $output = theme('table',null,array_merge($rows));
   $output .= theme_guifi_contacts($node);
@@ -1133,7 +1145,7 @@ function theme_guifi_node_map($node) {
 **/
 function theme_guifi_node_graphs_overview($node,$links = false) {
 
-  $server_mrtg = guifi_graphs_get_node_url($node->id);
+  $gs = guifi_service_load(guifi_graphs_get_server($node->id,'node'));
 
   $radios = array();
   $query = db_query("SELECT * FROM {guifi_radios} WHERE nid=%d",$node->id);
@@ -1142,20 +1154,20 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
   }
   // print "Count radios: ".count($radios)."\n<br>";
   if (count($radios) > 1) {
-    if (substr($server_mrtg,0,3)=="fot"){
+    if (substr($gs->var['url'],0,3)=="fot"){
       //  graph all devices.about a node. Ferran Ot
       while ($radio = db_fetch_object($query)){
         $ssid=get_SSID_radio($radio->id);
         $ssid=strtolower($ssid);
-        $mrtg_url=substr($server_mrtg,3);
+        $mrtg_url=substr($gs->var['url'],3);
         $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_6&cfg=mrtg.cfg&png=weekly"></a>');
         $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
       }
       $ret = array_merge($rows);
     }else{
       $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$server_mrtg.'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'out"><img src="'.$server_mrtg.'?'.$args.'out"></a>',$node->id));
+      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$gs->var['url'].'?'.$args.'in"></a>',$node->id));
+      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'out"><img src="'.$gs->var['url'].'?'.$args.'out"></a>',$node->id));
       $ret = array_merge($rows);
     }
   } else {
@@ -1223,9 +1235,9 @@ function theme_guifi_node_devices_list($node,$links = false) {
        );
      }
      $ip = guifi_main_ip($device[id]);
-     $graph_url = guifi_graphs_get_node_url($id,FALSE);
-     if ($graph_url != NULL)
-       $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=short>';
+     $gs = guifi_service_load(guifi_graphs_get_server($id,'node'));
+     if ($gs->var['url'] != NULL)
+       $img_url = ' <img src='.$gs->var['url'].'?device='.$device['id'].'&type=availability&format=short>';
      else
        $img_url = NULL;
      $rows[] = array(
@@ -1357,9 +1369,9 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
       }
       else
         $linkname = $loc1->id.'-'.'<a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
-      $graph_url = guifi_graphs_get_node_url($id,FALSE);
+      $gs = guifi_graphs_get_server($loc2->device_id,'device');
       if ($graph_url != NULL)
-        $img_url = ' <img src='.$graph_url.'?device='.$loc2->device_id.'&type=availability&format=short>';
+        $img_url = ' <img src='.$gs->var['url'].'?device='.$loc2->device_id.'&type=availability&format=short>';
       else
         $img_url = NULL;
       if ($devant != $devact) {

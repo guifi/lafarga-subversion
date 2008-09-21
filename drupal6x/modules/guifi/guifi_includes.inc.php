@@ -1265,15 +1265,22 @@ function guifi_to_7bits($str) {
 }
 
 function guifi_clean_ssid($str) {
- $str = str_replace(array('Ã ','Ã¡','Ã€','Ã?','Ã','Ã?'),'a',$str);
- $str = str_replace(array('Ãš','Ã©','Ã«','Ã?','Ã?','Ã?'),'e',$str);
- $str = str_replace(array('Ã¬','Ã­','Ã¯','Ã','Ã?','Ã'),'i',$str);
- $str = str_replace(array('Ã²','Ã³','Ã¶','Ã?','Ã?','Ã?'),'o',$str);
- $str = str_replace(array('Ã¹','Ãº','ÃŒ','Ã?','Ã?','Ã?'),'u',$str);
- $str = str_replace(array('Ã±','Ã?'),'n',$str);
- $str = str_replace(array('Ã§','Ã?'),'c',$str);
+ $str = str_replace(array('Á','á','À','À','Ä','ä'),'a',$str);
+ $str = str_replace(array('É','é','È','è','ë','Ë'),'e',$str);
+ $str = str_replace(array('Í','í­','ì','Ì','ï','Ï'),'i',$str);
+ $str = str_replace(array('Ó','ó','Ò','ò','ö','Ö'),'o',$str);
+ $str = str_replace(array('Ú','ú','Ù','ù','ü','Ü'),'u',$str);
+ $str = str_replace(array('Ñ','ñ'),'n',$str);
+ $str = str_replace(array('Ç','ç'),'c',$str);
 
  return $str;
+}
+
+function guifi_clear_cache($num = null) {
+	cache_clear_all('guifi','cache_block',true);
+  cache_clear_all('%/cnml/%','cache_page',true);
+  if ($num)
+    cache_clear_all('%/'.$num.'/','cache_page',true);
 }
 
 function guifi_zone_childs_recurse($id, $childs, $children) {

@@ -668,9 +668,9 @@ function guifi_users_queue($zone) {
 
 
      $ip = guifi_main_ip($d['id']);
-     $graph_url = guifi_graphs_get_node_url($u['nid'],FALSE);
-     if ($graph_url != NULL)
-       $img_url = ' <img src='.$graph_url.'?device='.$d['id'].'&type=availability&format=short>';
+     $gs = guifi_service_load(guifi_graphs_get_server($u['nid'],'node'));
+     if ($gs->var['url'] != NULL)
+       $img_url = ' <img src='.$gs->var['url'].'?device='.$d['id'].'&type=availability&format=short>';
      else
        $img_url = 'NULL';
      $rows[] = array(

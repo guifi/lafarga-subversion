@@ -75,7 +75,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
        $tree[] = $node;
      }
      $sql_devices = sprintf('SELECT * FROM {guifi_devices} d WHERE nid in (%s)',$cnmlid);
-     $sql_radios = sprintf('SELECT r.* FROM {guifi_radios} r, {guifi_devices} d WHERE d.nid in (%s) AND d.id=r.id ',$cnmlid);
+     $sql_radios = sprintf('SELECT r.* FROM {guifi_radios} r, {guifi_devices} d WHERE d.nid in (%s) AND d.id=r.id',$cnmlid);
      $sql_interfaces = sprintf('SELECT i.*,a.ipv4,a.id ipv4_id, a.netmask FROM {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE d.nid in (%s) AND d.id=i.device_id AND i.id=a.interface_id',$cnmlid);
      $sql_links = sprintf('SELECT l1.id, l1.device_id, l1.interface_id, l1.ipv4_id, l2.device_id linked_device_id, l2.nid linked_node_id, l2.interface_id linked_interface_id, l2.ipv4_id linked_radiodev_counter, l1.link_type, l1.flag status FROM {guifi_links} l1, {guifi_links} l2 WHERE l1.nid in (%s) AND l1.id=l2.id AND l1.device_id != l2.device_id',$cnmlid);
      $sql_services = sprintf('SELECT s.*, r.body FROM {guifi_devices} d, {guifi_services} s, {node} n, {node_revisions} r WHERE d.nid in (%s) AND d.id=s.device_id AND n.nid=s.id AND n.vid=r.vid',$cnmlid);
@@ -263,11 +263,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
                        'Supertrasto RB411 guifi.net',
                        'Supertrasto RB412 guifi.net',
                        'Supertrasto RB433 guifi.net'))) {
-                $radioXML->addAttribute('snmp_name','wlan'.(string)$id);
+                $radioXML->addAttribute('snmp_name','wlan'.(string) ($id + 1));
               }
                 else if  (in_array($model_name,
                      array('NanoStation2' , 'NanoStation5'))) {
-                $radioXML->addAttribute('snmp_index','4');
+                $radioXML->addAttribute('snmp_name','wifi0');
               }
             }
             switch ($radio->mode) {
@@ -681,7 +681,7 @@ function dump_guifi_ips($cnmlid){
   $CNML->addAttribute('server_id','1');
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
-  
+
   // 172.x.x.x
   $result=db_query("SELECT t1.ipv4, t2.device_id, t3.nick FROM guifi_ipv4 AS t1 JOIN guifi_interfaces AS t2 ON t1.interface_id = t2.id JOIN guifi_devices AS t3 ON t2.device_id = t3.id WHERE t1.ipv4 LIKE '172%' ");
   $classXML = $CNML->addChild('subnet');
@@ -693,7 +693,7 @@ function dump_guifi_ips($cnmlid){
 	};
 	$classXML->addAttribute('range','172');
 
-  // 10.x.x.x	
+  // 10.x.x.x
   $result=db_query("SELECT t1.ipv4, t2.device_id, t3.nick FROM guifi_ipv4 AS t1 JOIN guifi_interfaces AS t2 ON t1.interface_id = t2.id JOIN guifi_devices AS t3 ON t2.device_id = t3.id WHERE t1.ipv4 LIKE '10%' ");
   $classXML = $CNML->addChild('subnet');
 	while ($record=db_fetch_object($result)){
@@ -703,7 +703,7 @@ function dump_guifi_ips($cnmlid){
 	  $reg->addAttribute('nick',$record->nick);
 	};
 	$classXML->addAttribute('range','10');
-  	
+
   return $CNML;
 }
 

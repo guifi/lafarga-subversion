@@ -18,32 +18,32 @@ function guifi_graph_detail() {
       $rows[] = array(t('This node has the graphs disabled.'));
       return array_merge($rows);
     }
-    if (empty($node->graph_server))
-      $server_mrtg = guifi_graphs_get_node_url($node->id);
+    if (!empty($node->graph_server))
+      $gs = node_load(array('nid'=>$node->graph_server));
     else
-      $server_mrtg = guifi_graphs_get_graph_url($node->graph_server);
+      $gs = node_load(array('nid'=>guifi_graphs_get_server($node->id,'node')));
   } else {
     if ($radio->graph_server == -1) {
       $rows[] = array(t('This device has the graphs disabled.'));
       return array_merge($rows);
     }
-    if (empty($radio->graph_server))
-      $server_mrtg = guifi_graphs_get_radio_url($radio->id);
+    if (!empty($radio->graph_server))
+      $gs = node_load(array('nid'=>$radio->graph_server));
     else
-      $server_mrtg = guifi_graphs_get_graph_url($radio->graph_server);
+      $gs = node_load(array('nid'=>guifi_graphs_get_server($radio->id,'device')));
   }
 
   $help = t('Here you have a detailed view of the available information for several periods of time (daily, weekly, monthly and yearly). You can obtain a detailed graph for a given period of time by entering the period in the boxes below.');
   switch ($type) {
     case 'clients':
       $title = '<a href="'.base_path().'guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
-      $args = sprintf('<img src="%s?type=clients&node=%d&radio=%d&direction=%s',$server_mrtg,$radio->nid,$_GET['radio'],$_GET['direction']);
+      $args = sprintf('<img src="%s?type=clients&node=%d&radio=%d&cached&direction=%s',$gs->var['url'],$radio->nid,$_GET['radio'],$_GET['direction']);
       $help .= '<br />'.t('The clients graph show the top clients by transit.');
       break;
     case 'supernode':
       $zid = $node->zone_id;
       $title = '<a href='.base_path().'node/'.$_GET['node'].'>'.$node->title.'</a>';
-      $args = sprintf('<img src="%s?type=supernode&node=%d&direction=%s',$server_mrtg,$_GET['node'],$_GET['direction']);
+      $args = sprintf('<img src="%s?type=supernode&node=%d&cached&direction=%s',$gs->var['url'],$_GET['node'],$_GET['direction']);
       $help .= '<br />'.t('Supernode graph show the transif of each radio.');
       break;
     case 'radio':
@@ -51,7 +51,7 @@ function guifi_graph_detail() {
     case 'pings':
       if ($type != 'radio')
         $help= '<br />'.t('The ping graph show the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
-      $args = sprintf('<img src="%s?type=%s&node=%d&radio=%d',$server_mrtg,$_GET['type'],$radio->nid,$_GET['radio']);
+      $args = sprintf('<img src="%s?type=%s&node=%d&radio=%d',$gs->var['url'],$_GET['type'],$radio->nid,$_GET['radio']);
       $title = $radio->nick.' '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
       break;
   }
@@ -103,52 +103,6 @@ src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar.gif" a
   return print theme('page', $output, t('graph details for').' '.$title);
 }
 
-/**
- * guifi_get_parent_mrtg
- * recursively iterates trough parent zones until a non-empty mrtg-server field is found
- **/
-
-function guifi_get_parent_mrtg($zone,$old_mrtg = TRUE) {
-    $query_zone= db_query("SELECT r.master,r.graph_server FROM {guifi_zone} r WHERE r.id=%d",$zone);
-    $z=db_fetch_object($query_zone);
-
-    if (!empty($z->graph_server))
-      return guifi_graphs_get_graph_url($z->graph_server);
-    if (!empty($z->mrtg_servers) and $old_mrtg)
-      return $z->mrtg_servers;
-
-    if ($z->master != 0)
-       return guifi_get_parent_mrtg($z->master,$old_mrtg);
-
-    return NULL;
-}
-
-function guifi_graphs_get_graph_url($sid) {
-  $queryService = db_query("SELECT extra FROM {guifi_services} WHERE id=%d AND service_type='SNPgraphs'",$sid);
-  $Service = db_fetch_object($queryService);
-  if (!empty($Service)) {
-    $server_attr = unserialize($Service->extra);
-    if (!empty($server_attr['url']))
-      return $server_attr['url'];
-  }
-  return NULL;
-}
-
-
-function guifi_graphs_get_node_url($node,$old_mrtg = TRUE) {
-  $z = db_fetch_object(db_query('SELECT zone_id, graph_server FROM {guifi_location} WHERE id=%d',$node));
-  $ret = null;
-  if ($z->graph_server < 1)
-    $gs = guifi_zone_get_service($z->zone_id,'graph_server');
-  else
-    $gs = $z->graph_server;
-
-  if (is_null($gs))
-    return $ret;
-
-  $s = guifi_service_load($gs);
-    return $s->var['url'];
-}
 
 function get_SSID_radio($radio) {
   $querySSID = db_query("SELECT r.ssid FROM {guifi_radios} r WHERE r.id=%d",$radio);
@@ -157,63 +111,54 @@ function get_SSID_radio($radio) {
 }
 
 
-//function guifi_radio_get_url_mrtg($radio, $old_mrtg = TRUE ) {
-function guifi_graphs_get_radio_url($radio, $old_mrtg = TRUE ) {
+function guifi_graphs_get_server($id, $type='device') {
+	switch ($type) {
+    case 'node':
+      $n = node_load(array('nid'=>$id));
+      if ($n->graph_server)
+        return $n->graph_server;
+      else
+        return guifi_graphs_get_server($n->zone_id,'zone');
+    case 'zone':
+      $z = node_load(array('nid'=>$id));
+      if ($z->graph_server)
+        return $z->graph_server;
+      else
+        if ($z->master)
+          return guifi_graphs_get_server($z->master,'zone');
+        else
+          return FALSE;
+		case 'device':
+    case 'radio':
+      $d = db_fetch_object(db_query('SELECT nid, graph_server FROM {guifi_devices} WHERE id=%d',$id));
+      if ($d->graph_server)
+        return $d->graph_server;
+      $countRadios = db_fetch_object(db_query(
+      "SELECT count(*) c " .
+      "FROM {guifi_radios} " .
+      "WHERE nid=%d " .
+      "  AND mode='ap'",$d->nid));
+      if ($countRadios->c > 0)
+        // node has APs, inherits node graph server
+        return guifi_graphs_get_server($d->nid,'node');
 
-  $Node = db_fetch_object(db_query(
-    "SELECT d.nid nid " .
-    "FROM {guifi_devices} d " .
-    "WHERE d.id=%d",
-    $radio));
-
-  if (!$Node)
-    return null;
-
-  $countRadios = db_fetch_object(db_query(
-    "SELECT count(*) c " .
-    "FROM {guifi_radios} " .
-    "WHERE nid=%d " .
-    "  AND mode='ap'",$Node->nid));
-
-  // print "Count radios: ".$countRadios->c." \n<br>";
-
-  if ($countRadios->c > 0)
-    // node has APs, inherits node graph server
-    return guifi_graphs_get_node_url($Node->nid,$old_mrtg);
-
-
-  // finding an ap/client link for this node, inherits from remote node
-  $Link = db_fetch_object(db_query(
-    "SELECT " .
-    "  d.graph_server dg, " .
-    "  n.graph_server ng, " .
-    "  n.zone_id " .
-    "FROM {guifi_links} l1, " .
-    "  {guifi_links} l2, " .
-    "  {guifi_devices} d, " .
-    "  {guifi_location} n " .
-    "WHERE l1.id=l2.id " .
-    "  AND l1.nid != l2.nid " .
-    "  AND l1.link_type='ap/client' " .
-    "  AND l1.nid=%d " .
-    "  AND d.id=l2.device_id " .
-    "  AND n.id=l2.nid",
-    $Node->nid));
-
-  if (!$Link)
-    // node has no links, inherits graph server from node/zone
-    return guifi_graphs_get_node_url($Node->nid,$old_mrtg);
-
-  if ($Link->dg == -1)
-    return NULL;
-  if ($Link->dg > 0)
-    return guifi_graphs_get_graph_url($Link->dg);
-  if ($Link->ng == -1)
-    return NULL;
-  if ($Link->ng > 0)
-    return guifi_graphs_get_graph_url($Link->ng);
-
-  return guifi_get_parent_mrtg($Link->zone_id,$old_mrtg);
+      // client: finding an ap/client link for this node, inherits from remote node
+      $link = db_fetch_object(db_query(
+	      "SELECT " .
+        "  l2.device_id ".
+				"FROM {guifi_links} l1, " .
+				"  {guifi_links} l2 " .
+				"WHERE l1.id=l2.id " .
+				"  AND l1.nid != l2.nid " .
+				"  AND l1.link_type='ap/client' " .
+				"  AND l1.nid=%d ",
+				$d->nid));
+      if ($link)
+        return guifi_graphs_get_server($link->device_id,'device');
+      else
+        return guifi_graphs_get_server($d->nid,'node');
+	}
+  return false;
 }
 
 /**
@@ -231,10 +176,11 @@ function guifi_device_graph_overview($radio) {
    $rows[] = array(t('This device has the graphs disabled.'));
    return array_merge($rows);
  }
+
  if (empty($radio['graph_server']))
-   $server_mrtg = guifi_graphs_get_radio_url($radio['id']);
+   $gs = guifi_service_load(guifi_graphs_get_server($radio['id'],'device'));
  else
-   $server_mrtg = guifi_graphs_get_graph_url($radio['graph_server']);
+   $gs = guifi_service_load($radio['graph_server']);
 
  if (substr($server_mrtg,0,3) == "fot")
     {
@@ -259,178 +205,29 @@ function guifi_device_graph_overview($radio) {
         $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
         $rows[] = array(array(
           'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
-            $args.'in><img src="'.$server_mrtg.'?'.
+            $args.'in><img src="'.$gs->var['url'].'?'.
             $args.'in"></a>',$radio['id']),
           'align'=>'center'));
         $rows[] = array(array(
           'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
-            $args.'out><img src="'.$server_mrtg.'?'.
-            $args.'out"></a>',$radio['id']),
+            $args.'out><img src="'.$gs->var['url'].'?'.
+            $args.'out&cached"></a>',$radio['id']),
           'align'=>'center'));
       } else if (($radio['type']=='radio') or
         ($radio['variable']['mrtg_index']!='')) {
         $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
         $rows[] = array(array(
           'data'=>'<a href='.base_path().'guifi/graph_detail?'.
-            $args.'><img src="'.$server_mrtg.'?'.$args.'">',
+            $args.'><img src="'.$gs->var['url'].'?'.$args.'">',
           'align'=>'center'));
       }
       $args = sprintf('type=pings&node=%d&radio=%d',$radio['nid'],$radio['id']);
       $rows[] = array(array(
         'data'=>'<a href='.base_path().'guifi/graph_detail?'.
-          $args.'><img src="'.$server_mrtg.'?'.$args.'">',
+          $args.'><img src="'.$gs->var['url'].'?'.$args.'">',
         'align'=>'center'));
       return array_merge($rows);
     }
-}
-
-/**
- * guifi_mrtg
-**/
-
-function guifi_mrtg() {
-
-  if (is_numeric(arg(1)))
-    $zoneid = arg(1);
-  else
-    $zoneid = arg(2);
-
-  function wlan_traffic($rrdfile,$snmpIndex,$max,$txt,$row,$nl) {
-     $output = "Target[".$rrdfile."_".$snmpIndex."]: ".$snmpIndex.":public@".$row['ip'].':';
-//     $output .= $nl."SetEnv[".$rrdfile.'_'.$snmpIndex.']: MRTG_INT_IP="'.$row['ip'].'" MRTG_INT_DESCR="eth0"';
-     $output .= $nl."SetEnv[".$rrdfile.'_'.$snmpIndex.']: MRTG_INT_IP="'.$row['ip'].'"';
-     $output .= $nl.'MaxBytes['.$rrdfile.'_'.$snmpIndex.']: '.$max;
-     $output .= $nl."Title[".$rrdfile."_".$snmpIndex."]: ".$txt." de ".$row['title'];
-     $html = "PageTop[".$rrdfile."_".$snmpIndex."]: <H1>".$txt." de ".$row['title']."</H1>
-     <TABLE>
-     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
-     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
-     <TR><TD>Description:</TD><TD>".$txt."</TD></TR>
-     <TR><TD>IP:</TD>         <TD>".$row['ip']."</TD></TR>
-     <TR><TD>Max Speed:</TD>  <TD>".$max." bits/sec</TD></TR>
-     </TABLE>";
-     if ($nl == "\n")
-       $output .= $nl.$html;
-     else
-       $output .= $nl.htmlentities($html);
-
-     return $nl.$output;
-  }
-  function wlan_routeros_traffic($rrdfile,$row,$ifid,$nl) {
-     $ifDescr = 'wlan'.$ifid;
-     $output = "Target[".$rrdfile."]: \\".$ifDescr.":public@".$row['ip'].':';
-     $output .= $nl."SetEnv[".$rrdfile.']: MRTG_INT_IP="'.$row['ip'].'" MRTG_INT_DESCR="'.$ifDescr.'"';
-     $output .= $nl.'MaxBytes['.$rrdfile.']: 3000000';
-     $output .= $nl."Title[".$rrdfile."]: Trafic a ".$ifDescr." de ".$row['title'];
-     $html = "PageTop[".$rrdfile."]: <H1>Tr&agrave;fic a ".$ifDescr." de ".$row['title']."</H1>
-     <TABLE>
-     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
-     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
-     <TR><TD>Description:</TD><TD>".$ifDescr."</TD></TR>
-     <TR><TD>Max Speed:</TD>  <TD>30.0 Mbits/s</TD></TR>
-     </TABLE>";
-     if ($nl == "\n")
-       $output .= $nl.$html;
-     else
-       $output .= $nl.htmlentities($html);
-
-     return $nl.$output;
-  }
-  function ping($rrdfile,$row,$nl) {
-     $output .= 'Title['.$rrdfile.'_ping]: Temps del ping de '.$row['title'];
-     $html = 'PageTop['.$rrdfile.'_ping]: <H1>Lat&egrave;ncia '.$row['title']."</H1>
-     <TABLE
-     <TR><TD>System:</TD>     <TD>".$row['title']."</TD></TR>
-     <TR><TD>Maintainer:</TD> <TD>guifi@guifi.net</TD></TR>
-     <TR><TD>Description:</TD><TD>ping  </TD></TR>
-     <TR><TD>IP:</TD>         <TD>".$row['ip']."</TD></TR>
-     </TABLE>";
-     if ($nl == "\n")
-       $output .= $nl.$html;
-     else
-       $output .= $nl.htmlentities($html);
-     $output .= $nl.'Target['.$rrdfile.'_ping]: `/etc/mrtg/ping.sh '.$row['ip'].'`';
-     $output .= $nl.'MaxBytes['.$rrdfile.'_ping]: 2000';
-     $output .= $nl.'Options['.$rrdfile.'_ping]: growright,unknaszero,nopercent,gauge';
-     $output .= $nl.'LegendI['.$rrdfile.'_ping]: Perduts %';
-     $output .= $nl.'LegendO['.$rrdfile.'_ping]: Temps mig';
-     $output .= $nl.'Legend1['.$rrdfile.'_ping]: Temps max. en ms';
-     $output .= $nl.'Legend2['.$rrdfile.'_ping]: Temps min. en ms';
-     $output .= $nl.'YLegend['.$rrdfile.'_ping]: RTT (ms)';
-
-     return $nl.$output;
-  }
-  if (isset($_GET['ascii']))
-    $nl = "\n";
-  else
-    $nl = "<BR>\n";
-
-  $query = db_query("SELECT z.title FROM {guifi_zone} z WHERE z.id=%d",$zoneid);
-  $zone = db_fetch_object($query);
-
-  print "# MRTG configuration for zone: ".$zoneid." - ".$zone->title;
-  print $nl."HtmlDir: ".variable_get('rrdimg_path','/home/comesfa/mrtg/images');
-  print $nl."ImageDir: ".variable_get('rrdimg_path','/home/comesfa/mrtg/images');
-  print $nl."LogDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
-  print $nl."LogFormat: rrdtool";
-  print $nl."ThreshDir: ".variable_get('rrddb_path','/home/comesfa/mrtg/logs');
-  print $nl."Forks: 24";
-  print $nl."SnmpOptions: retries => 2, only_ip_address_matching => 0";
-  print $nl."SnmpOptions: timeout => 1";
-
-  $listed = array();
-  $query = db_query(
-    "SELECT d.nick title, d.type, a.ipv4 ip, d.id, i.interface_type, d.extra " .
-    "FROM {guifi_location} l, {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a " .
-    "WHERE l.zone_id IN (".implode(',',guifi_zone_childs($zoneid)).") " .
-    "  AND l.id = d.nid " .
-    "  AND d.id=i.device_id " .
-    "  AND i.id=a.interface_id " .
-    "  AND i.interface_type IN " .
-    "    ('Wan','wLan/Lan','Lan','Client','wlan','wlan1','wlan2','wlan3'," .
-    "     'wlan4','wlan5','wlan6','wds/p2p') " .
-    "  AND a.ipv4 != '' " .
-    "GROUP BY 1,2,3");
-  while ($row = db_fetch_array($query)) {
-
-   // if not a radio in client mode and if is Wan, next
-   if ($row['type'] == 'radio') {
-     $radio = db_fetch_object(db_query("SELECT * FROM {guifi_radios} WHERE id=%d",$row['id']));
-     if (($radio->mode!='client') and ($row['interface_type'] == 'Wan')) {
-       continue;
-     }
-   }
-
-   // if device already listed, next
-   if ($listed[$row['id']]) {
-     continue;
-   } else {
-     $listed[$row['id']] = true;
-   }
-
-   print $nl.'# '.$row['title'].' - '.$row['ip'];
-   $rrdfile = guifi_rrdfile($row['title']);
-   $query_linksys_buffalo = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('WRT54Gv1-4','WRT54GSv1-2','WRT54GSv4','WRT54GL','WHR-HP-G54, WHR-G54S')",$row['id']);
-   if (db_result($query_linksys_buffalo) > 0)
-      print wlan_traffic($rrdfile,6,10000000,t('wLan traffic'),$row,$nl);
-   $query_routeros = db_query("SELECT r.id FROM {guifi_radios} r, {guifi_model} m WHERE r.id=%d AND r.model_id=m.mid AND m.model in ('Supertrasto RB532 guifi.net')",$row['id']);
-   if (db_result($query_routeros) > 0)   {
-     $dev = guifi_device_load($row[id]);
-     if (isset($dev[radios])) foreach ($dev[radios] as $radio_id=>$radio) {
-       print wlan_routeros_traffic(guifi_rrdfile($radio[ssid]),$row,$radio_id+1,$nl);
-     }
-   }
-
-   // ADSL
-   if (($row['type'] == 'ADSL') || ($row['type'] == 'generic'))  {
-     $adsl = unserialize($row['extra']);
-     if (isset($adsl['mrtg_index']))
-       print wlan_traffic($rrdfile,$adsl['mrtg_index'],$adsl['download'],t('ADSL traffic'),$row,$nl);
-   }
-
-   print ping($rrdfile,$row,$nl);
-  }
-
 }
 
 /**
@@ -486,240 +283,6 @@ function guifi_graphs_get_pings($hostname, $start = NULL, $end = NULL) {
     $var['last_succeed'] = 100 - $last_suceed;
   }
   return $var;
-}
-
-function guifi_graphs_get_traffic($hostname, $start = NULL, $end = NULL) {
-  $var['in'] = 0;
-  $var['out'] = 0;
-  $var['max'] = 0;
-  $data = array();
-  $secs = NULL;
-
-  if ($start == NULL)
-    $start = -86400;
-  if ($end == NULL)
-    $end = -300;
-  $fp = popen(variable_get('rrdtool_path','/usr/bin/rrdtool')." fetch ".variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($hostname).sprintf("_6.rrd AVERAGE --start=%d --end=%d",$start,$end), "r");
-  if (isset($fp)) {
-    while (!feof($fp)) {
-      $n = sscanf(fgets($fp),"%d: %f %f",$interval,$in,$out);
-      if (is_numeric($in) && ($n == 3)) {
-        if ($var['max'] < $in)
-          $var['max'] = $in;
-        if ($var['max'] < $out)
-          $var['max'] = $out;
-        $data[] = array('interval' => $interval, 'in' => $in, 'out' => $out);
-      }
-    }
-    foreach ($data as $key => $sample) {
-      if ($key == 0)
-        $secs = $data[1]['interval'] - $sample['interval'];
-      else
-        $secs = $sample['interval'] - $data[$key - 1]['interval'];
-      $var['in'] += $sample['in'] * $secs;
-      $var['out'] += $sample['out'] * $secs;
-    }
-  }
-  pclose($fp);
-  return $var;
-}
-
-function guifi_graph_node($node, $start = NULL, $end = NULL) {
-
-  $query_radios = db_query("SELECT d.id, d.nick FROM {guifi_devices} d WHERE d.nid=%d",$node);
-  while ($radio = db_fetch_object($query_radios)) {
-    print $radio->id."-".$radio->nick."<br />\n";
-    print_r(guifi_graphs_get_traffic($radio->nick,null,null));
-  }
-  return db_result($query_radios);
-}
-
-function guifi_graph() {
-  $type    = $_GET['type'];
-  if (isset($_GET['start']))
-    $start   = $_GET['start'];
-  else
-    $start = -86400;
-  if (isset($_GET['end']))
-    $end     = $_GET['end'];
-  else
-    $end = -300;
-  if (isset($_GET['width']))
-    $width   = $_GET['width'];
-  else
-    $width = 600;
-  if (isset($_GET['height']))
-    $height  = $_GET['height'];
-  else
-    $height = 120;
-  $radios = array();
-  $totals = array();
-  $key = 0;
-
-
-  if ($start == 0)
-    $start = -86400;
-  if ($end == 0)
-    $start = -300;
-
-  $color = array(
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0'
-                );
-  $cmd = '';
-
-  if (isset($_GET['radio'])) {
-    $device = guifi_device_load($_GET['radio']);
-    $queryradio = db_query("SELECT d.nick FROM {guifi_devices} d WHERE d.id=%d",$_GET['radio']);
-    $radio = db_fetch_object($queryradio);
-  }
-  if (isset($_GET['direction'])) {
-    $direction = strtolower($_GET['direction']);
-  } else {
-    $direction='in';
-  }
-  switch ($direction) {
-    case 'in':  $ds = 'ds0'; $otherdir = 'out'; $otherds = 'ds1'; break;
-    case 'out': $ds = 'ds1'; $otherdir = 'in';  $otherds = 'ds0'; break;
-  }
-
-
-  switch ($type) {
-    case 'supernode':
-      if (isset($_GET['node']))
-        $node = $_GET['node'];
-      else return;
-      $querynode = db_query("SELECT n.title,l.nick FROM {node} n, {guifi_location} l WHERE n.nid=%d AND l.id=n.nid",$node, $node);
-      $nodestr = db_fetch_object($querynode);
-      $title = sprintf('Supernode: %s - wLANs %s',$nodestr->nick,$direction);
-      $vscale = 'Bytes/s';
-    case 'clients':
-      $queryradios = db_query("SELECT d.nick,r.id FROM {guifi_radios} r, {guifi_devices} d WHERE r.nid=%d AND r.id=d.id",$node, $node);
-      if ($type == 'clients') {
-        $traffic = guifi_graphs_get_traffic($radio->nick,$start,$end);
-        $totals[] = $traffic[$otherdir] * 8;
-        $radios[] = array('nick' => $radio->nick, 'id' => $radio->id, 'filename' => variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($radio->nick).'_6.rrd', 'max' => $traffic['max'] * 8);
-        $title = sprintf('wLAN: %s (%s) - links (%s)',$radio->nick,$otherdir,$direction);
-        $vscale = 'Bytes/s';
-       $queryradios = db_query("SELECT d.nick,r.id FROM {guifi_links} c1, {guifi_links} c2, {guifi_radios} r, {guifi_devices} d WHERE c1.device_id=%d AND c1.link_type in ('wds','ap/client','bridge') AND c2.device_id != %d AND c1.id = c2.id AND c2.device_id = r.id AND r.id=d.id",$_GET['radio'], $_GET['radio']);
-      }
-
-      while ($radiofetch = db_fetch_array($queryradios)) {
-        $filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($radiofetch['nick']).'_6.rrd';
-        if (file_exists($filename)) {
-          $traffic = guifi_graphs_get_traffic($radiofetch['nick'],$start,$end);
-          $totals[] = $traffic[$direction] * 8;
-          $radiofetch['filename'] = $filename;
-          $radiofetch['max'] =  $traffic['max'] * 8;
-          $radios[] = $radiofetch;
-          $key ++;
-        }
-      }
-
-      arsort($totals);
-      reset($totals);
-      $col = 0;
-      foreach ($totals as $key => $total) {
-        $item = $radios[$key];
-        $totalstr = _guifi_tostrunits($total);
-        if (($type == 'clients') && ($item['id'] == $radio->id)) {
-          $dir_str = $otherdir;
-          $datasource = $otherds;
-        } else {
-          $datasource = $ds;
-          $dir_str = $direction;
-        }
-        $cmd = $cmd.sprintf(' DEF:val%d="%s":%s:AVERAGE',$key,$item['filename'],$datasource);
-        $cmd = $cmd.sprintf(' CDEF:val%da=val%d,1,* ',$key,$key);
-        $cmd = $cmd.sprintf(' LINE1:val%da%s:"%30s %3s"',$key,$color[$col],$item['nick'],$dir_str);
-        $cmd = $cmd.sprintf(' GPRINT:val%da:LAST:"Ara\:%%8.2lf %%s"',$key);
-        $cmd = $cmd.sprintf(' GPRINT:val%da:AVERAGE:"Mig\:%%8.2lf %%s"',$key);
-        $cmd = $cmd.sprintf(' GPRINT:val%da:MAX:"Max\:%%8.2lf %%s"',$key);
-        $cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',$totalstr);
-        $col++;
-        if (($type == 'clients') && ($col > 5)) break;
-      }
-      break;
-    case 'radio':
-      $cmd = $cmd.guifi_graph_device($device,$type,$start,$end, $width, $height, $direction);
-      break;
-    case 'pings':
-      $pings = guifi_graphs_get_pings($radio->nick,$start,$end);
-       $vscale = 'Milisegons';
-      $title = sprintf('device: %s -  pings &#038; disponibilitat (%.2f %%)',$radio->nick,$pings['succeed']);
-      $filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($radio->nick).'_ping.rrd';
-      $cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
-      $cmd = $cmd.sprintf(' AREA:val0#FFFF00:"%20s pings fallats "',$radio->nick);
-      $cmd = $cmd.        ' GPRINT:val0:LAST:"Ara\:%8.2lf %s"';
-      $cmd = $cmd.        ' GPRINT:val0:AVERAGE:"Mig\:%8.2lf %s"';
-      $cmd = $cmd.        ' GPRINT:val0:MAX:"Max\:%8.2lf %s\n"';
-      $cmd = $cmd.sprintf(' DEF:val1="%s":ds1:AVERAGE',$filename);
-      $cmd = $cmd.sprintf(' LINE2:val1#00FF00:"%20s temps del ping"',$radio->nick);
-      $cmd = $cmd.        ' GPRINT:val1:LAST:"Ara\:%8.2lf %s"';
-      $cmd = $cmd.        ' GPRINT:val1:AVERAGE:"Mig\:%8.2lf %s"';
-      $cmd = $cmd.        ' GPRINT:val1:MAX:"Max\:%8.2lf %s\n"';
-      break;
-  }
-
-  if ($type != 'radio')
-    $cmd = sprintf("%s graph - --font DEFAULT:7 --title=\"%s\" --imgformat=PNG --width=%d  --height=%d  --vertical-label=\"%s\"  --start=%d  --end=%d --base=1000 -E %s ",
-          variable_get(rrd_path,'/usr/bin/rrdtool'),$title,$width,$height,$vscale,$start,$end,$cmd);
-//  print $cmd."\n<br />"; return;
-  $fp = popen($cmd, "rb");
-  if (isset($fp))
-    header("Content-Type: image/png");
-    print fpassthru($fp);
-  pclose($fp);
-}
-
-function guifi_graph_device($device, $type='radio',$start=-86400, $end=-300, $width=600, $height=120, $direction='in') {
-
-  if ($start == 0)
-    $start = -86400;
-  if ($end == 0)
-    $start = -300;
-
-  $color = array(
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0',
-         '#0000FF','#FF0000','#FFCC00','#66CCFF','#000000','#00CC00','#990000','#FFFF00','#800000','#C0FFC0','#FFDCA8','#008000','#A0A0A0'
-                );
-  $cmd = '';
-
-  switch ($direction) {
-    case 'in':  $ds = 'ds0'; $otherdir = 'out'; $otherds = 'ds1'; break;
-    case 'out': $ds = 'ds1'; $otherdir = 'in';  $otherds = 'ds0'; break;
-  }
-  if (($device['type'] == 'ADSL') || ($device['type'] == 'generic'))
-    $mrtg_index='_'.$device['variable']['mrtg_index'].'.rrd';
-  else
-    $mrtg_index='_6.rrd';
-  $vscale = 'Bytes/s';
-  $traffic = guifi_graphs_get_traffic($device['nick'],$start,$end);
-  $title = sprintf('radio: %s - wLAN In & Out',$device['nick']);
-  $filename = variable_get('rrddb_path','/home/comesfa/mrtg/logs/').guifi_rrdfile($device['nick']).$mrtg_index;
-  $cmd = $cmd.sprintf(' DEF:val0="%s":ds0:AVERAGE',$filename);
-  $cmd = $cmd.        ' CDEF:val0a=val0,1,* ';
-  $cmd = $cmd.sprintf(' AREA:val0a#0000FF:"%30s In "',$device['nick']);
-  $cmd = $cmd.        ' GPRINT:val0a:LAST:"Ara\:%8.2lf %s"';
-  $cmd = $cmd.        ' GPRINT:val0a:AVERAGE:"Mig\:%8.2lf %s"';
-  $cmd = $cmd.        ' GPRINT:val0a:MAX:"Max\:%8.2lf %s"';
-  $cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',_guifi_tostrunits($traffic['in']));
-  $cmd = $cmd.sprintf(' DEF:val1="%s":ds1:AVERAGE',$filename);
-  $cmd = $cmd.        ' CDEF:val1a=val1,1,* ';
-  $cmd = $cmd.sprintf(' LINE2:val1a#00FF00:"%30s Out"',$device['nick']);
-  $cmd = $cmd.        ' GPRINT:val1a:LAST:"Ara\:%8.2lf %s"';
-  $cmd = $cmd.        ' GPRINT:val1a:AVERAGE:"Mig\:%8.2lf %s"';
-  $cmd = $cmd.        ' GPRINT:val1a:MAX:"Max\:%8.2lf %s"';
-  $cmd = $cmd.sprintf(' COMMENT:"Total\: %s\n"',_guifi_tostrunits($traffic['out']));
-
-  $cmd = sprintf("%s graph - --font DEFAULT:7 --title=\"%s\" --imgformat=PNG --width=%d  --height=%d  --vertical-label=\"%s\"  --start=%d  --end=%d --base=1000 -E %s ",
-           variable_get(rrd_path,'/usr/bin/rrdtool'),$title,$width,$height,$vscale,$start,$end,$cmd);
-//  print $cmd."\n<br />"; return;
-  return $cmd;
 }
 
 function _guifi_script_calendar() {

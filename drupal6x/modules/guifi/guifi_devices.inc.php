@@ -731,6 +731,8 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     $notify);
 
   guifi_node_set_flag($edit['nid']);
+  guifi_clear_cache($edit['nid']);
+  guifi_clear_cache($edit['id']);
 
   return $ndevice['id'];
 
@@ -1132,22 +1134,23 @@ function guifi_device_print_data($device) {
     $rows[] = array(t('SNMP index to graph'),$device['variable']['mrtg_index']);
   }
 
+  if ($device['graph_server']>0)
+    $gs = node_load(array('nid'=>$device['graph_server']));
+  else
+    $gs = node_load(array('nid'=>guifi_graphs_get_server($device['id'],'device')));
+
   $rows[] = array(t('graphs provided from'),array(
     'data'=>l(guifi_service_str($device['graph_server']),
-              guifi_node_get_service($device['nid'],'graph_server',true)),
-     'colspan'=>2));
-
-
+              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
+    'colspan'=>2));
 
   $ip = guifi_main_ip($device[id]);
   $rows[] = array(t('IP address & MAC'),$ip[ipv4].'/'.$ip[maskbits].' '.$device[mac]);
 
-//  $graph_url = guifi_radio_get_url_mrtg($device['id'],FALSE);
-  $graph_url = guifi_graphs_get_radio_url($device['id'],FALSE);
-  if ($graph_url != NULL)
-    $img_url = ' <img src='.$graph_url.'?device='.$device['id'].'&type=availability&format=long>';
+  if ($gs->var['url'] != NULL)
+    $img_url = ' <img src='.$gs->var['url'].'?device='.$device['id'].'&type=availability&format=long>';
   else
-    $img_url = 'NULL';
+    $img_url = NULL;
 
   $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
   $rows[] = array(array('data'=>theme_guifi_contacts($device),'colspan'=>0));
@@ -1188,6 +1191,11 @@ function guifi_device_interfaces_print_data($id) {
 
 /* guifi_device_print(): main print function, outputs the device information and call the others */
 function guifi_device_print($device = NULL) {
+  if ($device == NULL) {
+    print theme('page',t('Not found'),false);
+    return;
+  }
+
   $output = '<div id="guifi">';
 
   $node = node_load(array('nid' => $device[nid]));
@@ -1251,7 +1259,7 @@ function guifi_device_links_print($device,$ltype = '%') {
     'SELECT lat, lon, nick ' .
     'FROM {guifi_location} WHERE id=%d',
     $device['nid']));
-  $graph_url = guifi_graphs_get_radio_url($device['id'],FALSE);
+  $gs = guifi_service_load(guifi_graphs_get_server($device['id'],'device'));
 
   $curr_radio = 0;
 
@@ -1281,8 +1289,8 @@ function guifi_device_links_print($device,$ltype = '%') {
             $dOr =t("N");
       $item = _ipcalc( $ipv4['ipv4'],  $ipv4['netmask']);
       $ipdest = explode('.',$link['interface']['ipv4']['ipv4']);
-      if ($graph_url != NULL)
-        $img_url = ' <img src='.$graph_url.'?device='.$link['device_id'].'&type=availability&format=short>';
+      if ($gs != NULL)
+        $img_url = ' <img src='.$gs->var['url'].'?device='.$link['device_id'].'&type=availability&format=short>';
       else
         $img_url = NULL;
 
@@ -1321,8 +1329,8 @@ function guifi_device_links_print($device,$ltype = '%') {
       $gDist = round($oGC->EllipsoidDistance($loc1->lat, $loc1->lon, $loc2->lat, $loc2->lon),3);
       $item = _ipcalc( $ipv4['ipv4'],  $ipv4['netmask']);
       $ipdest = explode('.',$link['interface']['ipv4']['ipv4']);
-      if ($graph_url != NULL)
-        $img_url = ' <img src='.$graph_url.'?device='.$link['device_id'].'&type=availability&format=short>';
+      if ($gs->var['url'] != NULL)
+        $img_url = ' <img src='.$gs->var['url'].'?device='.$link['device_id'].'&type=availability&format=short>';
       else
         $img_url = NULL;
       $rows_cable[] = array($interface['interface_type'].'/'.$link['interface']['interface_type'],

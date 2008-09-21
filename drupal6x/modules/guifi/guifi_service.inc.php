@@ -31,6 +31,8 @@ function guifi_service_access($op, $node) {
 
 
 function guifi_service_load($node) {
+  if (!$node)
+    return false;
 
   if (is_object($node))
     $k = $node->nid;
@@ -39,6 +41,7 @@ function guifi_service_load($node) {
 
   $node = db_fetch_object(db_query("SELECT * FROM {guifi_services} WHERE id = '%d'", $k));
   $node->var = unserialize($node->extra);
+  $node->l = 'node/'.$node->id;
 
   if (!$node->id == null)
     return $node;
