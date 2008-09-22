@@ -225,6 +225,11 @@ function guifi_traceroute_search($params = null) {
         '<input type=hidden value='.base_path().drupal_get_path('module','guifi').'/js/'.' id=edit-jspath />' .
         '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
         '</form>';
+    $tracetit .= t('Route Level: Importance of the route depending on the cost and proximity to the main route').'<br>';
+    $tracetit .= t('main').':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon1.png"/>';
+    for($i=2;$i<=10;$i++){
+      $tracetit .='&nbsp;&nbsp;&nbsp;&nbsp;'.$i.':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon'.$i.'.png"/>';
+    }
     $tracetit .= '<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>';
   }
    
