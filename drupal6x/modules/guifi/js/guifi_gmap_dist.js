@@ -9,13 +9,11 @@ if(Drupal.jsEnabled) {
 	
 var icon_start;
 var oNode;
-var newNode;
-//var marker;
-//var point;
+var newNode; //initial point
 var lat2;
 var lon2;
 var marker;
-var point;
+var point; //end point
 var pLine;
 
 function xz() 
@@ -100,12 +98,16 @@ function initialPosition(ppoint) {
   map.addOverlay(dNode);
   map.addOverlay(pLine);   
   map.addOverlay(oNode);
+  document.getElementById('tdistance').innerHTML=Math.round(GCDistance_js(newNode.y,newNode.x,point.y,point.x)*1000)/1000;
+  document.getElementById('tazimut').innerHTML=Math.round(GCAzimuth_js(newNode.y,newNode.x,point.y,point.x)*100)/100;
 }
 function profileclick(event){
     var oProfile=document.getElementById("profile");
     var pointClic=coord_relativ(event,oProfile);
-    var nLat=parseFloat(document.getElementById("lat").value);
-    var nLon=parseFloat(document.getElementById("lon").value);
+    //var nLat=parseFloat(document.getElementById("lat").value);
+    //var nLon=parseFloat(document.getElementById("lon").value);
+    var nLat=newNode.y;
+    var nLon=newNode.x;
     var nLat2=point.y;
     var nLon2=point.x;
     var nDistance = GCDistance_js(nLat,nLon,nLat2,nLon2);
