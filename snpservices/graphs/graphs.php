@@ -382,9 +382,16 @@ switch ($type)
 		break;
 } //end switch $type:
 
+if ($width < 600) {
+	$DEFAULT = 7;
+	$vscale='';
+	$LEGEND = 5;
+	$AXIS = 6;
+}
+
 (isset($rrdtool_version) and ($rrdtool_version == '1.3')) ?
-  $fonts = '--font DEFAULT:10:Arial --font LEGEND:8:Courier --font AXIS:8:Arial' :
-  $fonts = '--font DEFAULT:10: --font LEGEND:8: --font AXIS:8:';
+  $fonts = sprintf('--font DEFAULT:%d:Arial --font LEGEND:%d:Courier --font AXIS:%d:Arial',$DEFAULT,$LEGEND,$AXIS) :
+  $fonts = sprintf('--font DEFAULT:10: --font LEGEND:8: --font AXIS:8:',$DEFAULT,$LEGEND,$AXIS);
   
 $cmd = sprintf("%s graph - %s <br />" .
 		"--title=\"%s\" --imgformat=PNG --width=%d  --height=%d %s <br />" .

@@ -76,6 +76,9 @@ function snmplist($did,$dev) {
 
 function snmp($device) {
 	
+	if ($device->getAttribute('id') == 464)
+	  $mrtg = "# ADSL de Gurb ";
+	
 	if (!($device->getAttribute('id')))
 	  return;
 	  
@@ -101,10 +104,10 @@ function snmp($device) {
 		}
 
     if ($child->tagName == 'interface') {
-    	if ($child->hasAttribute('snmp_name')) 
-        $snmp[$device->getAttribute('id')] = $child->getAttribute('snmp_name');
-      else if ($child->hasAttribute('snmp_index'))
-        $snmp[$device->getAttribute('id')] = $child->getAttribute('snmp_index');
+    	if ($device->hasAttribute('snmp_name')) 
+        $snmp[$device->getAttribute('id')] = $device->getAttribute('snmp_name');
+      else if ($device->hasAttribute('snmp_index'))
+        $snmp[$device->getAttribute('id')] = $device->getAttribute('snmp_index');
             	
       if ((!$ipv4) and in_array($child->getAttribute('type'),$mainip)) 
           $ipv4 = $child->getAttribute('ipv4');
@@ -115,7 +118,7 @@ function snmp($device) {
 	if (!$ipv4)
 	  return;
 	  
-	$mrtg = 
+	$mrtg .= 
 	  $device->getAttribute('title').','.
 	  $ipv4;
 	if (count($snmp))
