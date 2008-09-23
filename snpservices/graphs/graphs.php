@@ -387,11 +387,15 @@ if ($width < 600) {
 	$vscale='';
 	$LEGEND = 5;
 	$AXIS = 6;
+} else {
+	$DEFAULT = 10;
+	$LEGEND = 8;
+	$AXIS = 8;	
 }
 
 (isset($rrdtool_version) and ($rrdtool_version == '1.3')) ?
   $fonts = sprintf('--font DEFAULT:%d:Arial --font LEGEND:%d:Courier --font AXIS:%d:Arial',$DEFAULT,$LEGEND,$AXIS) :
-  $fonts = sprintf('--font DEFAULT:10: --font LEGEND:8: --font AXIS:8:',$DEFAULT,$LEGEND,$AXIS);
+  $fonts = sprintf('--font DEFAULT:%d: --font LEGEND:%d: --font AXIS:%d:',$DEFAULT,$LEGEND,$AXIS);
   
 $cmd = sprintf("%s graph - %s <br />" .
 		"--title=\"%s\" --imgformat=PNG --width=%d  --height=%d %s <br />" .
