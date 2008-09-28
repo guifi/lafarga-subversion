@@ -9,58 +9,10 @@ include_once("../common/misc.php");
 
 
 // outputs a compact comma sepparated file providing the statistics for every device
-function stats($devices = array()) {
-	global $rrddb_path;
-	  
-	if (!count($devices)) {
-		// No devices given, so going to output all devices with information at
-		// the file system
-		$files = glob(sprintf("%s/*_ping.rrd",$rrddb_path));
-		if (!count($files)) {
-  		  print sprintf('There is no statstics to dump at this server (%s)\n',
-  		    $rrddb_path);
-		  exit;
-		}
-		foreach ($files as $filename) {
-	      // only gathers statistics from devices updated in the last 12 hours
-	      $ctime = filemtime($filename);
-	      if ($ctime > (time()-(60*60*12))) {
-	  	    list($did) = sscanf(basename($filename,'.rrd'),"%d_ping");
-		    $devices[] = $did;
-	      } else {
-	      	// if not updated for a year, delete (must have permission)
-	      	if ($ctime < (time()-(60*60*24*365)))
-	      	  unlink($filename);
-	      }
-		}
-	}
-	sort($devices);
-	
-    header("Content-Type: text/plain");
-	foreach ($devices as $did) {
-		$now = time();
-		$lastday = $now - (60*60*24);
-		$lastyear = $now - (60*60*24*365);
-		$pyt = guifi_get_pings($did,$lastday);
-		$py = guifi_get_pings($did,$lastyear);
-		// now providing the availability stats
-		print $did;
-        print sprintf("|%d,%d,%.2f,%s,%s,%s,%d",$pyt['max_latency'],$pyt['avg_latency'],($py['succeed']==0)?$pyt['succeed']:$py['succeed'],$py['last_online'] > $pyt['last_online'] ? $py['last_online'] : $pyt['last_online'],$pyt['last_sample_date'],$pyt['last_sample'],$py['last_succeed']);
-		// now, getting the traffic, looking into the files <device_id>-<index>_traf.rrd
-		$files = glob(sprintf("%s/%d-*_traf.rrd",$rrddb_path,$did));
-		if (count($files)) foreach ($files as $filename) {
-	      list($id,$snmp_key) = sscanf(basename($filename,'.rrd'),"%d-%d_traf");
-	      $traf = guifi_get_traffic($filename,$lastday);
-		  print sprintf('|%s,%d,%d',$snmp_key,($traf['in']/(1000000)),($traf['out']/(1000000)));
-		}
-		print "\n";
-	}
-	exit;
-}
+
 
 function cmp_traffic($a, $b)
 {
-//	return $b['traffic']-$a['traffic'];
     if ($a['traffic'] == $b['traffic']) {
         return 0;
     }
@@ -68,17 +20,6 @@ function cmp_traffic($a, $b)
 }
 
 $type    = $_GET['type'];
-
-$format='long';
-if (isset($_GET['format']))
-	$format=$_GET['format'];
-
-if ($type == 'stats') {
-	if (isset($_GET['devices']))
-	  stats(explode(',',$_GET['devices']));
-	else 
-	  stats();
-}
 
 if ($type == 'availability') {  
 	// Just creating the availability PNG, not a graph
@@ -164,7 +105,7 @@ $cmd = '';
 //  print_r($_GET);
 
 if (isset($_GET['node'])) {
-	$gxml = simplexml_node_file($_GET['node'],$cached);
+	$gxml = simplexml_node_file($_GET['node'],$cached,'../');
 	//    print $gxml->asXML();
 }
 
@@ -242,7 +183,7 @@ switch ($type)
 				$linked_radio_attr=$linked_radio->attributes();
 				$remote_clients[] = (int)$linked_radio_attr['linked_node_id']; 
 			}
-			$rxml = simplexml_node_file(implode(',',$remote_clients),$cached);
+			$rxml = simplexml_node_file(implode(',',$remote_clients),$cached,'../');
 			reset($linked_radios);
 			foreach ($linked_radios as $linked_radio) {
 				$linked_radio_attr=$linked_radio->attributes();

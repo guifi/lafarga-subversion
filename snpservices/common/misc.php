@@ -161,7 +161,7 @@ function customError($errno, $errstr)
  echo "<b>Error:</b> [$errno] $errstr";
  }
 
-function simplexml_node_file($n,$waitcache=false) {
+function simplexml_node_file($n,$waitcache=false,$prefix=null) {
   global $CNMLSource;
   
 //  print "\n<br>Parameter: $n \n<br>";
@@ -175,7 +175,7 @@ function simplexml_node_file($n,$waitcache=false) {
   foreach ($an as $nc) {
   	$try = 0;
   	$xml = false;
-    $fn = '../tmp/'.$nc.'.cnml';
+    $fn = $prefix.'tmp/'.$nc.'.cnml';
     do {
 //  	  print " Processing $nc try $try cache: $waitcache\n<br>";
   	  if (file_exists($fn)) {
@@ -230,7 +230,7 @@ function simplexml_node_file($n,$waitcache=false) {
     if ($xml) {
     $xpnxml = $xml->xpath('//node');
     foreach ($xpnxml as $nxml) {
-      $fn = '../tmp/'.$nxml->attributes()->id.'.cnml';    	
+      $fn = $prefix.'tmp/'.$nxml->attributes()->id.'.cnml';    	
       $wcnml = @fopen($fn, "w+") or die("\n<br>Error caching XML, can't write $fn\n");
       fwrite($wcnml,'<cnml>'.$nxml->asXML().'</cnml>');
       fclose($wcnml);
