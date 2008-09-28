@@ -6,8 +6,8 @@
 **/
 function guifi_graph_detail() {
   $type = $_GET['type'];
-  if (isset($_GET['radio'])) {
-      $query = db_query("SELECT r.id, r.nick, n.title, r.nid, l.zone_id FROM {guifi_devices} r, {node} n, {guifi_location} l WHERE r.id=%d AND n.nid=r.nid AND n.nid = l.id",$_GET['radio']);
+  if (isset($_GET['device'])) {
+      $query = db_query("SELECT r.id, r.nick, n.title, r.nid, l.zone_id FROM {guifi_devices} r, {node} n, {guifi_location} l WHERE r.id=%d AND n.nid=r.nid AND n.nid = l.id",$_GET['device']);
       $radio = db_fetch_object($query);
       $zid = $radio->zone_id;
   }
@@ -34,24 +34,30 @@ function guifi_graph_detail() {
   }
 
   $help = t('Here you have a detailed view of the available information for several periods of time (daily, weekly, monthly and yearly). You can obtain a detailed graph for a given period of time by entering the period in the boxes below.');
+
+  $args = array('type'=>$type,
+    'node'=>$_GET['node'],
+    'device'=>$_GET['device']
+    );
+  if (isset($_GET['direction]']))
+    $args['direction']=$_GET['direction]'];
+
   switch ($type) {
     case 'clients':
       $title = '<a href="'.base_path().'guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
-      $args = sprintf('<img src="%s?type=clients&node=%d&radio=%d&cached&direction=%s',$gs->var['url'],$radio->nid,$_GET['radio'],$_GET['direction']);
       $help .= '<br />'.t('The clients graph show the top clients by transit.');
       break;
     case 'supernode':
       $zid = $node->zone_id;
       $title = '<a href='.base_path().'node/'.$_GET['node'].'>'.$node->title.'</a>';
-      $args = sprintf('<img src="%s?type=supernode&node=%d&cached&direction=%s',$gs->var['url'],$_GET['node'],$_GET['direction']);
       $help .= '<br />'.t('Supernode graph show the transif of each radio.');
       break;
     case 'radio':
+    case 'device':
       $help= '<br />'.t('The radio graph show in &#038; out transit.');
     case 'pings':
       if ($type != 'radio')
         $help= '<br />'.t('The ping graph show the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
-      $args = sprintf('<img src="%s?type=%s&node=%d&radio=%d',$gs->var['url'],$_GET['type'],$radio->nid,$_GET['radio']);
       $title = $radio->nick.' '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
       break;
   }
@@ -85,16 +91,16 @@ src="'.base_path(). drupal_get_path('module', 'guifi').'/contrib/calendar.gif" a
     list($day,$month,$year,$hour,$min) = sscanf($_POST['date2'],'%d-%d-%d %d:%d');
     $end = mktime($hour, $min, 0, $month, $day, $year);
     $rows[] = array(t('customized graph'));
-    $rows[] = array(sprintf($args.'&start=%d&end=%d">',$start,$end));
+    $rows[] = array('<img src="'.guifi_cnml_call_service($gs->var['url'],'graph',$args,sprintf('start=%d&end=%d">',$start,$end)));
   }
   $rows[] = array(t('day'));
-  $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day,-300));
+  $rows[] = array('<img src="'.guifi_cnml_call_service($gs->var['url'],'graph',$args,sprintf('start=-%d&end=%d">',$secs_day,-300)));
   $rows[] = array(t('week'));
-  $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day * 7,-300));
+  $rows[] = array('<img src="'.guifi_cnml_call_service($gs->var['url'],'graph',$args,sprintf('start=-%d&end=%d">',$secs_day * 7,-300)));
   $rows[] = array(t('month'));
-  $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day * 31,-300));
+  $rows[] = array('<img src="'.guifi_cnml_call_service($gs->var['url'],'graph',$args,sprintf('start=-%d&end=%d">',$secs_day * 31,-300)));
   $rows[] = array(t('year'));
-  $rows[] = array(sprintf($args.'&start=-%d&end=%d">',$secs_day * 365,-300));
+  $rows[] = array('<img src="'.guifi_cnml_call_service($gs->var['url'],'graph',$args,sprintf('start=-%d&end=%d">',$secs_day * 365,-300)));
   $output .= theme('table', NULL, array_merge($rows));
   $output .= "</div>"._guifi_script_calendar();
 
@@ -200,31 +206,44 @@ function guifi_device_graph_overview($radio) {
         "WHERE c.device_id=%d " .
         "  AND c.link_type IN ('wds','ap/client','bridge')",
         $radio['id']));
+      $args = array('type'=>'clients',
+          'node'=>$radio['nid'],
+          'device'=>$radio['id']);
+
       if ($clients->count > 1)  // several clients, Totals In & Out
       {
-        $args = sprintf('type=clients&node=%d&radio=%d&direction=',$radio['nid'],$radio['id']);
         $rows[] = array(array(
-          'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
-            $args.'in><img src="'.$gs->var['url'].'?'.
-            $args.'in"></a>',$radio['id']),
+          'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                   guifi_cnml_args($args,'direction=in').
+                   '><img src="'.
+                   guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in').
+                   '"></a>',
           'align'=>'center'));
         $rows[] = array(array(
-          'data'=>sprintf('<a href='.base_path().'guifi/graph_detail?'.
-            $args.'out><img src="'.$gs->var['url'].'?'.
-            $args.'out&cached"></a>',$radio['id']),
+          'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                   guifi_cnml_args($args,'direction=out').
+                   '><img src="'.
+                   guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out&cached').
+                   '"></a>',
           'align'=>'center'));
       } else if (($radio['type']=='radio') or
         ($radio['variable']['mrtg_index']!='')) {
-        $args = sprintf('type=radio&node=%d&radio=%d',$radio['nid'],$radio['id']);
+        $args['type'] = 'device';
         $rows[] = array(array(
-          'data'=>'<a href='.base_path().'guifi/graph_detail?'.
-            $args.'><img src="'.$gs->var['url'].'?'.$args.'">',
+          'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                   guifi_cnml_args($args).
+                   '><img src="'.
+                   guifi_cnml_call_service($gs->var['url'],'graph',$args).
+                   '"></a>',
           'align'=>'center'));
       }
-      $args = sprintf('type=pings&node=%d&radio=%d',$radio['nid'],$radio['id']);
+      $args['type'] = 'pings';
       $rows[] = array(array(
-        'data'=>'<a href='.base_path().'guifi/graph_detail?'.
-          $args.'><img src="'.$gs->var['url'].'?'.$args.'">',
+        'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                   guifi_cnml_args($args).
+                   '><img src="'.
+                   guifi_cnml_call_service($gs->var['url'],'graph',$args).
+                   '"></a>',
         'align'=>'center'));
       return array_merge($rows);
     }

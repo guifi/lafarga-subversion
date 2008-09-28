@@ -124,6 +124,9 @@ function guifi_schema() {
          'last_online' => array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'),
          'last_flag' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'),
          'ly_availability' => array('type' => 'numeric', 'precision' => '11', 'scale'=>'2', 'not null' => FALSE, 'default' => null),
+         'last_stats'=> array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been loaded with statistics'),
+         'latency_avg'=> array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Average latency'),
+         'latency_max'=> array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Maximum latency'),
          'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
@@ -175,8 +178,8 @@ function guifi_schema() {
          'antenna_gain' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '4'),
          'antenna_azimuth' => array('type' => 'int', 'not null' => FALSE, 'default' => 360, 'disp-width' => '4'),
          'antenna_mode' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE),
-         'ly_bytes_in' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
-         'ly_bytes_out' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
+         'ly_mb_in' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
+         'ly_mb_out' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
          'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
         ),
     'primary key' => array('id', 'radiodev_counter'),
@@ -856,6 +859,19 @@ function guifi_update_556() {
   } // foreach table
 
   return $items;
+}
+
+function guifi_update_652() {
+  db_add_field($items, 'guifi_devices', 'last_stats',
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been loaded with statistics'));
+  db_add_field($items, 'guifi_devices', 'latency_avg',
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Average latency'));
+  db_add_field($items, 'guifi_devices', 'latency_max',
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Maximum latency'));
+  db_change_field($items,'guifi_radios','ly_bytes_in','ly_mb_in',
+    array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null));
+  db_change_field($items,'guifi_radios','ly_bytes_out','ly_mb_out',
+    array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null));
 }
 
   /* Converting IPv4 tables from strings to long integers

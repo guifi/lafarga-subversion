@@ -214,6 +214,22 @@ function guifi_menu() {
     'weight' => 6,
     'file' => 'guifi_traceroute.inc.php'
   );
+  $items['guifi/menu/ip/liveping'] = array(
+    'title' => 'live ping',
+    'description' => 'ping to address',
+    'page callback' => 'guifi_live_ping',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'guifi_traceroute.inc.php'
+  );
+  $items['guifi/menu/ip/livetraceroute'] = array(
+    'title' => 'live traceroute',
+    'description' => 'traceroute to device',
+    'page callback' => 'guifi_live_traceroute',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'guifi_traceroute.inc.php'
+  );
 
   // Administrator's tools
   $items['guifi/menu/admin'] = array(
@@ -240,6 +256,14 @@ function guifi_menu() {
     'weight' => 1,
     'file' => 'guifi_tools.inc.php'
   );
+  $items['guifi/menu/admin/loadstats'] = array(
+    'title' => 'Load statistics',
+    'description' => 'Load statistics from remote CNML graph servers into the database',
+    'page callback' => 'guifi_admin_loadstats',
+    'access arguments' => array('administer site configuration'),
+    'weight' => 2,
+    'file' => 'guifi_tools.inc.php'
+  );
   $items['guifi/menu/admin/guifisettings'] = array(
     'title' => 'guifi.net settings',
     'description' => 'Change the settings for "guifi.net" module ',
@@ -263,7 +287,7 @@ function guifi_menu() {
     'description' => 'get statistics/counters from the network',
     'page callback' => 'guifi_counters_block',
     'access arguments' => array('access devel information'),
-    'weight' => 0,
+    'weight' => 2,
 //    'file' => 'guifi_traceroute.inc.php'
   );
 //  $items['guifi/menu/devel/get_ips_new'] = array(
@@ -1104,7 +1128,24 @@ function guifi_admin_settings() {
     '#description' => t('When the notification messages queue will be delivered, if set to "Never", no messages will be post at the queue.'),
     '#weight' => $form_weight++,
   );
-
+  $form['guifi_loadstats_period'] = array(
+    '#type' => 'select',
+    '#title' => t('Load statsitics every'),
+    '#required' => FALSE,
+    '#default_value' => variable_get("guifi_loadstats_period", 86400),
+    '#options' => array(
+      -1=>t('Never (disabled)'),
+      0=>t('Every cron'),
+      3600=>t('Hourly'),
+      72000=>t('Every 2 hours'),
+      21600=>t('Every 6 hours'),
+      43200=>t('Every 12 hours'),
+      86400=>t('Daily'),
+      172800=>t('Every other day'),
+      604800=>t('Weekly')),
+    '#description' => t('When the graphs servers will be asked for providing statistics.'),
+    '#weight' => $form_weight++,
+  );
   $form['hotspot_ssid'] = array(
     '#type' => 'textfield',
     '#title' => t('Hotspot SSID'),
@@ -1576,7 +1617,9 @@ function guifi_page($full = false) {
 }
 
 function guifi_cron() {
-  // delete orphan devices, radios, ip addresses & links
+  include_once('guifi_cron.inc.php');
+
+  // Check for sending notifications
   $msg_exp = variable_get('guifi_notify_last',0) +
     variable_get('guifi_notify_period',86400);
   if ($msg_exp >= 0)
@@ -1584,6 +1627,24 @@ function guifi_cron() {
     guifi_notify_send();
     variable_set('guifi_notify_last',time());
   }
+
+  // Check for loading statistics
+  $last_stats = variable_get('guifi_loadstats_last',array());
+  $qry = db_query('SELECT id FROM {guifi_services} WHERE service_type="SNPgraphs"');
+  while ($graph_server = db_fetch_object($qry)) {
+  	$gs = guifi_service_load($graph_server->id);
+    if ($gs->var['version'] >= 2.0) {
+      if (is_null($last_stats[$graph_server->id]))
+        $last_stats[$graph_server->id] = 0;
+      if (time() > ($last_stats[$graph_server->id] +
+        variable_get('guifi_loadstats_period',86400))) {
+        guifi_cron_loadCNMLstats($graph_server->id);
+        $last_stats[$graph_server->id] = time();
+        variable_set('guifi_loadstats_last',$last_stats);
+      }
+    }
+  }
+
   guifi_purge();
 }
 

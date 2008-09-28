@@ -318,6 +318,23 @@ function guifi_service_form($node, $param) {
         '#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP')
       );
       break;
+    case 'SNPgraphs':
+      $f['var']['version'] = array(
+        '#type' => 'select',
+        '#title' => t('version'),
+        '#default_value'=> $node->var['version'],
+        '#options'=>drupal_map_assoc(array('1.0','2.0')),
+        '#description' => t('version of the CNML services'),
+      );
+      $f['var']['url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('url'),
+        '#size' => 60,
+        '#maxlength' => 250,
+        '#default_value' => $node->var['url'],
+        '#description' => t('Base url to call CNML services'),
+      );
+      break;
     default:
       $f['var']['url'] = array(
         '#type' => 'textfield',

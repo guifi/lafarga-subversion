@@ -1147,12 +1147,11 @@ function guifi_device_print_data($device) {
   $ip = guifi_main_ip($device[id]);
   $rows[] = array(t('IP address & MAC'),$ip[ipv4].'/'.$ip[maskbits].' '.$device[mac]);
 
-  if ($gs->var['url'] != NULL)
-    $img_url = ' <img src='.$gs->var['url'].'?device='.$device['id'].'&type=availability&format=long>';
-  else
-    $img_url = NULL;
+  $status_url = guifi_cnml_availability(
+       array('device'=>$device['id'],'format'=>'long'),$gs);
 
-  $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$img_url,'class' => $device['flag']));
+  $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$status_url,'class' => $device['flag']));
+
   $rows[] = array(array('data'=>theme_guifi_contacts($device),'colspan'=>0));
 
   return array_merge($rows);
@@ -1259,7 +1258,6 @@ function guifi_device_links_print($device,$ltype = '%') {
     'SELECT lat, lon, nick ' .
     'FROM {guifi_location} WHERE id=%d',
     $device['nid']));
-  $gs = guifi_service_load(guifi_graphs_get_server($device['id'],'device'));
 
   $curr_radio = 0;
 
@@ -1289,10 +1287,9 @@ function guifi_device_links_print($device,$ltype = '%') {
             $dOr =t("N");
       $item = _ipcalc( $ipv4['ipv4'],  $ipv4['netmask']);
       $ipdest = explode('.',$link['interface']['ipv4']['ipv4']);
-      if ($gs != NULL)
-        $img_url = ' <img src='.$gs->var['url'].'?device='.$link['device_id'].'&type=availability&format=short>';
-      else
-        $img_url = NULL;
+
+      $status_url = guifi_cnml_availability(
+          array('device'=>$link['device_id'],'format'=>'short'));
 
       $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$link['device_id']));
       if ($cr->count > 1) {
@@ -1307,7 +1304,7 @@ function guifi_device_links_print($device,$ltype = '%') {
                     '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
                     '<a href="'.base_path().'node/'.$link['nid'].'">'.$loc2->nick.'</a>',
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
-                    array('data' => t($link['flag']).$img_url,
+                    array('data' => t($link['flag']).$status_url,
                           'class' => $link['flag']),
                     $link[routing],
                     $gDist,

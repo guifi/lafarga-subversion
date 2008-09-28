@@ -1012,22 +1012,22 @@ function guifi_zone_availability($zone,$desc = "all") {
           l(guifi_img_icon('edit.png'),'guifi/device/'.$d['did'].'/edit',
             array(
               'html'=>true,
-              'title' => t('edit device'),
-              'attributes'=>array('target'=>'_blank'))).
+              'attributes'=>array(
+                'title' => t('edit device'),
+                'target'=>'_blank'))).
           l(guifi_img_icon('drop.png'),'guifi/device/'.$d['did'].'/delete',
             array(
               'html'=>true,
-              'title' => t('delete device'),
-              'attributes'=>array('target'=>'_blank')));
+              'attributes'=>array(
+                'title' => t('delete device'),
+                'target'=>'_blank')));
       else
         $edit = null;
 
       $ip = guifi_main_ip($d['did']);
-      $gs = guifi_service_load(guifi_graphs_get_server($d['did'],'device'));
-      if ($gs->var['url'] != NULL)
-        $img_url = ' <img src='.$gs->var['url'].'?device='.$d['did'].'&type=availability&format=long>';
-      else
-        $img_url = null;
+
+      $status_url = guifi_cnml_availability(
+         array('device'=>$d['did'],'format'=>'long'));
 
       $rows[] = array(
         array('data'=>
@@ -1040,7 +1040,7 @@ function guifi_zone_availability($zone,$desc = "all") {
             'target'=>'_blank'))),
           'align'=>'right'
         ),
-        array('data'=>$d['dflag'].$img_url,'class'=>$d['dflag'])
+        array('data'=>$d['dflag'].$status_url,'class'=>$d['dflag'])
       );
     }
     guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability_device()',$rows);

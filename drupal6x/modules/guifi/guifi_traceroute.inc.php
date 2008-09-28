@@ -5,6 +5,72 @@
  * functions for tracroute tools
  */
 
+function guifi_live_ping($device_id) {
+  if (empty($device_id))
+    $output = t('Target device not specified.');
+  else {
+    $gs = guifi_service_load(guifi_graphs_get_server($device_id,'device'));
+    $ipd = guifi_main_ip($device_id);
+    $ipf = guifi_main_ip($gs->device_id);
+  }
+
+  $title = t('Live ping from %from (%ipf) to %dest (%ipd)',
+    array('%ipd'=>$ipd['ipv4'],
+      '%dest'=>guifi_get_hostname($device_id),
+      '%ipf'=>$ipf['ipv4'],
+      '%from'=>guifi_get_hostname($gs->device_id),
+      ));
+  drupal_set_title($title);
+  print theme('page',guifi_cnml_live('liveping',$device_id,$ipd['ipv4'],$gs),false);
+  exit;
+}
+
+function guifi_live_traceroute($device_id) {
+  if (empty($device_id))
+    $output = t('Target device not specified.');
+  else {
+    $gs = guifi_service_load(guifi_graphs_get_server($device_id,'device'));
+    $ipd = guifi_main_ip($device_id);
+    $ipf = guifi_main_ip($gs->device_id);
+  }
+
+  $title = t('Live traceroute from %from (%ipf) to %dest (%ipd)',
+    array('%ipd'=>$ipd['ipv4'],
+      '%dest'=>guifi_get_hostname($device_id),
+      '%ipf'=>$ipf['ipv4'],
+      '%from'=>guifi_get_hostname($gs->device_id),
+      ));
+  drupal_set_title($title);
+  print theme('page',guifi_cnml_live('livetraceroute',$device_id,$ipd['ipv4'],$gs),false);
+  exit;
+}
+
+function guifi_cnml_live($cmd,$device_id,$ipv4,$gs) {
+  switch ($cmd) {
+  	case 'liveping':
+      $output = l('Live traceroute','guifi/menu/ip/livetraceroute/'.$device_id)."<br />";
+      $cmd_str = 'Live ping';
+      break;
+    case 'livetraceroute':
+      $output = l('Live ping','guifi/menu/ip/liveping/'.$device_id)."<br />";
+      $cmd_str = 'Live traceroute';
+      break;
+  }
+  $handle = fopen(
+      guifi_cnml_call_service($gs,$cmd,
+        array('ip'=>$ipv4)),
+      "r");
+
+  if ($handle) {
+    $pings =  stream_get_contents($handle);
+    fclose($handle);
+    $output .= '<pre>'.$pings.'</pre>';
+  } else
+    $output = t('%cmd failed.',array('%cmd'=>$cmd_str));
+
+  return theme('box',t('output'),$output);
+}
+
 function guifi_traceroute($path, $to, &$routes, $maxhops = 15,$cost = 0, $alinks = array()) {
   $btime = microtime(true);
 
@@ -202,7 +268,7 @@ function guifi_traceroute_search($params = null) {
     $collapsed = true;
     guifi_traceroute_dataexport($route[1],++$nroute,$linkslist,$nodeslist);
   }
-  
+
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_traceroute.js','module');
     $datalinks = guifi_export_arraytojs($linkslist);
@@ -232,7 +298,7 @@ function guifi_traceroute_search($params = null) {
     }
     $tracetit .= '<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>';
   }
-   
+
   $output .= theme('box',t('Software traceroute result from %from to %to',
     array('%from'=>guifi_get_devicename($from,'nick'),'%to'=>$dto)),$tracetit.$trace);
 
@@ -421,7 +487,7 @@ function guifi_traceroute_dataexport($route,$nRoute,&$linkslist,&$nodeslist) {
   $nReg = 0;
   $output = '';
   foreach ($route as $did=>$hop) {
-   
+
     if (isset($hop['to'])) {
       $linkslist[$nReg]['todevicename'] = guifi_get_devicename($did,'nick');
       $linkslist[$nReg]['todevicelink'] = 'guifi/device/'.$did;
@@ -451,7 +517,7 @@ function guifi_traceroute_dataexport($route,$nRoute,&$linkslist,&$nodeslist) {
         'SELECT ipv4, netmask FROM {guifi_ipv4} WHERE id=%d AND interface_id=%d',
         $hop['from'][4],$hop['from'][3]));
       $linkslist[$nReg]['fromipv4'] = $ip->ipv4.'/'.guifi_ipcalc_get_maskbits($ip->netmask);
-      $linkslist[$nReg]['type'] = $hop['from'][1];     
+      $linkslist[$nReg]['type'] = $hop['from'][1];
       $linkslist[$nReg]['status'] = $hop['from'][2];
       if (!isset($nodeslist[$hop['from'][5]])) {
         $nodeslist[$hop["from"][5]]=guifi_get_location($hop["from"][5]);

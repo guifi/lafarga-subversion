@@ -79,30 +79,6 @@ function _guifi_tostrunits($num) {
   }
 }
 
-/**
- *
-**/
-function guifi_availabilitystr($device) {
-  $pings = guifi_graphs_get_pings($device->nick);
-  if ($pings['samples'] > 0) {
-    $available = sprintf("%.2f%%",$pings['succeed']);
-    if ($pings['last_succeed'] == 0)
-      $last = 'Down';
-    else
-      $last = 'Up';
-    $last_str = sprintf("<a href=\"guifi/graph_detail?type=pings&radio=%d\">%s (%s)</a>",$device->id,t($last),$pings['last_sample']);
-  } else {
-     $last = 'number';
-    $last_str = t('n/a');
-    $available = t('n/a');
-  }
-  $var['last_str'] = $last_str;
-  $var['available'] = $available;
-  $var['last'] = $last;
-
-  return $var;
-}
-
 function guifi_main_interface($mode = null) {
   switch ($mode) {
     case 'ap': return 'wLan/Lan';
@@ -1264,6 +1240,87 @@ function guifi_to_7bits($str) {
  return $str_new;
 }
 
+function guifi_cnml_call_service($target,$service,$params=array(),$extra=null) {
+//  guifi_log(GUIFILOG_BASIC,'call CNML service target',$target);
+
+  // processing graphserver
+  if (is_array($target)) {
+//    print_r($target);
+//    print "\n<br>Key: ".key($target)."\n";
+    if  (in_array(key($target),array('zone','node','device')))
+      $gs = guifi_service_load(
+        guifi_graphs_get_server($target[key($target)],key($target)));
+  }
+
+  if (is_object($target))
+    $gs = $target;
+
+  if (is_string($target))
+    $url = $target;
+  else
+    $url = $gs->var['url'];
+
+  $basename = basename($url);
+
+  // Temprary, for backward compatibility, to take out later
+  if ($basename=='graphs.php') {
+    $version = '1.0';
+
+    if ($params['type']=='device')
+      $params['type']='radio';
+    if ($service=='availability')
+      $params['type']='availability';
+    else if (isset($params['device'])) {
+      $params['radio'] = $params['device'];
+      unset($params['device']);
+    }
+  } else
+    $version = '2.0';
+
+//  guifi_log(GUIFILOG_BASIC,'call CNML service version',$version);
+
+  if ($version == '1.0')
+    return $url.'?'.guifi_cnml_args($params,$extra);
+  else
+    return $url.'/index.php?call='.$service.'&'.guifi_cnml_args($params,$extra);
+}
+
+function guifi_cnml_args($args,$extra=null) {
+  $params = array();
+
+  // Temprary, for backward compatibility, to take out later
+  foreach ($args as $param=>$value) {
+    if ($param=='device' and empty($value))
+      continue;
+
+    $params[] = $param.'='.$value;
+  }
+  $str = implode('&',$params);
+  if (!empty($extra))
+    $str.= '&'.$extra;
+  return $str;
+}
+
+function guifi_cnml_availability($args,$gs = null) {
+  if (is_null($gs))
+    $gs = guifi_service_load(guifi_graphs_get_server($args['device'],'device'));
+
+  $img_url =
+    '<img src="'.guifi_cnml_call_service($gs,'availability',$args).'">';
+
+  if ($gs->var['version'] >= 2.0)
+    return l($img_url,'guifi/menu/ip/liveping/'.$args['device'],
+            array(
+              'html'=>true,
+              'attributes'=>array(
+                'title' => t('live ping/traceroute to %device',
+                  array('%device'=>guifi_get_hostname($args['device']))),
+                'target'=>'_blank')));
+  else
+    // old v1.0 format for backward compatibility
+    return $img_url;
+}
+
 function guifi_clean_ssid($str) {
  $str = str_replace(array('Á','á','À','À','Ä','ä'),'a',$str);
  $str = str_replace(array('É','é','È','è','ë','Ë'),'e',$str);
@@ -1652,80 +1709,6 @@ function guifi_devicename_validate($devicestr,&$form_state) {
     t('Device name %name not valid.',array('%name'=>$devicestr['#value'])),'error');
 
   return $devicestr;
-}
-/** guifi_notify_send(): Delivers all the waiting messages and empties the queue
-*/
-function guifi_notify_send($send = true) {
-  global $user;
-
-  $destinations = array();
-  $messages     = array();
-  // Get all the queue to be processesed, grouping to every single destination
-  $qt = db_query("
-    SELECT *
-    FROM {guifi_notify}");
-  while ($message = db_fetch_array($qt)) {
-    $messages[$message['id']] = $message;
-    foreach (unserialize($message['to_array']) as $dest)
-       $destinations[$dest][] = $message['id'];
-  }
-
-  // For every destination, construct a single mail with all messages
-  $errors = false;
-  $output = '';
-  foreach ($destinations as $to=>$msgs) {
-    $body = str_repeat('-',72)."\n\n".
-      t('Complete trace messages (for trace purposes, to be used by developers)')."\n".str_repeat('-',72)."\n";
-    $subjects = t('Summary of changes:')."\n".str_repeat('-',72)."\n";
-    foreach ($msgs as $msg_id) {
-      $subjects .= format_date($messages[$msg_id]['timestamp'],'small').' ** '.
-        $messages[$msg_id]['who_name'].' '.
-        $messages[$msg_id]['subject']."\n";
-      $body .=
-        format_date($messages[$msg_id]['timestamp'],'small').' ** '.
-        $messages[$msg_id]['who_name'].' '.
-        $messages[$msg_id]['subject']."\n".
-        $messages[$msg_id]['body']."\n".str_repeat('-',72)."\n";
-    }
-
-    $subject = t('[guifi.net notify] Report of changes at !date',
-        array('!date'=>format_date(time(),'small')));
-    $output .= '<h2>'.t('Sending a mail to: %to',
-      array('%to'=>$to)).'</h2>';
-    $output .= '<h3>'.$subject.'</h3>';
-    $output .= '<pre><small>'.$subjects.$body.'</small></pre>';
-
-    $params['mail']['subject']= $subject;
-    $params['mail']['body']=$subjects.$body;
-
-    $return = false;
-    if ($send) {
-      $return = drupal_mail('guifi_notify','notify',
-        $to,
-        user_preferred_language($user),
-        $params,
-        variable_get('guifi_contact',$user->mail));
-
-        guifi_log(GUIFILOG_TRACE,'return code for email sent:',$return);
-    }
-
-    if ($return['result'])
-      watchdog('guifi','Report of changes sent to %name',
-        array('%name'=>$to));
-    else {
-      watchdog('guifi',
-        'Unable to notify %name',
-        array('%name'=>$to));
-      $errors = true;
-    }
-
-  }
-  // delete messages
-  if ((!$errors) and ($send))
-     db_query("DELETE FROM {guifi_notify}
-       WHERE id in (".implode(',',array_keys($messages)).")");
-
-  return $output;
 }
 
 function guifi_notify_mail($key, &$message, $params) {

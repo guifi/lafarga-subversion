@@ -668,11 +668,10 @@ function guifi_users_queue($zone) {
 
 
      $ip = guifi_main_ip($d['id']);
-     $gs = guifi_service_load(guifi_graphs_get_server($u['nid'],'node'));
-     if ($gs->var['url'] != NULL)
-       $img_url = ' <img src='.$gs->var['url'].'?device='.$d['id'].'&type=availability&format=short>';
-     else
-       $img_url = 'NULL';
+
+     $status_url = guifi_cnml_availability(
+       array('device'=>$d['id'],'format'=>'short'));
+
      $rows[] = array(
        $edit_device_icon.
        l($d['nick'],'guifi/device/'.$d['id'],
@@ -684,7 +683,7 @@ function guifi_users_queue($zone) {
                'target'=>'_blank'))),
                'align'=>'right'),
                array('data' => $edit_ok_icon, 'class' => $d['flag']),
-               array('data' => $img_url, 'class' => $d['flag']),
+               array('data' => $status_url, 'class' => $d['flag']),
      );
     }
     return $rows;

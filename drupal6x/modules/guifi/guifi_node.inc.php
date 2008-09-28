@@ -1165,10 +1165,30 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
         $rows[] = array('<a href="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg" target="_blank"> <img src="'.$mrtg_url.'/14all.cgi?log='.$ssid.'_ping&cfg=mrtg.cfg&png=weekly"></a>');
       }
       $ret = array_merge($rows);
-    }else{
-      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
-      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$gs->var['url'].'?'.$args.'in"></a>',$node->id));
-      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'out"><img src="'.$gs->var['url'].'?'.$args.'out"></a>',$node->id));
+    } else {
+      $args = array('type'=>'supernode',
+        'node'=>$node->id,
+      );
+
+//      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
+      $rows[] = array(array(
+        'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                 guifi_cnml_args($args,'direction=in').
+                 '><img src="'.
+                 guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in').
+                 '"></a>',
+        'align'=>'center'));
+      $rows[] = array(array(
+        'data'=> '<a href='.base_path().'guifi/graph_detail?'.
+                 guifi_cnml_args($args,'direction=out').
+                 '><img src="'.
+                 guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out&cached').
+                 '"></a>',
+        'align'=>'center'));
+
+//      $rows[] = array(
+//      guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in'sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$gs->var['url'].'?'.$args.'in"></a>',$node->id));
+//      $rows[] = array(sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'out"><img src="'.$gs->var['url'].'?'.$args.'out"></a>',$node->id));
       $ret = array_merge($rows);
     }
   } else {
@@ -1209,7 +1229,6 @@ function theme_guifi_node_devices_list($node,$links = false) {
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
   while ($d = db_fetch_object($query)) {
      $device = guifi_device_load($d->id);
-     $status_str = guifi_availabilitystr($device);
      if (guifi_device_access('update',$device['id'])) {
        $edit_radio =  '<table><tr><td>'.l(guifi_img_icon('edit.png'),'guifi/device/'.$device['id'].'/edit',
             array(
@@ -1236,17 +1255,16 @@ function theme_guifi_node_devices_list($node,$links = false) {
        );
      }
      $ip = guifi_main_ip($device[id]);
-     $gs = guifi_service_load(guifi_graphs_get_server($id,'node'));
-     if ($gs->var['url'] != NULL)
-       $img_url = ' <img src='.$gs->var['url'].'?device='.$device['id'].'&type=availability&format=short>';
-     else
-       $img_url = NULL;
+
+     $status_url = guifi_cnml_availability(
+       array('device'=>$device['id'],'format'=>'short'));
+
      $rows[] = array(
                  '<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
                  $device[type],
                  array('data' => $ip[ipv4].'/'.$ip[maskbits], 'align' => 'left'),
                  array('data' => t($device[flag]),'class' => $device['flag']),
-                 array('data' => $img_url,'class' => $device['flag']),
+                 array('data' => $status_url,'class' => $device['flag']),
                  $unsolclic,
                  $edit_radio,
                  $traceroute
@@ -1370,18 +1388,17 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
       }
       else
         $linkname = $loc1->id.'-'.'<a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
-      $gs = guifi_graphs_get_server($loc2->device_id,'device');
-      if ($graph_url != NULL)
-        $img_url = ' <img src='.$gs->var['url'].'?device='.$loc2->device_id.'&type=availability&format=short>';
-      else
-        $img_url = NULL;
+
+      $status_url = guifi_cnml_availability(
+         array('device'=>$loc2->device_id,'format'=>'short'));
+
       if ($devant != $devact) {
         $devant = $devact;
         $rows[] = array(array('data'=> '<b><a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
       }
       $rows[] = array($linkname,
         $loc1->ip.'/'.$loc2->ip,
-        array('data' => t($loc1->flag).$img_url,
+        array('data' => t($loc1->flag).$status_url,
           'class' => $loc1->flag),
           array('data' => $gDist,'class' => 'number'),
           $dAz.'-'.$dOr);
