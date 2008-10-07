@@ -6,8 +6,19 @@
 **/
 function guifi_graph_detail() {
   $type = $_GET['type'];
-  if (isset($_GET['device'])) {
-      $query = db_query("SELECT r.id, r.nick, n.title, r.nid, l.zone_id FROM {guifi_devices} r, {node} n, {guifi_location} l WHERE r.id=%d AND n.nid=r.nid AND n.nid = l.id",$_GET['device']);
+
+  if (isset($_GET['device']))
+    $device_id=$_GET['device'];
+  else if (isset($_GET['radio']))
+    $device_id=$_GET['radio'];
+  if (isset($device_id)) {
+      $query = db_query(
+        "SELECT r.id, r.nick, n.title, r.nid, l.zone_id " .
+        "FROM {guifi_devices} r, {node} n, {guifi_location} l " .
+        "WHERE r.id=%d " .
+        "  AND n.nid=r.nid " .
+        "  AND n.nid = l.id",
+        $device_id);
       $radio = db_fetch_object($query);
       $zid = $radio->zone_id;
   }
@@ -37,7 +48,7 @@ function guifi_graph_detail() {
 
   $args = array('type'=>$type,
     'node'=>$_GET['node'],
-    'device'=>$_GET['device']
+    'device'=>$device_id
     );
   if (isset($_GET['direction]']))
     $args['direction']=$_GET['direction]'];
@@ -45,19 +56,19 @@ function guifi_graph_detail() {
   switch ($type) {
     case 'clients':
       $title = '<a href="'.base_path().'guifi/device/'.$radio->id.'">'.$radio->nick.'</a> '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
-      $help .= '<br />'.t('The clients graph show the top clients by transit.');
+      $help .= '<br />'.t('The clients graph displays the top clients by transit.');
       break;
     case 'supernode':
       $zid = $node->zone_id;
       $title = '<a href='.base_path().'node/'.$_GET['node'].'>'.$node->title.'</a>';
-      $help .= '<br />'.t('Supernode graph show the transif of each radio.');
+      $help .= '<br />'.t('Supernode graph displays the transit of each radio.');
       break;
     case 'radio':
     case 'device':
       $help= '<br />'.t('The radio graph show in &#038; out transit.');
     case 'pings':
       if ($type != 'radio')
-        $help= '<br />'.t('The ping graph show the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
+        $help= '<br />'.t('The ping graph displays the latency and availability. High latency usually means bad connection. Yellow means % of failed pings, could be some yellow on the graphs, but must not reach value of 100, if the value reaches 100, that means that the radio is offline.');
       $title = $radio->nick.' '.t('at').' '.'<a href='.base_path().'node/'.$radio->nid.'>'.$radio->title.'</a>';
       break;
   }
