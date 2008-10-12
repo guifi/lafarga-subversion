@@ -1,7 +1,7 @@
 <?php
 
 function budgets_schema() {
-  
+
   $schema['budgets'] = array(
     'fields' => array(
       'id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
@@ -56,13 +56,13 @@ function budgets_schema() {
       'id' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
       'supplier_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'disp-width' => '11','default'=>0,'COMMENT' => 'Foreign key to guifi_zone'),
       'partno' => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'title' => array('type' => 'varchar', 'length' => 60, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
+      'title' => array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
       'description' => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
       'cost' => array('type' => 'numeric', 'not null' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
       'expires' => array('type' => 'int', 'not null' => TRUE, 'disp-width' => '11')),
     'primary key' => array('id'),
   );
-  
+
   return $schema;
 }
 
@@ -72,7 +72,7 @@ function budgets_install() {
 
 function budgets_uninstall() {
   drupal_uninstall_schema('budgets');
-  
+
   variable_del('budget_block_title');
   variable_del('budget_payment');
   variable_del('budget_terms');
@@ -88,10 +88,10 @@ function budgets_uninstall() {
 //
 function budgets_update_413() {
   $items = array();
-  
+
   $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_payment'");
   $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_expires'");
-  $items[] = update_sql("ALTER TABLE `budgets` 
+  $items[] = update_sql("ALTER TABLE `budgets`
   CHANGE `budget_status` `budget_status` VARCHAR( 15 ) NULL DEFAULT 'Preparation' COMMENT 'Preparation , Open , Closed'");
   $items[] = update_sql("ALTER TABLE `budget_funds`
   CHANGE `fund_status` `fund_status` VARCHAR( 20 ) NULL DEFAULT 'Submitted' COMMENT 'Submitted, Accepted, Declined, Paid'");
@@ -100,7 +100,7 @@ function budgets_update_413() {
 
 function budgets_update_414() {
   $items = array();
-  
+
   db_change_field($items,'budgets','guifi_zones','zone_id',
     array('type' => 'int',
       'disp-width' => 11,
@@ -115,7 +115,7 @@ function budgets_update_414() {
   db_change_field($items, 'budgets', 'max_contribution','max_contribution',
     array('type' => 'numeric', 'not null' => FALSE, 'default' => 50000, 'precision' => '20', 'scale' => '2'));
   db_change_field($items,'budgets','nid','id',
-    array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'));  
+    array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items,'budget_funds','nid','budget_id',
     array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items,'budget_funds','fund_id','id',
@@ -147,7 +147,7 @@ function budgets_update_414() {
     'primary key' => array('id'),
     )
   );
-  
+
   return $items;
 }
 
@@ -156,7 +156,7 @@ function budgets_update_424() {
 
   db_change_field($items,'budget_items','title','title',
     array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'item title'));
-    
+
   return $items;
 }
 
@@ -164,7 +164,16 @@ function budgets_update_476() {
   $items = array();
 
   db_drop_field($items,'supplier_quote','description');
-    
+
+  return $items;
+}
+
+function budgets_update_478() {
+  $items = array();
+
+  db_change_field($items,'supplier_quote','title','title',
+    array('type' => 'varchar', 'length' => 1024, 'not null' => TRUE, 'default' => '', 'COMMENT' => 'supplier title'));
+
   return $items;
 }
 

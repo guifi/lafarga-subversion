@@ -1155,6 +1155,8 @@ function budgets_form_load_budget($form,&$form_state) {
 function budgets_form_load_quote($form,&$form_state) {
   $node = &$form_state['values'];
   guifi_log(GUIFILOG_TRACE,'function budgets_form_load_quote()',$node['loadquote']);
+  $form_state['#redirect'] = FALSE;
+  $form_state['rebuild'] = true;
 
   $toLoad = explode('-',$node['loadquote']);
   if ((empty($toLoad[0])) or
@@ -1190,9 +1192,6 @@ function budgets_form_load_quote($form,&$form_state) {
   $node['items'][] = $newI;
 
   guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget(OUT)',$node);
-
-  $form_state['#redirect'] = FALSE;
-  $form_state['rebuild'] = true;
 }
 
 function budgets_fund_delete_confirm(&$form_state, $node) {
@@ -1983,7 +1982,7 @@ function budgets_ahah_select_quote($string){
 
   $qry = db_query(
     'SELECT ' .
-    '  CONCAT(s.title, " ",q.id, "-", q.partno, ", ", q.title) str '.
+    '  CONCAT(q.id,"-",s.title, "-", q.partno, ", ", q.title) str '.
     'FROM {supplier_quote} q, {supplier} s ' .
     'WHERE q.supplier_id = s.id ' .
     '  AND (CONCAT(upper(s.title), " ",q.id, "-", q.partno, ", ", upper(q.title)) ' .
