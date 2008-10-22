@@ -448,11 +448,11 @@ function budgets_admin_settings() {
 
   $form_weight = -20;
 
-  $form['budget_title'] = array(
+  $form['budget_block_title'] = array(
     '#type' => 'textfield',
     '#title' => t('Block title'),
     '#required' => FALSE,
-    '#default_value' => variable_get("budget_block_title", t("budgets & funds")),
+    '#default_value' => variable_get("budget_block_title", t("proposals")),
     '#size' => 35,
     '#maxlength' => 255,
     '#description' => t("Title of budgets block..."),
@@ -542,7 +542,7 @@ function budgets_admin_settings() {
 function budgets_block($op = "list", $delta = 0, $edit = array()) {
  switch ($op) {
     case 'list':
-    $blocks[0]["info"] = variable_get("budget_block_title", t("Open budgets"));
+    $blocks[0]["info"] = t(variable_get("budget_block_title", t("Open proposals")));
     return $blocks;
 
   case 'configure':
@@ -559,7 +559,7 @@ function budgets_block($op = "list", $delta = 0, $edit = array()) {
   case 'view':
     switch($delta) {
       case 0:
-    $block['subject'] = variable_get('budget_block_title', t("budgets"));
+    $block['subject'] = t(variable_get('budget_block_title', t("proposals")));
     $block['content'] = budgets_display_block_1($content);
         break;
     }
@@ -1653,7 +1653,7 @@ function budgets_page($zone = NULL,$status = NULL) {
      WHERE n.nid=b.id
        AND b.zone_id IN ('.implode(',',$zones).') '.
     $status_str.
-    'ORDER BY FIND_IN_SET(budget_status,"Open,Preparation,Closed"), n.nid';
+    'ORDER BY FIND_IN_SET(budget_status,"Open,Preparation,Closed"), n.nid DESC';
 
   $result = pager_query($sql,variable_get('default_nodes_main', 10));
 

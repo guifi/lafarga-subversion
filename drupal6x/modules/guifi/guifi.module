@@ -1227,7 +1227,7 @@ function guifi_block($op = "list", $delta = 0, $edit = array()) {
 
   switch ($op) {
     case 'list':
-      $blocks[0] = array('info' => t(variable_get("guifi_title",t("guifi nodes"))),
+      $blocks[0] = array('info' => t(variable_get("guifi_title",t("network facts"))),
       'weight' => 0, 'status' => 1, 'region' => 'left');
     return $blocks;
 
