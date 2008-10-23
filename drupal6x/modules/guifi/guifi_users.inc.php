@@ -723,6 +723,8 @@ function guifi_users_queue($zone) {
       $administer = false;
 
   while ($u = db_fetch_array($query)) {
+    $pUser = (object) guifi_user_load($u['id']);
+    $proxy = node_load(array('nid'=>$pUser->services['proxy']));
 
     $srows =  _guifi_user_queue_devices($u);
     $nsr   = count($srows);
@@ -770,7 +772,8 @@ function guifi_users_queue($zone) {
             'target'=>'_blank')
           )) .
           "\n<br>".
-          '<small>'.format_date($u['timestamp_created']).'</small>',
+          '<small>'.format_date($u['timestamp_created']).'<br>'.
+          l($proxy->nick,'node/'.$proxy_>id,array('attributes'=>array('title'=>$proxy->title))),
         'rowspan'=>$nsr
         ),
       array(
@@ -868,14 +871,14 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 
   if ($node->type == 'guifi_node') {
     $query = db_query(
-      "SELECT id, firstname, lastname, username, services, status " .
+      "SELECT id " .
       "FROM {guifi_users} " .
       "WHERE nid = %d " .
       "ORDER BY lastname, firstname",
       $node->nid);
   } else
     $query = db_query(
-      "SELECT id, firstname, lastname, username, services, status " .
+      "SELECT id " .
       "FROM {guifi_users} " .
       "ORDER BY lastname, firstname");
 
@@ -890,8 +893,9 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 
   $options = array();
 
-  while ($guser = db_fetch_object($query)) {
-    $services = unserialize($guser->services);
+  while ($guserid = db_fetch_object($query)) {
+    $guser = (object)guifi_user_load($guserid->id);
+//    $services = unserialize($guser->services);
     if ($node->type == 'guifi_service') {
       if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
         continue;
@@ -901,8 +905,12 @@ function guifi_users_node_list_form($form_state, $params = array()) {
     else
       $realname = $guser->firstname;
 
-    $options[$guser->id] = $realname.' ('.$guser->username.')'.' '.
-      $guser->status;
+    $service = node_load(array('nid'=>$guser->services['proxy']));
+
+    $options[$guser->id] = $realname.' ('.$guser->username.')'.' - '.
+      l($service->nick,'node/'.$service->id,array('attributes'=>array('title'=>$service->title))).' - '.
+      $guser->status.'<br>'.
+      theme_guifi_contacts($guser,false);
     if (!isset($default_user))
       $default_user = $guser->id;
   }

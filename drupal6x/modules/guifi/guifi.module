@@ -1912,7 +1912,7 @@ function theme_guifi_menu_page($blocks) {
   return $output;
 }
 
-function theme_guifi_contacts($node) {
+function theme_guifi_contacts($node,$header = true) {
   global $user;
 
   if (is_array($node))
@@ -1938,7 +1938,7 @@ function theme_guifi_contacts($node) {
     $rows[] = t('updated by').': '.
       l($name_changed->name,'user/'.$node->user_changed) .'&nbsp;' .t('at') .'&nbsp;' .format_date($node->timestamp_changed);
 
-  return '<small>'.theme('box',t('contact information'),implode(' · ',$rows)).'</small>';
+  return '<small>'.theme('box',($header) ? t('contact information') : '',implode(' · ',$rows)).'</small>';
 }
 
 function guifi_menu_link_alter(&$item, &$menu) {
