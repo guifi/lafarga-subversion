@@ -19,7 +19,7 @@ function guifi_edit_ipv4_form_submit($form, &$form_state) {
 function guifi_add_ipv4($zone) {
   drupal_set_title(t('Adding an ipv4 network range'));
 
-  return drupal_get_form('guifi_edit_ipv4_form',array('add'=>$zone->nid));
+  return drupal_get_form('guifi_edit_ipv4_form',array('add'=>$zone->id));
 }
 
 /**
@@ -72,13 +72,56 @@ function guifi_edit_ipv4($id = 0) {
  * Present the guifi zone editing form.
  */
 function guifi_edit_ipv4_form($form_state, $params = array()) {
+  guifi_log(GUIFILOG_TRACE,'guifi_edit_ipv4_form()',$params);
 
   if (empty($form_state['values'])) {
     // first execution, initializing the form
 
     // if new network, initialize the zone
-    if ($params['add'])
-      $form_state['values']['zone'] = $params['add'];
+	  if ($params['add']) {
+		  $zone_id=$params['add'];
+
+		  // if is root zone, don't find next value'
+		  if ($zone_id != guifi_zone_root()) {
+
+
+			  // not root zone, fill default values looking to next available range
+			  $zone = guifi_zone_load($zone_id);
+
+			  $ndefined = db_fetch_object(db_query('SELECT count(*) c FROM guifi_networks WHERE zone=%d',$zone_id));
+
+			  switch ($ndefined->c) {
+				  case 0: $mask='255.255.255.0'; break;
+				  case 1: $mask='255.255.254.0'; break;
+				  case 2: $mask='255.255.252.0'; break;
+				  case 3: $mask='255.255.248.0'; break;
+				  default: $mask='255.255.240.0';
+			  }
+
+			  $form_state['values']['zone'] = $zone_id;
+
+			  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0');
+			  $network_type='public';
+			  $allocate = 'No';
+
+			  $net = guifi_ipcalc_get_subnet_by_nid($zone->master,
+				  $mask,
+					$network_type,
+					$ips_allocated,
+					$allocate,   // never allocate the obatined range at guifi_networks
+					true);   // verbose output
+
+			  if ($net) {
+				  $item=_ipcalc($net,$mask);
+				  $form_state['values']['base']=$net;
+				  $form_state['values']['mask']=$mask;
+			  } else
+				  drupal_set_message(t('Was not possible to find %type space for %mask',
+					  array('%type'=>$network_type,
+						  '%mask'=>$mask)),
+				  'error');
+		  }
+    }
 
     // if existent network, get the network and edit
     if ($params['edit'])
