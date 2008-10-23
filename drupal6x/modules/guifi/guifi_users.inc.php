@@ -773,7 +773,10 @@ function guifi_users_queue($zone) {
           )) .
           "\n<br>".
           '<small>'.format_date($u['timestamp_created']).'<br>'.
-          l($proxy->nick,'node/'.$proxy_>id,array('attributes'=>array('title'=>$proxy->title))),
+          l(
+            $proxy->nick,
+           "node/".$proxy->id,
+           array('attributes'=>array('title'=>$proxy->title))),
         'rowspan'=>$nsr
         ),
       array(
