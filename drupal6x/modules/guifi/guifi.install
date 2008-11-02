@@ -61,8 +61,7 @@ function guifi_schema() {
          'user_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'user_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'timestamp_created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
-         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11'),
-         'valid' => array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 1, 'disp-width' => '4')),
+         'timestamp_changed' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'disp-width' => '11')),
     'primary key' => array('id'),
     'unique keys' => array(
          'networks' => array(array('base', 16), array('mask', 16))),
@@ -538,6 +537,15 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'routing', 'BATMAN', 'BATMAN', '');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'routing', 'RIP', 'RIP', '');");
 
+
+  // --
+  // -- ad-hoc dynamic protocols
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'adhoc', 'OLSR', 'ad-hoc mesh - OLSR', 'kamikaze|freifunk-OLSR');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'adhoc', 'OLSR-NG', 'ad-hoc mesh - OLSR-NG', 'kamikaze');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'adhoc', 'BATMAN', 'ad-hoc mesh - BATMAN', 'kamikaze|freifunk-BATMAN');");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'adhoc', 'RouterOS', 'ad-hoc mesh - RouterOS', 'RouterOSv3.x');");
+
+
   // --
   // -- Volcant dades de la taula guifi_manufacturer
   // --
@@ -874,6 +882,18 @@ function guifi_update_652() {
     array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null));
 }
 
+function guifi_update_661() {
+  $items = array();
+
+  db_drop_field($items, 'guifi_networks', 'valid');
+
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'adhoc', 'OLSR', 'ad-hoc mesh - OLSR', 'kamikaze|freifunk-OLSR');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'adhoc', 'OLSR-NG', 'ad-hoc mesh - OLSR-NG', 'kamikaze');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'adhoc', 'BATMAN', 'ad-hoc mesh - BATMAN', 'kamikaze|freifunk-BATMAN');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'adhoc', 'RouterOS', 'ad-hoc mesh - RouterOS', 'RouterOSv3.x');");
+
+  return $items;
+}
   /* Converting IPv4 tables from strings to long integers
   db_query("CREATE TABLE {guifi_ipv4s} (
        id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',

@@ -915,8 +915,7 @@ function guifi_ipcalc_get_subnet_by_nid(
     $result = db_query(
         'SELECT n.id, n.base, n.mask ' .
         'FROM {guifi_networks} n ' .
-        'WHERE n.valid = 1 ' .
-        '  AND n.zone = "%s" ' .
+        'WHERE n.zone = "%s" ' .
         '  AND network_type="%s" ' .
         'ORDER BY n.id',
         $zone->id,$network_type);

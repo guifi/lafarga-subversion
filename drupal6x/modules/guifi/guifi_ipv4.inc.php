@@ -7,8 +7,8 @@
 /**
  * Form callback; handle the submit .
  */
-function guifi_edit_ipv4_form_submit($form, &$form_state) {
-  guifi_edit_ipv4_save($form_state['values']);
+function guifi_ipv4_form_submit($form, &$form_state) {
+  guifi_ipv4_save($form_state['values']);
   $form_state['redirect'] = 'node/'.$form_state['values']['zone'].'/view/ipv4';
 }
 
@@ -16,34 +16,49 @@ function guifi_edit_ipv4_form_submit($form, &$form_state) {
  * Menu callback; handle the adding of a new guifi.
  */
 
-function guifi_add_ipv4($zone) {
+function guifi_ipv4_add($zone) {
   drupal_set_title(t('Adding an ipv4 network range'));
 
-  return drupal_get_form('guifi_edit_ipv4_form',array('add'=>$zone->id));
+  return drupal_get_form('guifi_ipv4_form',array('add'=>$zone->id));
 }
 
 /**
  * Menu callback; delete a single ipv4 network.
  */
-function guifi_delete_ipv4($id) {
-  $result = db_query('SELECT base, mask, zone
+function guifi_ipv4_delete($id) {
+  $result = db_query('SELECT *
                       FROM {guifi_networks}
                       WHERE id = %d',
             $id);
-  $guifi = db_fetch_object($result);
+  $edit = db_fetch_array($result);
 
   if ($_POST['confirm']) {
-    db_query('DELETE FROM {guifi_networks} WHERE id = %d', $id);
-    drupal_set_message(t('Network range allocation %base/%mask deleted.',array('%base'=>$guifi->base,'%mask'=>$guifi->mask)));
-    drupal_goto('node/'.$guifi->zone.'/view/ipv4');
+    $msg = t('The network %base/%mask (%type) has been DELETED by %user.',
+      array('%base' => $edit['base'],
+        '%mask'=>$edit['mask'],
+        '%type'=>$edit['network_type'],
+        '%user' => $user->name));
+    $edit['deleted'] = true;
+
+    $nnetwork = _guifi_db_sql(
+      'guifi_networks',
+      array('id'=>$edit['id']),
+      (array)$edit,
+      $log,$to_mail);
+    guifi_notify(
+      $to_mail,
+      $msg,
+      $log);
+
+    drupal_goto('node/'.$edit['zone'].'/view/ipv4');
   }
-  return drupal_get_form('guifi_confirm_delete_ipv4',$guifi->base,$guifi->mask,$guifi->zone);
+  return drupal_get_form('guifi_ipv4_confirm_delete',$edit['base'],$edit['mask'],$edit['zone']);
 }
 
 /**
  * Hook callback; delkete a network
  */
-function guifi_confirm_delete_ipv4($form_state,$base,$mask,$zone) {
+function guifi_ipv4_confirm_delete($form_state,$base,$mask,$zone) {
   return confirm_form(array(),
                      t('Are you sure you want to delete the network range %base/%mask?', array('%base' => $base,'%mask'=>$mask)),
                      'node/'.$zone.'/view/ipv4',
@@ -52,27 +67,23 @@ function guifi_confirm_delete_ipv4($form_state,$base,$mask,$zone) {
                      t('Cancel'));
 }
 
-/**
- * Menu callback; hide a network
- */
-function guifi_disable_ipv4($id) {
-  db_query('UPDATE {guifi_networks} SET valid = 0 WHERE id = %d', $id);
-  drupal_set_message(t('guifi ipv4 disabled.'));
-  drupal_goto('admin/guifi');
-}
 
 /**
  * Menu callback; dispatch to the appropriate guifi network edit function.
  */
-function guifi_edit_ipv4($id = 0) {
-  return drupal_get_form('guifi_edit_ipv4_form',array('edit'=>$id));
+function guifi_ipv4_edit($id = 0) {
+  return drupal_get_form('guifi_ipv4_form',array('edit'=>$id));
 }
 
 /**
  * Present the guifi zone editing form.
  */
-function guifi_edit_ipv4_form($form_state, $params = array()) {
-  guifi_log(GUIFILOG_TRACE,'guifi_edit_ipv4_form()',$params);
+function guifi_ipv4_form($form_state, $params = array()) {
+  guifi_log(GUIFILOG_TRACE,'guifi_ipv4_form()',$params);
+
+  $network_types = array('public'   => t('public - for any device available to everyone'),
+                        'backbone' => t("backbone - used for internal management, links..."));
+  $network_types = array_merge($network_types,guifi_types('adhoc'));
 
   if (empty($form_state['values'])) {
     // first execution, initializing the form
@@ -80,6 +91,7 @@ function guifi_edit_ipv4_form($form_state, $params = array()) {
     // if new network, initialize the zone
 	  if ($params['add']) {
 		  $zone_id=$params['add'];
+      $zone = guifi_zone_load($zone_id);
 
 		  // if is root zone, don't find next value'
 		  if ($zone_id != guifi_zone_root()) {
@@ -120,7 +132,8 @@ function guifi_edit_ipv4_form($form_state, $params = array()) {
 					  array('%type'=>$network_type,
 						  '%mask'=>$mask)),
 				  'error');
-		  }
+		  } // if is not the root zone
+
     }
 
     // if existent network, get the network and edit
@@ -160,8 +173,7 @@ function guifi_edit_ipv4_form($form_state, $params = array()) {
     '#title' => t("Network type"),
     '#required' => true,
     '#default_value' => $form_state['values']['network_type'],
-    '#options' => array('public'   => t('public - for any device available to everyone'),
-                        'backbone' => t("backbone - used for internal management, links...")),
+    '#options' => $network_types,
     '#description' => t('The type of usage that this network will be used for.'),
     '#weight' => 3,
   );
@@ -184,7 +196,7 @@ function guifi_edit_ipv4_form($form_state, $params = array()) {
 /**
  * Confirm that an edited guifi network has fields properly filled in.
  */
-function guifi_edit_ipv4_form_validate($form,$form_state) {
+function guifi_ipv4_form_validate($form,$form_state) {
   if (empty($form_state['values']['base'])) {
     form_set_error('base', t('You must specify a base network for the zone.'));
   }
@@ -209,6 +221,20 @@ function guifi_edit_ipv4_form_validate($form,$form_state) {
     if (db_affected_rows($result)>0)
       form_set_error('base', t('Network already in use.'));
   }
+
+  $zone = guifi_zone_load($form_state['values']['zone']);
+  print $zone->zone_mode;
+
+  if (($zone->master != 0) and
+      ($zone->zone_mode != 'ad-hoc')) {
+    if (!in_array($form_state['values']['network_type'],array('public','backbone')))
+      form_set_error('network_type',
+        t('Only ad-hoc/mesh or root zones can have ad-hoc/mesh ranges assigned'));
+  }
+  if (($zone->zone_mode == 'ad-hoc') and
+     ($form_state['values']['network_type'] == 'backbone'))
+    form_set_error('network_type',
+      t('You must specify the protocol for backbone ranges on ad-hoc/mesh zones'));
 }
 
 /* outputs the network information data
@@ -246,8 +272,7 @@ function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
   $sql = 'SELECT
             zone, id, base, mask, network_type
           FROM {guifi_networks}
-          WHERE valid = 1
-            AND zone IN ('.implode(',',$zones).')
+          WHERE zone IN ('.implode(',',$zones).')
           ORDER BY FIND_IN_SET(zone,"'.implode(',',$zones).'")';
 
   $rows = array();
@@ -323,18 +348,33 @@ function guifi_ipv4_print_data($zone,$list = 'parents',$ips_allocated) {
  * Save changes to a guifi network into the database.
  */
 
-function guifi_edit_ipv4_save($edit) {
+function guifi_ipv4_save($edit) {
 
   global $user;
 
-  if ($edit['id']) {
-    db_query("UPDATE {guifi_networks} SET zone = %d, base = '%s', mask = '%s', network_type = '%s', timestamp_changed = %d, user_changed = %d WHERE id = %d", $edit['zone'], $edit['base'], $edit['mask'], $edit['network_type'], time(), $user->uid, $edit['id']);
-    drupal_set_message(t('Updated guifi network %base.', array('%base' => $edit['base'])));
-  }
-  else {
-    db_query("INSERT INTO {guifi_networks} ( zone, base, mask, network_type, timestamp_created, user_created) VALUES (%d, '%s', '%s', '%s', %d, %d)", $edit['zone'], $edit['base'], $edit['mask'], $edit['network_type'], time(), $user->uid);
-    drupal_set_message(t('Created new guifi network %base.', array('%base' => $edit['base'])));
-  }
+  if (!isset($edit['id'])) {
+    $edit['new'] = true;
+    $msg = t('The network %base/%mask (%type) has been CREATED by %user.',
+      array('%base' => $edit['base'],
+        '%mask'=>$edit['mask'],
+        '%type'=>$edit['network_type'],
+        '%user' => $user->name));
+  } else
+    $msg = t('The network %base/%mask (%type) has been UPDATED by %user.',
+      array('%base' => $edit['base'],
+        '%mask'=>$edit['mask'],
+        '%type'=>$edit['network_type'],
+        '%user' => $user->name));
+
+  $nnetwork = _guifi_db_sql(
+    'guifi_networks',
+    array('id'=>$edit['id']),
+    (array)$edit,
+    $log,$to_mail);
+  guifi_notify(
+    $to_mail,
+    $msg,
+    $log);
 }
 
 

@@ -376,7 +376,7 @@ function guifi_menu() {
   );
   $items['node/%guifi_zone/view/ipv4/add'] = array(
     'title' => 'add ipv4 network',
-    'page callback' => 'guifi_add_ipv4',
+    'page callback' => 'guifi_ipv4_add',
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('administer guifi networks'),
@@ -384,7 +384,7 @@ function guifi_menu() {
   );
   $items['guifi/ipv4/%/edit'] = array(
     'title' => 'edit ipv4 network',
-    'page callback' => 'guifi_edit_ipv4',
+    'page callback' => 'guifi_ipv4_edit',
     'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('administer guifi networks'),
@@ -392,7 +392,7 @@ function guifi_menu() {
   );
   $items['guifi/ipv4/%/delete'] = array(
     'title' => 'delete ipv4 network',
-    'page callback' => 'guifi_delete_ipv4',
+    'page callback' => 'guifi_ipv4_delete',
     'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('administer guifi networks'),
