@@ -281,7 +281,11 @@ function unsolclic_routeros($dev) {
            $defined_ips[$ipv4[ipv4]] = $item;
            $ospf_routerid=$ipv4[ipv4];
            $ospf_zone = guifi_get_ospf_zone($zone);
-           ospf_interface($iname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'no');
+           if ($radio[mode] != 'client') {
+             ospf_interface($iname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'no');
+           } else {
+             ospf_interface($iname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'yes');
+           }           
          }
 
 

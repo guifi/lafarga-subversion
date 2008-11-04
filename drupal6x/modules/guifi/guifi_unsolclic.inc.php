@@ -59,9 +59,12 @@ function guifi_unsolclic($dev, $format = 'html') {
   }
 
   $unsolclic='unsolclic_'.$dev->variable['firmware'];
-      
+   
   if(function_exists(${unsolclic})){
-    ${unsolclic}($dev);
+    if ($dev->radios[0]['mode'] == 'ap' && $dev->variable['firmware'] == 'kamikaze' )
+      unsolclic_todo($dev);
+    else
+     ${unsolclic}($dev);
     exit;
   }
   else
