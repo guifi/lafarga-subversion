@@ -931,6 +931,21 @@ function guifi_update_664() {
 
   return $items;
 }
+
+function guifi_update_667() {
+  $items = array();
+
+  $items[] = update_sql("DELETE FROM guifi_types WHERE type='adhoc'");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'adhoc', 'OLSR', 'ad-hoc mesh - OLSR', 'kamikaze|freifunk-OLSR');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'adhoc', 'BATMAN', 'ad-hoc mesh - BATMAN', 'kamikaze|freifunk-BATMAN');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'adhoc', 'BMX', 'ad-hoc mesh - BMX', 'kamikaze|freifunk-BATMAN|freifunk-BMX');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'adhoc', 'RouterOS', 'ad-hoc mesh - RouterOS', 'RouterOSv3.x');");
+
+  return $items;
+}
+
+
+
   /* Converting IPv4 tables from strings to long integers
   db_query("CREATE TABLE {guifi_ipv4s} (
        id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',
