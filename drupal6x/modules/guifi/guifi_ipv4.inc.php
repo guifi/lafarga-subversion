@@ -112,7 +112,7 @@ function guifi_ipv4_form($form_state, $params = array()) {
 
 			  $form_state['values']['zone'] = $zone_id;
 
-			  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0');
+			  $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',null,1);
 			  $network_type='public';
 			  $allocate = 'No';
 
@@ -393,7 +393,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree, $cable = true) {
 
   $f['storage']['ipv4_local'] = guifi_form_hidden_var(
     $ipv4,
-    array('interface_id'),
+    array('interface_id','ipv4_type'),
     $tree
   );
 

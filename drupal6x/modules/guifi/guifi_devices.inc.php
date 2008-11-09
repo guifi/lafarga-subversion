@@ -807,6 +807,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
           $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
         }
         $link['interface']['ipv4']['interface_id'] = $rinterface['id'];
+        $link['interface']['ipv4']['ipv4_type'] = $ipv4['ipv4_type'];
 
         guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 remote (id=%d, iid=%d)',
           $link['interface']['ipv4']['id'],

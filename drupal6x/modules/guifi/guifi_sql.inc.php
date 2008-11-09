@@ -118,6 +118,14 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
     case 'guifi_ipv4':
       if (isset($data['ipv4']))
         $data['ipv4'] = trim($data['ipv4']);
+      if (!isset($data['zone_id']) and (isset($data['interface_id']))) {
+        $z = db_fetch_object(db_query(
+          'SELECT l.zone_id ' .
+          'FROM {guifi_interfaces} i, {guifi_devices} d, {guifi_location} l ' .
+          'WHERE i.id=%d ' .
+          '  AND i.device_id=d.id AND d.nid=l.id',$data['interface_id']));
+        $data['zone_id'] = $z->zone_id;
+      }
       break;
   }
 

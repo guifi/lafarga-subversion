@@ -813,6 +813,10 @@ function guifi_ipcalc_get_ips(
   $mask = '0.0.0.0',    // range, 0.0.0.0 means all
   $edit = null,         // array which can contain ipv4 values to be added,
                         //   must be labeled "ipv4"
+  $ntype = null,        // ipv4 type
+                        //   1: public
+                        //   2: backbone
+                        //   3: protocol specific (ad-hoc/mesh)
   $zid = null)          // zone id, to be used in the future
                         //   to improve performance
 {
@@ -828,10 +832,21 @@ function guifi_ipcalc_get_ips(
   if ($mask == '0.0.0.0')
     $end_dec = 2147483647;
 
-
-
   $ips = array();
-  $query = db_query("SELECT ipv4, netmask FROM {guifi_ipv4}");
+  $sql_where = array();
+
+  $sql = "SELECT ipv4, netmask FROM {guifi_ipv4}";
+
+  if (!is_null($ntype))
+    $sql_where[] = 'ipv4_type = '.$ntype;
+
+  if (!is_null($zid))
+    $sql_where[] = 'zone_id = '.$zid;
+
+  if (isset($sql_where))
+    $sql .= ' WHERE '.implode(' AND ',$sql_where);
+
+  $query = db_query($sql);
   while ($ip = db_fetch_array($query)) {
     if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
       $ip_dec = ip2long($ip['ipv4']);

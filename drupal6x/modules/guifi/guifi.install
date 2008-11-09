@@ -894,6 +894,43 @@ function guifi_update_661() {
 
   return $items;
 }
+
+
+function guifi_update_664() {
+  $items = array();
+
+  db_add_field($items, 'guifi_ipv4', 'ipv4_type',
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Address type'));
+  db_add_field($items, 'guifi_ipv4', 'zone_id',
+    array('type' => 'int', 'disp-width' => 11, 'not null' => TRUE, 'default' => 0, 'COMMENT' => 'Address type'));
+
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'ipv4_types', '1', 'public', '');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'ipv4_types', '2', 'backbone', '');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'ipv4_types', '3', 'ad-hoc mesh - OLSR', 'kamikaze|freifunk-OLSR');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'ipv4_types', '4', 'ad-hoc mesh - BATMAN', 'kamikaze|freifunk-BATMAN');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('5', 'ipv4_types', '5', 'ad-hoc mesh - BMX', 'kamikaze');");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'ipv4_types', '6', 'ad-hoc mesh - RouterOS', 'RouterOSv3.x');");
+
+  $sql = db_query(
+    'SELECT a.*, l.zone_id ' .
+    'FROM {guifi_ipv4} a, {guifi_interfaces} i, {guifi_devices} d, {guifi_location} l ' .
+    'WHERE a.interface_id=i.id AND i.device_id=d.id AND d.nid=l.id');
+  $pmin = ip2long('10.0.0.0');
+  $pmax = ip2long('11.0.0.0');
+  while ($ipv4 = db_fetch_object($sql)) {
+    // Set network type
+    $daddr = ip2long($ipv4->ipv4);
+    if ($ipv4->ipv4_type == 0) {
+       (($daddr >= $pmin) and ($daddr < $pmax)) ? $type = 1 : $type = 2;
+    }
+
+    update_sql(sprintf('UPDATE {guifi_ipv4} SET ipv4_type=%s, zone_id=%d WHERE id=%d AND interface_id=%d',
+      $type,$ipv4->zone_id,$ipv4->id,$ipv4->interface_id));
+
+  }
+
+  return $items;
+}
   /* Converting IPv4 tables from strings to long integers
   db_query("CREATE TABLE {guifi_ipv4s} (
        id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',
