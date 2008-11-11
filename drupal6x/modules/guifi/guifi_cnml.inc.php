@@ -245,7 +245,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
                switch ($device->variable['firmware']) {
                case 'whiterussian':
                case 'kamikaze':
-                 $radioXML->addAttribute('snmp_index',3);
+                if ($radio->mode == 'client') {
+                  $radioXML->addAttribute('snmp_name','eth0.1');
+                 } else {
+                  $radioXML->addAttribute('snmp_name','br-lan');
+                 }               
                  break;
                default:
                  $radioXML->addAttribute('snmp_index',6);
@@ -267,7 +271,14 @@ function guifi_cnml($cnmlid,$action = 'help') {
               }
                 else if  (in_array($model_name,
                      array('NanoStation2' , 'NanoStation5'))) {
-                $radioXML->addAttribute('snmp_name','wifi0');
+                 switch ($device->variable['firmware']) {
+                 case 'kamikaze':
+                  $radioXML->addAttribute('snmp_name','ath0');
+                 case 'AirOsv30':
+                 case 'AirOsv221':
+                  $radioXML->addAttribute('snmp_name','wifi0');
+                   break;
+                   }
               }
             }
             switch ($radio->mode) {

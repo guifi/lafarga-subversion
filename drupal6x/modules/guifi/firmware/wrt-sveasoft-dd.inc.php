@@ -400,7 +400,7 @@ function guifi_unsolclic_network_vars($dev,$zone) {
 
    _outln_comment();
    _outln_comment('NTP Network time protocol');
-   $ntp = guifi_get_ntp($zone);
+   $ntp = guifi_get_ntp($zone,1);
    if (empty($ntp)) {
      _outln_nvram('ntp_enable','0');
    } else {

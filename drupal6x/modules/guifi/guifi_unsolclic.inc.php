@@ -166,15 +166,21 @@ function guifi_get_ospf_zone($zone) {
   return '0';
 }
 
-function guifi_get_ntp($zone) {
+function guifi_get_ntp($zone,$max = 3) {
+  $ntp = array();
   if (!empty($zone->ntp_servers))
-    return $zone->ntp_servers;
-  do {
+    $ntp = explode(",",$zone->ntp_servers);
+  while (count($ntp) < $max) {
     $zone = db_fetch_object(db_query("SELECT ntp_servers, master FROM {guifi_zone} WHERE id=%d",$zone->master));
     if (!empty($zone->ntp_servers))
-      return $zone->ntp_servers;
-  } while ($zone->master > 0); 
+      $ntp = array_merge($ntp,explode(",",$zone->ntp_servers));
+    if ($zone->master == 0) {
+      break;
+    }
+  } 
+  while (count($ntp) > $max)
+    array_pop($ntp);
 
-  return '';
+  return implode(" ",$ntp);
 }
 ?>
