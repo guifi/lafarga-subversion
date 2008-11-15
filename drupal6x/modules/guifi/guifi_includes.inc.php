@@ -843,7 +843,7 @@ function guifi_ipcalc_get_ips(
   if (!is_null($zid))
     $sql_where[] = 'zone_id = '.$zid;
 
-  if (isset($sql_where))
+  if (!empty($sql_where))
     $sql .= ' WHERE '.implode(' AND ',$sql_where);
 
   $query = db_query($sql);
