@@ -805,6 +805,8 @@ function guifi_abbreviate($str,$len = 5) {
 **/
 
 function guifi_ipcalc_get_maskbits($mask) {
+  if ($mask == '255.255.255.255')
+    return 32;
   return strlen(preg_replace("/0/", "", decbin(ip2long($mask))));
 }
 
@@ -926,6 +928,8 @@ function guifi_ipcalc_get_subnet_by_nid(
 
   $lbegin = microtime(true);
 
+  $search_mask = $mask_allocate;
+
   do {  // while next is not the master, check within the already allocated ranges
     $result = db_query(
         'SELECT n.id, n.base, n.mask ' .
@@ -951,6 +955,14 @@ function guifi_ipcalc_get_subnet_by_nid(
       $tnets++;
 
       $item = _ipcalc($net->base,$net->mask);
+
+      // if looking for mesh ip (255.255.255.255) base address & broadcast
+      // should be considered as used
+      if ($search_mask == '255.255.255.255') {
+        $ips_allocated[ip2long($net->base)] = 32;
+        $ips_allocated[ip2long($item['netend'])] = 32;
+      }
+
       if ($ip = guifi_ipcalc_find_subnet($net->base, $net->mask, $mask_allocate, $ips_allocated)) {
         if ($verbose)
           drupal_set_message(
@@ -963,7 +975,7 @@ function guifi_ipcalc_get_subnet_by_nid(
 
         // reserve the available range fount into databaseto database?
         if ( ($depth) and
-             ( ($allocate=='Yes') and ($network_type=='public') )
+             ( ($allocate=='Yes') and ($network_type=='public') and ($mask_allocate != '255.255.255.255') )
            ) {
           $msg = strip_tags(t('A new network (%base / %mask) has been allocated for zone %name, got from %name2 by %user.',
                           array('%base' => $ip,
@@ -994,6 +1006,8 @@ function guifi_ipcalc_get_subnet_by_nid(
             $msg,
             $log);
           drupal_set_message($msg);
+          if ($search_mask == '255.255.255.255')
+            $ip = long2ip(ip2long($ip)+1);
         }
         return $ip;
       }
@@ -1011,39 +1025,42 @@ function guifi_ipcalc_get_subnet_by_nid(
 
     // This have to be done once, so do if is the zone being asked for
     if ($root_zone == $zone->id ) {
-      $parents = guifi_zone_get_parents($root_zone);
-      $query = db_query(
-        'SELECT base ipv4, mask ' .
-        'FROM {guifi_networks} ' .
-        'WHERE zone NOT IN ('.
-          implode(',',guifi_zone_get_parents($root_zone)).
-          ')');
-      while ($nip = db_fetch_array($query)) {
-        $ips_allocated[ip2long($nip['ipv4']) + 1] =
-          guifi_ipcalc_get_maskbits($nip['mask']);
-      }
-      // once merged, sort
-      ksort($ips_allocated);
-    }
+	    $parents = guifi_zone_get_parents($root_zone);
+	    $query = db_query(
+		    'SELECT base ipv4, mask ' .
+				'FROM {guifi_networks} ' .
+				'WHERE zone NOT IN ('.
+				implode(',',guifi_zone_get_parents($root_zone)).
+	    ')');
+	    while ($nip = db_fetch_array($query)) {
+		    $ips_allocated[ip2long($nip['ipv4']) + 1] =
+			    guifi_ipcalc_get_maskbits($nip['mask']);
+	    }
+	    // once merged, sort
+	    ksort($ips_allocated);
 
-    // calculating the needed mask
-    if ($network_type == 'public') {
-      $depth++;
 
-      if (($tnets > 0) and ($tnets < 5))
-        // between 1 and 4, 24 - nets defined
-        $maskbits = 24 - $tnets;
-      else if ($tnets >= 5)
-        // greater than 4, /20 - 255.255.240.0
-        $maskbits = 20;
-      else
-        // first net, /24 - 255.255.255.0
-        $maskbits = 24;
+	    // calculating the needed mask
+	    if ($network_type == 'public') {
+		    $depth++;
 
-      $mitem = _ipcalc_by_netbits($net->base,$maskbits);
+		    if (($tnets > 0) and ($tnets < 5))
+			    // between 1 and 4, 24 - nets defined
+			    $maskbits = 24 - $tnets;
+		    else if ($tnets >= 5)
+			    // greater than 4, /20 - 255.255.240.0
+			    $maskbits = 20;
+		    else
+			    // first net, /24 - 255.255.255.0
+			    $maskbits = 24;
 
-      if (long2ip($mask_allocate) > long2ip($mitem['netmask']))
-        $mask_allocate = $mitem['netmask'];
+		    $mitem = _ipcalc_by_netbits($net->base,$maskbits);
+		    $mbits_allocate = guifi_ipcalc_get_maskbits($mask_allocate);
+
+		    if (($mbits_allocate > $maskbits) or
+				    ($mask_allocate == '255.255.255.255'))
+			    $mask_allocate = $mitem['netmask'];
+	    }
     }
 
     // Take a look at the parent network zones
@@ -1075,15 +1092,19 @@ function guifi_ipcalc_find_subnet(
   // in chunks of "increments"
   $net_dec = is_numeric($base_ip) ? $base_ip : ip2long($base_ip);
   $item = _ipcalc($base_ip,$mask_range);
-  $end_dec = ip2long($item['broadcast']) + 1;
-  $item = _ipcalc($base_ip,$mask_allocated);
-  $increment = ip2long($item['hosts'] + 2);
+  $end_dec = ip2long($item['broadcast']);
+  if ($mask_allocated == '255.255.255.255')
+    $increment = 1;
+  else {
+    $item = _ipcalc($base_ip,$mask_allocated);
+    $increment = ip2long($item['hosts'] + 2);
+  }
 
   if ($end_dec < ($net_dec + $increment))
     // space to look for is greater than the range to look at, no need to search
     return false;
 
-  while (($net_dec) < ($end_dec)) {
+  while (($net_dec) <= ($end_dec)) {
 
     // check that we are starting from a network base address, if not,
     // advance to the end of the current subnetwork to find at the next,
@@ -1105,8 +1126,12 @@ function guifi_ipcalc_find_subnet(
         $key++;
 
     // if no ips found (reached end of range), return succesfully
-    if ($key == $last)
+    if ($key == $last) {
+//      print "IPs allocated: ".$ips_allocated[$net_dec+1]."\n";
+      if (($ips_allocated[$net_dec+1] == 32) or
+        (!isset($ips_allocated[$net_dec+1])))
       return long2ip($net_dec);
+    }
 
     // space was already used
     // now advance the pointer up to the end of the network of the current
@@ -1229,7 +1254,7 @@ function guifi_log($level, $var, $var2 = null) {
   $output = $var;
   if ($var2 != null)
   if (gettype($var2) != 'string') {
-    $output .= ": ".print_r($var2,true);
+    $output .= ': '.var_export($var2,true);
   } else {
     $output .= ": ".$var2;
   }

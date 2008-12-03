@@ -563,8 +563,8 @@ function guifi_node_update($node) {
 
   // Refresh maps?
   $pn = db_fetch_object(db_query(
-    'SELECT *
-    FROM {guifi_location} l
+    'SELECT l.*
+    FROM {guifi_location}
     WHERE l.id=%d',
     $node->nid));
   if (($pn->lat != $node->lat) || ($pn->lon != $node->lon) || ($pn->status_flag != $node->status_flag)) {
@@ -1093,10 +1093,11 @@ function guifi_node_set_flag($id) {
 
 function theme_guifi_node_data($node,$links = false) {
 
-  $zone         = db_fetch_object(db_query('SELECT id, title, master, valid FROM {guifi_zone} WHERE id = %d', $node->zone_id));
+  $zone = db_fetch_object(db_query('SELECT id, title, master, zone_mode FROM {guifi_zone} WHERE id = %d',
+                      $node->zone_id));
 
   $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
-  $rows[] = array(t('zone'),$zone->title,$node->zone_description);
+  $rows[] = array(t('zone (mode)'),$zone->title.' ('.t($zone->zone_mode).')',$node->zone_description);
   $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
@@ -1224,7 +1225,7 @@ function theme_guifi_node_devices_list($node,$links = false) {
     t('unsolclic'));
 
   // Form for adding a new device
-  $form = drupal_get_form('guifi_device_create_form',$id);
+  $form = drupal_get_form('guifi_device_create_form',$node);
 
   $query = db_query("SELECT d.id FROM {guifi_devices} d WHERE nid=%d",$id);
   while ($d = db_fetch_object($query)) {

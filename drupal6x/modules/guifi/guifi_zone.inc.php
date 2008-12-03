@@ -279,7 +279,7 @@ function guifi_zone_form(&$node, &$param) {
     '#title' => t('Zone dynamic mesh mode'),
     '#required' => TRUE,
     '#default_value' => $node->zone_mode,
-    '#options' => drupal_map_assoc(array(t('infrastructure'),t('ad-hoc'))),
+    '#options' => array('infrastructure'=>t('infrastructure'),'ad-hoc'=>t('ad-hoc')),
     '#description' => t('<ul><li>Select <strong>Infrastructure</strong> ' .
         'for traditional dynamic protocols in infrastructure mode ' .
         'like OSPF, BGP, etc. This mode is very much used on static nodes ' .
@@ -900,7 +900,7 @@ function guifi_zone_data($zone) {
     'colspan'=>2));
 
   $rows[] = array(t('network global information').':',null);
-  $rows[] = array(t('Mode'),$zone->zone_mode);
+  $rows[] = array(t('Mode'),t($zone->zone_mode));
   $rows[] = array(t('DNS Servers'),$zone->dns_servers);
   $rows[] = array(t('NTP Servers'),$zone->ntp_servers);
   $rows[] = array(t('OSPF zone'),$zone->ospf_zone);

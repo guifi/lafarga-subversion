@@ -11,9 +11,10 @@ function guifi_device_load($id,$ret = 'array') {
   guifi_log(GUIFILOG_FULL,'function guifi_device_load()');
 
   $device = db_fetch_array(db_query('
-    SELECT d.*
-    FROM {guifi_devices} d
-    WHERE d.id = %d',
+    SELECT d.*, z.zone_mode
+    FROM {guifi_devices} d, {guifi_location} l, {guifi_zone} z
+    WHERE d.id = %d
+     AND d.nid = l.id AND l.zone_id=z.id',
     $id));
   if (empty($device)) {
     drupal_set_message(t('Device (%num) does not exist.',array('%num'=>$id)));
@@ -332,7 +333,7 @@ function guifi_device_form($form_state, $params = array()) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_form()',$params);
 
-  // Local javascript validations not actve because of buf un Firefox
+  // Local javascript validations not actve because of bug in Firefox
   // Errors are not displayed when fieldset folder is collapsed
   // guifi_validate_js("#guifi-device-form");
 
@@ -365,8 +366,9 @@ function guifi_device_form($form_state, $params = array()) {
     }
   }
 
-  // Loading node where the device belongs to (some information will be used)
+  // Loading node & zone where the device belongs to (some information will be used)
   $node = node_load(array('nid'=>$form_state['values']['nid']));
+  $zone = node_load($node->zone_id);
 
   // Setting the breadcrumb
   drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['nid']));
@@ -382,7 +384,6 @@ function guifi_device_form($form_state, $params = array()) {
 
   // if nick is null, get a default name
   if ($form_state['values']['nick'] == "") {
-    $zone = node_load($node->zone_id);
     $devs = db_fetch_object(db_query("
       SELECT count(*) count
       FROM {guifi_devices}
@@ -392,6 +393,36 @@ function guifi_device_form($form_state, $params = array()) {
     $form_state['values']['nick'] =
       $node->nick.ucfirst(guifi_trim_vowels($form_state['values']['type'])).
                                             ($devs->count + 1);
+  }
+
+  // if device zone_mode was null, get the zone mode (ad-hoc or infrastructure)
+  if (is_null($form_state['values']['zone_mode'])) {
+    $form_state['values']['zone_mode'] = $zone->zone_mode;
+
+    // That's a new device, because zone_mode was null, otherwise would have a value
+    // If ad-hoc, add a radio & a public IP (/32)
+    if ($zone->zone_mode == 'ad-hoc') {
+      if ($form_state['values']['type'] == 'radio') {
+        $form_state['values']['newradio_mode'] = $zone->zone_mode;
+        guifi_radio_add_radio_submit($form,$form_state);
+      } else {
+      	$intf=array();
+        $intf['new']=true;
+        $intf['interface_type']='wLan/Lan';
+        $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
+        $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],'255.255.255.255','public',$ips_allocated,'Yes',true);
+        $i = _ipcalc($net,'255.255.255.255');
+        guifi_log(GUIFILOG_TRACE,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/32',$i);
+        $intf['ipv4'][0]=array();
+        $intf['ipv4'][0]['new']=true;
+        $intf['ipv4'][0]['ipv4_type']=1;
+        $intf['ipv4'][0]['ipv4']=$net;
+        guifi_log(GUIFILOG_TRACE,"Assigned IP: ".$intf['ipv4'][0]['ipv4']);
+        $intf['ipv4'][0]['netmask']='255.255.255.255';
+        $form_state['values']['interfaces'][0] = $intf;
+
+      }
+    }
   }
 
   if (isset($form_state['action'])) {
@@ -421,6 +452,11 @@ function guifi_device_form($form_state, $params = array()) {
     '#type'=>'hidden',
     '#name'=>'type',
     '#value'=> $form_state['values']['type']
+  );
+  $form['zone_mode'] = array(
+    '#type'=>'hidden',
+    '#name'=>'zone_mode',
+    '#value'=> $form_state['values']['zone_mode']
   );
 
 
@@ -950,16 +986,18 @@ function guifi_device_add() {
 /* guifi_device_create_form(): generates html output form with a listbox,
  * choose the device type to create
  */
-function guifi_device_create_form($form_state, $nid) {
+function guifi_device_create_form($form_state, $node) {
 
   $types = guifi_types('device');
 
-  if (is_array($nid))
-    $id = $nid->id;
-  else
-    $id = $nid;
+  $zone = guifi_zone_load($node->zone_id);
+  if ($zone->zone_mode == 'ad-hoc') {
+    $rows = db_result(db_query('SELECT count(*) FROM {guifi_devices} WHERE type="radio" AND nid=%d',$node->nid));
+    if ($rows)
+      unset($types['radio']);
+  }
 
-  if (!guifi_node_access('create',$id)) {
+  if (!guifi_node_access('create',$node->nid)) {
     $form['text_add'] = array(
      '#type' => 'item',
      '#value' => t('You are not allowed to update this node.'),
@@ -969,7 +1007,7 @@ function guifi_device_create_form($form_state, $nid) {
   }
   $form['nid'] = array(
     '#type' => 'hidden',
-    '#value' => $id
+    '#value' => $node->id
   );
 
   $form['device_type'] = array(

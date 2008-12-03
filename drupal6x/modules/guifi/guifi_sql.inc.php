@@ -252,7 +252,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
   $log = str_repeat('- ',$depth);
   $depth++;
 
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_db_delete(%s,%s)',$table,var_export($key)),$key);
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_db_delete(%s,%s)',$table,var_export($key,true)));
   if (!in_array($user->mail,$to_mail))
     $to_mail[] = $user->mail;
 

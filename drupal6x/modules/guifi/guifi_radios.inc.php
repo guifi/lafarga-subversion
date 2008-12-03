@@ -235,7 +235,7 @@ function guifi_radio_add_radio_form($edit) {
   // Edit radio form or add new radio
   $cr = 0; $tr = 0; $firewall=false;
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
-//    print "Max radios: ".$maxradios->radiodev_max." \n<br />";
+
   if (isset($edit[radios]))
   foreach ($edit[radios] as $k=>$radio) {
     $tr++;
@@ -245,15 +245,19 @@ function guifi_radio_add_radio_form($edit) {
       $firewall = true;
   } // foreach $radio
 
-// print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall Edit details: $edit[edit_details]\n<br />";
-  $modes_arr = guifi_types('mode');
-//  print_r($modes_arr);
+  if ($edit['zone_mode']=='ad-hoc')
+    $modes_arr=array('ad-hoc'=>t('Ad-hoc mode for mesh'));
+  else {
+	  // print "Max radios: ".$maxradios->radiodev_max." Current: $cr Total: $tr Firewall: $firewall Edit details: $edit[edit_details]\n<br />";
+	  $modes_arr = guifi_types('mode');
+	  //  print_r($modes_arr);
 
-  if ($cr>0)
-    if (!$firewall)
-      $modes_arr = array_diff_key($modes_arr,array('client'=>0));
-    else
-      $modes_arr = array_intersect_key($modes_arr,array('client'=>0));
+	  if ($cr>0)
+		  if (!$firewall)
+			  $modes_arr = array_diff_key($modes_arr,array('client'=>0));
+		  else
+			  $modes_arr = array_intersect_key($modes_arr,array('client'=>0));
+  }
 
   $form['newradio_mode'] = array(
     '#type' => 'select',
@@ -368,118 +372,115 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
       '#tree'=>false,
 //      '#weight' => $fw2++,
     );
-    if ($radio['mode'] == 'ap')
-      $f['s']['ssid'] = array(
-        '#type' => 'textfield',
-        '#title' => t('SSID'),
-        '#parents' => array('radios',$key,'ssid'),
-        '#required' => TRUE,
-        '#size' => 30,
-        '#maxlength' => 30,
-        '#default_value' => $radio["ssid"],
-        '#description' => t("SSID to identify this radio signal."),
-        '#prefix'=>'<table><tr><td>',
-        '#suffix'=>'</td>',
-//        '#weight' => $fw2++
-      );
-    else {
-      $inherit_msg = t('Will take it from the connected AP.');
-      $f['s']['ssid'] = array(
-        '#type' => 'hidden',
-        '#parents' => array('radios',$key,'ssid'),
-        '#title' => t('SSID'),
-        '#default_value' => $radio["ssid"],
-        '#description' => $inherit_msg,
-        '#prefix'=>'<table><tr><td>',
-        '#suffix'=>'</td>',
-//        '#weight' => $fw2++
-      );
-    }
     $f['s']['mac'] = array(
       '#type' => 'textfield',
 //      '#parents' => array('radios',$key,'mac'),
       '#title' => t('MAC'),
       '#required' => true,
       '#parents' => array('radios',$key,'mac'),
-   //   '#process' => array('_guifi_radio_mac_process'),
       '#size' => 17,
       '#maxlength' => 17,
       '#default_value' => $radio["mac"],
       '#element_validate' => array('guifi_mac_validate'),
       '#description' => t("Wireless MAC Address.<br />Some configurations won't work if is blank"),
-      '#prefix'=>'<td>',
-      '#suffix'=>'</td></tr>',
- //     '#weight' => $fw2++
+      '#prefix'=>'<table><td>',
+      '#suffix'=>'</td>',
     );
-    if ($radio['mode'] == 'ap') {
-      $f['s']['protocol'] = array(
-        '#type' => 'select',
-        '#title' => t("Protocol"),
-        '#parents' => array('radios',$key,'protocol'),
-//        '#required' => TRUE,
-        '#default_value' =>  $radio["protocol"],
-        '#options' => guifi_types('protocol'),
-        '#description' => t('Select the protocol where this radio will operate.'),
-        '#prefix'=>'<tr><td>',
-        '#suffix'=>'</td><td>',
-        '#ahah' => array(
-          'path' => 'guifi/js/channel/'.$key,
-          'wrapper' => 'select-channel-'.$key,
-          'method' => 'replace',
-          'effect' => 'fade',
-        ),
-//        '#weight' => $fw2++,
-      );
 
-      $f['s']['channel'] =
-        guifi_radio_channel_field(
-          $key,
-          $radio["channel"],
-          $radio['protocol']);
-//          $fw2++);
-
-      $f['s']['clients_accepted'] = array(
-        '#type' => 'select',
-        '#title' => t("Clients accepted?"),
-        '#parents' => array('radios',$key,'clients_accepted'),
-//        '#required' => TRUE,
-        '#default_value' =>  $radio["clients_accepted"],
-        '#options' => drupal_map_assoc(array( 0=>'Yes',1=>'No')),
-        '#description' => t('Do this radio accept connections from clients?'),
-        '#prefix'=>'</td><td>',
-        '#suffix'=>'</td></tr></table>',
-//        '#weight' => $fw2++,
-      );
-     } else {
-      $f['s']['protocol'] = array(
-        '#type' => 'hidden',
-        '#title' => t("Protocol"),
-        '#parents' => array('radios',$key,'protocol'),
-        '#value' =>  $radio["protocol"],
-        '#description' => $inherit_msg,
-        '#prefix'=>'<tr><td>',
-        '#suffix'=>'</td>',
-  //      '#weight' => $fw2++,
-      );
-      $f['s']['channel'] = array(
-        '#type' => 'hidden',
-        '#title' => t("Channel"),
-        '#parents' => array('radios',$key,'channel'),
-        '#default_value' =>  $radio["channel"],
-        '#options' => guifi_types('channel',null,null,$radio['protocol']),
-        '#description' => $inherit_msg,
-        '#prefix'=>'<td>',
-        '#suffix'=>'</td>',
-//        '#weight' => $fw2++,
-      );
-      $f['s']['clients_accepted'] = array(
-        '#type' => 'hidden',
-        '#parents' => array('radios',$key,'clients_accepted'),
-        '#value' =>  $radio["clients_accepted"],
-//        '#weight' => $fw2++,
-        '#prefix'=>'<td>',
-        '#suffix'=>'</td></tr></table>',
-      );
+    switch ($radio['mode']) {
+	    case 'ap':
+	    case 'ad-hoc':
+		    $f['s']['ssid'] = array(
+			    '#type' => 'textfield',
+					'#title' => t('SSID'),
+					'#parents' => array('radios',$key,'ssid'),
+					'#required' => TRUE,
+					'#size' => 30,
+					'#maxlength' => 30,
+					'#default_value' => $radio["ssid"],
+					'#description' => t("SSID to identify this radio signal."),
+					'#prefix'=>'<td>',
+					'#suffix'=>'</td></tr>',
+		    );
+		    $f['s']['protocol'] = array(
+			    '#type' => 'select',
+					'#title' => t("Protocol"),
+					'#parents' => array('radios',$key,'protocol'),
+					'#default_value' =>  $radio["protocol"],
+					'#options' => guifi_types('protocol'),
+					'#description' => t('Select the protocol where this radio will operate.'),
+					'#prefix'=>'<tr><td>',
+					'#suffix'=>'</td><td>',
+					'#ahah' => array(
+						'path' => 'guifi/js/channel/'.$key,
+						'wrapper' => 'select-channel-'.$key,
+						'method' => 'replace',
+						'effect' => 'fade',
+					),
+		    );
+		    $f['s']['channel'] =
+			    guifi_radio_channel_field(
+				    $key,
+						$radio["channel"],
+						$radio['protocol']);
+		    if ($radio['mode'] == 'ap')
+			    $f['s']['clients_accepted'] = array(
+				    '#type' => 'select',
+						'#title' => t("Clients accepted?"),
+						'#parents' => array('radios',$key,'clients_accepted'),
+						'#default_value' =>  $radio["clients_accepted"],
+						'#options' => drupal_map_assoc(array( 0=>'Yes',1=>'No')),
+						'#description' => t('Do this radio accept connections from clients?'),
+						'#prefix'=>'</td><td>',
+						'#suffix'=>'</td></tr></table>',
+			    );
+		    else
+          $f['s']['clients_accepted'] = array(
+            '#type' => 'hidden',
+            '#parents' => array('radios',$key,'clients_accepted'),
+            '#value' =>  $radio["clients_accepted"],
+            '#prefix'=>'</td><td>',
+            '#suffix'=>'</td></tr></table>',
+          );
+		    break;
+	    case 'client':
+		    $inherit_msg = t('Will take it from the connected AP.');
+		    $f['s']['ssid'] = array(
+			    '#type' => 'hidden',
+					'#parents' => array('radios',$key,'ssid'),
+					'#title' => t('SSID'),
+					'#default_value' => $radio["ssid"],
+					'#description' => $inherit_msg,
+					'#prefix'=>'<table><tr><td>',
+					'#suffix'=>'</td>',
+		    );
+		    $f['s']['protocol'] = array(
+			    '#type' => 'hidden',
+					'#title' => t("Protocol"),
+					'#parents' => array('radios',$key,'protocol'),
+					'#value' =>  $radio["protocol"],
+					'#description' => $inherit_msg,
+					'#prefix'=>'<tr><td>',
+					'#suffix'=>'</td>',
+		    );
+		    $f['s']['channel'] = array(
+			    '#type' => 'hidden',
+					'#title' => t("Channel"),
+					'#parents' => array('radios',$key,'channel'),
+					'#default_value' =>  $radio["channel"],
+					'#options' => guifi_types('channel',null,null,$radio['protocol']),
+					'#description' => $inherit_msg,
+					'#prefix'=>'<td>',
+					'#suffix'=>'</td>',
+		    );
+		    $f['s']['clients_accepted'] = array(
+			    '#type' => 'hidden',
+					'#parents' => array('radios',$key,'clients_accepted'),
+					'#value' =>  $radio["clients_accepted"],
+					'#prefix'=>'<td>',
+					'#suffix'=>'</td></tr></table>',
+		    );
+		    break;
     }
 
     // Antenna settings group
@@ -775,7 +776,7 @@ function guifi_radio_add_wlan_submit($form, &$form_state) {
   $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$form_state['values'],1);
   $net = guifi_ipcalc_get_subnet_by_nid(
             $form_state['values']['nid'],'255.255.255.224','public',
-            $ips_allocated);
+            $ips_allocated,'Yes',true);
 
   if (!$net) {
     drupal_set_message(t('Unable to allocate new range, no networks available'),'warning');
@@ -867,40 +868,70 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
     $radio['interfaces'][0]['new']=true;
     $radio['interfaces'][0]['id']=0;
 
-    if ($radio['mode'] == 'ap') {
-      $radio['antenna_angle']=120;
-      $radio['clients_accepted']="Yes";
-      $radio['ssid']=$ssid.'AP'.$rc;
-      $radio['interfaces'][0]['interface_type']='wds/p2p';
-      // first radio, force wlan/Lan bridge and get an IP
-      if ($tc == 0) {
-        $radio['interfaces'][1]=array();
-        $radio['interfaces'][1]['new']=true;
-        $radio['interfaces'][1]['interface_type']='wLan/Lan';
-        $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
-        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated);
-        guifi_log(GUIFILOG_FULL,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/27');
-        $radio['interfaces'][1]['ipv4'][$rc]=array();
-        $radio['interfaces'][1]['ipv4'][$rc]['new']=true;
-        $radio['interfaces'][1]['ipv4'][$rc]['ipv4_type']=1;
-        $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=long2ip(ip2long($net)+1);
-        guifi_log(GUIFILOG_FULL,"Assigned IP: ".$radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
-        $radio['interfaces'][1]['ipv4'][$rc]['netmask']='255.255.255.224';
-      }
-      if ($rc == 0)
-        $radio['mac']=_guifi_mac_sum($edit['mac'],2);
-      else
-        $radio['mac']='';
-    } else {
-      $radio['antenna_angle']=30;
-      $radio['clients_accepted']="No";
-      $radio['ssid']=$ssid.'CPE'.$rc;
-      $radio['interfaces'][0]['new']=true;
-      $radio['interfaces'][0]['interface_type']='Wan';
-      if ($rc == 0)
-        $radio['mac']=_guifi_mac_sum($edit['mac'],1);
-      else
-        $radio['mac']='';
+    switch ($radio['mode']) {
+	    case 'ap':
+		    $radio['antenna_angle']=120;
+		    $radio['clients_accepted']="Yes";
+		    $radio['ssid']=$ssid.'AP'.$rc;
+		    $radio['interfaces'][0]['interface_type']='wds/p2p';
+		    // first radio, force wlan/Lan bridge and get an IP
+		    if ($tc == 0) {
+			    $radio['interfaces'][1]=array();
+			    $radio['interfaces'][1]['new']=true;
+			    $radio['interfaces'][1]['interface_type']='wLan/Lan';
+			    $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
+          $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.224','public',$ips_allocated,'Yes',true);
+			    guifi_log(GUIFILOG_BASIC,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/27');
+			    $radio['interfaces'][1]['ipv4'][$rc]=array();
+			    $radio['interfaces'][1]['ipv4'][$rc]['new']=true;
+			    $radio['interfaces'][1]['ipv4'][$rc]['ipv4_type']=1;
+			    $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=long2ip(ip2long($net)+1);
+			    guifi_log(GUIFILOG_BASIC,"Assigned IP: ".$radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
+			    $radio['interfaces'][1]['ipv4'][$rc]['netmask']='255.255.255.224';
+		    }
+		    if ($rc == 0)
+			    $radio['mac']=_guifi_mac_sum($edit['mac'],2);
+		    else
+			    $radio['mac']='';
+		    break;
+	    case 'client':
+	    case 'client-routed':
+		    $radio['antenna_angle']=30;
+		    $radio['clients_accepted']="No";
+		    $radio['ssid']=$ssid.'CPE'.$rc;
+		    $radio['interfaces'][0]['new']=true;
+		    $radio['interfaces'][0]['interface_type']='Wan';
+		    if ($rc == 0)
+			    $radio['mac']=_guifi_mac_sum($edit['mac'],1);
+		    else
+			    $radio['mac']='';
+		    break;
+      case 'ad-hoc':
+        $radio['antenna_angle']=360;
+        $radio['clients_accepted']="Yes";
+        $radio['ssid']=$ssid.t('MESH');
+        // first radio, force wlan/Lan bridge and get an IP
+        if ($tc == 0) {
+          $radio['interfaces'][1]=array();
+          $radio['interfaces'][1]['new']=true;
+          $radio['interfaces'][1]['interface_type']='wLan/Lan';
+          $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
+//          $net = guifi_ipcalc_get_meship($edit['nid'],$ips_allocated);
+          $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.255','public',$ips_allocated,'No',true);
+          $i = _ipcalc($net,'255.255.255.255');
+          guifi_log(GUIFILOG_TRACE,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/32',$i);
+          $radio['interfaces'][1]['ipv4'][$rc]=array();
+          $radio['interfaces'][1]['ipv4'][$rc]['new']=true;
+          $radio['interfaces'][1]['ipv4'][$rc]['ipv4_type']=1;
+          $radio['interfaces'][1]['ipv4'][$rc]['ipv4']=$net;
+          guifi_log(GUIFILOG_TRACE,"Assigned IP: ".$radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
+          $radio['interfaces'][1]['ipv4'][$rc]['netmask']='255.255.255.255';
+        }
+        if ($rc == 0)
+          $radio['mac']=_guifi_mac_sum($edit['mac'],2);
+        else
+          $radio['mac']='';
+        break;
     }
 
     $radio['rc'] = $rc;

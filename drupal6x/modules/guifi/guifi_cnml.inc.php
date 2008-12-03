@@ -249,7 +249,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
                   $radioXML->addAttribute('snmp_name','eth0.1');
                  } else {
                   $radioXML->addAttribute('snmp_name','br-lan');
-                 }               
+                 }
                  break;
                default:
                  $radioXML->addAttribute('snmp_index',6);
@@ -682,7 +682,6 @@ function fnodecount($cnmlid){
   }
   return $CNML;
 }
-
 
 
 // Creates CNML with all guifi's IPs, used to generate DNS Reverse Resolution zones (RRZ)

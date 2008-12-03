@@ -160,6 +160,7 @@ function guifi_schema() {
          'interface_type' => array('type' => 'varchar', 'length' => '40', 'not null' => TRUE),
          'mac' => array('type' => 'varchar', 'length' => '20', 'not null' => TRUE, 'default' => '00:00:00:00:00:00')),
     'primary key' => array('device_id', 'id'),
+    'indexes' =>  array('id'=>array('id'))
   );
 
   $schema['guifi_radios'] = array(
@@ -319,8 +320,8 @@ function guifi_install() {
   // --
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('1', 'mode', 'ap', 'AP or AP with WDS', 'ap|client');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('2', 'mode', 'client', 'Wireless client', 'ap');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'mode', 'bridge', 'Wireless Bridge', 'bridge');");
-  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'mode', 'routedclient', 'Routed client',     'ap');");
+  //db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'mode', 'bridge', 'Wireless Bridge', 'bridge');");
+  //db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'mode', 'routedclient', 'Routed client',     'ap');");
   //db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9999', 'mode', 'NAT Client', 'NAT Client', 'ap|client');");
   //db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8888', 'mode', 'Routed Client', 'Routed Client', 'ap|client');");
   //db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('7777', 'mode', 'Bridged Client', 'Bridged  Client', 'ap|client');");

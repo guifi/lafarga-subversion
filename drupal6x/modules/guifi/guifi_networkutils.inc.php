@@ -65,12 +65,17 @@ function _ipcalc($ip,$mask) {
       }
     }
   }
-  if (! preg_match("/^(1+)0+$/",$octets['mask']['binary'],$matches)) {
-    guifi_log(GUIFILOG_NONE,'_ipcalc '.$ip. ' mask '.$mask.' invalid(mask)',null);
-    print "Error: Item 'mask' ".$mask." invàlid ";
-    return -1;
-  } else {
-    $return["maskbits"] = strlen($matches[1]);
+
+  if ($mask=='255.255.255.255')
+	  $return['maskbits'] = 32;
+  else {
+	  if (! preg_match("/^(1+)0+$/",$octets['mask']['binary'],$matches)) {
+		  guifi_log(GUIFILOG_NONE,'_ipcalc '.$ip. ' mask '.$mask.' invalid (mask)',$matches);
+		  //    print "Error: Item 'mask' ".$mask." invàlid ";
+		  return -1;
+	  } else {
+		  $return["maskbits"] = strlen($matches[1]);
+	  }
   }
 
   $return['netid'] =

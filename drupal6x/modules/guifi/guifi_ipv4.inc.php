@@ -468,7 +468,7 @@ function guifi_device_ipv4_link_form($ipv4,$tree, $cable = true) {
         '#parents'=>array_merge($tree,array('netmask')),
         '#title' => t("Network mask"),
         '#default_value' => $ipv4['netmask'],
-        '#options' => guifi_types('netmask',30,0),
+        '#options' => guifi_types('netmask',32,0),
         '#prefix'=> '<td align="left">',
         '#suffix'=> '</td>',
 //        '#weight' =>1,
