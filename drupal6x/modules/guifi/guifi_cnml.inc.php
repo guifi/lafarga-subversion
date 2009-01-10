@@ -244,6 +244,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
                      array('WRT54Gv1-4','WHR-HP-G54, WHR-G54S','WRT54GL','WRT54GSv1-2','WRT54GSv4'))) {
                switch ($device->variable['firmware']) {
                case 'whiterussian':
+                if ($radio->mode == 'client') {
+                  $radioXML->addAttribute('snmp_name','eth1');
+                 } else {
+                  $radioXML->addAttribute('snmp_name','br0');
+                 }
+                 break;
                case 'kamikaze':
                 if ($radio->mode == 'client') {
                   $radioXML->addAttribute('snmp_name','eth0.1');

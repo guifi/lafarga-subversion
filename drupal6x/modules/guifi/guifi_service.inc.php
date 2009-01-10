@@ -592,7 +592,7 @@ function theme_guifi_service_data($node, $links = true) {
       $rows[] = array(t('webmail and admin url'),guifi_url($node->var['webmail']),guifi_url($node->var['admin']));
       break;
     case 'Proxy': case 'ADSL':
-      $rows[] = array(t('bandwidth (Up/Down)'),$node->var['down'],$node->var['up']);
+      $rows[] = array(t('bandwidth (Down/Up)'),$node->var['down'],$node->var['up']);
       $rows[] = array(t('proxy name &#038; port'),$node->var['proxy'],$node->var['port']);
       $rows[] = array(t('type'),$node->var['type'],null);
       if (is_array($node->var['fed'])) $rows[] = array(t('federation'),implode(", ",$node->var['fed']),null);

@@ -898,7 +898,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 
   while ($guserid = db_fetch_object($query)) {
     $guser = (object)guifi_user_load($guserid->id);
-//    $services = unserialize($guser->services);
+    $services = $guser->services;
     if ($node->type == 'guifi_service') {
       if (($node->service_type != 'Proxy') or ($node->nid != $services['proxy']))
         continue;
@@ -1078,6 +1078,7 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
   // now dumping all other zones from the principal proxy
   foreach ($passwd as $zid=>$zp) {
     $dump .= "# At zone ".$zones[$zid]."\n";
+    $dump .= "# users: ".count($passwd[$zid])."\n";
     foreach ($zp as $p)
        $dump .= $p."\n";
   }
@@ -1099,6 +1100,7 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
   foreach ($passwd as $zid=>$zp) {
     $dump .= "#\n";
     $dump .= "# At zone ".$zones[$zid]."\n";
+    $dump .= "# users: ".count($passwd[$zid])."\n";    
     $dump .= "#\n";
     foreach ($zp as $p)
        $dump .= $p."\n";
@@ -1109,30 +1111,28 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
 
 function _guifi_users_dump_federated($node,$ldif = false) {
 
-
 // Listing all the federated proxys
-if (is_array($node->var[fed]))
-  if (in_array('IN',$node->var[fed])) {
-    $head  = "#\n";
-    $head .= '# Federated users list for Proxy : "'.$node->nick.'"'."\n";
-    $head .= "#\n";
-    $head .= "#  Includes users from the following proxys :\n";
-    $head .= "#\n";
-    $head .= '#   ' .$node->nid." - ".$node->title."\n";
-    $query = db_query("SELECT id,extra FROM {guifi_services} WHERE service_type='Proxy'");
-    while ($item = db_fetch_object($query))
-    {
-      $extra = unserialize($item->extra);
+  if (is_array($node->var[fed]))
+    if (($node->var['fed']['IN'] != '0') AND ($node->var['fed']['IN'] == 'IN')) {
+      $head  = "#\n";
+      $head .= '# Federated users list for Proxy : "'.$node->nick.'"'."\n";
+      $head .= "#\n";
+      $head .= "#  Includes users from the following proxys :\n";
+      $head .= "#\n";
+      $head .= '#   ' .$node->nid." - ".$node->title."\n";
+      $query = db_query("SELECT id,extra FROM {guifi_services} WHERE service_type='Proxy'");
+      while ($item = db_fetch_object($query)) {
+        $extra = unserialize($item->extra);
 	  if (($item->id!=$node->nid) & (is_array($extra[fed]))) {
-        $p_node = node_load(array('nid' => $item->id));
-	    if ( in_array('OUT',$extra[fed])) {
-	      $head .= '#   ' .$p_node->nid." - ".$p_node->title."\n";
-          $federated_out[] = $item->id;
-	    }
+            $p_node = node_load(array('nid' => $item->id));
+              if (($extra['fed']['OUT'] != '0') AND ($extra['fed']['OUT'] == 'OUT')) {
+                $head .= '#   ' .$p_node->nid." - ".$p_node->title."\n";
+	        $federated_out[] = $item->id;
+	      }
 	  }
+      }
+      $head .="#\n";
     }
-    $head .="#\n";
-  }
   $output .= $head;
 
   // Listings users

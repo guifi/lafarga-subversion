@@ -42,9 +42,9 @@ function guifi_kamikaze_files($dev,$zone) {
         foreach ($interface[ipv4] as $ipv4_id => $ipv4) 
           foreach ($ipv4[links] as $key => $link) {
             if ($link['link_type'] == 'wds')
-     $wds_links[] = $link ;
-     $iplocal[] = $ipv4 ;
-     $iflocal[] = $interface ;
+              $wds_links[] = $link ;
+            $iplocal[] = $ipv4 ;
+            $iflocal[] = $interface ;
   }
   if (count($wds_links) == 0)
     return;
