@@ -1,0 +1,148 @@
+ dpkg-buildpackage -rfakeroot -D -us -uc
+dpkg-buildpackage: establecer CFLAGS como valor predeterminado: -g -O2
+dpkg-buildpackage: establecer CPPFLAGS como valor predeterminado: 
+dpkg-buildpackage: establecer LDFLAGS como valor predeterminado: -Wl,-Bsymbolic-functions
+dpkg-buildpackage: establecer FFLAGS como valor predeterminado: -g -O2
+dpkg-buildpackage: establecer CXXFLAGS como valor predeterminado: -g -O2
+dpkg-buildpackage: Paquete fuente snpservices
+dpkg-buildpackage: Versión fuente 0.2.0-2
+dpkg-buildpackage: Fuente cambiadas por Miquel Martos <miquelmartos@gmail.com>
+dpkg-buildpackage: arquitectura de anfitrión i386
+ fakeroot debian/rules clean
+test -x debian/rules
+dh_testroot
+dh_clean 
+ dpkg-source -b snpservices-0.2.0
+dpkg-source: información: usando formato fuente `1.0'
+dpkg-source: información: building snpservices using existing snpservices_0.2.0.orig.tar.gz
+dpkg-source: información: construyendo snpservices en snpservices_0.2.0-2.diff.gz
+dpkg-source: aviso: el modo ejecutable 0755 de 'debianize5' no será representado en diff
+dpkg-source: información: construyendo snpservices en snpservices_0.2.0-2.dsc
+ debian/rules build
+test -x debian/rules
+mkdir -p "."
+ fakeroot debian/rules binary
+test -x debian/rules
+dh_testroot
+dh_clean -k 
+dh_installdirs -A 
+mkdir -p "."
+dh_installdirs -psnpservices 
+dh_installdocs -psnpservices ./README  
+dh_installexamples -psnpservices 
+dh_installman -psnpservices  
+dh_installinfo -psnpservices  
+dh_installmenu -psnpservices 
+dh_installcron -psnpservices 
+dh_installinit -psnpservices   
+dh_installdebconf -psnpservices 
+dh_installemacsen -psnpservices   
+dh_installcatalogs -psnpservices 
+dh_installpam -psnpservices 
+dh_installlogrotate -psnpservices 
+dh_installlogcheck -psnpservices 
+dh_installchangelogs -psnpservices   
+dh_installudev -psnpservices 
+dh_lintian -psnpservices 
+dh_install -psnpservices  
+dh_link -psnpservices /usr/share/snpservices /var/www/snpservices /etc/snpservices/config.php /usr/share/snpservices/common/config.php /var/lib/snpservices/data/mrtg.cfg /usr/share/snpservices/data/mrtg.cfg /var/lib/snpservices/tmp /usr/share/snpservices/tmp 
+dh_installmime -psnpservices 
+find debian/snpservices/usr/share/snpservices/ -type d -exec chmod 0755 {} \;
+find debian/snpservices/usr/share/snpservices/ -type f -exec chmod 0644 {} \;
+find debian/snpservices/usr/share/snpservices/ -type f -exec chown nobody:nogroup {} \;
+find debian/snpservices/usr/share/snpservices/ -name *.sh -exec chmod 0744 {} \;
+find debian/snpservices/var/lib/snpservices/ -type d -exec chmod 0755 {} \;
+find debian/snpservices/var/lib/snpservices/ -type d -exec chown www-data:www-data {} \;
+dh_strip -psnpservices  
+dh_compress -psnpservices  
+dh_fixperms -psnpservices -X usr/share/snpservices -X var/lib/snpservices 
+dh_makeshlibs -psnpservices  
+dh_installdeb -psnpservices 
+dh_perl -psnpservices 
+dh_shlibdeps -psnpservices    
+dh_gencontrol -psnpservices  
+# symlink identical documentation to depending packages
+[ -n "$CDBS_NO_DOC_SYMLINKING" ] || \
+	[ -h debian/snpservices/usr/share/doc ] || \
+	[ ! -d debian/snpservices/usr/share/doc ] || \
+	for dep in `perl -ne 'if (/^(Pre-)?Depends:/) {s/^\w+://; foreach (split /,/) { split; print($_[0], "\n"); } }' debian/snpservices/DEBIAN/control`; do \
+	    if [ -d debian/$dep/usr/share/doc ]; then \
+                echo "Searching for duplicated docs in dependency $dep..."; \
+                rootdir=`pwd`; \
+                (cd debian/snpservices/usr/share/doc/snpservices; find -type f ! -name copyright | while read f; do \
+                    thisfile="$rootdir/debian/snpservices/usr/share/doc/snpservices/$f"; \
+                    depfile="$rootdir/debian/$dep/usr/share/doc/$dep/$f"; \
+                    if [ -f $depfile -o -L $depfile ] && zcmp $thisfile $depfile >/dev/null; then \
+                        echo "  symlinking $f in snpservices to file in $dep"; \
+                        rm $thisfile; ln -s /usr/share/doc/$dep/$f $thisfile; \
+                    fi; \
+                done ); \
+            fi; \
+	done
+# symlink identical Gnome help files within packages
+if [ -z "$CDBS_NO_GNOME_HELP_SYMLINKING" ] && [ -d debian/snpservices/usr/share/gnome/help ]; then \
+            cd debian/snpservices && LC_ALL=C fdupes -r1nq usr/share/gnome/help | while read s; do \
+                set -- $(echo $s | tr ' ' '\n' | sort); \
+                f=$1; shift; \
+                for d; do \
+                    echo "symlinking duplicate Gnome help file $d to $f"; \
+                    rm $d; ln -s /$f $d; \
+                done; \
+            done; \
+	fi
+dh_link -p snpservices
+dh_md5sums -psnpservices 
+dh_builddeb -psnpservices 
+dpkg-deb: construyendo el paquete `snpservices' en `../snpservices_0.2.0-2_all.deb'.
+ dpkg-genchanges  >../snpservices_0.2.0-2_i386.changes
+dpkg-genchanges: no incluyendo código fuente original en subida
+dpkg-buildpackage: subir binario y diferencias (NO se incluye la fuente original)
+Now running lintian...
+W: snpservices source: dh-make-template-in-source debian/watch.ex
+E: snpservices source: not-using-po-debconf
+W: snpservices source: out-of-date-standards-version 3.7.2 (current is 3.8.0)
+W: snpservices source: changelog-should-mention-nmu
+W: snpservices source: source-nmu-has-incorrect-version-number 0.2.0-2
+E: snpservices: manpage-is-dh_make-template usr/share/man/man1/snpservices.1.gz
+W: snpservices: manpage-section-mismatch usr/share/man/man1/snpservices.1.gz:5 1 != SECTION
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/debianize5
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/rrdtool/
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/rrdtool/config.m4
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/rrdtool/php_rrdtool.h
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/rrdtool/rrdtool.c
+E: snpservices: dir-or-file-in-tmp tmp/php-rrdtool/rrdtool/rrdtool_logo.h
+W: snpservices: non-standard-executable-perm usr/share/snpservices/common/mrtg.sh 0744 != 0755
+W: snpservices: non-standard-executable-perm usr/share/snpservices/common/ping.sh 0744 != 0755
+W: snpservices: non-standard-executable-perm usr/share/snpservices/common/refresh.sh 0744 != 0755
+W: snpservices: extra-license-file usr/share/snpservices/graphs/LICENSE.txt
+E: snpservices: dir-or-file-in-var-www var/www/snpservices
+W: snpservices: readme-debian-contains-debmake-template
+W: snpservices: command-with-path-in-maintainer-script postrm:21 /usr/bin/ucf
+W: snpservices: command-with-path-in-maintainer-script postrm:22 /bin/rm
+W: snpservices: command-with-path-in-maintainer-script postinst:126 /usr/bin/ucf
+W: snpservices: maintainer-script-needs-depends-on-ucf postinst
+W: snpservices: command-with-path-in-maintainer-script postinst:127 /bin/rm
+W: snpservices: possibly-insecure-handling-of-tmp-files-in-maintainer-script postinst:132
+W: snpservices: command-with-path-in-maintainer-script postinst:138 /usr/sbin/logrotate
+W: snpservices: malformed-prompt-in-templates snpservices/SNPGraphServerId
+W: snpservices: malformed-prompt-in-templates snpservices/rootZone
+W: snpservices: malformed-prompt-in-templates snpservices/SNPDataServerurl
+W: snpservices: too-long-short-description-in-templates snpservices/SNPDataServerurl
+W: snpservices: malformed-prompt-in-templates snpservices/MRTGConfigSource
+W: snpservices: too-long-short-description-in-templates snpservices/MRTGConfigSource
+W: snpservices: malformed-prompt-in-templates snpservices/CNMLSource
+W: snpservices: malformed-prompt-in-templates snpservices/rrddbpath
+W: snpservices: malformed-prompt-in-templates snpservices/rrdimgpath
+W: snpservices: malformed-prompt-in-templates snpservices/rrdversion
+W: snpservices: malformed-question-in-templates snpservices/forcefetch
+W: snpservices: copyright-contains-dh_make-todo-boilerplate
+W: snpservices: debian-changelog-line-too-long line 1
+W: snpservices: virtual-package-depends-without-real-package-depends depends: httpd
+Finished running lintian.
+Now signing changes and any dsc files...
+ signfile snpservices_0.2.0-2.dsc Miquel Martos <miquelmartos@gmail.com>
+
+ signfile snpservices_0.2.0-2_i386.changes Miquel Martos <miquelmartos@gmail.com>
+
+Successfully signed dsc and changes files

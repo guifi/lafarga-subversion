@@ -1,0 +1,39 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Format: 1.8
+Date: Wed, 23 Jan 2009 22:40:54 +0200
+Source: snpservices
+Binary: snpservices
+Architecture: source all
+Version: 0.2.0-2
+Distribution: unstable
+Urgency: low
+Maintainer: Carles Guadall Blancafort <carles@viladelpingui.net>
+Changed-By: Miquel Martos <miquelmartos@gmail.com>
+Description: 
+ snpservices - This software provides graph services in the context of the
+Changes: 
+ snpservices (0.2.0-2) unstable; urgency=low
+ .
+   * Compile php-rrdtool package. And setup Cron to install it before installation.
+Checksums-Sha1: 
+ 86e412977b3b84194f7179aa92d37f2fa55ece0d 998 snpservices_0.2.0-2.dsc
+ eea1eaad55a4686c731509719ed6247b835d7126 17633 snpservices_0.2.0-2.diff.gz
+ ee1d260a8e86c6838424fec74c670596ebb55013 47282 snpservices_0.2.0-2_all.deb
+Checksums-Sha256: 
+ 490871f661d1e8088c2a148a19cdb711995050af0da752fea6e7ae40c9922ac0 998 snpservices_0.2.0-2.dsc
+ 00f861b58994abdfa2c058d9c7b9c38aee9878eda0652660427112fdbcc54614 17633 snpservices_0.2.0-2.diff.gz
+ 741260de348810d5bbec1c3c3599328253c13abc9d32d5006e9b5f6129593aa8 47282 snpservices_0.2.0-2_all.deb
+Files: 
+ 020e5b6982caa2af9c869a8eafba8895 998 web optional snpservices_0.2.0-2.dsc
+ 10a227e03dedb81e6a55eb034e6af10c 17633 web optional snpservices_0.2.0-2.diff.gz
+ cb9e9d43dc3c2881ec952806856deaeb 47282 web optional snpservices_0.2.0-2_all.deb
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkl6Oo4ACgkQYGO2Ywk/xsjEEQCeM2DUkSFLDQekAhCdjqVpnmch
+jBgAni5qTDDKacUR612WIQaMlmv86dNm
+=4EAm
+-----END PGP SIGNATURE-----
