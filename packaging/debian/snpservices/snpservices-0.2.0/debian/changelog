@@ -1,0 +1,30 @@
+snpservices (0.2.0-2) unstable; urgency=low
+
+  * Compile php-rrdtool package. And setup Cron to install it before installation.
+
+ -- Miquel Martos <miquelmartos@gmail.com>  Wed, 23 Jan 2009 22:40:54 +0200
+
+snpservices (0.2.0-1) unstable; urgency=low
+
+  * Update to snpservices 2.0.
+
+ -- Miquel Martos <miquelmartos@gmail.com>  Thu, 22 Jan 2009 20:46:54 +0200
+
+snpservices (0.0.152-3) unstable; urgency=low
+
+  * Fixed bug in logrotate, first rotation forced during post installation
+
+ -- Carles Guadall Blancafort <carles@viladelpingui.net>  Tue, 18 Sep 2007 20:46:54 +0200
+
+snpservices (0.0.152-2) unstable; urgency=low
+
+  * Fixed bug in logrotate.d config
+
+ -- Carles Guadall Blancafort <carles@viladelpingui.net>  Sat, 25 Aug 2007 18:45:15 +0200
+
+snpservices (0.0.152-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Carles Guadall Blancafort <carles@viladelpingui.net>  Fri, 17 Aug 2007 00:12:29 +0200
+

@@ -1,0 +1,253 @@
+#!/bin/bash
+
+export LANG=C
+
+ORIGDIR=$(pwd)
+MAINT_GECOS="Guillaume Plessis <gui@php.net>"
+DATE=$(date '+%a, %d %b %Y %X %z')
+
+if [ $# -ne 1 ] ; then
+	echo "Usage : $0 directory"
+	exit 1
+fi
+
+if [ ! -d $1 ] ; then
+	echo "Error: $1 is not a directory"
+	exit 1
+fi
+
+EXTENSION=$(basename $1| tr [:upper:] [:lower:]|sed -ne 's/^\([a-z][[:alnum:]]*\).*$/\1/p')
+
+if [ -z $EXTENSION ] ; then
+	echo "Error: Unable to determine the extension's name"
+	exit 1
+fi
+
+dpkg -l php5-dev | grep -q '^ii' || ( echo "Error : please install php5-dev" && exit 1)
+
+PHPVERSION=$(dpkg -p php5-dev|sed -ne 's/^Version: \(.*\)$/\1/p')
+PHPAPIVERSION=$(grep '\#define PHP_API_VERSION ' /usr/include/php5/main/php.h|sed 's/\#define PHP_API_VERSION //')
+
+echo "Creating php5-$EXTENSION..."
+echo "   PHP version : $PHPVERSION"
+echo "   PHP Api : $PHPAPIVERSION"
+
+cd $1
+mkdir debian &>/dev/null
+cd debian
+
+# {{{ changelog
+cat > changelog << EOD
+php5-$EXTENSION ($PHPVERSION) unstable; urgency=low
+
+  * $EXTENSION extension for php5 ($PHPVERSION release)
+
+ -- $MAINT_GECOS  $DATE
+EOD
+# }}}
+
+# {{{ control
+cat > control << EOD
+Source: php5-$EXTENSION
+Section: web
+Priority: optional
+Maintainer: $MAINT_GECOS
+Build-Depends: debhelper (>= 3), php5-dev
+Standards-Version: 3.6.1
+
+Package: php5-$EXTENSION
+Architecture: any
+Depends: \${shlibs:Depends}, \${misc:Depends}, \${php:Depends}, php5-common (= $PHPVERSION)
+Description: $EXTENSION module for php5
+ This package provides a module for $EXTENSION functions in PHP scripts.
+ .
+ PHP5 is an HTML-embedded scripting language. Much of its syntax is borrowed
+ from C, Java and Perl with a couple of unique PHP-specific features thrown
+ in. The goal of the language is to allow web developers to write dynamically
+ generated pages quickly.
+ .
+ Homepage: http://www.php.net/
+
+EOD
+# }}}
+
+# {{{ php5-EXTENSION.postinst
+cat > php5-$EXTENSION.postinst << EOD
+#!/bin/sh
+
+set -e
+
+if [ "$1" != "configure" ]; then
+        exit 0
+fi
+
+# here we test for upgrades from versions prior to the config-file-scan-dir
+# migration.  
+#
+# to avoid lots of scary warnings about duplicate-loaded modules, each 
+# module will remove its "extension=" line from each SAPI's php.ini file
+# when upgrading from a "prior version".  this will be the last time we
+# ever muck with such files in maintainer scripts.  really.  promise :)
+
+if [ "$2" ] && dpkg --compare-versions "$2" lt "5.1.6-5"; then
+        extension_re='^[[:space:]]*extension[[:space:]]*=[[:space:]]*${EXTENSION}\.so$'
+        for SAPI in apache apache2 cgi cli; do
+                ini_file="/etc/php5/$SAPI/php.ini"
+                if [ -f "$ini_file" ]; then
+                        if grep -q "$extension_re" $ini_file; then
+                                sed -i -e "/$extension_re/d" $ini_file
+                        fi
+                fi
+        done
+fi
+
+#DEBHELPER#
+
+exit 0
+
+EOD
+# }}}
+
+# {{{ rules
+cat > rules << EOD
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper. 
+# GNU copyright 1997 by Joey Hess.
+#
+# This version is for a hypothetical package that builds an
+# architecture-dependant package, as well as an architecture-independent
+# package.
+
+# Uncomment this to turn on verbose mode. 
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=3
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# Set this flag to 'yes' if you want to disable all modifications breaking abi 
+# compatibility to upstream
+PHP5_COMPAT=no
+
+DEB_HOST_GNU_TYPE    ?= \$(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE   ?= \$(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_BUILD_ARCH   ?= \$(shell dpkg-architecture -qDEB_BUILD_ARCH)
+
+PHP5_HOST_GNU_TYPE    = \$(shell echo \$(DEB_HOST_GNU_TYPE) | sed 's/-gnu$$//')
+PHP5_BUILD_GNU_TYPE   = \$(shell echo \$(DEB_BUILD_GNU_TYPE) | sed 's/-gnu$$//')
+
+PHP5_SOURCE_VERSION   = \$(shell dpkg-parsechangelog | grep ^Version | sed "s/Version: //")
+PHP5_UPSTREAM_VERSION = \$(shell echo \$(PHP5_SOURCE_VERSION) | sed -e "s/-.*//" -e "s/.*://")
+PHP5_DEBIAN_REVISION  = \$(shell echo \$(PHP5_SOURCE_VERSION) | sed "s/.*-//")
+
+APACHE_VERSION = \$(shell dpkg -s apache-dev | grep ^Version | cut -d\  -f2 | cut -d- -f1)
+
+PROG_SENDMAIL = /usr/sbin/sendmail
+CFLAGS = -O2 -Wall -fsigned-char -fno-strict-aliasing
+# LFS support
+ifneq (yes,\$(PHP5_COMPAT))
+  CFLAGS += \$(shell getconf LFS_CFLAGS)
+endif
+
+# Enable IEEE-conformant floating point math on alphas (not the default)
+ifeq (alpha-linux,\$(PHP5_HOST_GNU_TYPE))
+  CFLAGS += -mieee
+endif
+
+ifeq (\$(PHP5_HOST_GNU_TYPE), \$(findstring \$(PHP5_HOST_GNU_TYPE), ia64-linux powerpc64-linux))
+  CFLAGS += -g
+else
+  CFLAGS += -gstabs
+endif
+
+ifneq (nostrip, $(findstring nostrip, $(DEB_BUILD_OPTIONS)))
+        install_strip = -s
+endif
+
+configure-stamp: configure
+	dh_testdir
+	# Add here commands to configure the package.
+	./configure --disable-rpath --prefix=/usr \\
+		--mandir=\\\$\${prefix}/share/man \\
+		--infodir=\\\$\${prefix}/share/info \\
+		--with-php-config=/usr/bin/php-config5
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp:  configure-stamp
+	dh_testdir
+
+	# Add here commands to compile the package.
+	\$(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -f conftest*
+
+	# Add here commands to clean up after the build process.
+	-\$(MAKE) distclean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/php5-$EXTENSION.
+	(ext=\`/usr/bin/php-config5 --extension-dir\`;mkdir -p debian/php5-$EXTENSION/\$\${ext};install -m 644 -o root -g root modules/$EXTENSION.so debian/php5-$EXTENSION/\$\${ext}/$EXTENSION.so;)
+
+#	dh_install
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+
+	mkdir -p debian/php5-$EXTENSION/etc/php5/conf.d
+	echo "# configuration for php $EXTENSION module" > debian/php5-$EXTENSION/etc/php5/conf.d/$EXTENSION.ini
+	echo "extension=$EXTENSION.so" >> debian/php5-$EXTENSION/etc/php5/conf.d/$EXTENSION.ini
+
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installexamples
+	dh_installdebconf	
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install 
+EOD
+# }}}
+
+chmod 755 rules
+
+cd ..
+phpize
+./debian/rules binary
+
+cd $ORIGDIR
+
+# {{{ Vim variables
+# vim: sw=4 ts=4 fdm=marker noai
+# }}}
