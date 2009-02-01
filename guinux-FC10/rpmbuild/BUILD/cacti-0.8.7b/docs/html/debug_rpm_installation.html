@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>RPM Installation?</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Debugging" href="debugging.html">
+  <link rel="PREVIOUS" title="Miscellaneous" href="debug_miscellaneous.html">
+  <link rel="NEXT" title="Not NaN, but 0 (zero) values?" href="check_zero_values.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="debug_miscellaneous.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 21. Debugging</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="check_zero_values.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="DEBUG_RPM_INSTALLATION" id="DEBUG_RPM_INSTALLATION">RPM Installation?</a></h1>
+
+    <p>Most rpm installations will setup the crontab entry now. If you've followed the installation instructions to the letter (which you should always do ;-) ), you may now have two poller running. That's not a good thing, though. Most rpm installations will setup cron in <tt class="FILENAME">/etc/cron.d/cacti</tt></p>
+
+    <p>Now, please check all your crontabs, especially <tt class="FILENAME">/etc/crontab</tt> and crontabs of users root and cactiuser. Leave only one poller entry for all of them. Personally, I've chosen <tt class="FILENAME">/etc/cron.d/cacti</tt> to avoid problems when updating rpm's. Mosten often, you won't remember this item when updating lots of rpm's, so I felt more secure to put it here. And I've made some slight modifications, see</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> vi /etc/cron.d/cacti
+*/5 * * * *     cactiuser       /usr/bin/php -q /var/www/html/cacti/poller.php &gt; /var/local/log/poller.log 2&gt;&amp;1
+</pre>
+
+    <p>This will produce a file <tt class="FILENAME">/var/local/log/poller.log</tt>, which includes some additional informations from each poller's run, such as rrdtool errors. It occupies only some few bytes and will be overwritten each time.</p>
+
+    <p>If you're using the crontab of user "cactiuser" instead, this will look like</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> crontab -e -u cactiuser
+*/5 * * * *     /usr/bin/php -q /var/www/html/cacti/poller.php &gt; /var/local/log/poller.log 2&gt;&amp;1
+</pre>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="debug_miscellaneous.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="check_zero_values.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Miscellaneous</td>
+
+        <td width="34%" align="center" valign="top"><a href="debugging.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Not NaN, but 0 (zero) values?</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

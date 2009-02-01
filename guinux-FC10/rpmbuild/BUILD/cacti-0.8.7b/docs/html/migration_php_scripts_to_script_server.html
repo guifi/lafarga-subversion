@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Migration of Existing PHP Scripts to Script Server</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="PHP Script Server" href="php_script_server.html">
+  <link rel="PREVIOUS" title="Upgrade Steps for the Example HostMib Data Queries" href="upgrade_using_hostmib_data_queries.html">
+  <link rel="NEXT" title="Testing Your Script in the Script Server" href="testing_script_in_script_server.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="upgrade_using_hostmib_data_queries.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 14. PHP Script Server</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="testing_script_in_script_server.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="MIGRATION_PHP_SCRIPTS_TO_SCRIPT_SERVER" id="MIGRATION_PHP_SCRIPTS_TO_SCRIPT_SERVER">Migration of Existing PHP Scripts to Script Server</a></h1>
+
+    <p>If you have other PHP scripts that you wish to migrate, you must follow the steps below to migrate your scripts to the PHP Script Server required format.</p>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="SCRIPT_FILE_CHANGES" id="SCRIPT_FILE_CHANGES">Script File Changes</a></h2>
+
+      <p>Each PHP Script file must be changed to the new Script Server format. The changes are not dramatic, but required for the proper operation of the PHP Script Server. Follow the steps below to complete.</p>
+
+      <ol type="1">
+        <li>
+          <p>Copy you existing script to a new name. The name must begin "ss_" followed by your script name. The "ss_" identifies the script as being a script server variety of the a PHP script. For example, if you previously had a script called "get_mysql_stats.php", it's new name would be "ss_get_mysql_stats.php".</p>
+        </li>
+
+        <li>
+          <p>Edit the new PHP script and add the following required lines to the file, where "ss_myfunction" is the same as your filename.</p>
+          <pre class="PROGRAMLISTING">
+&lt;?php
+$no_http_headers = true;
+
+/* display No errors */
+error_reporting(E_ERROR);
+
+include_once(dirname(__FILE__) . "/../include/config.php");
+include_once(dirname(__FILE__) . "/../lib/snmp.php");
+
+if (!isset($called_by_script_server)) {
+        array_shift($_SERVER["argv"]);
+        print call_user_func_array("ss_myfunction", $_SERVER["argv"]);
+}
+</pre>
+        </li>
+
+        <li>
+          <p>What was originally just mainline code, must be replaced with a function name. For example, if your program previously contained the following three lines of code:</p>
+          <pre class="PROGRAMLISTING">
+&lt;?php
+$a = 100;
+$b = $a / 10;
+print $b;
+?&gt;
+</pre>
+
+          <p>Would become:</p>
+          <pre class="PROGRAMLISTING">
+function ss_myfunction() {
+        $a = 100;
+        $b = $a / 10;
+        Print $b;
+}
+</pre>
+        </li>
+
+        <li>
+          <p>If you have any additional functions declared within your script file, you must prefix them to make then unique amongst all functions. Our recommendation would be to prefix all functions with the name of the main function. For example if you have a function called "meme" you would rename it to "ss_myfunction_meme". This guarantee's correct Script Server functionality.</p>
+        </li>
+
+        <li>
+          <p>The last step is to change the function call that could have traditionally returned the value to the Cacti poller using the PRINT function. You must change that line or lines in your code to utilize the RETURN function instead. However, this does not apply to PRINT statements that are not called from the Poller.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="XML_FILE_CHANGES" id="XML_FILE_CHANGES">XML File Changes</a></h2>
+
+      <p>If you are using a "Script Query" type function, then you must also change your XML file. Please reference the XML files in the <tt class="FILENAME">&lt;path_cacti&gt;/resource/script_server</tt> directory for the specifics related to your required modifications. However, you may also follow the instructions below:</p>
+
+      <ol type="1">
+        <li>
+          <p>Modify the &lt;script_path&gt; tag. Change it from:</p>
+          <pre class="PROGRAMLISTING">
+&lt;script_path&gt;|path_php_binary| -q |path_cacti|/scripts/myfucntion.php&lt;/script_path&gt;
+</pre>
+
+          <p>to simply the following:</p>
+          <pre class="PROGRAMLISTING">
+&lt;script_path&gt;|path_cacti|/scripts/ss_myfunction.php&lt;/script_path&gt;
+</pre>
+        </li>
+
+        <li>
+          <p>Add the following two XML tags below the &lt;script_path&gt; tag. Replace <b class="EMPHASIS">ss_myfunction</b> with your function name:</p>
+          <pre class="PROGRAMLISTING">
+&lt;script_function&gt;ss_myfunction&lt;/script_function&gt;
+&lt;script_server&gt;php&lt;/script_server&gt;
+</pre>
+        </li>
+
+        <li>
+          <p>Save the XML file.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="DATA_QUERY_DATA_TEMPLATE_CHANGES" id="DATA_QUERY_DATA_TEMPLATE_CHANGES">Data Query &amp; Data Template Changes</a></h2>
+
+      <p>Your Data Queries and Data Templates must be also changed. Although somewhat self explanatory by now, you must make the following changes:</p>
+
+      <ol type="1">
+        <li>
+          <p>Change it's Input Method to "Get Script Server Data" or "Get Script Server Data (Index)" depending on it's type.</p>
+
+          <p>Change the XML file path to point to the new XML file in the <tt class="FILENAME">&lt;path_cacti&gt;/resources/script_server/*.xml</tt> path.</p>
+
+          <p>For all data templates that use the data query you must change their "Data Input Method" accordingly.</p>
+        </li>
+      </ol>
+
+      <p>Your final step is to go to the <span class="GUILABEL">System Utilities</span> and <span class="GUILABEL">Clear Poller Cache</span> to apply the new settings. If you script is operating correctly, you should now be migrated to the script server.</p>
+    </div>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="upgrade_using_hostmib_data_queries.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="testing_script_in_script_server.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Upgrade Steps for the Example HostMib Data Queries</td>
+
+        <td width="34%" align="center" valign="top"><a href="php_script_server.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Testing Your Script in the Script Server</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

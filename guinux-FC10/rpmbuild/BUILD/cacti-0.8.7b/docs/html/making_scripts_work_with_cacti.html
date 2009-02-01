@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Making Your Scripts Work With Cacti</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Data Input Methods" href="data_input_methods.html">
+  <link rel="PREVIOUS" title="Data Input Methods" href="data_input_methods.html">
+  <link rel="NEXT" title="Data Queries" href="data_queries.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="data_input_methods.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 11. Data Input Methods</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="data_queries.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="MAKING_SCRIPTS_WORK_WITH_CACTI" id="MAKING_SCRIPTS_WORK_WITH_CACTI">Making Your Scripts Work With Cacti</a></h1>
+
+    <p>The simplest way to extend Cacti's data gathering functionality is through external scripts. Cacti comes with a number of scripts out of the box which are located in the <tt class="FILENAME">scripts/</tt> directory. These scripts are used by the data input methods that are present in a new installation of Cacti.</p>
+
+    <p>To have Cacti call an external script to gather data you must create a new data input method, making sure to specify <span class="GUILABEL">Script/Command</span> for the <span class="GUILABEL">Input Type</span> field. See the previous section, <a href="data_input_methods.html" target="_top">Creating a Data Input Method</a> for more information about how to create a data input method. To gather data using your data input method, Cacti simply executes the shell command specified in the <span class="GUILABEL">Input String</span> field. Because of this, you can have Cacti run any shell command or call any script which can be written in almost any language.</p>
+
+    <p>What Cacti is concerned with is the output of the script. When you define your data input method, you are required to define one or more output fields. The number of output fields that you define here is important to your script's output. For a data input method with only one output field, your script should output its value in the following format:</p>
+    <pre class="SCREEN">
+<kbd class="USERINPUT">&lt;value_1&gt;</kbd>
+</pre>
+
+    <p>So if I wrote a script that outputs the number of running processes, its output might look like the following:</p>
+
+    <div class="EXAMPLE">
+      <a name="AEN1283" id="AEN1283"></a>
+
+      <p><b>Example 11-1. Example script output using 1 field</b></p>
+
+      <p><kbd class="USERINPUT">67</kbd></p>
+    </div>
+
+    <p>Data input methods with more than one output field are handled a bit differently when writing scripts. Scripts that output more than one value should be formatted like the following:</p>
+    <pre class="SCREEN">
+<kbd class="USERINPUT">&lt;fieldname_1&gt;:&lt;value_1&gt; &lt;fieldname_2&gt;:&lt;value_2&gt; ... &lt;fieldname_n&gt;:&lt;value_n&gt;</kbd>
+</pre>
+
+    <p>Lets say that I write a script that outputs the 1, 5, and 10 minute load average of a Unix machine. In Cacti, I name the output fields '1min', '5min', and '10min', respectively. Based on these two things, the output of the script should look like the following:</p>
+
+    <div class="EXAMPLE">
+      <a name="AEN1291" id="AEN1291"></a>
+
+      <p><b>Example 11-2. Example script output using 3 fields</b></p>
+
+      <p><kbd class="USERINPUT">1min:0.40 5min:0.32 10min:0.01</kbd></p>
+    </div>
+
+    <p>One last thing to keep in mind when writing scripts for Cacti is that they will be executed as the user the data gatherer runs as. Sometimes a script may work correctly when executed as root, but fails due to permissions problems when executed as a less privileged user.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="data_input_methods.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="data_queries.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Data Input Methods</td>
+
+        <td width="34%" align="center" valign="top"><a href="data_input_methods.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Data Queries</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

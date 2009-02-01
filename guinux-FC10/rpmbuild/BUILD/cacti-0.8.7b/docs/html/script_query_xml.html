@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Script Query XML Syntax</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Data Queries" href="data_queries.html">
+  <link rel="PREVIOUS" title="SNMP Query XML Syntax" href="snmp_query_xml.html">
+  <link rel="NEXT" title="Templates" href="templates.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="snmp_query_xml.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 12. Data Queries</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="templates.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="SCRIPT_QUERY_XML" id="SCRIPT_QUERY_XML">Script Query XML Syntax</a></h1>
+    <pre class="PROGRAMLISTING">
+&lt;query&gt;
+   &lt;name&gt;Get Unix Mounted Partitions&lt;/name&gt;
+   &lt;description&gt;Queries a list of mounted partitions on a unix-based host with the 'df' command.&lt;/description&gt;
+   &lt;script_path&gt;perl |path_cacti|/scripts/query_unix_partitions.pl&lt;/script_path&gt;
+   &lt;arg_index&gt;index&lt;/arg_index&gt;
+   &lt;arg_query&gt;query&lt;/arg_query&gt;
+   &lt;arg_get&gt;get&lt;/arg_get&gt;
+   &lt;arg_num_indexes&gt;num_indexes&lt;/arg_num_indexes&gt;
+   &lt;output_delimeter&gt;:&lt;/output_delimeter&gt;
+   &lt;index_order&gt;dskDevice:dskMount&lt;/index_order&gt;
+   &lt;index_order_type&gt;alphabetic&lt;/index_order_type&gt;
+   &lt;index_title_format&gt;|chosen_order_field|&lt;/index_title_format&gt;
+
+   &lt;fields&gt;
+      &lt;dskDevice&gt;
+         &lt;name&gt;Device Name&lt;/name&gt;
+         &lt;direction&gt;input&lt;/direction&gt;
+         &lt;query_name&gt;device&lt;/query_name&gt;
+      &lt;/dskDevice&gt;
+   &lt;/fields&gt;
+&lt;/query&gt;
+</pre>
+
+    <div class="TABLE">
+      <a name="AEN1457" id="AEN1457"></a>
+
+      <p><b>Table 12-4. Script Query XML Field Reference</b></p>
+
+      <table border="1" frame="border" rules="all" class="CALSTABLE">
+        <col width="1*">
+        <col width="2*">
+
+        <thead>
+          <tr>
+            <th align="center">Field</th>
+
+            <th align="center">Description</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>query-&gt;name</td>
+
+            <td>(Optional) You can enter a "friendly name" for the script query here. It will not be used by Cacti, and is for identification only.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;description</td>
+
+            <td>(Optional) You can enter a description for the script query here. It will not be used by Cacti, and is for identification only.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;script_path</td>
+
+            <td>Enter the complete path to the script or executable that is going to handle your script query. When in doubt, specify the pull path to all binaries referenced in this path, the query may not execute otherwise.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;arg_index</td>
+
+            <td>Enter the argument that is to be passed to the script to retrieve a list of indexes.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;arg_query</td>
+
+            <td>Enter the argument that is to be passed to the script to retrieve a list of values given a field name.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;arg_get</td>
+
+            <td>Enter the argument that is to be passed to the script to retrieve a single value given a field name and index value.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;arg_num_indexes</td>
+
+            <td>Enter the argument that is to be passed to the script to determine the total number of available indexes. If specified, this will be used to determine when to automatically recache this script query when it is attached to a device.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;output_delimeter</td>
+
+            <td>Enter the one character delimiter that will be used to separate output values. This is only used when you "query" the script in which case it outputs 'index(delimiter)value'.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;index_order</td>
+
+            <td>As of version 0.8.6, Cacti will attempt to find the best field to index off of based on whether each row in the query is unique and non-null. If specified, Cacti will perform this check on the fields listed here in the order specified. Only input fields can be specified and multiple fields should be delimited with a comma.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;index_order_type</td>
+
+            <td>
+              <p>For sorting purposes, specify whether the index is numeric or alphanumeric.</p>
+
+              <p><code class="PARAMETER">numeric</code>: The indexes in this script query are to be sorted numerically (ie. 1,2,3,10,20,31)</p>
+
+              <p><code class="PARAMETER">alphabetic</code>: The indexes in this script query are to be sorted alphabetically (1,10,2,20,3,31).</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;index_title_format</td>
+
+            <td>Specify the title format to use when representing an index to the user. Any input field name can be used as a variable if enclosed in pipes (|). The variable <code class="PARAMETER">|chosen_order_field|</code> will be substituted with the field chosen by Cacti to index off of (see index_order above).</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;fields</td>
+
+            <td>Each field contained within the script query must be defined under this tag.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;fields-&gt;dskDevice</td>
+
+            <td>Each defined field in the script query must have a unique name given to it. Do not use spaces or any non-alphanumeric characters, this name must be identifiable within Cacti.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;fields-&gt;dskDevice-&gt;name</td>
+
+            <td>Here you can specify a "friendly name" for the field. This name will be used by Cacti to help the user identify this field.</td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;fields-&gt;dskDevice-&gt;direction</td>
+
+            <td>
+              <p><code class="PARAMETER">input</code>: Input values are the "known" values that you will use to derive the output values, this is where the "query" part of script query comes in. When you create a graph based on a script query, Cacti will prompt you to choose the input value to base the graph on.</p>
+
+              <p><code class="PARAMETER">output</code>: Output values are "unknown" values that are returned from the script. A script query may return multiple statistics for a single index. For instance, a single partition could return free disk space, total disk space, fragmentation percentage, etc.</p>
+
+              <p>A rule of thumb is that input fields contain semi-static data that is not graphable, while the output fields contain the data that will be graphed.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>query-&gt;fields-&gt;dskDevice-&gt;query_name</td>
+
+            <td>Enter the name that Cacti must use when asking the script for information about this field. For instance, the following should return values: '(script_name) query (query_name)'.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="snmp_query_xml.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="templates.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">SNMP Query XML Syntax</td>
+
+        <td width="34%" align="center" valign="top"><a href="data_queries.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Templates</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

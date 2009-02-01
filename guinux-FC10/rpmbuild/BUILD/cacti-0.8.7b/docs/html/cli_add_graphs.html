@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Add a New Graph</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Command Line Scripts" href="scripts.html">
+  <link rel="PREVIOUS" title="Add a New Device" href="cli_add_device.html">
+  <link rel="NEXT" title="Add Items to a Tree" href="cli_add_tree.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="cli_add_device.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 20. Command Line Scripts</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="cli_add_tree.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="CLI_ADD_GRAPHS" id="CLI_ADD_GRAPHS">Add a New Graph</a></h1>
+
+    <p>You won't stop now as you've just created a device from cli. Surely, the task of setting up graphs is the next step. This is done using <tt class="FILENAME">add_graphs.php</tt>. Calling the script with the parameter <kbd class="USERINPUT">--help</kbd> yields</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php
+
+Add Graphs Script 1.0, Copyright 2007 - The Cacti Group
+
+A simple command line utility to add graphs in Cacti
+
+usage: add_graphs.php --graph-type=[cg|ds] --graph-template-id=[ID]
+    --host-id=[ID] [--graph-title=title] [graph options] [--force] [--quiet]
+
+For cg graphs:
+    [--input-fields="[data-template-id:]field-name=value ..."] [--force]
+
+    --input-fields  If your data template allows for custom input data, you may specify that
+                    here.  The data template id is optional and applies where two input fields
+                    have the same name.
+    --force         If you set this flag, then new cg graphs will be created, even though they
+                    may already exist
+
+For ds graphs:
+    --snmp-query-id=[ID] --snmp-query-type-id=[ID] --snmp-field=[SNMP Field] --snmp-value=[SNMP Value]
+
+    [--graph-title=] Defaults to what ever is in the graph template/data-source template.
+
+List Options:
+    --list-hosts
+    --list-graph-templates
+    --list-input-fields --graph-template-id=[ID]
+    --list-snmp-queries
+    --list-query-types  --snmp-query-id [ID]
+    --list-snmp-fields  --host-id=[ID]
+    --list-snmp-values  --host-id=[ID] --snmp-field=[Field]
+
+'cg' graphs are for things like CPU temp/fan speed, while
+'ds' graphs are for data-source based graphs (interface stats etc.)
+</pre>
+
+    <p>Like the graph creation from the console, this task is split into two different ones:</p>
+
+    <ul>
+      <li>
+        <p><span class="GUIMENUITEM">Associated Graph Templates</span>: These are named <kbd class="USERINPUT">cg</kbd> graph_type for this script.</p>
+      </li>
+
+      <li>
+        <p><span class="GUIMENUITEM">Associated Data Queries</span>: These are named <kbd class="USERINPUT">ds</kbd> graph_type for this script. Additional SNMP parameters are required to define those graphs.</p>
+      </li>
+    </ul>
+
+    <div class="CAUTION">
+      <table class="CAUTION" border="1" width="100%">
+        <tr>
+          <td align="center"><b>Exact typing required</b></td>
+        </tr>
+
+        <tr>
+          <td align="left">
+            <p>When running this cli script, caution must be taken to avoid typos. Sometimes, list options take an ending <span class="QUOTE">"s"</span>, where the option for graph creation comes without <span class="QUOTE">"s"</span>. Error messages are not issued to indicate this typo; instead you will see the general help screen.</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="CLI_ADD_GRAPHS_LIST_CG" id="CLI_ADD_GRAPHS_LIST_CG">List Options for Associated Graph Templates</a></h2>
+
+      <p>The first list option, <kbd class="USERINPUT">--list-hosts</kbd>, is required only if you do not know the <kbd class="USERINPUT">id</kbd> of the device you want to add graphs for. It will produce output as follows</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --list-hosts
+
+Known Hosts: (id, hostname, template, description)
+...
+11      router.mydomain.com 3       Device Add Test
+</pre>
+
+      <p>You surely recognize the device we've just added?</p>
+
+      <p>The next list option, <kbd class="USERINPUT">--list-graph-templates</kbd>, is required to identify the number of an <kbd class="USERINPUT">Associated Graph Templates</kbd>.</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --list-graph-templates
+
+Known Graph Templates:(id, name)
+2       Interface - Traffic (bits/sec)
+3       ucd/net - Available Disk Space
+4       ucd/net - CPU Usage
+5       Karlnet - Wireless Levels
+6       Karlnet - Wireless Transmissions
+7       Unix - Ping Latency
+8       Unix - Processes
+9       Unix - Load Average
+...
+</pre>
+
+      <p>We will need the graph template id of the <kbd class="USERINPUT">ucd/net - CPU Usage</kbd> template later. So note the number <kbd class="USERINPUT">4</kbd> for it.</p>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="CLI_ADD_GRAPHS_LIST_DS" id="CLI_ADD_GRAPHS_LIST_DS">List Options for Associated Data Queries</a></h2>
+
+      <p>First task is to find all id's for available data queries.</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --host-id=2 --list-snmp-queries
+
+Known SNMP Queries:(id, name)
+1       SNMP - Interface Statistics
+2       ucd/net -  Get Monitored Partitions
+3       Karlnet - Wireless Bridge Statistics
+4       Netware - Get Available Volumes
+6       Unix - Get Mounted Partitions
+7       Netware - Get Processor Information
+8       SNMP - Get Mounted Partitions
+9       SNMP - Get Processor Information
+</pre>
+
+      <p>For standard interface statistics, we note the id of <kbd class="USERINPUT">1</kbd></p>
+
+      <p>Next task is to find the query_type as done by issuing</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --snmp-query-id=1 --list-query-types
+
+Known SNMP Query Types: (id, name)
+2       In/Out Errors/Discarded Packets
+3       In/Out Non-Unicast Packets
+4       In/Out Unicast Packets
+9       In/Out Bytes (64-bit Counters)
+13      In/Out Bits
+14      In/Out Bits (64-bit Counters)
+16      In/Out Bytes
+20      In/Out Bits with 95th Percentile
+21      In/Out Bits with Total Bandwidth
+22      In/Out Bytes with Total Bandwidth
+23      In/Out Bits 1 min
+24      In/Out Bits 1 min (64-bit Counters)
+</pre>
+
+      <p>For a standard <kbd class="USERINPUT">In/Out Bits</kbd> type, we note the id of <kbd class="USERINPUT">13</kbd></p>
+
+      <p>Next issue is to select the <kbd class="USERINPUT">SNMP Field</kbd> that shall be used for a new graph.</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --host-id=11 --list-snmp-fields
+
+Known SNMP Fields for host-id 11: (name)
+ifAlias
+ifDescr
+ifHwAddr
+ifIndex
+ifIP
+ifName
+ifOperStatus
+ifSpeed
+ifType
+</pre>
+
+      <p>For our graph, we will use the field <kbd class="USERINPUT">ifOperStatus</kbd> to select the correct interfaces.</p>
+
+      <p>In general, you will next determine the values available for the <kbd class="USERINPUT">SNMP Field</kbd>, in our case <kbd class="USERINPUT">ifOperStatus</kbd>. This is done by</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --host-id=11 --snmp-field=ifOperStatus --list-snmp-values
+
+Known values for ifOperStatus for host 11: (name)
+Down
+Up
+</pre>
+
+      <p>This is no surprise, of course. Now, all paarmeters required for creating a new graph are determined.</p>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="CLI_ADD_GRAPHS_CG" id="CLI_ADD_GRAPHS_CG">Add Non-Indexed Graphs</a></h2>
+
+      <p>We will create a graph for <kbd class="USERINPUT">ucd/net - CPU Usage</kbd>. Above, we've identified the graph template it to be <kbd class="USERINPUT">4</kbd>. In total, that makes up for the following command</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --host-id=11 --graph-type=cg --graph-template-id=4
+
+Graph Added - graph-id: (39) - data-source-id: (63)
+</pre>
+
+      <p>Find the result when visiting <span class="GUIMENU">Graph Management</span></p>
+      <pre class="SCREEN">
+Graph Title**                  Template Name           Size
+Device Add Test - CPU Usage     ucd/net - CPU Usage     120x500
+</pre>
+    </div>
+
+    <div class="SECT2">
+      <h2 class="SECT2"><a name="CLI_ADD_GRAPHS_DS" id="CLI_ADD_GRAPHS_DS">Add Indexed Graphs</a></h2>
+
+      <p>First, let's sum up the id's of all resources required for this task:</p>
+
+      <div class="TABLE">
+        <a name="AEN3009" id="AEN3009"></a>
+
+        <p><b>Table 20-2. Parametes required for an Interface Traffic Graph</b></p>
+
+        <table border="1" frame="border" rules="all" class="CALSTABLE">
+          <col>
+          <col width="1*">
+          <col width="3*">
+
+          <thead>
+            <tr>
+              <th align="center">Object</th>
+
+              <th align="center">Value</th>
+
+              <th align="center">Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Graph Template Id</td>
+
+              <td align="right">2</td>
+
+              <td>Interface - Traffic (bits/sec)</td>
+            </tr>
+
+            <tr>
+              <td>SNMP Query Id</td>
+
+              <td align="right">1</td>
+
+              <td>SNMP - Interface Statistics</td>
+            </tr>
+
+            <tr>
+              <td>SNMP Query Type Id</td>
+
+              <td align="right">13</td>
+
+              <td>In/Out Bits</td>
+            </tr>
+
+            <tr>
+              <td>SNMP Field</td>
+
+              <td align="right">ifOperStatus</td>
+
+              <td> </td>
+            </tr>
+
+            <tr>
+              <td>SNMP Value</td>
+
+              <td align="right">Up</td>
+
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>This will make up for the following command</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q add_graphs.php --host-id=11 --graph-type=ds --graph-template-id=2 --snmp-query-id=1 --snmp-query-type-id=13 --snmp-field=ifOperStatus --snmp-value=Up
+
+Graph Added - graph-id: (40) - data-source-id: (65)
+</pre>
+
+      <p>Find the result when visiting <span class="GUIMENU">Graph Management</span></p>
+      <pre class="SCREEN">
+Graph Title**                          Template Name                           Size
+Device Add Test - CPU Usage             ucd/net - CPU Usage                     120x500
+Device Add Test - Traffic - lo          Interface - Traffic (bits/sec)          120x500
+</pre>
+    </div>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="cli_add_device.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="cli_add_tree.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Add a New Device</td>
+
+        <td width="34%" align="center" valign="top"><a href="scripts.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Add Items to a Tree</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Configura el servidor de gràfiques/CNML
+Type=Application
+Terminal=true
+Icon[ca_ES]=gnome-power-statistics
+Name[ca_ES]=Configura el servidor de gràfiques/CNML
+Exec=su -c /usr/share/cnml/system-config-guifi-cnml.pl
+Icon=gnome-power-statistics
+

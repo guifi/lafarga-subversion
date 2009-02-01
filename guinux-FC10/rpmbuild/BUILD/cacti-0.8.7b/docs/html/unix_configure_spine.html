@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>(Optional) Install and Configure Spine</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Installing Under Unix" href="install_unix.html">
+  <link rel="PREVIOUS" title="Install and Configure Cacti" href="unix_configure_cacti.html">
+  <link rel="NEXT" title="Apply Patches" href="unix_apply_patches.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="unix_configure_cacti.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 2. Installing Under Unix</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="unix_apply_patches.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="UNIX_CONFIGURE_SPINE" id="UNIX_CONFIGURE_SPINE">(Optional) Install and Configure <span class="APPLICATION">Spine</span></a></h1>
+
+    <p><span class="APPLICATION">Spine</span> is a very fast poller engine, written in C. It is an optional replacement for cmd.php. If you decide to use it, you will have to install it explicitely. It does not come with cacti itself.</p>
+
+    <p>The easiest way is to install <span class="APPLICATION">Spine</span> using rpm or ports. You will find packages for <span class="APPLICATION">Spine</span> at the main cacti site or from your distribution.</p>
+
+    <p>To compile <span class="APPLICATION">Spine</span>, please download it to any location of your liking. Then, please issue from the downloaded directory following commands</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>aclocal
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>libtoolize --force  (glibtoolize --force on Max OS)
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>autoheader
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>autoconf
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>automake
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>./configure
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>make
+</pre>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>make install
+</pre>
+
+    <p>Assuming, you've managed to install <span class="APPLICATION">Spine</span> correctly, you will have to configure it. The configuration file may be placed in the same directory as <span class="APPLICATION">Spine</span> itself or at /etc/<span class="APPLICATION">Spine</span>.conf.</p>
+    <pre class="SCREEN">
+<kbd class="USERINPUT">DB_Host        127.0.0.1 or hostname (not localhost)
+DB_Database     cacti
+DB_User         cactiuser
+DB_Password     cacti
+DB_Port         3306</kbd>
+</pre>
+
+    <p>All other pre 0.8.6 settings are obsolete.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="unix_configure_cacti.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="unix_apply_patches.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Install and Configure Cacti</td>
+
+        <td width="34%" align="center" valign="top"><a href="install_unix.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Apply Patches</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

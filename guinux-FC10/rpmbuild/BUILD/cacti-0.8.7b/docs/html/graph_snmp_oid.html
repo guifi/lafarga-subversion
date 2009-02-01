@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Graph a Single SNMP OID</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Advanced Topics" href="advanced_topics.html">
+  <link rel="PREVIOUS" title="Advanced Topics" href="advanced_topics.html">
+  <link rel="NEXT" title="Data Input Methods" href="data_input_methods.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="CHAPTER" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="advanced_topics.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom"></td>
+
+        <td width="10%" align="right" valign="bottom"><a href="data_input_methods.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="CHAPTER">
+    <h1><a name="GRAPH_SNMP_OID" id="GRAPH_SNMP_OID"></a>Chapter 10. Graph a Single SNMP OID</h1>
+
+    <p>When dealing with SNMP-enabled devices, there are often times when you want to graph the value of a single OID. This tutorial explains how to do this in Cacti. It also assumes that you have the "SNMP - Generic OID Template" graph template, which is now included in Cacti as of version 0.8.5. If you do not see this template listed under <span class="GUILABEL">Graph Templates</span>, download the template from the Cacti website in XML form and import it using the <span class="GUILABEL">Import Templates</span> menu item.</p>
+
+    <p>To start the process of creating a new graph for your OID, click the <span class="GUILABEL">New Graphs</span> menu item and select the host that contains the target OID from the dropdown. Under the <span class="GUILABEL">Graph Templates</span> box, you will see a dropdown on the last line that reads <span class="GUILABEL">(Select a graph type to create)</span>. From this dropdown, choose "SNMP - Generic OID Template" and click the <span class="GUILABEL">Create</span> button at the bottom of the page.</p>
+
+    <p>You will be presented with several fields that will require input before the new graph can be created. They are described in more detail below.</p>
+
+    <div class="TABLE">
+      <a name="AEN1147" id="AEN1147"></a>
+
+      <p><b>Table 10-1. Field Description: SNMP - Generic OID Template</b></p>
+
+      <table border="1" frame="border" rules="all" class="CALSTABLE">
+        <col width="1*">
+        <col width="3*">
+
+        <thead>
+          <tr>
+            <th align="center">Name</th>
+
+            <th align="center">Description</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>(Graph) Title</td>
+
+            <td>The title that is to be used for the new graph. It is generally a good idea to keep |host_description| in the title, as to make the graph easier to identify later.</td>
+          </tr>
+
+          <tr>
+            <td>(Graph) Vertical Label</td>
+
+            <td>The text that will be printed along the y-axis of the graph. It is generally used to describe units, such as 'bytes' or 'percent'.</td>
+          </tr>
+
+          <tr>
+            <td>(Graph Items) Legend Color</td>
+
+            <td>The color that will be used to represent the data on the graph.</td>
+          </tr>
+
+          <tr>
+            <td>(Graph Items) Opacity/Alpha Channel</td>
+
+            <td>This optionally provides an opacity (not available with rrdtool-1.0.x) for a colored item.</td>
+          </tr>
+
+          <tr>
+            <td>(Graph Items) Legend Text</td>
+
+            <td>The text that will be used to describe the data on the graph legend.</td>
+          </tr>
+
+          <tr>
+            <td>(Data Source) Name</td>
+
+            <td>The title that is to be used for the new data source. It is generally a good idea to keep |host_description| in the title, as to make the data source easier to identify later.</td>
+          </tr>
+
+          <tr>
+            <td>(Data Source) Maximum Value [snmp_oid]</td>
+
+            <td>The maximum value that will be accepted from the OID. Make sure you choose a value that is reasonable for the data you are trying to graph because anything larger than the maximum will be ignored. If you are graphing a percentage, you should use '100' as the value should never exceed this.</td>
+          </tr>
+
+          <tr>
+            <td>(Data Source) Data Source Type [snmp_oid]</td>
+
+            <td>How the data from the OID should be stored by RRDTool and interpreted on the graph. If the value of the OID represents the actual data, you should use <span class="GUILABEL">GAUGE</span> for this field. If the OID value is a constantly incrementing number, you should use <span class="GUILABEL">COUNTER</span> for this field. The two remaining field values, <span class="GUILABEL">DERIVE</span> and <span class="GUILABEL">ABSOLUTE</span> can be ignored in most situations.</td>
+          </tr>
+
+          <tr>
+            <td>(Custom Data) OID</td>
+
+            <td>The actual SNMP OID to graph. It is typically a good idea to enter the number OID here as opposed to using MIB names. For instance, to get the number of open files on a Netware server, you would use ".1.3.6.1.4.1.23.2.28.2.7.0" as the OID.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>When finished filling in values for these fields, click the <span class="GUILABEL">Create</span> button. Your new graph can now be accessed through the <span class="GUILABEL">Graph Management</span> page or the <span class="GUILABEL">Graphs</span> tab inside of Cacti.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="advanced_topics.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="data_input_methods.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Advanced Topics</td>
+
+        <td width="34%" align="center" valign="top"><a href="advanced_topics.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Data Input Methods</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

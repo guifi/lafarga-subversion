@@ -1,0 +1,1 @@
+*/5 * * * *	root	LANG=C; LC_ALL=C; cd /usr/share/cnml/graphs; php mrtgcsv2mrtgcfg.php >/dev/null 2>&1; /usr/bin/mrtg ../data/mrtg.cfg --lock-file /var/lock/mrtg/guifi_l --confcache-file /var/lib/mrtg/guifi.ok > /dev/null 2>&1

@@ -1,0 +1,16 @@
+In order for Cacti to function properly please properly edit /etc/cacti/db.php
+and enable the crontab script in /etc/cron.d/cacti  For more information about
+setting up the database please read:
+
+docs/INSTALL
+
+
+As of Feb. 6, 2006 Cacti does not work correctly with SELinux.  This will
+change in the future.  If you're having issues getting Cacti to work properly
+and SELinux is enabled, please run the following commands after installing
+Cacti:
+
+chcon -R -t httpd_sys_content_t /var/log/cacti/
+chcon -R -t httpd_sys_content_t /var/lib/cacti/rra/
+
+

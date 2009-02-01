@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Not NaN, but 0 (zero) values?</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Debugging" href="debugging.html">
+  <link rel="PREVIOUS" title="RPM Installation?" href="debug_rpm_installation.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="debug_rpm_installation.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 21. Debugging</td>
+
+        <td width="10%" align="right" valign="bottom"> </td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="CHECK_ZERO_VALUES" id="CHECK_ZERO_VALUES">Not NaN, but 0 (zero) values?</a></h1>
+
+    <p>Pay attention to custom scripts. It is required, that external commands called from there are in the <tt class="FILENAME">$PATH</tt> of the cactiuser running the poller. It is therefor recommended to provide <tt class="FILENAME">/full/path/to/external/command</tt></p>
+
+    <p>User "criggie" reported an issue with running smartctl. It was complaining "you are not root" so a quick <kbd class="USERINPUT">chmod +s</kbd> on the script fixed that problem.</p>
+
+    <p>Secondly, the script was taking several seconds to run. So cacti was logging a "U" for unparseable in the debug output, and was recording NAN. So my fix there was to make the script run faster - it has to complete in less than one second, and the age of my box made it difficult to accomplish.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="debug_rpm_installation.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"> </td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">RPM Installation?</td>
+
+        <td width="34%" align="center" valign="top"><a href="debugging.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top"> </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

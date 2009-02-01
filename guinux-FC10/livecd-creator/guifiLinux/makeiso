@@ -1,0 +1,3 @@
+unset LANG
+cp -v guinux-base.i386.ks guinux-base.ks
+livecd-creator --cache=/root/livecd-creator/package-cache.i386/ -f guinux-cnml-server-0.2.i386 -c guinux-livecd-ca.ks

@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Import Templates</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Templates" href="templates.html">
+  <link rel="PREVIOUS" title="Host Templates" href="host_templates.html">
+  <link rel="NEXT" title="Export Templates" href="template_export.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="host_templates.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 13. Templates</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="template_export.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="TEMPLATE_IMPORT" id="TEMPLATE_IMPORT">Import Templates</a></h1>
+
+    <p>Assume, you're searching for a specific set of templates to monitor a special type of device. Apart from designing templates from scratch, there's a good chance to find a solution in the <a href="http://forums.cacti.net/forum-12.html" target="_top">Scripts and Templates Forum</a>. The set of templates is usually provided as a single XML file holding all required definitions for a data template and a graph template. Depending on the goal of the original author, he/she may have provided a host template as well as part of this XML file.</p>
+
+    <div class="FIGURE">
+      <a name="IMG_IMPORT_TEMPLATES" id="IMG_IMPORT_TEMPLATES"></a>
+
+      <p><b>Figure 13-4. Import Templates</b></p>
+
+      <div class="MEDIAOBJECT">
+        <p><img src="images/import_template.png"></p>
+      </div>
+    </div>
+
+    <p>If the XML file was downloaded, you may import it from the filesystem via the search button. As an alternative, you may want to cut and paste the XML into the textbox.</p>
+
+    <p>Please pay attention the the <b class="EMPHASIS">Import RRA Settings</b>. By default, current RRA settings will be preserved, even if the imported XML file specifies different settings. This is recommended to avoid accidentally overwriting these global RRA definitions. If you are sure, you may override this default.</p>
+
+    <p>For a single OID based template, this will be all. For a script based template, the author will provide the script that has to be downloaded to the Cacti <tt class="FILENAME">./scripts</tt> directory. For a SNMP/SCRIPT Data Query, a second XML file holding the Data Query definitions will have to be downloaded to the appropriate directory under <tt class="FILENAME">./resources</tt>.</p>
+
+    <p>When importing templates, Cacti will perform a version check. All XML templates hold the version of the Cacti system that generated this XML set. Cacti will import only, if your current Cacti version equals or is higher than the exporting one.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="host_templates.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="template_export.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Host Templates</td>
+
+        <td width="34%" align="center" valign="top"><a href="templates.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Export Templates</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

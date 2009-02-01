@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Install and Configure Cacti</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Installing Under Unix" href="install_unix.html">
+  <link rel="PREVIOUS" title="Configure MySQL" href="unix_configure_mysql.html">
+  <link rel="NEXT" title="(Optional) Install and Configure Spine" href="unix_configure_spine.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="unix_configure_mysql.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 2. Installing Under Unix</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="unix_configure_spine.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="UNIX_CONFIGURE_CACTI" id="UNIX_CONFIGURE_CACTI">Install and Configure Cacti</a></h1>
+
+    <ol type="1">
+      <li>
+        <p>Extract the distribution tarball.</p>
+        <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> <kbd class="USERINPUT">tar xzvf cacti-version.tar.gz</kbd>
+</pre>
+      </li>
+
+      <li>
+        <p>Create the MySQL database:</p>
+        <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> <kbd class="USERINPUT">mysqladmin --user=root create cacti</kbd>
+</pre>
+      </li>
+
+      <li>
+        <p>Import the default cacti database:</p>
+        <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> <kbd class="USERINPUT">mysql cacti &lt; cacti.sql</kbd>
+</pre>
+      </li>
+
+      <li>
+        <p>Optional: Create a MySQL username and password for Cacti.</p>
+        <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> <kbd class="USERINPUT">mysql --user=root mysql</kbd>
+<samp class="PROMPT">mysql&gt;</samp> <kbd class="USERINPUT">GRANT ALL ON cacti.* TO cactiuser@localhost IDENTIFIED BY 'somepassword';</kbd>
+<samp class="PROMPT">mysql&gt;</samp> <kbd class="USERINPUT">flush privileges;</kbd>
+</pre>
+      </li>
+
+      <li>
+        <p>Edit <tt class="FILENAME">include/config.php</tt> and specify the database type, name, host, user and password for your Cacti configuration.</p>
+        <pre class="SCREEN">
+<kbd class="USERINPUT">$database_type = "mysql";
+$database_default = "cacti";
+$database_hostname = "localhost";
+$database_username = "cactiuser";
+$database_password = "cacti";</kbd>
+</pre>
+      </li>
+
+      <li>
+        <p>Set the appropriate permissions on cacti's directories for graph/log generation. You should execute these commands from inside cacti's directory to change the permissions.</p>
+        <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp> <kbd class="USERINPUT">chown -R cactiuser rra/ log/</kbd>
+</pre>
+
+        <p>(Enter a valid username for <b class="EMPHASIS">cactiuser</b>, this user will also be used in the next step for data gathering.)</p>
+      </li>
+
+      <li>
+        <p>Add a line to your <tt class="FILENAME">/etc/crontab</tt> file similar to:</p>
+        <pre class="SCREEN">
+*/5 * * * * cactiuser php /var/www/html/cacti/poller.php &gt; /dev/null 2&gt;&amp;1
+</pre>
+
+        <p>Replace <b class="EMPHASIS">cactiuser</b> with the valid user specified in the previous step.</p>
+
+        <p>Replace <tt class="FILENAME">/var/www/html/cacti/</tt> with your full Cacti path.</p>
+      </li>
+
+      <li>
+        <p>Point your web browser to:</p><a name="AEN194" id="AEN194"></a>
+
+        <blockquote class="BLOCKQUOTE">
+          <p>http://your-server/cacti/</p>
+        </blockquote>
+
+        <p>Log in the with a username/password of <b class="EMPHASIS">admin</b>. You will be required to change this password immediately. Make sure to fill in all of the path variables carefully and correctly on the following screen.</p>
+      </li>
+    </ol>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="unix_configure_mysql.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="unix_configure_spine.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Configure MySQL</td>
+
+        <td width="34%" align="center" valign="top"><a href="install_unix.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">(Optional) Install and Configure <span class="APPLICATION">Spine</span></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

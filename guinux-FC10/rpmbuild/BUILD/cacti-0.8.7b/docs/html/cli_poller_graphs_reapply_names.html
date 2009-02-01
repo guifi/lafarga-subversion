@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Reapply Suggested Names to Graphs</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Command Line Scripts" href="scripts.html">
+  <link rel="PREVIOUS" title="Empty Poller Output Table" href="cli_poller_output_empty.html">
+  <link rel="NEXT" title="Copy Local Cacti Users" href="cli_copy_user.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="cli_poller_output_empty.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 20. Command Line Scripts</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="cli_copy_user.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="CLI_POLLER_GRAPHS_REAPPLY_NAMES" id="CLI_POLLER_GRAPHS_REAPPLY_NAMES">Reapply Suggested Names to Graphs</a></h1>
+
+    <p>For a general understanding of suggested names used with data queries, please see <a href="data_queries.html#DATA_QUERIES_ASSOCIATED_GRAPH_TEMPLATES">the Section called <i>Associated Graph Templates</i> in Chapter 12</a>&gt;. Be aware, that changes to the <kbd class="USERINPUT">Suggested Names</kbd> section of a data query will not automatically be propagated to all existing graphs. This is, where <span class="APPLICATION">poller_graphs_reapply_names.php</span> drops in. Calling the script with the parameter <kbd class="USERINPUT">--help</kbd> yields</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q poller_graphs_reapply_names.php --help
+Cacti Reapply Graph Names Script 1.0, Copyright 2007 - The Cacti Group
+
+usage: poller_graphs_reapply_names.php -id=[host_id|All][host_id1|host_id2|...] [-s=[search_string] [-d] [-h] [--help] [-v] [--version]
+
+-id=host_id   - The host_id or 'All' or a pipe delimited list of host_id's
+-s=search_str - A graph template name or graph title to search for
+-d            - Display verbose output during execution
+-v --version  - Display this help message
+-h --help     - Display this help message
+</pre>
+
+    <p>Assume a situation, where the suggested names where changed for the standard data query named <kbd class="USERINPUT">SNMP - Get Mounted Partitions</kbd>. In this case, you will want to rework all graphs for this data query only. A verbose run will yield</p>
+    <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q poller_graphs_reapply_names.php -id=All -d -s="Used space"
+WARNING: Do not interrupt this script.  Interrupting during rename can cause issues
+DEBUG: There are '6' Graphs to rename
+DEBUG: Graph Name 'Localhost - Used Space - Memory Buffers' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - Memory Buffers'
+DEBUG: Graph Name 'Localhost - Used Space - Real Memory' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - Real Memory'
+DEBUG: Graph Name 'Localhost - Used Space - Swap Space' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - Swap Space'
+DEBUG: Graph Name 'Localhost - Used Space - /' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - /'
+DEBUG: Graph Name 'Localhost - Used Space - /sys' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - /sys'
+DEBUG: Graph Name 'Localhost - Used Space - /boot' starting
+DEBUG: Graph Rename Done for Graph 'Localhost - Used Space - /boot'
+</pre>
+
+    <p>Please notice my miss-spelling of the word <span class="QUOTE">"Space"</span>. The <kbd class="USERINPUT">-s=</kbd> option is not case sensitive.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="cli_poller_output_empty.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="cli_copy_user.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">Empty Poller Output Table</td>
+
+        <td width="34%" align="center" valign="top"><a href="scripts.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Copy Local Cacti Users</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

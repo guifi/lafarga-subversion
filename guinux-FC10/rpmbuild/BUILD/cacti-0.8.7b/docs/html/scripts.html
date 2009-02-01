@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Command Line Scripts</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Reference" href="reference.html">
+  <link rel="PREVIOUS" title="CDEFs" href="cdefs.html">
+  <link rel="NEXT" title="Re-Index Hosts" href="cli_poller_reindex_hosts.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="CHAPTER" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="cdefs.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom"></td>
+
+        <td width="10%" align="right" valign="bottom"><a href="cli_poller_reindex_hosts.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="CHAPTER">
+    <h1><a name="SCRIPTS" id="SCRIPTS"></a>Chapter 20. Command Line Scripts</h1>
+
+    <div class="TOC">
+      <dl>
+        <dt><b>Table of Contents</b></dt>
+
+        <dt><a href="scripts.html#CLI_REBUILD_POLLER_CACHE">Rebuild Poller Cache</a></dt>
+
+        <dt><a href="cli_poller_reindex_hosts.html">Re-Index Hosts</a></dt>
+
+        <dt><a href="cli_poller_output_empty.html">Empty Poller Output Table</a></dt>
+
+        <dt><a href="cli_poller_graphs_reapply_names.html">Reapply Suggested Names to Graphs</a></dt>
+
+        <dt><a href="cli_copy_user.html">Copy Local Cacti Users</a></dt>
+
+        <dt><a href="cli_add_device.html">Add a New Device</a></dt>
+
+        <dt><a href="cli_add_graphs.html">Add a New Graph</a></dt>
+
+        <dt><a href="cli_add_tree.html">Add Items to a Tree</a></dt>
+
+        <dt><a href="cli_add_perms.html">Add Graph Permissions</a></dt>
+      </dl>
+    </div>
+
+    <p>Cacti support a number of command line scripts. Please find them in the <tt class="FILENAME">./cli</tt> directory. As of current, following scripts are supported:</p>
+    <pre class="SCREEN">
+add_device.php
+add_graphs.php
+add_perms.php
+add_tree.php
+copy_user.php
+poller_graphs_reapply_names.php
+poller_output_empty.php
+poller_reindex_hosts.php
+rebuild_poller_cache.php
+</pre>
+
+    <div class="CAUTION">
+      <table class="CAUTION" border="1" width="100%">
+        <tr>
+          <td align="center"><b>Numbers may vary!</b></td>
+        </tr>
+
+        <tr>
+          <td align="left">
+            <p>In the following examples, several numbers are shown as output from various scripts. They will vary between different installations. So don't bother, if your numbers will vary</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="SECT1">
+      <h1 class="SECT1"><a name="CLI_REBUILD_POLLER_CACHE" id="CLI_REBUILD_POLLER_CACHE">Rebuild Poller Cache</a></h1>
+
+      <p>The poller cache holds all commands that cacti will issue during the polling process in an internal format. It is possible, to review the currenty contents of the poller cache by visiting <kbd class="USERINPUT">System Utilities</kbd>, <kbd class="USERINPUT">View Poller Cache</kbd>. It is possible to apply filters to this view; it will show up like</p>
+      <pre class="SCREEN">
+Localhost - Hard Drive Space           Script Server: /var/www/html/cacti/scripts/ss_host_disk.php ss_host_disk 127.0.0.1 1 1:161:500:somesecret:::::: get total 6
+                                RRD: /var/www/html/cacti/rra/localhost_hdd_total_61.rrd
+Localhost - Load Average        Script: /usr/bin/perl /var/www/html/cacti/scripts/loadavg_multi.pl
+                                RRD: /var/www/html/cacti/rra/localhost_load_1min_5.rrd
+Localhost - Logged in Users     Script: /usr/bin/perl /var/www/html/cacti/scripts/unix_users.pl
+                                RRD: /var/www/html/cacti/rra/localhost_users_6.rrd
+Localhost - Memory - Free       Script: /usr/bin/perl /var/www/html/cacti/scripts/linux_memory.pl MemFree:
+                                RRD: /var/www/html/cacti/rra/localhost_mem_buffers_3.rrd
+Localhost - Memory - Free Swap  Script: /usr/bin/perl /var/www/html/cacti/scripts/linux_memory.pl SwapFree:
+                                RRD: /var/www/html/cacti/rra/localhost_mem_swap_4.rrd
+Localhost - mtaReceivedMessages SNMP Version: 1, Community: somesecret, OID: .1.3.6.1.2.1.28.1.1.1.1
+                                RRD: /var/www/html/cacti/rra/localhost_mtareceivedmessages_47.rrd
+Localhost - mtaReceivedVolume   SNMP Version: 1, Community: somesecret, OID: .1.3.6.1.2.1.28.1.1.4.1
+                                RRD: /var/www/html/cacti/rra/localhost_mtareceivedvolume_49.rrd
+</pre>
+
+      <p>There are several circumstances, that may result in the poller cache being out of sync. An example would be a change of the name of a script used in a <kbd class="USERINPUT">Data Input Method</kbd>. This change is <b class="EMPHASIS">not</b> automatically propagated to the poller cache. It is required, to run <span class="APPLICATION">php -q rebuild poller_cache.php</span> manually.</p>
+
+      <p>Calling the script with the parameter <kbd class="USERINPUT">--help</kbd> yields</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q rebuild_poller_cache.php --help
+Cacti Rebuild Poller Cache Script 1.0, Copyright 2007 - The Cacti Group
+
+usage: rebuild_poller_cache.php [-d] [-h] [--help] [-v] [--version]
+
+-d            - Display verbose output during execution
+-v --version  - Display this help message
+-h --help     - Display this help message
+</pre>
+
+      <p>Debug mode lists the data sources items that are worked upon.</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q rebuild_poller_cache.php -d
+WARNING: Do not interrupt this script.  Rebuilding the Poller Cache can take quite some time
+DEBUG: There are '38' data source elements to update.
+DEBUG: Data Source Item '1' of '38' updated
+DEBUG: Data Source Item '2' of '38' updated
+DEBUG: Data Source Item '3' of '38' updated
+DEBUG: Data Source Item '4' of '38' updated
+....
+</pre>
+
+      <p>Without any parameter, some dots are shown as progress indicators.</p>
+      <pre class="SCREEN">
+<samp class="PROMPT">shell&gt;</samp>php -q rebuild_poller_cache.php
+WARNING: Do not interrupt this script.  Rebuilding the Poller Cache can take quite some time
+......................................
+<samp class="PROMPT">shell&gt;</samp>
+</pre>
+
+      <div class="CAUTION">
+        <table class="CAUTION" border="1" width="100%">
+          <tr>
+            <td align="center"><b>Stop the Poller when Rebuilding the Poller Cache</b></td>
+          </tr>
+
+          <tr>
+            <td align="left">
+              <p>Rebuilding the poller cache interferes with the poller operation. Please make sure, that the poller is not running and will not start during a rebuild operation</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="cdefs.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="cli_poller_reindex_hosts.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">CDEFs</td>
+
+        <td width="34%" align="center" valign="top"><a href="reference.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Re-Index Hosts</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

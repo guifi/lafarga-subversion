@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Configura el Proxy Federat
+Type=Application
+Terminal=true
+Icon[ca_ES]=gnome-network-preferences
+Name[ca_ES]=Configura el Proxy Federat
+Exec=su -c /usr/share/guifi-proxy-passwd/system-config-guifi-proxy-passwd.pl
+Icon=gnome-network-preferences

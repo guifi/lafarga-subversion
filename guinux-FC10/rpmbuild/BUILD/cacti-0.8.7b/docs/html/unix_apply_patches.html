@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1st August 2004), see www.w3.org">
+
+  <title>Apply Patches</title>
+  <meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.79">
+  <link rel="HOME" title="The Cacti Manual" href="index.html">
+  <link rel="UP" title="Installing Under Unix" href="install_unix.html">
+  <link rel="PREVIOUS" title="(Optional) Install and Configure Spine" href="unix_configure_spine.html">
+  <link rel="NEXT" title="Installing Under Windows" href="install_windows.html">
+  <link rel="STYLESHEET" type="text/css" href="manual.css">
+</head>
+
+<body class="SECT1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF">
+  <div class="NAVHEADER">
+    <table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <th colspan="3" align="center">The Cacti Manual</th>
+      </tr>
+
+      <tr>
+        <td width="10%" align="left" valign="bottom"><a href="unix_configure_spine.html" accesskey="P">Prev</a></td>
+
+        <td width="80%" align="center" valign="bottom">Chapter 2. Installing Under Unix</td>
+
+        <td width="10%" align="right" valign="bottom"><a href="install_windows.html" accesskey="N">Next</a></td>
+      </tr>
+    </table>
+    <hr align="left" width="100%">
+  </div>
+
+  <div class="SECT1">
+    <h1 class="SECT1"><a name="UNIX_APPLY_PATCHES" id="UNIX_APPLY_PATCHES">Apply Patches</a></h1>
+
+    <p>Please visit the Cacti website at http://www.cacti.net/download_patches.php If any patch has been released, you will find installation instructions there.</p>
+
+    <p>As an example, please find patch installation instructions for cacti 0.8.6j here. Do not apply those patches to recent releases!</p>
+    <pre class="SCREEN">
+<kbd class="USERINPUT">wget http://www.cacti.net/downloads/patches/0.8.6j/ping_php_version4_snmpgetnext.patch
+wget http://www.cacti.net/downloads/patches/0.8.6j/tree_console_missing_hosts.patch
+wget http://www.cacti.net/downloads/patches/0.8.6j/thumbnail_graphs_not_working.patch
+wget http://www.cacti.net/downloads/patches/0.8.6j/graph_debug_lockup_fix.patch
+wget http://www.cacti.net/downloads/patches/0.8.6j/snmpwalk_fix.patch
+patch -p1 -N &lt; ping_php_version4_snmpgetnext.patch
+patch -p1 -N &lt; tree_console_missing_hosts.patch
+patch -p1 -N &lt; thumbnail_graphs_not_working.patch
+patch -p1 -N &lt; graph_debug_lockup_fix.patch
+patch -p1 -N &lt; snmpwalk_fix.patch</kbd>
+</pre>
+
+    <p>You might need to reapply file/folder security on the files patched. Double check they are correct.</p>
+
+    <p>Please pay attention not to break cacti when using SELinux or using NTFS file security. If you encounter</p>
+
+    <p><samp class="COMPUTEROUTPUT">PHP Warning: include_once(./lib/html_tree.php) [&lt;a href='function.include-once'&gt;function.include-once&lt;/a&gt;]: failed to open stream: Permission denied in /var/www/cacti/graphs.php on line 33, referer: http://localhost/cacti/graphs.php</samp></p>
+
+    <p>or the like, it is very likely that your permissions are wrong.</p>
+  </div>
+
+  <div class="NAVFOOTER">
+    <hr align="left" width="100%">
+
+    <table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="33%" align="left" valign="top"><a href="unix_configure_spine.html" accesskey="P">Prev</a></td>
+
+        <td width="34%" align="center" valign="top"><a href="index.html" accesskey="H">Home</a></td>
+
+        <td width="33%" align="right" valign="top"><a href="install_windows.html" accesskey="N">Next</a></td>
+      </tr>
+
+      <tr>
+        <td width="33%" align="left" valign="top">(Optional) Install and Configure <span class="APPLICATION">Spine</span></td>
+
+        <td width="34%" align="center" valign="top"><a href="install_unix.html" accesskey="U">Up</a></td>
+
+        <td width="33%" align="right" valign="top">Installing Under Windows</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
