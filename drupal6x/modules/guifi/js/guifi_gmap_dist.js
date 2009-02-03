@@ -88,7 +88,7 @@ function initialPosition(ppoint) {
   var dNode = new GMarker(point);
   document.getElementById("profile").src =
     "http://www.heywhatsthat.com/bin/profile.cgi?"+
-    "axes=1&curvature=0&metric=1&groundrelative=1&"+
+    "axes=1&curvature=1&metric=1&groundrelative=1&"+
     "src=guifi.net&"+
     "pt0="+document.getElementById("lat").value+","+document.getElementById("lon").value+
     ",ff0000,9"+

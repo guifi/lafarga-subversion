@@ -944,7 +944,7 @@ function guifi_node_distances_list($filters,$node) {
     $height_url_long = $height_url."&node1=".$node1."&node2=".$node["nick"]."&width=1100&height=700";
 //    $height_url_small = $height_url."&width=200&height=100";
     $height_url_small =
-      'http://www.heywhatsthat.com/bin/profile.cgi?axes=0&curvature=0&metric=1' .
+      'http://www.heywhatsthat.com/bin/profile.cgi?axes=0&curvature=1&metric=1' .
       '&pt0='.$lat1.','.$long1.',ff0000,9' .
       '&pt1='.$node[lat].','.$node[lon].',00c000,9' .
       '&groundrelative=1' .
