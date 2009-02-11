@@ -524,7 +524,8 @@ function unsolclic_routeros($dev) {
   // OSPF
        _outln_comment();
        _outln_comment(t('OSPF Routing'));
-       _outln(sprintf('/routing ospf set router-id=%s redistribute-connected=as-type-1 redistribute-static=as-type-1 redistribute-bgp=as-type-1',$ospf_routerid));
+       _outln(sprintf('/routing ospf set router-id=%s distribute-default=never redistribute-connected=no 
+     redistribute-static=no redistribute-rip=no redistribute-bgp=as-type-1',$ospf_routerid));
 
 
   // End of Unsolclic

@@ -12,41 +12,32 @@ function unsolclic_kamikaze($dev) {
       // WRT54Gv1-4, WHR-HP-G54, WHR-G54S (BUFFALO), WRT54GL, WRT54GSv1-2, WRT54GSv4
         include_once(''.$kamikaze_dir.'broadcom/kamikaze_ap.inc.php');
         break;
-      case "25": case "26":
-      //NanoStation2, NanoStation5
+      case "25": case "26": case "32": case "33": case "34": case "35": case "36": case "37":
+      // NanoStationX, LiteStationX, NanoStation LocoX, Bullet
         include_once(''.$kamikaze_dir.'atheros/kamikaze_ap.inc.php');
+        break;
+      case "39":
+      // Avila GW2348-4
+        include_once(''.$kamikaze_dir.'ixp4xx/kamikaze_ap.inc.php');
+        break;
+      case "38":
+      // RouterStation
+        include_once(''.$kamikaze_dir.'ar71xx/kamikaze_ap.inc.php');
         break;
       default:
         _outln_comment('model id not supported');
         exit;
     }
   }
-  
   if ($dev->radios[0]['mode'] == 'client') {
     switch ($dev->variable['model_id']) {
       case "1": case "15": case "16": case "17": case "18":	
       // WRT54Gv1-4, WHR-HP-G54, WHR-G54S (BUFFALO), WRT54GL, WRT54GSv1-2, WRT54GSv4
         include_once(''.$kamikaze_dir.'broadcom/kamikaze_client.inc.php');
         break;
-      case "25": case "26":
-      //NanoStation2, NanoStation5
+      case "25": case "26": case "32": case "33": case "34": case "35": case "36": case "37":
+      // NanoStationX, LiteStationX, NanoStation LocoX, Bullet
         include_once(''.$kamikaze_dir.'atheros/kamikaze_client.inc.php');
-        break;
-      default:
-        _outln_comment('model id not supported');
-        exit;
-    }
-  }
-
-  if ($dev->radios[0]['mode'] == 'ad-hoc') {
-    switch ($dev->variable['model_id']) {
-      case "1": case "15": case "16": case "17": case "18":	
-      // WRT54Gv1-4, WHR-HP-G54, WHR-G54S (BUFFALO), WRT54GL, WRT54GSv1-2, WRT54GSv4
-        include_once(''.$kamikaze_dir.'broadcom/kamikaze_ad-hoc.inc.php');
-        break;
-      case "25": case "26":
-      //NanoStation2, NanoStation5
-        include_once(''.$kamikaze_dir.'atheros/kamikaze_ad-hoc.inc.php');
         break;
       default:
         _outln_comment('model id not supported');
@@ -129,8 +120,8 @@ quagga:x:51:51:quagga:/tmp/.quagga:/bin/false
   _outln_comment(t('File /etc/passwd'));
   _out_file($file_pass,'/etc/passwd');
 
-  if (($dev->variable['model_id']  == 25) or ($dev->variable['model_id']  == 26)) {
-// FILE LEDS NANOSTATION
+  if (($dev->variable['model_id']  == 25) or ($dev->variable['model_id']  == 26) or ($dev->variable['model_id']  == 34) or ($dev->variable['model_id']  == 35)or ($dev->variable['model_id']  == 36) or ($dev->variable['model_id']  == 37)) {
+// FILE LEDS NANOSTATION/LOCO/BULLET
   $file_leds='#!/bin/sh
 # Control de LEDs de la nano2 per indicar la qualitat de Link
 # joan.llopart +A+ guifi.net
@@ -345,5 +336,77 @@ _outln_comment();
   _outln_comment(t('end of script and reboot'));
   _out('reboot');
 
+}
+ function atheros_channel($radio) {
+
+   if ($radio[channel] < 5000) {
+      $band = '11b';
+      $channel = $radio[channel];
+    }
+    else {
+      $band = '11a';
+      switch ($radio[channel]) {
+        case "5180":
+          $channel= '36';
+        break;
+        case "5200":
+          $channel= '40';
+        break;
+        case "5220":
+          $channel= '44';
+        break;
+        case "5240":
+          $channel= '48';
+        break;
+        case "5260":
+          $channel= '52';
+        break;
+        case "5280":
+          $channel= '56';
+        break;
+        case "5300":
+          $channel= '60';
+        break;
+        case "5320":
+          $channel= '64';
+        break;
+        case "5500":
+          $channel= '100';
+        break;
+        case "5520":
+          $channel= '104';
+        break;
+        case "5540":
+          $channel= '108';
+        break;
+        case "5560":
+          $channel= '112';
+        break;
+        case "5580":
+          $channel= '116';
+        break;
+        case "5600":
+          $channel= '120';
+        break;
+        case "5620":
+          $channel= '124';
+        break;
+        case "5640":
+          $channel= '128';
+        break;
+        case "5660":
+          $channel= '132';
+        break;
+        case "5680":
+          $channel= '138';
+        break;
+        case "5700":
+          $channel= '140';
+        break;
+        default:
+          $channel= '36';
+      }
+    }
+return $channel; 
 }
 ?>
