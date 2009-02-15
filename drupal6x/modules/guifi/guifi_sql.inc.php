@@ -430,8 +430,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 //          guifi_log(GUIFILOG_BASIC,'function delete cascade remote interface()',$na);
 
           // delete the interface, if has no other ipv4 address and is not
-          // in the list Wan, wLan/Lan, Lan or wds
-          if ((in_array($na['interface_type'],array('Wan','wLan/Lan','Lan','wds')))
+          // in the list Wan, wLan/Lan, Lan or wds/p2p
+          if ((in_array($na['interface_type'],array('Wan','wLan/Lan','Lan','wds/p2p')))
               or ($na['na'] != 0)
           )
             continue;
