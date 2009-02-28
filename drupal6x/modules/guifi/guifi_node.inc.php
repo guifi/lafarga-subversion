@@ -557,7 +557,6 @@ function guifi_node_update($node) {
 
   if ($node->lat == 0){$node->lat = NULL;}
   if ($node->lon == 0){$node->lon = NULL;}
- //print_r($node);
 
   $to_mail = explode(',',$node->notification);
 
@@ -726,6 +725,7 @@ function guifi_node_distances_map($node) {
       '<input type=hidden value='.$lon2.' id=lon2 />' .
       '<input type=hidden value='.base_path().drupal_get_path('module','guifi').'/js/'.' id=edit-jspath />' .
       '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
+      '<input type=hidden value='.$node->elevation.' id=elevation />' .
       '</form>';
   }
 
@@ -815,7 +815,7 @@ function guifi_node_distances_list($filters,$node) {
       $node->id);
 ***/
 
-  $result = db_query("SELECT n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id, count(*) radios FROM {guifi_location} n LEFT JOIN {guifi_radios} r ON n.id = r.nid WHERE n.id !=%d AND (n.lat != '' AND n.lon != '')AND (n.lat != 0 AND n.lon != 0) GROUP BY 1",$node->id);
+  $result = db_query("SELECT r.elevation n.id, n.lat, n.lon, n.nick, n.status_flag, n.zone_id, count(*) radios FROM {guifi_location} n LEFT JOIN {guifi_radios} r ON n.id = r.nid WHERE n.id !=%d AND (n.lat != '' AND n.lon != '')AND (n.lat != 0 AND n.lon != 0) GROUP BY 1",$node->id);
 
   $oGC = new GeoCalc();
   $nodes = array();
@@ -1421,6 +1421,43 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
 //        '</p>';
   return theme('box',$titlebox,$output);
 
+}
+
+function guifi_hwt_query($lat,$lon,$elev) {
+  $url = 'http://www.heywhatsthat.com/bin/query.cgi?lat='.$lat.'&lon='.$lon.'&elev='.$elev.
+  '&elev_is_absolute=0&name=tmp&public=0&return_data=1';
+  $fd = fopen($url, "r");
+  echo fread($fd, 8);
+  fclose($fd);
+
+  return;
+}
+
+function guifi_hwt_list($id) {
+  $url='http://www.heywhatsthat.com/results/'.$id.'/data';
+
+  do {
+    $fd = fopen($url, "r");
+    $data = fread($fd, 2);
+    fclose($fd);
+    sleep(1);
+  } while($data != "ok");
+
+  $url = 'http://www.heywhatsthat.com/bin/list_cloakm.cgi?id='.$id;
+  $fd = fopen($url, "r");
+  echo fread($fd, 1024);
+  fclose($fd);
+
+  return;
+}
+
+function guifi_hwt_img($id, $img) {
+  $url = 'http://www.heywhatsthat.com/results/'.$id.'/'.$img;
+  $fd = fopen($url, "rb");
+  echo stream_get_contents($fd);
+  fclose($fd);
+
+  return;
 }
 
 ?>
