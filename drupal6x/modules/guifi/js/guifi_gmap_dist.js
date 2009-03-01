@@ -401,6 +401,83 @@ function contour_zoom_callback(oldz, newz) {
     contour_widget.set_title();
 }
 
+// GUIFI
+var layer1;
+var myCustomMapTypeNormal;
+var myCustomMapTypeSatellite;
+var myCustomMapTypePhysical;
+
+function remove_guifi() {
+  var imaptype = map.getCurrentMapType();
+  var name = imaptype.getName();
+
+  map.removeMapType(myCustomMapTypeNormal);
+  var myMapTypeLayers=[G_NORMAL_MAP.getTileLayers()[0]];
+  myCustomMapTypeNormal = new GMapType(myMapTypeLayers,
+              G_NORMAL_MAP.getProjection(), "Map", G_NORMAL_MAP);
+  map.addMapType(myCustomMapTypeNormal);
+
+  map.removeMapType(myCustomMapTypeSatellite);
+  var myMapTypeLayers=[G_SATELLITE_MAP.getTileLayers()[0]];
+  myCustomMapTypeSatellite = new GMapType(myMapTypeLayers,
+              G_SATELLITE_MAP.getProjection(), "Satellite", G_SATELLITE_MAP);
+  map.addMapType(myCustomMapTypeSatellite);
+
+  map.removeMapType(myCustomMapTypePhysical);
+  var myMapTypeLayers=[G_PHYSICAL_MAP.getTileLayers()[0]];
+  myCustomMapTypePhysical = new GMapType(myMapTypeLayers,
+              G_PHYSICAL_MAP.getProjection(), "Relief", G_PHYSICAL_MAP);
+  map.addMapType(myCustomMapTypePhysical);
+
+  if (name == "Map")
+    map.setMapType(myCustomMapTypeNormal);
+  else if (name == "Satellite")
+    map.setMapType(myCustomMapTypeSatellite);
+  else if (name == "Relief")
+    map.setMapType(myCustomMapTypePhysical);
+}
+
+function show_guifi() {
+  if (map.getCurrentMapType()) {
+    var imaptype = map.getCurrentMapType();
+    var name = imaptype.getName();
+  }
+
+  map.removeMapType(myCustomMapTypeNormal);
+  var myMapTypeLayers=[G_NORMAL_MAP.getTileLayers()[0],layer1];
+  myCustomMapTypeNormal = new GMapType(myMapTypeLayers,
+              G_NORMAL_MAP.getProjection(), "Map", G_NORMAL_MAP);
+  map.addMapType(myCustomMapTypeNormal);
+
+  map.removeMapType(myCustomMapTypeSatellite);
+  var myMapTypeLayers=[G_SATELLITE_MAP.getTileLayers()[0],layer1];
+  myCustomMapTypeSatellite = new GMapType(myMapTypeLayers,
+              G_SATELLITE_MAP.getProjection(), "Satellite", G_SATELLITE_MAP);
+  map.addMapType(myCustomMapTypeSatellite);
+
+  map.removeMapType(myCustomMapTypePhysical);
+  var myMapTypeLayers=[G_PHYSICAL_MAP.getTileLayers()[0],layer1];
+  myCustomMapTypePhysical = new GMapType(myMapTypeLayers,
+              G_PHYSICAL_MAP.getProjection(), "Relief", G_PHYSICAL_MAP);
+  map.addMapType(myCustomMapTypePhysical);
+
+  if (map.getCurrentMapType()) {
+    if (name == "Map")
+      map.setMapType(myCustomMapTypeNormal);
+    else if (name == "Satellite")
+      map.setMapType(myCustomMapTypeSatellite);
+    else if (name == "Relief")
+      map.setMapType(myCustomMapTypePhysical);
+  }
+}
+
+var guifi_widget;
+function create_guifi_widget(x, width) {
+  WTGControl(map, x, width, '<b>Guifi</b>', 'Guifi', null,
+    function(i) { if (i) remove_guifi(); else show_guifi(); },
+    function() { guifi_widget = this; }
+);
+}
 //
 
 function xz() 
@@ -428,27 +505,13 @@ function xz()
     icon_start.iconAnchor = new GPoint(6, 20);
     icon_start.dragCrossImage = '';
     
-	 var layer1 = new GWMSTileLayer(map, new GCopyrightCollection("guifi.net"),1,17);
+    layer1 = new GWMSTileLayer(map, new GCopyrightCollection("guifi.net"),1,17);
     layer1.baseURL=document.getElementById("guifi-wms").value;
     layer1.layers="Nodes,Links";
     layer1.mercZoomLevel = 0;
     layer1.opacity = 1.0;
 
-    var myMapTypeLayers=[G_NORMAL_MAP.getTileLayers()[0],layer1];
-    var myCustomMapTypeNormal = new GMapType(myMapTypeLayers, 
-    		G_NORMAL_MAP.getProjection(), "Mapa", G_NORMAL_MAP);
-    map.addMapType(myCustomMapTypeNormal);
-
-    var myMapTypeLayers=[G_SATELLITE_MAP.getTileLayers()[0],layer1];
-    var myCustomMapTypeSatellite = new GMapType(myMapTypeLayers,
-                G_SATELLITE_MAP.getProjection(), "Satélite", G_SATELLITE_MAP);
-    map.addMapType(myCustomMapTypeSatellite);
-
-    var myMapTypeLayers=[G_PHYSICAL_MAP.getTileLayers()[0],layer1];
-    var myCustomMapTypePhysical = new GMapType(myMapTypeLayers,
-                G_PHYSICAL_MAP.getProjection(), "Relieve", G_PHYSICAL_MAP);
-    map.addMapType(myCustomMapTypePhysical);
-    
+    show_guifi();
 
     newNode = new GLatLng(document.getElementById("lat").value, 
 			 document.getElementById("lon").value);
@@ -464,9 +527,9 @@ function xz()
     oNode = new GMarker(newNode,{icon: icon_start});
     map.addOverlay(oNode);
 
-
-    create_visibilitycloak_widget(105, 94);
-    create_contour_widget(7, 65);
+    create_guifi_widget(164, 34);
+    create_visibilitycloak_widget(73, 86);
+    create_contour_widget(7, 59);
     map.setMapType(myCustomMapTypeSatellite);
 
     if (document.getElementById("lon2").value != "NA") {
