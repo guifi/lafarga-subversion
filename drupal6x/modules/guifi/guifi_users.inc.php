@@ -108,7 +108,7 @@ function guifi_user_delete_confirm_submit($form, &$form_state) {
   $subject = t('User %username deleted by %user.',
     array('%username'=>$guifi_user['username'],
           '%user' => $user->name));
-  $log .= '<br>'._guifi_db_delete(
+  $log .= '<br />'._guifi_db_delete(
     'guifi_users',
      array('id'=>$guifi_user['id']),
      $to_mail);
@@ -247,9 +247,9 @@ function guifi_user_form($form_state, $params = array()) {
     '#attributes' => array('class'=>'required'),
     '#default_value' => $form_state['values']['firstname'],
     '#description' => t('The real user name (Firstname), ' .
-        'will be used while building the username.<br>' .
+        'will be used while building the username.<br />' .
         'If username results duplicated, add more words ' .
-        '(i.e. middle initial).<br>' .
+        '(i.e. middle initial).<br />' .
         'Please enter real data, if fake information is entered, ' .
         'administrators might <strong>remove</strong> this user')
   );
@@ -288,10 +288,10 @@ function guifi_user_form($form_state, $params = array()) {
         guifi_get_nodename($form_state['values']['nid']),
         '#autocomplete_path'=> 'guifi/js/select-node',
         '#element_validate' => array('guifi_nodename_validate'),
-        '#description'=>t('Select the node where the user is.<br>' .
+        '#description'=>t('Select the node where the user is.<br />' .
           'You can find the node by introducing part of the node id number, ' .
           'zone name or node name. A list with all matching values ' .
-          'with a maximum of 50 values will be created.<br>' .
+          'with a maximum of 50 values will be created.<br />' .
         'You can refine the text to find your choice.')
     );
   } else {
@@ -389,7 +389,7 @@ function guifi_user_form($form_state, $params = array()) {
     '#options'=> guifi_types('filter'),
     '#multiple'=>true,
 //    '#default_value'=> $form_state['values']['content_filters'],
-    '#description'=>t('Content to be filtered.<br>Check the type of content ' .
+    '#description'=>t('Content to be filtered.<br />Check the type of content ' .
         'which will be filtered to this user. ' .
         'Note that this filters will work only on those sites ' .
         'which have enabled this feature, ' .
@@ -771,8 +771,8 @@ function guifi_users_queue($zone) {
             'title'=>$u['lastname'].", ".$u['firstname'],
             'target'=>'_blank')
           )) .
-          "\n<br>".
-          '<small>'.format_date($u['timestamp_created']).'<br>'.
+          "\n<br />".
+          '<small>'.format_date($u['timestamp_created']).'<br />'.
           l(
             $proxy->nick,
            "node/".$proxy->id,
@@ -781,11 +781,11 @@ function guifi_users_queue($zone) {
         ),
       array(
         'data'=>
-           guifi_get_zone_nick($u['zone_id'])."<br><strong>".
+           guifi_get_zone_nick($u['zone_id'])."<br /><strong>".
            $edit_node_icon.
            l($u['nnick'],'node/'.$u['nid'],
              array('html'=>true,'attributes'=>array('target'=>'_blank'))).
-           '</strong><br><small>'.
+           '</strong><br /><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
              array('fragment'=>'comment-form',
                'html'=>true,
@@ -912,7 +912,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 
     $options[$guser->id] = $realname.' ('.$guser->username.')'.' - '.
       l($service->nick,'node/'.$service->id,array('attributes'=>array('title'=>$service->title))).' - '.
-      $guser->status.'<br>'.
+      $guser->status.'<br />'.
       theme_guifi_contacts($guser,false);
     if (!isset($default_user))
       $default_user = $guser->id;

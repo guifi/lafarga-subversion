@@ -405,7 +405,7 @@ msgid "graphs provided from"
 msgstr "gràfics proveïts des de"
 
 #: guifi_devices.inc.php:1152
-msgid "IP address & MAC"
+msgid "IP address and MAC"
 msgstr "Adreça IP i MAC"
 
 #: guifi_devices.inc.php:1161
@@ -1505,7 +1505,7 @@ msgid "No links defined"
 msgstr "No hi ha enllaços definits"
 
 #: guifi_radios.inc.php:24
-msgid "Device model, firmware & MAC address"
+msgid "Device model, firmware and MAC address"
 msgstr "Model del trasto, firmware i adreça MAC"
 
 #: guifi_radios.inc.php:33
@@ -1669,7 +1669,7 @@ msgid "Connector"
 msgstr "Connector"
 
 #: guifi_radios.inc.php:539
-msgid "Examples:<br>MiniPci: Main/Aux<br>Linksys: Right/Left<br>Nanostation: Internal/External"
+msgid "Examples:<br />MiniPci: Main/Aux<br />Linksys: Right/Left<br />Nanostation: Internal/External"
 msgstr ""
 
 #: guifi_radios.inc.php:632
@@ -2041,7 +2041,7 @@ msgid "MAC address"
 msgstr "Adreça MAC"
 
 #: guifi_tools.inc.php:193
-msgid "Got & sorted %num ips in %secs seconds"
+msgid "Got and sorted %num ips in %secs seconds"
 msgstr ""
 
 #: guifi_tools.inc.php:212
@@ -2262,7 +2262,7 @@ msgid "Lastname field cannot be blank ."
 msgstr "El camp cognom no pot quedar en blanc."
 
 #: guifi_users.inc.php:604
-msgid "Set the device and link Online, confirm MAC & approve user."
+msgid "Set the device and link Online, confirm MAC and approve user."
 msgstr ""
 
 #: guifi_users.inc.php:630
@@ -2299,7 +2299,7 @@ msgid "IP v4 address"
 msgstr "Adreça IPv4"
 
 #: guifi_users.inc.php:816
-msgid "Status & MAC"
+msgid "Status and MAC"
 msgstr "Estat i MAC"
 
 #: guifi_users.inc.php:867
@@ -2355,7 +2355,7 @@ msgid "(root zone)"
 msgstr "(zona arrel)"
 
 #: guifi_zone.inc.php:182
-msgid "Select to navigate through the available zones, only parent, peer and child zones are shown in the list.<br>By selecting any other zone, the list will be refreshed with the corresponding parents, peers and childs."
+msgid "Select to navigate through the available zones, only parent, peer and child zones are shown in the list.<br />By selecting any other zone, the list will be refreshed with the corresponding parents, peers and childs."
 msgstr ""
 
 #: guifi_zone.inc.php:184
@@ -2737,7 +2737,7 @@ msgid "License agreement"
 msgstr "Acceptació de la llicència"
 
 #: guifi.module:919
-msgid "By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned or your data might be deleted if inappropiate use is detected.<br>You will be allways responsible of the information you give, agree to make it publicly available and you will be able to modify or delete it, network administrators can also update or delete your data.<br>If you want to promote your role within the community you can ask for it contacting the current administrators and they will grant the privileges that you qualify for."
+msgid "By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned or your data might be deleted if inappropiate use is detected.<br />You will be allways responsible of the information you give, agree to make it publicly available and you will be able to modify or delete it, network administrators can also update or delete your data.<br />If you want to promote your role within the community you can ask for it contacting the current administrators and they will grant the privileges that you qualify for."
 msgstr ""
 
 #: guifi.module:922
@@ -2865,7 +2865,7 @@ msgid "Key for Google Maps API"
 msgstr ""
 
 #: guifi.module:1030
-msgid "If not present, Google Maps API will be disabled.<br>Get it at: "
+msgid "If not present, Google Maps API will be disabled.<br />Get it at: "
 msgstr ""
 
 #: guifi.module:1037
@@ -3025,7 +3025,7 @@ msgid "guifi.net main page"
 msgstr "Pagina principal de guifi.net"
 
 #: guifi.module:52;71
-msgid "Main menu for guifi.net network management & utilities"
+msgid "Main menu for guifi.net network management and utilities"
 msgstr "Menú principal per l'administració i utilitats de guifi.net"
 
 #: guifi.module:70
@@ -3077,7 +3077,7 @@ msgid "Browse the guide and documentation"
 msgstr "Cerca la guia i la documentació"
 
 #: guifi.module:133
-msgid "Data to review & Pending actions"
+msgid "Data to review and Pending actions"
 msgstr ""
 
 #: guifi.module:134
@@ -3109,11 +3109,11 @@ msgid "Report of the status and availability of all nodes"
 msgstr ""
 
 #: guifi.module:163
-msgid "IP & Network management tools"
+msgid "IP and Network management tools"
 msgstr "Utilitats de configuració de IP i Xarxa"
 
 #: guifi.module:164
-msgid "Utilities toolset for various network addressing & management"
+msgid "Utilities toolset for various network addressing and management"
 msgstr ""
 
 #: guifi.module:170

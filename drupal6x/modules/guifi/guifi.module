@@ -49,7 +49,7 @@ function guifi_menu() {
 
   $items['guifi'] = array(
      'title' => 'guifi.net main page',
-     'description' => 'Main menu for guifi.net network management & utilities',
+     'description' => 'Main menu for guifi.net network management and utilities',
      'page callback' => 'guifi_page',
      'page arguments' => array('true'),
      'access callback' => 'user_access',
@@ -68,7 +68,7 @@ function guifi_menu() {
   // General guifi menu
   $items['guifi/menu'] = array(
      'title' => 'guifi.net menus',
-     'description' => 'Main menu for guifi.net network management & utilities',
+     'description' => 'Main menu for guifi.net network management and utilities',
      'page callback' => 'guifi_page',
      'access callback' => 'user_access',
      'access arguments' => array('access content'),
@@ -128,9 +128,9 @@ function guifi_menu() {
     'access arguments' => array('access content'),
   );
 
-  // Database review & pending actions
+  // Database review and pending actions
   $items['guifi/menu/workflow'] = array(
-    'title' => 'Data to review & Pending actions',
+    'title' => 'Data to review and Pending actions',
     'description' => 'Clean and review the database and take the appropriate pending actions',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
@@ -160,8 +160,8 @@ function guifi_menu() {
 
   // Network management tools
   $items['guifi/menu/ip'] = array(
-    'title' => 'IP & Network management tools',
-    'description' => 'Utilities toolset for various network addressing & management',
+    'title' => 'IP and Network management tools',
+    'description' => 'Utilities toolset for various network addressing and management',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
     'weight'=>2,
@@ -300,14 +300,14 @@ function guifi_menu() {
   );
 //  $items['guifi/menu/devel/get_ips_new'] = array(
 //    'title' => 'get_ips_new callback',
-//    'description' => 'Test for NEW load&sort the ip tables',
+//    'description' => 'Test for NEW load and sort the ip tables',
 //    'page callback' => 'guifi_admin_get_ips_new',
 //    'access arguments' => array('access devel information'),
 //    'weight' => 0,
 //    'file' => 'guifi_tools.inc.php'
 //  );
   //
-  // ZONE menus & tabs
+  // ZONE menus and tabs
   //
   $items['node/%guifi_zone/view/nodes'] = array(
     'title' => 'nodes',
@@ -891,7 +891,7 @@ function guifi_menu() {
 
     // guifi module menus
     $items[] = array('path' => 'guifi',
-      'title' => t('guifi mesh networking database & provisioning system'),
+      'title' => t('guifi mesh networking database and provisioning system'),
       'callback' => 'guifi_page',
       'access' => user_access('access content'),
       'type' => MENU_SUGGESTED_ITEM);
@@ -1073,7 +1073,7 @@ function guifi_admin_settings() {
   $form['guifi_license'] = array(
     '#type' => 'textarea',
     '#title' => t('License agreement'),
-    '#default_value' => variable_get("guifi_license", t("By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned or your data might be deleted if inappropiate use is detected.<br>You will be allways responsible of the information you give, agree to make it publicly available and you will be able to modify or delete it, network administrators can also update or delete your data.<br>If you want to promote your role within the community you can ask for it contacting the current administrators and they will grant the privileges that you qualify for.")),
+    '#default_value' => variable_get("guifi_license", t("By creating this node, you accept the <a href=\"http://guifi.net/WirelessWCL_EN\">Wireless commons license.</a><br />Note that this database is inteded for supporting a real network, will assign ip addresses and show the network information in various formats, so might be <b>not</b> the right place for submitting ficticious data or just have fun. If you want to run tests or do some self training, be sure you are doing it at some of the <a href=\"http://proves.guifi.net\">test sites</a>.<br />Your access to this site might be banned or your data might be deleted if inappropiate use is detected.<br />You will be allways responsible of the information you give, agree to make it publicly available and you will be able to modify or delete it, network administrators can also update or delete your data.<br />If you want to promote your role within the community you can ask for it contacting the current administrators and they will grant the privileges that you qualify for.")),
     '#cols' => 60,
     '#rows' => 10,
     '#description' => t("Agreement &#038; help message when creating new nodes, users will not be able to create nodes unless they accept this message."),
@@ -1201,7 +1201,7 @@ function guifi_admin_settings() {
     '#default_value' => variable_get("guifi_gmap_key", ''),
     '#size' => 80,
     '#maxlength' => 1024,
-    '#description' => t("If not present, Google Maps API will be disabled.<br>Get it at: ").
+    '#description' => t("If not present, Google Maps API will be disabled.<br />Get it at: ").
        '<a href="http://code.google.com/apis/maps/signup.html">'.
           'http://code.google.com/apis/maps/signup.html'.'</a>',
     '#weight' => $form_weight++,

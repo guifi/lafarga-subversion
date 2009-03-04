@@ -83,7 +83,7 @@ function guifi_tools_ip_search_form($form_state, $params = array()) {
     '#size' => 16,
     '#maxlength' => 16,
     '#description' => t('Enter a valid ipv4 network address or pattern ' .
-        'to get the related information available at the database for it.<br>' .
+        'to get the related information available at the database for it.<br />' .
         'You can use valid SQL wilcards (%), for example, to query all the ' .
         'addresses begining with "10.138.0" you can use "10.138.0%"...'),
     '#weight' => 0,
@@ -159,7 +159,7 @@ function guifi_tools_mac_search_form($form_state, $params = array()) {
     '#size' => 20,
     '#maxlength' => 20,
     '#description' => t('Enter a valid MAC address or pattern ' .
-        'to get the related information available at the database for it.<br>' .
+        'to get the related information available at the database for it.<br />' .
         'You can use valid SQL wilcards (%), for example, to query all the MAC ' .
         'addresses begining with "00:0B" you can use "00:0B%"...'),
     '#weight' => 0,
@@ -388,9 +388,9 @@ function guifi_tools_mail_search_form($form_state, $params = array()) {
     '#maxlength' => 50,
     '#description' => t('Enter a valid e-mail address to look for ' .
         'to get a report of where it appears in all tables.' .
-        '<br>' .
+        '<br />' .
         'You can use valid SQL wilcards (%), for example, to query all the mail ' .
-        'addresses containing "guifi" you can use "%guifi%"...<br>' .
+        'addresses containing "guifi" you can use "%guifi%"...<br />' .
         'Note that:<ul><li>If you use wildcards, massive update option ' .
         'will not be enabled</li><li>You will get a list restricted to the items ' .
         'which you are granted to update</li></ul>'),

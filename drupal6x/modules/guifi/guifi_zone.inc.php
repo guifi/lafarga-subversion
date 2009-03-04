@@ -147,7 +147,7 @@ function guifi_zone_select_field($zid,$fname) {
 
 
   ob_start();
-  print "<br>Zid: $zid Master: $master <br>";
+  print "<br />Zid: $zid Master: $master <br />";
   print_r($lzones);
   $txt = ob_get_clean();
   ob_end_clean();
@@ -179,9 +179,9 @@ function guifi_zone_select_field($zid,$fname) {
     }
   }
 
-  $msg = t('Select to navigate through the available zones, only parent, peer and child zones are shown in the list.<br>By selecting any other zone, the list will be refreshed with the corresponding parents, peers and childs.');
+  $msg = t('Select to navigate through the available zones, only parent, peer and child zones are shown in the list.<br />By selecting any other zone, the list will be refreshed with the corresponding parents, peers and childs.');
   if ($has_childs)
-    $msg .= '<br>'.t('<strong>Attention!</strong>: The currently selected zone has childs, click to view');
+    $msg .= '<br />'.t('<strong>Attention!</strong>: The currently selected zone has childs, click to view');
 
 //  $msg .= $txt;
 
@@ -335,10 +335,10 @@ function guifi_zone_form(&$node, &$param) {
 
   function _service_descr($type) {
     return t('Select the default %type for to be used at this ' .
-        'zone.<br>' .
+        'zone.<br />' .
         'You can find the %type by introducing part of the id number, ' .
         'zone name or proxy name. A list with all matching values ' .
-        'with a maximum of 50 values will be created.<br>' .
+        'with a maximum of 50 values will be created.<br />' .
         'You can refine the text to find your choice.',
         array('%type'=>$type));
   }
@@ -463,7 +463,7 @@ function guifi_zone_form(&$node, &$param) {
     '#size' => 12,
     '#maxlength' => 24,
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
-    '#suffix' => '</ td>',
+    '#suffix' => '</td>',
     '#element_validate' => array('guifi_lon_validate'),
     '#description' => t('Longitude'),
     '#weight' => $form_weight++,
@@ -491,7 +491,7 @@ function guifi_zone_form(&$node, &$param) {
     '#size' => 12,
     '#maxlength' => 24,
     '#prefix' => '<table style="width: 32em"><tr><td style="width: 12em">',
-    '#suffix' => '</ td>',
+    '#suffix' => '</td>',
     '#element_validate' => array('guifi_lon_validate'),
     '#description' => t('Longitude'),
     '#weight' => $form_weight++,
@@ -870,7 +870,7 @@ function guifi_zone_ariadna($id = 0, $link = 'node/%d') {
       ));
   }
   if (count($child)) {
-    $child[0] = '<br><small>('.$child[0];
+    $child[0] = '<br /><small>('.$child[0];
     $child[count($child)-1] = $child[count($child)-1].')</small>';
     $ret = array_merge($ret,$child);
   }

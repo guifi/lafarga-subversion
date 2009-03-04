@@ -326,7 +326,7 @@ function guifi_devices_select($filters,$action = '') {
   asort($devdist);
 
 //  ob_start();
-//  print "Query: $query \n<br>";
+//  print "Query: $query \n<br />";
 //  print_r($devdist);
 //  $txt = ob_get_contents();
 //  ob_end_clean();
@@ -373,7 +373,7 @@ function guifi_devices_select($filters,$action = '') {
       '#title' => t('No devices available'),
       '#value'=> t('There are no devices to link within the given criteria, you can use the filters to get more results.'),
 //      '#description' => t('...or press "Ignore & Back to the Main Form" to dismiss.'),
-//      '#description' => $txt.'<br>'.$action,
+//      '#description' => $txt.'<br />'.$action,
 //      '#prefix'=>'<div id="list-devices">',
 //      '#suffix'=>'</div>',
     );
@@ -386,7 +386,7 @@ function guifi_devices_select($filters,$action = '') {
     '#parents'=> array('linked'),
     '#title' => t('select the device which do you like to link with'),
     '#options' => $var,
-//    '#description' => $txt.'<br>'.$action,
+//    '#description' => $txt.'<br />'.$action,
     '#attributes' => array('class'=>'required'),
 
 //    '#description' => t('If you save at this point, link will be created and information saved.'),
@@ -1086,7 +1086,7 @@ function guifi_ipcalc_find_subnet(
     $ips_allocated = guifi_ipcalc_get_ips($base_ip,$mask_range);
   }
 
-  // print "Looking sizeof $mask_allocated at $base_ip / $mask_range into ".count($ips_allocated)." keys\n<br>";
+  // print "Looking sizeof $mask_allocated at $base_ip / $mask_range into ".count($ips_allocated)." keys\n<br />";
 
   // start looking at the given base ip to look at up to the size of mask_range
   // in chunks of "increments"
@@ -1118,7 +1118,7 @@ function guifi_ipcalc_find_subnet(
     $key = $net_dec;
 
     // is there any ip allocated in the range between net_dec and increment?
-    // print "Going to find between ".long2ip($net_dec)." and ".long2ip($last)." \n<br>";
+    // print "Going to find between ".long2ip($net_dec)." and ".long2ip($last)." \n<br />";
     while ($key < $last)
       if (isset($ips_allocated[$key])) {
         break;
@@ -1285,7 +1285,7 @@ function guifi_cnml_call_service($target,$service,$params=array(),$extra=null) {
   // processing graphserver
   if (is_array($target)) {
 //    print_r($target);
-//    print "\n<br>Key: ".key($target)."\n";
+//    print "\n<br />Key: ".key($target)."\n";
     if  (in_array(key($target),array('zone','node','device')))
       $gs = guifi_service_load(
         guifi_graphs_get_server($target[key($target)],key($target)));
@@ -1617,7 +1617,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
       unset($to_mail[$k]);
   $message = str_replace('<em>',' *',$message);
   $message = str_replace('</em>','* ',$message);
-  $message = str_replace(array('<br>','<br />'),"\n",$message);
+  $message = str_replace(array('<br />','<br />'),"\n",$message);
   $msubject = str_replace('<em>',' *',$subject);
   $msubject = str_replace('</em>','* ',$msubject);
 

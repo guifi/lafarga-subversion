@@ -301,7 +301,7 @@ function guifi_device_form_submit($form, &$form_state) {
   case t('Reset'):
     drupal_set_message(t('Reset was pressed, ' .
         'if there was any change, was not saved and lost.' .
-        '<br>The device information has been reloaded ' .
+        '<br />The device information has been reloaded ' .
         'from the current information available at the database'));
     drupal_goto('guifi/device/'.$form_state['values']['id'].'/edit');
     break;
@@ -493,10 +493,10 @@ function guifi_device_form($form_state, $params = array()) {
         guifi_get_nodename($form_state['values']['nid']),
     '#autocomplete_path'=> 'guifi/js/select-node',
     '#element_validate' => array('guifi_nodename_validate'),
-    '#description'=>t('Select the node where the device is.<br>' .
+    '#description'=>t('Select the node where the device is.<br />' .
         'You can find the node by introducing part of the node id number, ' .
         'zone name or node name. A list with all matching values ' .
-        'with a maximum of 50 values will be created.<br>' .
+        'with a maximum of 50 values will be created.<br />' .
         'You can refine the text to find your choice.')
   );
   $form['main']['nid'] = array(
@@ -582,7 +582,7 @@ function guifi_device_form($form_state, $params = array()) {
 
 /* guifi_device_form_validate(): Confirm that an edited device has fields properly filled. */
 function guifi_device_form_validate($form,&$form_state) {
-//  print "Hola validate!!\n<br>";
+//  print "Hola validate!!\n<br />";
 //   print_r($edit);
 
   global $user;
@@ -1333,7 +1333,7 @@ function guifi_device_links_print($device,$ltype = '%') {
       $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$link['device_id']));
       if ($cr->count > 1) {
         $rn = db_fetch_object(db_query("SELECT ssid FROM {guifi_radios} r WHERE r.id=%d AND r.radiodev_counter=%d",$link['device_id'],$link['interface']['radiodev_counter']));
-        $dname = guifi_get_hostname($link['device_id']).'<br>'.$rn->ssid;
+        $dname = guifi_get_hostname($link['device_id']).'<br />'.$rn->ssid;
       }
       else
         $dname = guifi_get_hostname($link['device_id']);
@@ -1481,7 +1481,7 @@ function guifi_device_link_list($id = 0, $ltype = '%') {
 }
 
 function guifi_device_item_delete_msg($msg) {
-  return t($msg).'<br>'.
+  return t($msg).'<br />'.
     t('Press "<b>Save</b>" to confirm deletion or ' .
       '"<b>Reset</b>" to discard changes and ' .
       'recover the values from the database.');

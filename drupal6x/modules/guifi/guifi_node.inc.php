@@ -73,7 +73,7 @@ function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d'
       ));
   }
   if (count($child)) {
-    $child[0] = '<br><small>('.$child[0];
+    $child[0] = '<br /><small>('.$child[0];
     $child[count($child)-1] = $child[count($child)-1].')</small>';
     $ret = array_merge($ret,$child);
   }
@@ -220,7 +220,7 @@ function guifi_node_form(&$node, $form_state) {
       '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
       '#element_validate' => array('guifi_service_name_validate',
         'guifi_zone_service_validate'),
-      '#description'=>t('Select the <em>graph server</em> to be used at this node.<br>You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br>You can refine the text to find your choice.'),
+      '#description'=>t('Select the <em>graph server</em> to be used at this node.<br />You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br />You can refine the text to find your choice.'),
     );
     $form['settings']['graph_server'] = array(
       '#type'=>'hidden',
@@ -305,13 +305,13 @@ function guifi_node_form(&$node, $form_state) {
   $form['position']['longitude'] = array(
     '#type' => 'item',
     '#title' => t('Longitude'),
-    '#prefix' => '<table><th>&nbsp</th><th>'.
+    '#prefix' => '<table><tr><th>&nbsp;</th><th>'.
       t('degrees (decimal values allowed)').
         '</th><th>'.
         t('minutes').
         '</th><th>'.
         t('seconds').
-        '</th><tr><td>',
+        '</th></tr><tr><td>',
     '#suffix' => '</td>',
     '#weight' => 1,
   );
@@ -713,7 +713,7 @@ function guifi_node_distances_map($node) {
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
-    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight<br>Click on the path profile to see the point on the map'),'align'=>'center'));
+    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight<br />Click on the path profile to see the point on the map'),'align'=>'center'));
     $rows[] = array(array('data'=>'<a href="javascript:;" onclick="profileclick(event)"><img id="profile" src="'.drupal_get_path('module', 'guifi').'/js/marker_start.png" /></a>','align'=>"center"));
     $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
     $rows[] = array(array('data'=>'<div style="float:left;">'.t('Distance:').'&nbsp;</div>'.'<div id="tdistance" style="float:left;">0</div>'.'<div style="float:left;">&nbsp;Km.&nbsp;&nbsp;&nbsp;&nbsp;'.t('Azimut:').'&nbsp;</div>'.'<div id="tazimut" style="float:left;">0</div>&nbsp;'.t('degrees')));
@@ -1154,7 +1154,7 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
   while ($radio = db_fetch_array($query)) {
     $radios[] = $radio;
   }
-  // print "Count radios: ".count($radios)."\n<br>";
+  // print "Count radios: ".count($radios)."\n<br />";
   if (count($radios) > 1) {
     if (substr($gs->var['url'],0,3)=="fot"){
       //  graph all devices.about a node. Ferran Ot

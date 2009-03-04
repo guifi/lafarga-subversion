@@ -281,7 +281,7 @@ function guifi_ahah_add_cable_link() {
         '#type'=>'item',
         '#title'=>t('Device node changed. Option not available'),
         '#description'=>t('Can\'t link this device to another device ' .
-          'since has been changed the assigned node.<br>' .
+          'since has been changed the assigned node.<br />' .
           'To link the device to a device defined at another node, ' .
         'you should save the node of this device before proceeding.')
       );
@@ -410,7 +410,7 @@ function guifi_ahah_move_device() {
         '#type'=>'item',
         '#title'=>t('Node changed. Option not available'),
         '#description'=>t('Can\'t move this radio to another device ' .
-            'since there has been changed the assigned node.<br>' .
+            'since there has been changed the assigned node.<br />' .
             'To move the radio to a device defined at another node, ' .
             'you should save the node of this device before proceeding.')
       );
@@ -424,7 +424,7 @@ function guifi_ahah_move_device() {
         '#type'=>'select',
         '#parents'=> array('radios',$radio_id,'to_did'),
         '#title'=>t('Move radio to device'),
-        '#description'=>t('Select the device which you want to assign this radio.<br>' .
+        '#description'=>t('Select the device which you want to assign this radio.<br />' .
             'Note that the change will not take effect until the device has been saved.'),
         '#options'=>$list,
         '#default_value'=>$orig_device_id
@@ -434,7 +434,7 @@ function guifi_ahah_move_device() {
         '#type'=>'item',
         '#title'=>t('No devices available'),
         '#description'=>t('Can\'t move this radio to another device ' .
-            'since there are no other devices defined on this node.<br>' .
+            'since there are no other devices defined on this node.<br />' .
             'To move the radio to a device defined at another node, ' .
             'you should reassign the node of this device before proceeding.')
       );

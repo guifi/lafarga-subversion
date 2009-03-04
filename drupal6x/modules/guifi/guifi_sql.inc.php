@@ -174,7 +174,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
      $ck++;
    }
 //
-//   print "SQL:$sqlqc\n<br>Rows: $ck\n<br>";
+//   print "SQL:$sqlqc\n<br />Rows: $ck\n<br />";
 //   print_r($orig_data);
 //   exit;
 
@@ -182,7 +182,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
    {
      drupal_set_message(
        t('Can\'t update %table while primary key (%where) doesn\'t give 1 row' .
-          '<br>%sql gives %rows rows.',
+          '<br />%sql gives %rows rows.',
        array(
          '%table'=>$table,
          '%sql'=>$sqlqc,
@@ -264,13 +264,13 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $qc = db_query("SELECT id FROM {guifi_devices} where nid = '%s'",
                     $key['id']);
     while ($device = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_devices',$device,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_devices',$device,$to_mail,$depth);
 
     // cascade to node users
     $qc = db_query("SELECT id FROM {guifi_users} where nid = '%s'",
                     $key['id']);
     while ($quser = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_users',$quser,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_users',$quser,$to_mail,$depth);
 
     break;
   // delete Device
@@ -286,12 +286,12 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     // cascade to device radios
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_radios} WHERE id=%d',$key['id']);
     while ($radio = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_radios',$radio,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_radios',$radio,$to_mail,$depth);
 
     // cascade to device interfaces
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_interfaces} WHERE device_id=%d',$key['id']);
     while ($interface = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_interfaces',$interface,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_interfaces',$interface,$to_mail,$depth);
 
     break;
 
@@ -310,7 +310,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     // cascade to radio interfaces
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d',$key['id'],$key['radiodev_counter']);
     while ($interface = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_interfaces',$interface,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_interfaces',$interface,$to_mail,$depth);
 
     break;
 
@@ -330,7 +330,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     // cascade ipv4
     $qc = db_query('SELECT id, interface_id FROM {guifi_ipv4} WHERE interface_id=%d',$key['id']);
     while ($ipv4 = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_ipv4',$ipv4,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_ipv4',$ipv4,$to_mail,$depth);
     break;
 
   // delete ipv4
@@ -347,7 +347,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     // cascade links
     $qc = db_query('SELECT id, device_id FROM {guifi_links} WHERE ipv4_id=%d AND interface_id=%d',$key['id'],$key['interface_id']);
     while ($link = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('guifi_links',$link,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('guifi_links',$link,$to_mail,$depth);
     break;
 
   // delete links
@@ -380,7 +380,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         $key['id'],$key['device_id']);
 
     while ($link = db_fetch_array($qc)) {
-      $log .= '<br>'._guifi_db_delete('guifi_links',$link,$to_mail,$depth,false);
+      $log .= '<br />'._guifi_db_delete('guifi_links',$link,$to_mail,$depth,false);
 
       // cleanup of remote ipv4 addresses when appropriate
       $qar = db_query('SELECT * ' .
@@ -394,7 +394,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         if ( ($ripv4['netmask'] == '255.255.255.252') or
              ($ripv4['ipv4'] != $aitem['netstart'])
            ) {
-          $log .= '<br>'._guifi_db_delete(
+          $log .= '<br />'._guifi_db_delete(
             'guifi_ipv4',
             array('id'=>$link['ipv4_id'],
               'interface_id'=>$link['interface_id']),
@@ -404,7 +404,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
           if ($ripv4['netmask'] == '255.255.255.252')
            // cascade to local ipv4
-            $log .= '<br>'._guifi_db_delete(
+            $log .= '<br />'._guifi_db_delete(
               'guifi_ipv4',
               array('id'=>$item->ipv4_id,
                 'interface_id'=>$item->interface_id),
@@ -436,7 +436,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
           )
             continue;
 
-          $log .= '<br>'._guifi_db_delete(
+          $log .= '<br />'._guifi_db_delete(
             'guifi_interfaces',
             array('id'=>$na['id']),
             $to_mail,
@@ -475,7 +475,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
       $key['id']);
 
     while ($item = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('budget_items',$item,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('budget_items',$item,$to_mail,$depth);
 
     $qc = db_query(
       'SELECT id, budget_id ' .
@@ -484,7 +484,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
       $key['id']);
 
     while ($fund = db_fetch_array($qc))
-      $log .= '<br>'._guifi_db_delete('budget_funds',$fund,$to_mail,$depth);
+      $log .= '<br />'._guifi_db_delete('budget_funds',$fund,$to_mail,$depth);
     break;
 
   }
@@ -501,7 +501,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     FROM {".$table."}
     WHERE ".$where_str));
   if ($count['c'] != 1)
-    return $log.'<br>'.t('There was nothing to delete at %table with (%where)',array('%table'=>$table,'%where'=>$where_str));
+    return $log.'<br />'.t('There was nothing to delete at %table with (%where)',array('%table'=>$table,'%where'=>$where_str));
   if (!in_array($item->notification,$to_mail))
     $to_mail[] = $item->notification;
   if (!in_array($item->ncontact,$to_mail))
@@ -514,7 +514,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     $where_str .= $k.' = '.$value;
   }
   $delete_str = 'DELETE FROM {'.$table.'} WHERE '.$where_str;
-  $log .= '<br>'.$delete_str;
+  $log .= '<br />'.$delete_str;
   guifi_log(GUIFILOG_TRACE,$delete_str);
   db_query($delete_str);
 
