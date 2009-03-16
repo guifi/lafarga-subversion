@@ -261,17 +261,18 @@ function unsolclic_routeros($dev) {
             ospf_interface($wdsname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'yes');
             bgp_peer($link['device_id'],$link['interface']['ipv4']['ipv4'],'no');
 }
-	   if (!isset($ospf_routerid)) $ospf_routerid=$ipv4[ipv4];
          } // each wds link (ipv4)
        } else { // wds
          // wLan, wLan/Lan, Hotspot or client
 
          // Defining all networks and IP addresses at the interface
          if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
-           if ($interface[interface_type] == 'wLan/Lan')
+           if ($interface[interface_type] == 'wLan/Lan') {
              $iname = $interface[interface_type];
-           else
+             $ospf_routerid=$ipv4[ipv4];
+           } else {
              $iname = 'wlan'.($radio_id+1);
+           }
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
            _outln('/ip address');
            if ($interface[interface_type]=='Wan')
@@ -279,7 +280,6 @@ function unsolclic_routeros($dev) {
            _outln(sprintf(':foreach i in [find address="%s/%d"] do={remove $i}',$ipv4[ipv4],$item[maskbits]));
            _outln(sprintf('/ ip address add address=%s/%d network=%s broadcast=%s interface=%s disabled=no',$ipv4[ipv4],$item[maskbits],$item[netid],$item[broadcast],$iname));
            $defined_ips[$ipv4[ipv4]] = $item;
-           $ospf_routerid=$ipv4[ipv4];
            $ospf_zone = guifi_get_ospf_zone($zone);
            if ($radio[mode] != 'client') {
              ospf_interface($iname, $item[netid], $item[maskbits], $ospf_name, $ospf_zone, $ospf_id, 'no');
