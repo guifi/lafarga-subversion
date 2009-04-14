@@ -250,6 +250,7 @@ function guifi_traceroute_search($params = null) {
   $nroute = 0;
   $trace = '';
   $collapsed = false;
+
   foreach ($routes as $route) {
     end($route[1]);
     $target = key($route[1]);
@@ -291,11 +292,8 @@ function guifi_traceroute_search($params = null) {
         '<input type=hidden value='.base_path().drupal_get_path('module','guifi').'/js/'.' id=edit-jspath />' .
         '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
         '</form>';
-    $tracetit .= t('Route Level: Importance of the route depending on the cost and proximity to the main route').'<br />';
-    $tracetit .= t('main').':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon1.png"/>';
-    for($i=2;$i<=10;$i++){
-      $tracetit .='&nbsp;&nbsp;&nbsp;&nbsp;'.$i.':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon'.$i.'.png"/>';
-    }
+
+    $tracetit .= drupal_get_form('guifi_traceroute_map_form');
     $tracetit .= '<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>';
   }
 
@@ -305,6 +303,42 @@ function guifi_traceroute_search($params = null) {
   guifi_log(GUIFILOG_TRACE,'Routes',$routes);
 
   return $output;
+}
+
+function guifi_traceroute_map_form($form_state) { //Eduard
+  $vtext = t('Route Level: Importance of the route depending on the cost and proximity to the main route').'<br />';
+  $vtext .= t('main').':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon1.png"/>';  
+  for($i=2;$i<=10;$i++){
+    $vtext .='&nbsp;&nbsp;&nbsp;&nbsp;'.$i.':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon'.$i.'.png"/>';
+  }
+  $form['#action'] = 'pepe.js';
+  $form['formmap3'] = array(
+    '#type' => 'button',
+    '#name' => 'btnrouteright',
+    '#value' => '>>',
+    '#attributes' => array('onclick'=>'printroute(1);return(false)'),
+    '#prefix' => '<div style="float:right;text-align:right;width:200px;"><div style="float:right;margin-left:8px;">',
+    '#suffix' => '</div>'
+  );
+  $form['formmap2'] = array(
+    '#type' => 'textfield',
+    '#name' => 'texroute',
+    '#default_value' => 0,
+    '#size' => 4,
+    '#attributes' => array('style'=>'text-align:right'),
+    '#prefix' => '<div style="float:right;margin-top:13px;">',
+    '#suffix' => '</div>'
+  );
+  $form['formmap1'] = array(
+    '#type' => 'button',
+    '#name' => 'btnrouteleft',
+    '#value' => '<<',
+    '#attributes' => array('onclick'=>'printroute(-1);return(false)'),    
+    '#prefix' => '<div style="float:right">',
+    '#suffix' => '</div></div><div>'.$vtext.'</div>'
+  );
+
+  return $form;
 }
 
 // IP search
@@ -499,7 +533,7 @@ function guifi_traceroute_dataexport($route,$nRoute,&$linkslist,&$nodeslist) {
       if (!isset($nodeslist[$hop['to'][0]])) {
         $nodeslist[$hop["to"][0]]=guifi_get_location($hop["to"][0]);
         $nodeslist[$hop["to"][0]][nodename]=guifi_get_nodename($hop['to'][0]);
-        $nodeslist[$hop["to"][0]][nodelink]='node/'.$hop['to'][0];
+        $nodeslist[$hop["to"][0]][nodelink]=$hop['to'][0];
       }
     }
 
@@ -522,7 +556,7 @@ function guifi_traceroute_dataexport($route,$nRoute,&$linkslist,&$nodeslist) {
       if (!isset($nodeslist[$hop['from'][5]])) {
         $nodeslist[$hop["from"][5]]=guifi_get_location($hop["from"][5]);
         $nodeslist[$hop["from"][5]][nodename]=guifi_get_nodename($hop['from'][5]);
-        $nodeslist[$hop["from"][5]][nodelink]='node/'.$hop['from'][5];
+        $nodeslist[$hop["from"][5]][nodelink]=$hop['from'][5];
       }
     }
 

@@ -3,7 +3,7 @@ var map = null;
 
 if(Drupal.jsEnabled) {
 	  $(document).ready(function(){
-		xz();
+        xz();
 	    }); 
 	}
 
@@ -13,6 +13,7 @@ var oGNodes = new Array;
 var oGLinks = new Array;
 var colors = new Array("","#ff0000","#fb00ff","#6f00ff","#001eff","#00aeff","#00ffc3","#00ff37","#59ff00","#e5ff00","#ff8c00")
 var icons = new Array();
+var nRoute = 0;
 
 function xz() 
 {
@@ -69,7 +70,7 @@ function xz()
     //numbered routes and assigns levels to nodes and links, depending on the cost and distance from the main route
     //mark links repeated
     var nLevel = 1;
-    var nRoute = 0;
+    nRoute = 0;
     var sw = 0;
     var nSubRoute = 0;
     var oLinkPaint = new Object;        //array control links already drawn
@@ -104,32 +105,106 @@ function xz()
             }else{
                   oLink.subroute=0;
             }
-            oLinkPaint[oLink.idlink] = 1;
+            if (oLink.subroute==0){
+                  oLink.paint=0
+            }else{
+                  oLink.paint=1
+            }
+            oLinkPaint[oLink.idlink] = nLink;
             oSubRouteLevel[nSubRoute] = nLevel;
       }else{
-            oLink.subroute=0;
+            oLink.subroute=oLinks[oLinkPaint[oLink.idlink]].subroute;
+            oLink.paint=0;
       }
     }
     
-    //Draw nodes and links    
+    //Draw nodes and links
+    document.getElementById("edit-formmap2").value=0;
     for(nNode in oNodes){
       var oNode=oNodes[nNode];
       var point = new GLatLng(oNode.lat,oNode.lon);
       oGNodes[nNode] = new GMarker(point,icons[oSubRouteLevel[oNode.subroute]]);
       map.addOverlay(oGNodes[nNode]);
+      createEventNode(oGNodes[nNode],nNode);
     }
+    var polyOptions = {clickable:true};
+    var n=0;
     for(nLink in oLinks){
+      n++;
       var oLink = oLinks[nLink];
       if(oLink.subroute>0){
             var point1 = new GLatLng(oNodes[oLink.fromnode].lat,oNodes[oLink.fromnode].lon);
             var point2 = new GLatLng(oNodes[oLink.tonode].lat,oNodes[oLink.tonode].lon);
-            oGLinks[nLink] = new GPolyline([point1,point2],colors[oSubRouteLevel[oLink.subroute]], 5);
+            oGLinks[nLink] = new GPolyline([point1,point2],colors[oSubRouteLevel[oLink.subroute]], 5,0.5,polyOptions);
+            if(oLink.paint==0){
+                  oGLinks[nLink].hide();
+            }
             map.addOverlay(oGLinks[nLink]);
+            createEventLink(oGLinks[nLink],nLink);
       }
     }
   }
 }
+function createEventNode(pNode, pNumber) {
+  pNode.value = pNumber;
+  GEvent.addListener(pNode, "mouseover", function() {
+      var point = new GLatLng(oNodes[pNumber].lat,oNodes[pNumber].lon);
+      var v="Node: "+oNodes[pNumber]["nodelink"]+"-"+oNodes[pNumber]["nodename"];
+      map.openInfoWindowHtml(point,v);
+      //pNode.openInfoWindowHtml(v);
+  });
+  GEvent.addListener(pNode, "mouseout", function() {
+      map.closeInfoWindow();
+  });
+}
+function createEventLink(pLink, pNumber) {
+  pLink.value = pNumber;
+  GEvent.addListener(pLink, "click", function(point) {
+      var v="from device: "+oLinks[pNumber]["fromdevicename"]+"-"+oLinks[pNumber]["fromipv4"];
+      v=v+"<br>to device: "+oLinks[pNumber]["todevicename"]+"-"+oLinks[pNumber]["toipv4"];
+      v=v+"<br>Distance: "+oLinks[pNumber]["distance"]+" Km.";
+      map.openInfoWindowHtml(point,v);
+  });
+}
 
 
+
+function printroute(p)
+{
+    var vroute=document.getElementById("edit-formmap2").value;
+    if (p==-1){
+      if (vroute>0) vroute--;
+    }else if(p==1){  
+      if (vroute<nRoute) vroute++;
+    }else vroute=0;
+    document.getElementById("edit-formmap2").value=vroute;
+    //hide nodes and links    
+    for(nNode in oNodes) {
+      oGNodes[nNode].hide();
+    }
+    for(nLink in oLinks){
+      oGLinks[nLink].hide()
+    }
+    if (vroute>0){
+      //show route vroute    
+      for(nLink in oLinks){
+        var oLink = oLinks[nLink];
+        if(oLink.route==vroute && oLink.subroute>0){
+            oGLinks[nLink].show();
+            if (oGNodes[oLink.fromnode].isHidden()) oGNodes[oLink.fromnode].show()
+            if (oGNodes[oLink.tonode].isHidden()) oGNodes[oLink.tonode].show()
+        }    
+      }
+    }else{
+      //show all routes    
+      for(nNode in oNodes){
+        oGNodes[nNode].show();
+      }
+      for(nLink in oLinks){
+        var oLink = oLinks[nLink];
+        if(oLink.subroute>0 && oLink.paint==1) oGLinks[nLink].show();
+      }
+    }
+}
 
 
