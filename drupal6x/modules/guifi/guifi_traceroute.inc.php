@@ -304,20 +304,20 @@ function guifi_traceroute_search($params = null) {
 
   return $output;
 }
-
+ 
 function guifi_traceroute_map_form($form_state) { //Eduard
   $vtext = t('Route Level: Importance of the route depending on the cost and proximity to the main route').'<br />';
   $vtext .= t('main').':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon1.png"/>';  
   for($i=2;$i<=10;$i++){
     $vtext .='&nbsp;&nbsp;&nbsp;&nbsp;'.$i.':<img src="'.base_path().drupal_get_path('module','guifi').'/js/marker_traceroute_icon'.$i.'.png"/>';
   }
-  $form['#action'] = 'pepe.js';
+  $form['#action'] = '';
   $form['formmap3'] = array(
     '#type' => 'button',
     '#name' => 'btnrouteright',
     '#value' => '>>',
-    '#attributes' => array('onclick'=>'printroute(1);return(false)'),
-    '#prefix' => '<div style="float:right;text-align:right;width:200px;"><div style="float:right;margin-left:8px;">',
+    '#attributes' => array('onclick'=> 'return printroute(1)'),
+    '#prefix' => '<div style="float:right;text-align:right;width:200px;"><div style="float:right;margin-left:8px;margin-top:0px">',
     '#suffix' => '</div>'
   );
   $form['formmap2'] = array(
@@ -325,16 +325,17 @@ function guifi_traceroute_map_form($form_state) { //Eduard
     '#name' => 'texroute',
     '#default_value' => 0,
     '#size' => 4,
-    '#attributes' => array('style'=>'text-align:right'),
-    '#prefix' => '<div style="float:right;margin-top:13px;">',
+    '#attributes' => array('style'=>'text-align:right;'),
+    //'#prefix' => '<div style="float:right;margin-left:8px;margin-top:-14px">',
+    '#prefix' => '<div style="float:right;margin-left:0px;margin-top:13px">',
     '#suffix' => '</div>'
   );
   $form['formmap1'] = array(
     '#type' => 'button',
     '#name' => 'btnrouteleft',
     '#value' => '<<',
-    '#attributes' => array('onclick'=>'printroute(-1);return(false)'),    
-    '#prefix' => '<div style="float:right">',
+    '#attributes' => array('onclick'=>'return printroute(-1)'),    
+    '#prefix' => '<div style="float:right;">',
     '#suffix' => '</div></div><div>'.$vtext.'</div>'
   );
 

@@ -11,9 +11,12 @@ var oLinks = new Object;
 var oNodes = new Object;
 var oGNodes = new Array;
 var oGLinks = new Array;
+var oSubRouteLevel = new Array; //keeps the level of each subroute
+var oLinksId = new Object;        //array control links properties
 var colors = new Array("","#ff0000","#fb00ff","#6f00ff","#001eff","#00aeff","#00ffc3","#00ff37","#59ff00","#e5ff00","#ff8c00")
 var icons = new Array();
 var nRoute = 0;
+var nRouteActual = 0;
 
 function xz() 
 {
@@ -73,11 +76,9 @@ function xz()
     nRoute = 0;
     var sw = 0;
     var nSubRoute = 0;
-    var oLinkPaint = new Object;        //array control links already drawn
-    var oSubRouteLevel = new Object;    //keeps the level of each subroute
     for(nLink in oLinks){
       var oLink = oLinks[nLink];
-      if(oLinkPaint[oLink.idlink]==undefined){
+      if(oLinksId[oLink.idlink]==undefined){
             if(oLink.route!=nRoute || sw==0){
                   sw = 1;
                   nLevel = 1;
@@ -110,16 +111,20 @@ function xz()
             }else{
                   oLink.paint=1
             }
-            oLinkPaint[oLink.idlink] = nLink;
             oSubRouteLevel[nSubRoute] = nLevel;
+            oLinksId[oLink.idlink]= new Array;
+            oLinksId[oLink.idlink]["nlink"] = nLink;
+            oLinksId[oLink.idlink]["routes"]=""+oLink.route;
       }else{
-            oLink.subroute=oLinks[oLinkPaint[oLink.idlink]].subroute;
+            oLink.subroute=oLinks[oLinksId[oLink.idlink]["nlink"]].subroute;
             oLink.paint=0;
+            oLinksId[oLink.idlink]["routes"]+=","+oLink.route;
       }
     }
     
     //Draw nodes and links
     document.getElementById("edit-formmap2").value=0;
+    nRouteActual=0;
     for(nNode in oNodes){
       var oNode=oNodes[nNode];
       var point = new GLatLng(oNode.lat,oNode.lon);
@@ -135,7 +140,7 @@ function xz()
       if(oLink.subroute>0){
             var point1 = new GLatLng(oNodes[oLink.fromnode].lat,oNodes[oLink.fromnode].lon);
             var point2 = new GLatLng(oNodes[oLink.tonode].lat,oNodes[oLink.tonode].lon);
-            oGLinks[nLink] = new GPolyline([point1,point2],colors[oSubRouteLevel[oLink.subroute]], 5,0.5,polyOptions);
+            oGLinks[nLink] = new GPolyline([point1,point2],colors[oSubRouteLevel[oLink.subroute]], 5,0.6,polyOptions);
             if(oLink.paint==0){
                   oGLinks[nLink].hide();
             }
@@ -150,6 +155,7 @@ function createEventNode(pNode, pNumber) {
   GEvent.addListener(pNode, "mouseover", function() {
       var point = new GLatLng(oNodes[pNumber].lat,oNodes[pNumber].lon);
       var v="Node: "+oNodes[pNumber]["nodelink"]+"-"+oNodes[pNumber]["nodename"];
+      v+="<br>level: "+oSubRouteLevel[oNodes[pNumber].subroute];
       map.openInfoWindowHtml(point,v);
       //pNode.openInfoWindowHtml(v);
   });
@@ -161,16 +167,17 @@ function createEventLink(pLink, pNumber) {
   pLink.value = pNumber;
   GEvent.addListener(pLink, "click", function(point) {
       var v="from device: "+oLinks[pNumber]["fromdevicename"]+"-"+oLinks[pNumber]["fromipv4"];
-      v=v+"<br>to device: "+oLinks[pNumber]["todevicename"]+"-"+oLinks[pNumber]["toipv4"];
-      v=v+"<br>Distance: "+oLinks[pNumber]["distance"]+" Km.";
+      v+="<br>to device: "+oLinks[pNumber]["todevicename"]+"-"+oLinks[pNumber]["toipv4"];
+      v+="<br>distance: "+oLinks[pNumber]["distance"]+" Km."+"&nbsp;&nbsp;&nbsp;&nbsp;level: "+oSubRouteLevel[oLinks[pNumber]["subroute"]];
+      v+="<br>routes: "+oLinksId[oLinks[pNumber]["idlink"]]["routes"];
       map.openInfoWindowHtml(point,v);
   });
 }
 
 
 
-function printroute(p)
-{
+function printroute(p){
+    map.closeInfoWindow();
     var vroute=document.getElementById("edit-formmap2").value;
     if (p==-1){
       if (vroute>0) vroute--;
@@ -178,12 +185,15 @@ function printroute(p)
       if (vroute<nRoute) vroute++;
     }else vroute=0;
     document.getElementById("edit-formmap2").value=vroute;
+    nRouteActual=vroute;
     //hide nodes and links    
     for(nNode in oNodes) {
       oGNodes[nNode].hide();
     }
     for(nLink in oLinks){
-      oGLinks[nLink].hide()
+      if(oLinks[nLink]["subroute"]>0){
+            oGLinks[nLink].hide()
+      }
     }
     if (vroute>0){
       //show route vroute    
@@ -196,7 +206,8 @@ function printroute(p)
         }    
       }
     }else{
-      //show all routes    
+      //show all routes
+
       for(nNode in oNodes){
         oGNodes[nNode].show();
       }
@@ -205,6 +216,7 @@ function printroute(p)
         if(oLink.subroute>0 && oLink.paint==1) oGLinks[nLink].show();
       }
     }
+    return(false);
 }
 
 
