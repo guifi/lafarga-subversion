@@ -92,6 +92,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
      echo $CNML->asXML();
      return;
      break;
+   case 'plot':
+     drupal_set_header('Content-Type: text/html; charset=utf-8');
+   	 plot_guifi($cnmlid);
+     return;
+     break;
   }
 
 
@@ -602,7 +607,7 @@ function fnodecount($cnmlid){
 	$classXML->addAttribute('numrecs',$nreg);
 	$classXML->addAttribute('numyears',$nyear);
 	break;
-  case 2:  //compte els nodes per estat
+  case 2:  //compta els nodes per estat
   	$result=db_query("select COUNT(*) as num, status_flag from {guifi_location} GROUP BY status_flag ");
 	$classXML = $CNML->addChild('nodesxstatus');
 	$nreg=0;
@@ -721,6 +726,52 @@ function dump_guifi_ips($cnmlid){
 	$classXML->addAttribute('range','10');
 
   return $CNML;
+}
+function plot_guifi($cnmlid){
+    include_once 'phplot.php';
+    $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
+	$nreg=0;
+    $tot=0;
+	while ($record=db_fetch_object($result)){
+      if($record->ano>=2004){
+         $tot+=$record->num;
+         $data[$nreg]=array("$record->ano",$tot);
+         $nreg++;
+      }else{
+         $tot+=$record->num;
+      };
+	};
+    $plot = new PHPlot(200,150);
+    $plot->SetFileFormat('png');
+    $plot->SetDataType("text-data");
+    $plot->SetDataValues($data);
+    $plot->SetPlotType("linepoints");
+    $plot->SetYTickIncrement(1000);
+    $plot->SetSkipBottomTick(true);
+    $plot->SetXAxisPosition(0);
+    //$plot->SetNumYTicks(5);
+    //$plot->SetLegend(array('45', '100','150'));
+    $plot->SetPlotAreaWorld(NULL, 0,NULL,NULL);
+    $plot->SetTickLength(3);
+    $plot->SetTickColor('grey');
+    $plot->SetTitle('Nodes operatius');
+    //$plot->SetXLabelType('printf');
+    //$plot->SetXDataLabelPos('none');
+    $plot->SetXTickLabelPos('none');
+    $plot->SetDrawXDataLabelLines(false);
+    $plot->SetXTickPos('none');
+    $plot->SetXLabelAngle(0);
+    //$plot->SetNumXTicks(5);
+    $plot->SetGridColor('red');
+    $plot->SetPlotBorderType('left');
+    $plot->SetDataColors(array('orange'));
+    $plot->SetTextColor('DimGrey');
+    $plot->SetTitleColor('DimGrey');
+    $plot->SetLightGridColor('grey');
+    $plot->SetBackgroundColor('white');
+    $plot->SetTransparentColor('white');
+    $plot->SetIsInline(true);
+    $plot->DrawGraph();
 }
 
 ?>

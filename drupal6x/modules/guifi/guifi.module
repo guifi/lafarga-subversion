@@ -1,6 +1,6 @@
 <?php
 // $Id: guifi.module x$
-// prova
+
 include_once("guifi_zone.inc.php");      // zone management
 include_once("guifi_ipv4.inc.php");      // ipv4 network management
 include_once("guifi_node.inc.php");      // node (location) management
@@ -1549,7 +1549,9 @@ function guifi_display_block_1() {
       'table',
       array(t('Wireless<br />links'),
       '<p align="right">#</p>',t('kms.')),$rows);
-
+    
+    //Grafic historic
+    $content.='<br><img src="'.base_path().'guifi/cnml/1/plot">';
     return $content;
 }
 
