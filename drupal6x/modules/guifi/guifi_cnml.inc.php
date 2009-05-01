@@ -93,8 +93,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
      return;
      break;
    case 'plot':
-     drupal_set_header('Content-Type: text/html; charset=utf-8');
-   	 plot_guifi($cnmlid);
+     plot_guifi($cnmlid);
      return;
      break;
   }
@@ -728,40 +727,61 @@ function dump_guifi_ips($cnmlid){
   return $CNML;
 }
 function plot_guifi($cnmlid){
-    include_once 'phplot.php';
-    $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
-	$nreg=0;
+    include 'modules/guifi/contrib/phplot/phplot.php';
+    $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
+	$nreg=5;
     $tot=0;
+    $ano=2004;
+    $mes=5;
+    $items=2004;
+    $label="";
 	while ($record=db_fetch_object($result)){
       if($record->ano>=2004){
+         if($mes==12){
+            $mes=1;
+            $ano++;
+         }else{
+            $mes++;
+         }
+         while ($ano<$record->ano || $mes<$record->mes){
+            $nreg++;
+            $data[]=array("$label",$nreg,$tot);
+            if($mes==12){
+               $mes=1;
+               $ano++;
+            }else{
+               $mes++;
+            }
+         }
          $tot+=$record->num;
-         $data[$nreg]=array("$record->ano",$tot);
          $nreg++;
+         $data[]=array("$label",$nreg,$tot);
       }else{
          $tot+=$record->num;
       };
 	};
+    $items=($ano-$items+1)*12;
+
     $plot = new PHPlot(200,150);
+    $plot->SetPlotAreaWorld(0, 0,$items,NULL);
     $plot->SetFileFormat('png');
-    $plot->SetDataType("text-data");
+    $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
-    $plot->SetPlotType("linepoints");
+    $plot->SetPlotType("lines");
     $plot->SetYTickIncrement(1000);
+    $plot->SetXTickIncrement(12);
     $plot->SetSkipBottomTick(true);
+    $plot->SetSkipLeftTick(true);
     $plot->SetXAxisPosition(0);
-    //$plot->SetNumYTicks(5);
-    //$plot->SetLegend(array('45', '100','150'));
-    $plot->SetPlotAreaWorld(NULL, 0,NULL,NULL);
+    $plot->SetPointShapes('none');
     $plot->SetTickLength(3);
+    $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
     $plot->SetTitle('Nodes operatius');
-    //$plot->SetXLabelType('printf');
-    //$plot->SetXDataLabelPos('none');
-    $plot->SetXTickLabelPos('none');
+    $plot->SetXDataLabelPos('none');
     $plot->SetDrawXDataLabelLines(false);
-    $plot->SetXTickPos('none');
     $plot->SetXLabelAngle(0);
-    //$plot->SetNumXTicks(5);
+    $plot->SetXLabelType('custom', 'Plot1_LabelFormat');
     $plot->SetGridColor('red');
     $plot->SetPlotBorderType('left');
     $plot->SetDataColors(array('orange'));
@@ -773,5 +793,8 @@ function plot_guifi($cnmlid){
     $plot->SetIsInline(true);
     $plot->DrawGraph();
 }
-
+function Plot1_LabelFormat($value){
+   $v=$value/12+2003;
+   return ("{$v}   .");
+}
 ?>
