@@ -727,7 +727,7 @@ function dump_guifi_ips($cnmlid){
   return $CNML;
 }
 function plot_guifi($cnmlid){
-    include 'modules/guifi/contrib/phplot/phplot.php';
+    include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
 	$nreg=5;
     $tot=0;
