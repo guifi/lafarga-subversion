@@ -1210,7 +1210,7 @@ function guifi_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('URL for WMS service'),
     '#required' => FALSE,
-    '#default_value' => variable_get("guifi_wms_service", 'http://wms.guifi.net/cgi-bin/mapserv?map=/home1/fgs/www/htdocs/guifimaps/GMap.map'),
+    '#default_value' => variable_get("guifi_wms_service", 'http://guifi.net/cgi-bin/mapserv?map=/var/www/maps.guifi.net/guifimaps/GMap.map'),
     '#size' => 80,
     '#maxlength' => 1024,
     '#description' => t("URL to call to get WMS guifi mapping services"),
