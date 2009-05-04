@@ -371,7 +371,7 @@ function guifi_user_form($form_state, $params = array()) {
     );
   } else {
     $f['services']['proxystr'] = array(
-      '#type'=>'item',miquelmartos@gmail.com
+      '#type'=>'item',
       '#title'=>t('proxy'),
       '#value'=>guifi_service_str($form_state['values']['services']['proxy'])
     );
