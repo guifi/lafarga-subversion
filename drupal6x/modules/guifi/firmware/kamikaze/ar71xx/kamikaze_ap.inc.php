@@ -8,13 +8,13 @@ function guifi_kamikaze_files($dev,$zone) {
   $lan_network = _ipcalc($lan->ipv4,$lan->netmask);
 
   switch ($dev->variable['model_id']) {
-      case "25": case "26": case "32": case "33": case "34": case "35": case "36": case "37":
-      // NanoStationX, LiteStationX, NanoStation LocoX, Bullet
+    case "38":	
+    // RouterStation
       $wireless_model='atheros';
       $lan_iface='eth0';    
       $lan2_iface='eth1';     
 
-      $packages='atheros/packages';
+      $packages='ar71xx/packages';
       break;
     default:
       _outln_comment('model id not supported');

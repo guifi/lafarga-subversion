@@ -371,7 +371,7 @@ function guifi_user_form($form_state, $params = array()) {
     );
   } else {
     $f['services']['proxystr'] = array(
-      '#type'=>'item',
+      '#type'=>'item',miquelmartos@gmail.com
       '#title'=>t('proxy'),
       '#value'=>guifi_service_str($form_state['values']['services']['proxy'])
     );
@@ -550,6 +550,33 @@ function guifi_user_form_validate($form, &$form_state) {
   if (!empty($edit['pass']))
     $edit['password'] = crypt($edit['pass']);
 
+  if (!empty($edit['notification'])) {
+    if (isset($edit['id']))
+      $query = db_query(
+        "SELECT username, notification, nid, services " .
+        "FROM {guifi_users} " .
+        "WHERE notification ='%s' " .
+        " AND id <> %d",
+        $edit['notification'], $edit['id']);
+    else
+      $query = db_query(
+        "SELECT username, notification, nid, services " .
+        "FROM {guifi_users} " .
+        "WHERE notification ='%s'",
+        $edit['notification']);
+
+    while ($guifi_users = db_fetch_object($query)) {
+
+      form_set_error('notification', t('The e-mail address: %notification is already defined ' .
+        'for the user: %username on node %nodename ' .
+        '<p>Each user must use a real e-mail and this must not be repeated in others.',
+        array('%notification'=>$edit['notification'],
+          '%username'=>$guifi_users->username,
+          '%nodename'=>guifi_get_nodename($guifi_users->nid),
+        ))
+      );
+    }
+  }
 }
 
 function guifi_users_queue($zone) {

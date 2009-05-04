@@ -20,15 +20,16 @@ function guifi_kamikaze_files($dev,$zone) {
   $wireless_iface = 0;
 
   switch ($dev->variable['model_id']) {
-    case "25": case "26":
-    // NanoStation2, Nanostation5
+      case "25": case "26": case "32": case "33": case "34": case "35": case "36": case "37":
+      // NanoStationX, LiteStationX, NanoStation LocoX, Bullet
       $wireless_model='atheros';
       $wireless_iface='wifi0';
       $vlans=NULL;
-      if ($dev->variable['model_id']  == 25)
-        $mode='option \'mode\' \'11b\'';
-      if ($dev->variable['model_id']  == 26)
-        $mode='option \'mode\' \'11a\'';
+      $mode = NULL;
+      if (($dev->variable['model_id']  == 25)||($dev->variable['model_id']  == 32)||($dev->variable['model_id']  == 34)||($dev->variable['model_id']  == 36))
+        $mode='option \'hwmode\' \'11b\'';
+      else
+        $mode='option \'hwmode\' \'11a\'';
       $lan_iface='eth0';
       $wan_iface='ath0';
       $txant='txantenna';
@@ -85,16 +86,18 @@ config interface wan
 config \'wifi-device\' \''.$wireless_iface.'\'
         option \'type\' \''.$wireless_model.'\'
         option \'disabled\' \'0\'
+        option \'diversity\' \'0\'
         option \''.$txant.'\' \''.$dev->radios[0][antenna_mode].'\'
         option \''.$rxant.'\' \''.$dev->radios[0][antenna_mode].'\'
         '.$mode.'
+        option \'txpower\' \'16\'
 
 config wifi-iface
         option \'device\' \''.$wireless_iface.'\'
         option \'network\' \'wan\'
         option \'mode\' \'sta\'
         option \'ssid\' \''.$apssid.'\'
-        option \'encryption \'none\'
+        option \'encryption\' \'none\'
 ';
 
   _outln_comment();
@@ -152,10 +155,11 @@ config rule
 
 //FILE OPKG
   $opkg_conf='
-src/gz guifi http://ausa.guifi.net/drupal/files/openwrt/client/'.$packages.'
+src/gz snapshots http://downloads.openwrt.org/snapshots/'.$packages.'
 dest root /
 dest ram /tmp
 lists_dir ext /var/opkg-lists
+option overlay_root /jffs
 ';
   _outln_comment();
   _outln_comment();
