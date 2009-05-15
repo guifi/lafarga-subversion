@@ -50,8 +50,8 @@ function guifi_graph_detail() {
     'node'=>$_GET['node'],
     'device'=>$device_id
     );
-  if (isset($_GET['direction]']))
-    $args['direction']=$_GET['direction]'];
+  if (isset($_GET['direction']))
+    $args['direction']=$_GET['direction'];
 
   switch ($type) {
     case 'clients':
