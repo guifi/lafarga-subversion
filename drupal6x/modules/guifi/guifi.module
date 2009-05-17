@@ -99,7 +99,7 @@ function guifi_menu() {
   if (variable_get('guifi_forums','forum') != '')
   $items['guifi/menu/main/forums'] = array(
     'title' => 'Forums',
-    'description' => 'Do you have questions? Browse the questions or post your own question to the formus',
+    'description' => 'Do you have questions? Browse the questions or post your own question to the forums',
     'page callback' => 'drupal_goto',
     'page arguments' => array(variable_get('guifi_forums','forum')),
     'access arguments' => array('access content'),
