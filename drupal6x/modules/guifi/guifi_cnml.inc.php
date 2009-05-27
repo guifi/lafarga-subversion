@@ -277,17 +277,33 @@ function guifi_cnml($cnmlid,$action = 'help') {
                        'Supertrasto RB411 guifi.net',
                        'Supertrasto RB412 guifi.net',
                        'Supertrasto RB433 guifi.net'))) {
-                $radioXML->addAttribute('snmp_name','wlan'.(string) ($id + 1));
-              }
-                else if  (in_array($model_name,
-                     array('NanoStation2' , 'NanoStation5'))) {
                  switch ($device->variable['firmware']) {
                  case 'kamikaze':
-                  $radioXML->addAttribute('snmp_name','ath0');
+                   $radioXML->addAttribute('snmp_name','ath0');
+                 case 'RouterOSv2.9':
+                 case 'RouterOSv3.x':
+                   $radioXML->addAttribute('snmp_name','wlan'.(string) ($id + 1));
+                 break;
+                   }
+              }
+                else if  (in_array($model_name,
+                     array('NanoStation2' , 'NanoStation5', 'LiteStation2', 'LiteStation5', 'NanoStation Loco2', 'NanoStation Loco5', 'Bullet2', 'Bullet5'))) {
+                 switch ($device->variable['firmware']) {
+                 case 'kamikaze':
+                   $radioXML->addAttribute('snmp_name','ath0');
+                 break;
                  case 'AirOsv30':
                  case 'AirOsv221':
-                  $radioXML->addAttribute('snmp_name','wifi0');
-                   break;
+                   $radioXML->addAttribute('snmp_name','wifi0');
+                 break;
+                   }
+              }
+                else if  (in_array($model_name,
+                     array('Meraki/Fonera' , 'RouterStation', 'Avila GW2348-4', 'Asus WL-500xx'))) {
+                 switch ($device->variable['firmware']) {
+                 case 'kamikaze':
+                   $radioXML->addAttribute('snmp_name','ath0');
+                 break;
                    }
               }
             }
