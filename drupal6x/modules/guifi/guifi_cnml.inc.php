@@ -292,6 +292,9 @@ function guifi_cnml($cnmlid,$action = 'help') {
                  case 'kamikaze':
                    $radioXML->addAttribute('snmp_name','ath0');
                  break;
+                 case 'DD-WRT':
+                   $radioXML->addAttribute('snmp_name','br0');
+                 break;
                  case 'AirOsv30':
                  case 'AirOsv221':
                    $radioXML->addAttribute('snmp_name','wifi0');
