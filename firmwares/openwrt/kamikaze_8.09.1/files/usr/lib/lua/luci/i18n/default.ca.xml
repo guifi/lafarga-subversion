@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<i18n:msgs xmlns:i18n="http://luci.freifunk-halle.net/2008/i18n#" xmlns="http://www.w3.org/1999/xhtml">
+
+<i18n:msg xml:id="skiplink1">Salta a la navegació</i18n:msg>
+<i18n:msg xml:id="skiplink2">Salta al contingut</i18n:msg>
+<i18n:msg xml:id="navigation">Navegació</i18n:msg>
+<i18n:msg xml:id="about">Sobre</i18n:msg>
+<i18n:msg xml:id="add">Afegeix</i18n:msg>
+<i18n:msg xml:id="addresses">Addreces</i18n:msg>
+<i18n:msg xml:id="aliases">Aliases</i18n:msg>
+<i18n:msg xml:id="all">tots</i18n:msg>
+<i18n:msg xml:id="back">enrere</i18n:msg>
+<i18n:msg xml:id="administration">Administració</i18n:msg>
+<i18n:msg xml:id="essentials">Essencials</i18n:msg>
+<i18n:msg xml:id="apply">Aplica</i18n:msg>
+<i18n:msg xml:id="basicsettings">Configuració bàsica</i18n:msg>
+<i18n:msg xml:id="broadcast">Broadcast <abbr title="Internet Protocol Version 4">IPv4</abbr></i18n:msg>
+<i18n:msg xml:id="changes">Canvis</i18n:msg>
+<i18n:msg xml:id="channel">Canal</i18n:msg>
+<i18n:msg xml:id="cidr6">Notació <abbr title="Classless Inter-Domain Routing">CIDR</abbr>: adreça/prefix</i18n:msg>
+<i18n:msg xml:id="code">Codo</i18n:msg>
+<i18n:msg xml:id="config">Configuració</i18n:msg>
+<i18n:msg xml:id="configfile">Fitxer de configuració</i18n:msg>
+<i18n:msg xml:id="confirmation">Confirmació</i18n:msg>
+<i18n:msg xml:id="delete">Esborra</i18n:msg>
+<i18n:msg xml:id="descr">Descripció</i18n:msg>
+<i18n:msg xml:id="design">Disseny</i18n:msg>
+<i18n:msg xml:id="destination">Destí</i18n:msg>
+<i18n:msg xml:id="device">Dispositiu</i18n:msg>
+<i18n:msg xml:id="devices">Dispositius</i18n:msg>
+<i18n:msg xml:id="disable">deshabilita</i18n:msg>
+<i18n:msg xml:id="distance">Distància</i18n:msg>
+<i18n:msg xml:id="dmesg">Registre del Kernel</i18n:msg>
+<i18n:msg xml:id="dnsserver">Servidor <abbr title="Domain Name System">DNS</abbr></i18n:msg>
+<i18n:msg xml:id="edit">Edita</i18n:msg>
+<i18n:msg xml:id="enable">habilita</i18n:msg>
+<i18n:msg xml:id="encryption">Encriptació</i18n:msg>
+<i18n:msg xml:id="error">Error</i18n:msg>
+<i18n:msg xml:id="filesystem">Sistema de fitxers</i18n:msg>
+<i18n:msg xml:id="filter">Filtre</i18n:msg>
+<i18n:msg xml:id="gateway">Passarel·la <abbr title="Internet Protocol Version 4">IPv4</abbr></i18n:msg>
+<i18n:msg xml:id="gateway6">Passarel·la <abbr title="Internet Protocol Version 6">IPv6</abbr></i18n:msg>
+<i18n:msg xml:id="general">General</i18n:msg>
+<i18n:msg xml:id="hostname">Nom de màquina</i18n:msg>
+<i18n:msg xml:id="install">Instal·la</i18n:msg>
+<i18n:msg xml:id="installed">instal·lat</i18n:msg>
+<i18n:msg xml:id="interface">Interfície</i18n:msg>
+<i18n:msg xml:id="interfaces">interfícies</i18n:msg>
+<i18n:msg xml:id="ipaddress">Adreça <abbr title="Internet Protocol Version 4">IPv4</abbr></i18n:msg>
+<i18n:msg xml:id="ip6address">Adreça <abbr title="Internet Protocol Version 6">IPv6</abbr></i18n:msg>
+<i18n:msg xml:id="legend">Llegenda</i18n:msg>
+<i18n:msg xml:id="library">Llibreria</i18n:msg>
+<i18n:msg xml:id="logout">Finalitza sessió</i18n:msg>
+<i18n:msg xml:id="key">Clau</i18n:msg>
+<i18n:msg xml:id="language">Llengua</i18n:msg>
+<i18n:msg xml:id="limit">Límit</i18n:msg>
+<i18n:msg xml:id="load">Carrega</i18n:msg>
+<i18n:msg xml:id="login">Inicia sessió</i18n:msg>
+<i18n:msg xml:id="macaddress">Adreça <abbr title="Media Access Control">MAC</abbr></i18n:msg>
+<i18n:msg xml:id="manpage">mostra la pàgina de manual de &#39;%s&#39;</i18n:msg>
+<i18n:msg xml:id="metric">Mètrica</i18n:msg>
+<i18n:msg xml:id="mode">Mode</i18n:msg>
+<i18n:msg xml:id="name">Nom</i18n:msg>
+<i18n:msg xml:id="netmask">Xarxa <abbr title="Internet Protocol Version 4">IPv4</abbr></i18n:msg>
+<i18n:msg xml:id="network">Xarxa</i18n:msg>
+<i18n:msg xml:id="networks">Xarxes</i18n:msg>
+<i18n:msg xml:id="none">cap</i18n:msg>
+<i18n:msg xml:id="notinstalled">no instal·lat</i18n:msg>
+<i18n:msg xml:id="ok">D&#39;acord</i18n:msg>
+<i18n:msg xml:id="options">Opcions</i18n:msg>
+<i18n:msg xml:id="overview">Vista general</i18n:msg>
+<i18n:msg xml:id="packagemanager">Gestor de Paquets</i18n:msg>
+<i18n:msg xml:id="password">Contrasenya</i18n:msg>
+<i18n:msg xml:id="path">Ruta</i18n:msg>
+<i18n:msg xml:id="port">Port</i18n:msg>
+<i18n:msg xml:id="ports">Ports</i18n:msg>
+<i18n:msg xml:id="protocol">Protocol</i18n:msg>
+<i18n:msg xml:id="reboot">Arranca de nou</i18n:msg>
+<i18n:msg xml:id="reset">Reinicia</i18n:msg>
+<i18n:msg xml:id="revert">Reverteix</i18n:msg>
+<i18n:msg xml:id="save">Desa</i18n:msg>
+<i18n:msg xml:id="saveapply">Desa &amp; Aplica</i18n:msg>
+<i18n:msg xml:id="scan">Escaneja</i18n:msg>
+<i18n:msg xml:id="service">Servei</i18n:msg>
+<i18n:msg xml:id="services">Serveis</i18n:msg>
+<i18n:msg xml:id="settings">Configuració</i18n:msg>
+<i18n:msg xml:id="size">Mida</i18n:msg>
+<i18n:msg xml:id="source">Origen</i18n:msg>
+<i18n:msg xml:id="start">Inici</i18n:msg>
+<i18n:msg xml:id="static">estàtic</i18n:msg>
+<i18n:msg xml:id="status">Estat</i18n:msg>
+<i18n:msg xml:id="statistics">Estadístiques</i18n:msg>
+<i18n:msg xml:id="submit">Envia</i18n:msg>
+<i18n:msg xml:id="syslog">Registre del Sistema</i18n:msg>
+<i18n:msg xml:id="system">Sistema</i18n:msg>
+<i18n:msg xml:id="target">Destí</i18n:msg>
+<i18n:msg xml:id="timezone">Zona horària</i18n:msg>
+<i18n:msg xml:id="type">Tipus</i18n:msg>
+<i18n:msg xml:id="unknownerror">Error desconegut</i18n:msg>
+<i18n:msg xml:id="unsavedchanges">Canvis sense desar</i18n:msg>
+<i18n:msg xml:id="username">Nom d&#39;usuari</i18n:msg>
+<i18n:msg xml:id="version">Versió</i18n:msg>
+<i18n:msg xml:id="webui">Web <abbr title="User Interface">UI</abbr></i18n:msg>
+<i18n:msg xml:id="wifi">Wifi</i18n:msg>
+<i18n:msg xml:id="zone">Zona</i18n:msg>
+
+</i18n:msgs>

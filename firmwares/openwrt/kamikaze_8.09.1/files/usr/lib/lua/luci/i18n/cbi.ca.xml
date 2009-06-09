@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<i18n:msgs xmlns:i18n="http://luci.freifunk-halle.net/2008/i18n#" xmlns="http://www.w3.org/1999/xhtml">
+
+<i18n:msg xml:id="cbi_add">Afegeix entrada</i18n:msg>
+<i18n:msg xml:id="cbi_del">Esborra entrada</i18n:msg>
+<i18n:msg xml:id="cbi_replace">Reemplaça entrada</i18n:msg>
+<i18n:msg xml:id="cbi_invalid">Valor d&#39;entrada invàlid</i18n:msg>
+<i18n:msg xml:id="cbi_invalid_section"><strong>Ha fallat la validació:</strong> Si us plau revisa qualsevol camp d&#39;entrada per problemes.</i18n:msg>
+<i18n:msg xml:id="cbi_missing">Aquest camp és obligatori</i18n:msg>
+<i18n:msg xml:id="cbi_deperror"><strong>Ha fallat la validació:</strong> Almenys un camp obligatori té un valor incorrecte o inexistent</i18n:msg>
+<i18n:msg xml:id="cbi_reqerror">No s&#39;ha satisfet un requeriment d&#39;aquesta opció</i18n:msg>
+<i18n:msg xml:id="cbi_addopt">-- Camp addicional --</i18n:msg>
+<i18n:msg xml:id="cbi_optional"> (opcional)</i18n:msg>
+<i18n:msg xml:id="cbi_sectempty">Aquesta secció no conté cap valor encara</i18n:msg>
+<i18n:msg xml:id="cbi_manual">-- personalitzat --</i18n:msg>
+<i18n:msg xml:id="cbi_select">-- Escull --</i18n:msg>
+<i18n:msg xml:id="cbi_gorel">Vés a la pàgina de configuració</i18n:msg>
+<i18n:msg xml:id="cbi_applying">Aplicant els canvis</i18n:msg>
+<i18n:msg xml:id="cbi_upload">Fitxer pujat</i18n:msg>
+<i18n:msg xml:id="cbi_browser">Cerca fitxer...</i18n:msg>
+
+</i18n:msgs>

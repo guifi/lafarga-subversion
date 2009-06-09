@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<i18n:msgs xmlns:i18n="http://luci.freifunk-halle.net/2008/i18n#" xmlns="http://www.w3.org/1999/xhtml">
+
+<i18n:msg xml:id="sysauth_head">Es requereix autenticació</i18n:msg>
+<i18n:msg xml:id="sysauth_prompt">Si us plau entra el teu nom d&#39;usuari i contrasenya.</i18n:msg>
+<i18n:msg xml:id="sysauth_failed">Usuari i/o contrasenya invàlids! Si us plau prova-ho de nou.</i18n:msg>
+
+</i18n:msgs>

@@ -1,0 +1,57 @@
+config 'defaults'
+	option 'syn_flood' '1'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+
+config 'zone'
+	option 'output' 'ACCEPT'
+	option 'forward' 'REJECT'
+	option 'name' 'lan'
+	option 'input' 'ACCEPT'
+	option 'network' 'lan'
+
+config 'zone'
+	option 'input' 'REJECT'
+	option 'forward' 'REJECT'
+	option 'masq' '1'
+	option 'output' 'ACCEPT'
+	option 'name' 'wan'
+	option 'network' 'wan'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'mtu_fix' '1'
+	option 'dest' 'wan'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option 'src' 'wan'
+	option '_name' 'allow_wan_ssh'
+	option 'proto' 'tcp'
+	option 'dest_port' '22'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option 'src' 'wan'
+	option '_name' 'allow_wan_snmp'
+	option 'proto' 'udp'
+	option 'dest_port' '161'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option '_name' 'allow_wan_http'
+	option 'src' 'wan'
+	option 'proto' 'tcp'
+	option 'dest_port' '80'
+
+config 'rule'
+	option 'target' 'ACCEPT'
+	option '_name' 'allow_wan_ping'
+	option 'src' 'wan'
+	option 'proto' 'icmp'
+
+config 'include'
+	option 'path' '/etc/firewall.user'
+
+

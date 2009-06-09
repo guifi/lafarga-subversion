@@ -1,0 +1,14 @@
+#!/bin/sh /etc/rc.common
+START=80
+start() {
+        if [ " "`uci get luci.languages.ca 2>/dev/null` != " Catalan" ]
+        then
+                uci set luci.languages.ca=Catalan
+                uci set luci.main.lang=ca
+                uci commit luci
+                chmod -x /etc/init.d/luci_fix_catalan
+        fi
+        }
+
+
+

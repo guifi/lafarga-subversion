@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+START=80
+start() {
+        /bin/nano-leds.sh &
+        }
+
+stop() {
+       ps ax > /tmp/ledspid
+       PID=\`awk '/nano-leds.sh/ {print \$1}' /tmp/ledspid\`
+       kill -9 \$PID
+       rm /tmp/ledspid
+       sleep 1
+       gpioctl clear 0
+       gpioctl clear 1
+       gpioctl clear 3
+       gpioctl clear 4
+       }
+
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<i18n:msgs xmlns:i18n="http://luci.freifunk-halle.net/2008/i18n#" xmlns="http://www.w3.org/1999/xhtml">
+
+<i18n:msg xml:id="wifi_auto">auto</i18n:msg>
+<i18n:msg xml:id="wifi_fh">Salts de freqüència</i18n:msg>
+<i18n:msg xml:id="wifi_diversity">Diversitat</i18n:msg>
+<i18n:msg xml:id="wifi_txantenna">Antena transmissiora</i18n:msg>
+<i18n:msg xml:id="wifi_rxantenna">Antena receptora</i18n:msg>
+<i18n:msg xml:id="wifi_distance">Optimització de distància</i18n:msg>
+<i18n:msg xml:id="wifi_distance_desc">Distància al membre de la xarxa més allunyat en metres.</i18n:msg>
+<i18n:msg xml:id="wifi_macpolicy">Filtre d&#39;adreces MAC</i18n:msg>
+<i18n:msg xml:id="wifi_whitelist">Permet només les llistades</i18n:msg>
+<i18n:msg xml:id="wifi_blacklist">Permet-les totes menys les llistades</i18n:msg>
+<i18n:msg xml:id="wifi_maclist">Llista MAC</i18n:msg>
+<i18n:msg xml:id="wifi_bursting">Frame Bursting</i18n:msg>
+<i18n:msg xml:id="wifi_country">Codi de país</i18n:msg>
+<i18n:msg xml:id="wifi_maxassoc">Límit de connexió</i18n:msg>
+<i18n:msg xml:id="wifi_essid"><abbr title="Extended Service Set Identifier">ESSID</abbr></i18n:msg>
+<i18n:msg xml:id="wifi_bssid"><abbr title="Basic Service Set Identifier">BSSID</abbr></i18n:msg>
+<i18n:msg xml:id="wifi_frag">Llindar de Fragmentació</i18n:msg>
+<i18n:msg xml:id="wifi_rts">Llindar RTS/CTS</i18n:msg>
+<i18n:msg xml:id="wifi_wds"><abbr title="Wireless Distribution System">WDS</abbr></i18n:msg>
+<i18n:msg xml:id="wifi_wdssep">WDS Separats</i18n:msg>
+<i18n:msg xml:id="wifi_hidden">Amaga l&#39;<abbr title="Extended Service Set Identifier">ESSID</abbr></i18n:msg>
+<i18n:msg xml:id="wifi_isloate">Aïlla clients</i18n:msg>
+<i18n:msg xml:id="wifi_isloate_desc">Evita comunicació Client a Client</i18n:msg>
+<i18n:msg xml:id="wifi_bgscan">Escaneig de fons</i18n:msg>
+<i18n:msg xml:id="wifi_rate">Taxa de transmissió</i18n:msg>
+<i18n:msg xml:id="wifi_mcast_rate">Taxa Multicast</i18n:msg>
+<i18n:msg xml:id="wifi_minrate">Taxa Mínima</i18n:msg>
+<i18n:msg xml:id="wifi_maxrate">Taxa Màxima</i18n:msg>
+<i18n:msg xml:id="wifi_compression">Compressió</i18n:msg>
+<i18n:msg xml:id="wifi_turbo">Mode Turbo</i18n:msg>
+<i18n:msg xml:id="wifi_ff">Fast Frames</i18n:msg>
+<i18n:msg xml:id="wifi_wmm">Mode WMM</i18n:msg>
+<i18n:msg xml:id="wifi_xr">Suport XR</i18n:msg>
+<i18n:msg xml:id="wifi_ar">Suport AR</i18n:msg>
+<i18n:msg xml:id="wifi_nosbeacon">Desactiva el temporitzador HW-Beacon</i18n:msg>
+<i18n:msg xml:id="wifi_noprobereq">No enviïs les respostes de prova</i18n:msg>
+<i18n:msg xml:id="wifi_wpareq">L&#39;encriptació WPA requreix el wpa_supplicant (pel mode client) o el hostapd (pels modes AP i ad-hoc) per poder-se instal·lar.</i18n:msg>
+
+</i18n:msgs>
