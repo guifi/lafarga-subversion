@@ -748,7 +748,8 @@ function dump_guifi_ips($cnmlid){
 function plot_guifi($cnmlid){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
-	$nreg=5;
+    $inicial=5;
+    $nreg=$inicial;
     $tot=0;
     $ano=2004;
     $mes=5;
@@ -764,8 +765,8 @@ function plot_guifi($cnmlid){
          }
          while ($ano<$record->ano || $mes<$record->mes){
             $nreg++;
-            $data[]=array("$label",$nreg,$tot);
-            if($mes==12){
+            $data[]=array("$label",$nreg,$tot,'');
+             if($mes==12){
                $mes=1;
                $ano++;
             }else{
@@ -774,25 +775,29 @@ function plot_guifi($cnmlid){
          }
          $tot+=$record->num;
          $nreg++;
-         $data[]=array("$label",$nreg,$tot);
-      }else{
+         $data[]=array("$label",$nreg,$tot,'');
+       }else{
          $tot+=$record->num;
       };
 	};
     $items=($ano-$items+1)*12;
-
+    if ($tot % 1000 < 30){
+      $data[$nreg-$inicial-1][3]=$tot;
+    }
+    $shapes = array( 'none', 'circle');
     $plot = new PHPlot(200,150);
     $plot->SetPlotAreaWorld(0, 0,$items,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
-    $plot->SetPlotType("lines");
+    $plot->SetPlotType("linepoints"); 
     $plot->SetYTickIncrement(1000);
     $plot->SetXTickIncrement(12);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
     $plot->SetXAxisPosition(0);
-    $plot->SetPointShapes('none');
+    $plot->SetPointShapes($shapes); 
+    $plot->SetPointSizes(10);
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
