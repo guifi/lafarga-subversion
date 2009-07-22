@@ -1258,27 +1258,26 @@ function guifi_block($op = "list", $delta = 0, $edit = array()) {
     case 'list':
       $blocks[0] = array('info' => t(variable_get("guifi_title",t("network facts"))),
       'weight' => 0, 'status' => 1, 'region' => 'left');
-    return $blocks;
-
-  case 'configure':
-    $form['items'] = array(
+      return $blocks;
+    case 'configure':
+      $form['items'] = array(
       '#type' => 'select',
       '#title' => t('Number of items'),
       '#default_value' => variable_get('guifi_block_items', 0),
       '#options' => array('1', '2', '3'),
-    );
-    return $form;
+      );
+      return $form;
     case 'save':
-    variable_set('guifi_block_items', $edit['items']);
+      variable_set('guifi_block_items', $edit['items']);
 
-  case 'view':
-    switch($delta) {
-      case 0:
-    $block['subject'] = t(variable_get("guifi_title", "<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
-    $block['content'] = guifi_display_block_1($content);
-        break;
-    }
-    return $block;
+    case 'view':
+      switch($delta) {
+        case 0:
+          $block['subject'] = t(variable_get("guifi_title", "<a href=\"guifi\">" .t("List of guifi nodes") ."</a>"));
+          $block['content'] = guifi_display_block_1($content);
+          break;
+      }
+      return $block;
   }
 }
 
@@ -2019,7 +2018,25 @@ function guifi_menu_translated_menu_link_alter(&$item) {
   }
 }
 
-
-
+/**
+ * Implementation of hook_user().
+ */
+function guifi_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'categories':
+      return array('guifi' => array('name' => 'guifi', 'title' => t('guifi.net configuration'), 'weight' => 3));
+      break;
+    case 'load':
+      break;
+    case 'form':
+      if ($category == 'guifi') {
+        $form['guifi_default_zone'] = guifi_zone_select_field($account->guifi_default_zone, 'guifi_default_zone');
+        return $form;
+      }
+     break;
+    case 'validate':
+      break;
+  }
+}
 
 ?>

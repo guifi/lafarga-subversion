@@ -185,10 +185,15 @@ function guifi_zone_select_field($zid,$fname) {
 
 //  $msg .= $txt;
 
-  if ($fname == 'master')
+  if ($fname == 'master') {
     $title = t('Parent zone');
-  else
+  }
+  elseif ($fname == 'guifi_default_zone') {
+    $title = t('Default zone for new nodes');
+  }
+  else {
     $title = t('Zone');
+  }
 
   $var = explode(',',$fname);
   if (count($var)>1) {

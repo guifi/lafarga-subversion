@@ -105,7 +105,7 @@ function guifi_tools_mac_search($mac = null) {
   if (is_null($mac))
     return $output;
 
-  $output .= '<h2>'.t('Query result for "ipv4 LIKE %ipv4"',
+  $output .= '<h2>'.t('Query result for "mac LIKE %mac"',
     array('%ipv4'=>"'".$mac."'")).'</h2>';
 
   $headers = array(t('mac'),t('interface'),t('device'),t('node'));

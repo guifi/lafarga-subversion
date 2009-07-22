@@ -264,8 +264,13 @@ function guifi_node_form(&$node, $form_state) {
     );
   };
 
-
-  $form['zone_id'] = guifi_zone_select_field($node->zone_id,'zone_id');
+  if (empty($node->nid)) {
+    $zone_id = $user->guifi_default_zone;
+  }
+  else {
+    $zone_id = $node->zone_id;
+  }
+  $form['zone_id'] = guifi_zone_select_field($zone_id,'zone_id');
   $form['zone_id']['#weight'] = 3;
 
 
