@@ -92,6 +92,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      echo $CNML->asXML();
      return;
      break;
+   case 'ospfnet': //http://guifi.net/guifi/cnml/NNNN/ospfnet    NNNN = node id OSPF zone
+   	 $CNML=ospf_net($cnmlid);
+     drupal_set_header('Content-Type: application/xml; charset=utf-8');
+     echo $CNML->asXML();
+     return;
+     break;
    case 'plot':
      plot_guifi($cnmlid);
      return;
@@ -745,6 +751,155 @@ function dump_guifi_ips($cnmlid){
 
   return $CNML;
 }
+
+// Creates CNML with all agregate IPs ospf zone
+// parameter: one node id ospf zone
+// start ospf_net ====================================
+function ospf_net($cnmlid){
+  $nmax=200;   //num maxim de nodes a procesar
+  $networks = Array(); //array de subxarxes de la zona
+  $nodes = Array(); //array de nodes id de la zona
+  $nodesid=Array(); //array de dades del node + control de repeticions
+  $subnets=Array(); //array de subxarxes agrupades
+  $nreg = 0;
+  $n=0;
+  $CNML = new SimpleXMLElement('<cnml></cnml>');
+  $CNML->addAttribute('version','0.1');
+  $CNML->addAttribute('server_id','1');
+  $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
+  $CNML->addAttribute('description','ospf zone networks');
+
+  $nodesid["$cnmlid"]="";
+  $nodes[]=$cnmlid;
+
+   $tnodes=0;
+   while (isset($nodes[$n])){
+      $tnodes=$tnodes+ospf_net_search_links($nodes,$nodesid,$nodes[$n]);
+      if ($tnodes<$nmax){
+         $n++;
+      } else {
+         break;
+      }
+   }
+
+   $nreg=count($nodes);
+   for($n=0;$n<$nreg;$n++){
+      $result=db_query(sprintf("SELECT t1.nick as nnick, t2.nick as znick
+               FROM guifi_location as t1
+               join guifi_zone as t2 on t1.zone_id = t2.id 
+               where t1.id = (%s)",$nodes[$n]));
+      if ($record=db_fetch_object($result)){
+         $nodesid["$nodes[$n]"]=Array("nnick"=>$record->nnick,"znick"=>$record->znick);
+      };
+      ospf_net_add_node_networks($networks,$nodes[$n]);
+   }
+   
+   ksort($networks);
+   $subnets=array_values($networks);
+
+   for($nmaskbits=27;$nmaskbits>16;$nmaskbits--){
+      $net1="";
+      $knet1=0;
+      $nreg=0;
+      if (count($subnets)) foreach ($subnets as $key=>$subnet){
+         if ($subnet["maskbits"]==$nmaskbits){
+            $nreg++;
+            $a = _ipcalc_by_netbits($subnet["netid"],$nmaskbits-1);
+            if ($a["netid"]!=$net1){
+               $net1=$a["netid"];
+               $knet1=$key;
+            }else{
+               $subnets[$knet1]["maskbits"]=$nmaskbits-1;
+               unset($subnets[$key]);
+               $net1="";
+               $knet1=0;
+            }
+         }else{
+            $net1="";
+            $knet1=0;
+         }
+      }
+      if($nreg==0){
+         break;
+      }
+   }
+
+   $classXML0 = $CNML->addChild('aggregate_networks');
+   $nreg=0;
+   if (count($subnets)) foreach ($subnets as $key=>$subnet){
+      $nreg++;
+      $reg = $classXML0->addChild('subnet');
+      $reg->addAttribute('address',$subnet["netid"]);
+      $reg->addAttribute('maskbits',$subnet["maskbits"]);
+   }
+   $classXML0->addAttribute('total_aggregate_networks',$nreg);
+
+   $classXML = $CNML->addChild('networks');
+   $nreg=0;
+   if (count($networks)) foreach ($networks as $key=>$network){
+      $nreg++;
+      $reg = $classXML->addChild('subnet');
+      //$reg->addAttribute('num',$key);
+      $reg->addAttribute('address',$network["netid"]);
+      $reg->addAttribute('maskbits',$network["maskbits"]);
+      $reg->addAttribute('node',$network["nid"]);
+      $reg->addAttribute('nick',$nodesid[$network["nid"]]["nnick"]);
+   }
+   $classXML->addAttribute('total_networks',$nreg);
+  
+   $classXML2 = $CNML->addChild('area_nodes');
+   $nreg=0;
+   if (count($nodesid)) foreach ($nodesid as $key=>$nodeid){
+      $nreg++;
+      $reg = $classXML2->addChild('node');
+      $reg->addAttribute('node',$key);
+      $reg->addAttribute('nick',$nodeid["nnick"]);
+      $reg->addAttribute('zone',$nodeid["znick"]);
+   }
+   $classXML2->addAttribute('total_nodes',$nreg);
+   return $CNML;
+}
+
+function ospf_net_search_links(&$nodes,&$nodesid,$nid){
+   $n=0;
+   $resultlinks=db_query(sprintf('SELECT id FROM guifi_links where nid = (%s) and routing="OSPF"',$nid));
+   while ($recordlink=db_fetch_object($resultlinks)){
+      $result=db_query(sprintf("SELECT nid FROM guifi_links where id = (%s) and nid != (%s)",$recordlink->id,$nid));
+      if ($record=db_fetch_object($result)){
+         if (!isset($nodesid["$record->nid"])){
+            $nodesid["$record->nid"]="";
+            $nodes[]=$record->nid;
+            $n++;
+         };
+         
+      };
+   };
+   return $n;
+}
+
+function ospf_net_add_node_networks(&$networks,$nid){
+   $v="";
+   $result=db_query(sprintf("SELECT t3.ipv4, t3.netmask
+               FROM guifi_devices as t1
+               join guifi_interfaces as t2 on t1.id = t2.device_id
+               join guifi_ipv4 as t3 on t2.id = t3.interface_id
+               where t1.nid = (%s) and t3.ipv4_type=1",$nid));
+   while ($record=db_fetch_object($result)){
+      $a = _ipcalc($record->ipv4,$record->netmask);
+      $splitip=explode(".",$a["netid"]);
+      $c=$splitip[0]*pow(256,3)+$splitip[1]*pow(256,2)+$splitip[2]*256+$splitip[3];
+      if (!isset($networks[$c])){
+         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+      }elseif ($networks[$c]["maskbits"]>$a["maskbits"]){
+         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+      }
+   };
+   return 0;
+}
+// end ospf_net ==================================== 
+
+//create gif working nodes for guifi home
 function plot_guifi($cnmlid){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
@@ -776,7 +931,7 @@ function plot_guifi($cnmlid){
          $tot+=$record->num;
          $nreg++;
          $data[]=array("$label",$nreg,$tot,'');
-       }else{
+      }else{
          $tot+=$record->num;
       };
 	};
