@@ -467,9 +467,8 @@ function loaddata(){
             var lat2=vlatlon_ne.lat();
             var lon2=vlatlon_ne.lng();
             document.getElementById("edit-formmap2").value="Loading...";
-            loadXMLDoc('http://localhost/guifi/cnml/0/growthmap?lat1='+lat1+'&lon1='+lon1+'&lat2='+lat2+'&lon2='+lon2);
-            //loadXMLDoc('http://localhost/guifi/cnml/0/growthmap?lat1=41.93&lon1=1.98&lat2=42&lon2=2');
-            //loadXMLDoc('http://localhost/guifi/cnml/0/growthmap?lat1=41.533318393146814&lon1=2.4317550659179688&lat2=41.55259061174702&lon2=2.4730825424194336');
+            var vurl='/guifi/cnml/0/growthmap?lat1='+lat1+'&lon1='+lon1+'&lat2='+lat2+'&lon2='+lon2
+            loadXMLDoc(vurl);
 }
 
 function play(){
