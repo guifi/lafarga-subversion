@@ -298,6 +298,24 @@ function guifi_menu() {
     'access arguments' => array('access devel information'),
     'weight' => 3,
   );
+  
+  // Statistics
+  $items['guifi/menu/stats'] = array(
+    'title' => 'Statistics',
+    'description' => 'Statistics',
+    'page callback' => 'guifi_menu_block_page',
+    'access arguments' => array('access content'),
+    'weight'=>100,
+  );
+  $items['guifi/menu/stats/growthmap'] = array(
+    'title' => 'History map',
+    'description' => 'Display guifi.net network history map.',
+    'page callback' => 'guifi_stats_growthmap',
+    'access arguments' => array('access content'),
+    'weight' => 1,
+    'file' => 'guifi_stats.inc.php'
+  );  
+  
 //  $items['guifi/menu/devel/get_ips_new'] = array(
 //    'title' => 'get_ips_new callback',
 //    'description' => 'Test for NEW load and sort the ip tables',

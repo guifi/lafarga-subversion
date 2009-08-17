@@ -102,6 +102,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      plot_guifi($cnmlid);
      return;
      break;
+   case 'growthmap': //http://guifi.net/guifi/cnml/0/growthmap?lat1=1.23&lon1=2.34&lat2=1.22&lon2=2.23
+   	 $json=growth_map($_GET["lat1"],$_GET["lon1"],$_GET["lat2"],$_GET["lon2"]);
+     //drupal_set_header('Content-Type: application/xml; charset=utf-8');
+     echo $json;
+     return;
+     break;
   }
 
 
@@ -752,7 +758,7 @@ function dump_guifi_ips($cnmlid){
   return $CNML;
 }
 
-// Creates CNML with all agregate IPs ospf zone
+// Create CNML with all agregate IPs ospf zone
 // parameter: one node id ospf zone
 // start ospf_net ====================================
 function ospf_net($cnmlid){
@@ -761,18 +767,23 @@ function ospf_net($cnmlid){
   $nodes = Array(); //array de nodes id de la zona
   $nodesid=Array(); //array de dades del node + control de repeticions
   $subnets=Array(); //array de subxarxes agrupades
+  $azones=Array(); //array de zones implicades
+  $aznets=Array(); //array de xarxes de les zones implicades
   $nreg = 0;
   $n=0;
   $CNML = new SimpleXMLElement('<cnml></cnml>');
+  
+  $tbegin = microtime(true);
+  
   $CNML->addAttribute('version','0.1');
   $CNML->addAttribute('server_id','1');
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
-  $CNML->addAttribute('description','ospf zone networks');
+  $CNML->addAttribute('description','ospf zone networks'); 
 
   $nodesid["$cnmlid"]="";
   $nodes[]=$cnmlid;
-
+   //busqueda de nodes de la zona ospf
    $tnodes=0;
    while (isset($nodes[$n])){
       $tnodes=$tnodes+ospf_net_search_links($nodes,$nodesid,$nodes[$n]);
@@ -782,23 +793,57 @@ function ospf_net($cnmlid){
          break;
       }
    }
-
+   ksort($nodesid);
+   //busqueda de dades node, subxarxes de cada node, llista de zones
    $nreg=count($nodes);
    for($n=0;$n<$nreg;$n++){
-      $result=db_query(sprintf("SELECT t1.nick as nnick, t2.nick as znick
+      $result=db_query(sprintf("SELECT t1.nick as nnick, t1.zone_id as zid, t2.nick as znick
                FROM guifi_location as t1
                join guifi_zone as t2 on t1.zone_id = t2.id 
                where t1.id = (%s)",$nodes[$n]));
       if ($record=db_fetch_object($result)){
-         $nodesid["$nodes[$n]"]=Array("nnick"=>$record->nnick,"znick"=>$record->znick);
+         $nodesid["$nodes[$n]"]=Array("nnick"=>$record->nnick,"zid"=>$record->zid);
+         if (!isset($azones[$record->zid])){
+            $azones[$record->zid]=$record->znick;
+         }
       };
       ospf_net_add_node_networks($networks,$nodes[$n]);
    }
    
    ksort($networks);
+   //busqueda de xarxes de la zona
+   if (count($azones)) foreach ($azones as $key=>$azone){
+      $result=db_query(sprintf("SELECT t1.base as netid, t1.mask as mask
+               FROM guifi_networks as t1
+               where t1.zone = (%s)",$key));
+      while ($record=db_fetch_object($result)){
+         $a = _ipcalc($record->netid,$record->mask);
+         $splitip=explode(".",$a["netid"]);
+         $c=$splitip[0]*pow(256,3)+$splitip[1]*pow(256,2)+$splitip[2]*256+$splitip[3];
+         if (!isset($aznets[$c])){
+            $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0);
+         }elseif ($aznets[$c]["maskbits"]>$a["maskbits"]){
+            $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0);
+         }
+      }
+   }
+   ksort($aznets);
+   //verifica que les xarxes de zona estiguin als nodes de la zona ospf
+   $result=db_query("SELECT ipv4, netmask FROM {guifi_ipv4} where ipv4_type = 1");
+   while ($ip=db_fetch_array($result)){
+      if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
+        $ip_dec = ip2long($ip['ipv4']);
+        $min = false; $max = false;
+        if (!isset($ips[$ip_dec]))
+          // save memory by storing just the maskbits
+          // by now, 1MB array contains 7,750 ips
+          $ips[$ip_dec] = guifi_ipcalc_get_maskbits($ip['netmask']);
+      }
+   }
+   //agrupació de subxarxes
    $subnets=array_values($networks);
-
-   for($nmaskbits=27;$nmaskbits>16;$nmaskbits--){
+   
+   for($nmaskbits=30;$nmaskbits>16;$nmaskbits--){
       $net1="";
       $knet1=0;
       $nreg=0;
@@ -820,11 +865,12 @@ function ospf_net($cnmlid){
             $knet1=0;
          }
       }
-      if($nreg==0){
-         break;
-      }
+      //if($nreg==0){
+      //   break;
+      //}
    }
-
+//   $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+   //generació cnml
    $classXML0 = $CNML->addChild('aggregate_networks');
    $nreg=0;
    if (count($subnets)) foreach ($subnets as $key=>$subnet){
@@ -840,7 +886,7 @@ function ospf_net($cnmlid){
    if (count($networks)) foreach ($networks as $key=>$network){
       $nreg++;
       $reg = $classXML->addChild('subnet');
-      //$reg->addAttribute('num',$key);
+      $reg->addAttribute('num',$key);
       $reg->addAttribute('address',$network["netid"]);
       $reg->addAttribute('maskbits',$network["maskbits"]);
       $reg->addAttribute('node',$network["nid"]);
@@ -855,9 +901,24 @@ function ospf_net($cnmlid){
       $reg = $classXML2->addChild('node');
       $reg->addAttribute('node',$key);
       $reg->addAttribute('nick',$nodeid["nnick"]);
-      $reg->addAttribute('zone',$nodeid["znick"]);
+      $reg->addAttribute('zone',$azones[$nodeid["zid"]]);
    }
    $classXML2->addAttribute('total_nodes',$nreg);
+
+   $classXML3 = $CNML->addChild('zone_networks');
+   $nreg=0;
+   if (count($aznets)) foreach ($aznets as $key=>$aznet){
+      $nreg++;
+      $reg = $classXML3->addChild('subnet');
+      //$reg->addAttribute('num',$key);
+      $reg->addAttribute('address',$aznet["netid"]);
+      $reg->addAttribute('maskbits',$aznet["maskbits"]);
+      $reg->addAttribute('broadcast',$aznet["broadcast"]);
+      $reg->addAttribute('zone',$azones[$aznet["zid"]]);
+   }
+   $classXML3->addAttribute('total_zone_networks',$nreg);
+   
+   $CNML->addAttribute('elapsed',round(microtime(true)-$tbegin,4)); 
    return $CNML;
 }
 
@@ -887,8 +948,7 @@ function ospf_net_add_node_networks(&$networks,$nid){
                where t1.nid = (%s) and t3.ipv4_type=1",$nid));
    while ($record=db_fetch_object($result)){
       $a = _ipcalc($record->ipv4,$record->netmask);
-      $splitip=explode(".",$a["netid"]);
-      $c=$splitip[0]*pow(256,3)+$splitip[1]*pow(256,2)+$splitip[2]*256+$splitip[3];
+      $c=ip2long($a["netid"]);
       if (!isset($networks[$c])){
          $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
       }elseif ($networks[$c]["maskbits"]>$a["maskbits"]){
@@ -976,4 +1036,99 @@ function Plot1_LabelFormat($value){
    $v=$value/12+2003;
    return ("{$v}   .");
 }
+
+// return JSON string with list nodes and links map zone
+// parameter: left corner and right corner map
+// start growth_map ====================================
+function growth_map($plat1,$plon1,$plat2,$plon2){
+  $objects = Array(); //array de elements a pintar
+  $nodes=Array(); //array de nodes a pintar + control de repeticions
+  $links=Array(); //array de links a pintar + control de repeticions
+
+   $link=0;
+   $lnode=0;
+   $vkey=0;
+   $ldate=0;
+   $v=0;
+   $result=db_query(sprintf("SELECT t1.nid as nid,t1.timestamp_created as ldate, t2.id as lid,
+            t3.lat,t3.lon,t3.timestamp_created as ndate, t2.link_type
+            FROM guifi_location as t3
+            inner join guifi_devices as t1 on t1.nid = t3.id
+            left join guifi_links as t2 on t1.id = t2.device_id
+            where t1.type='radio' and t1.flag='Working' and t3.lat between (%s) and (%s) and t3.lon between (%s) and (%s)
+            order by t2.id;",$plat1,$plat2,$plon1,$plon2));
+/*   $result=db_query(sprintf("SELECT t1.nid as nid,t1.timestamp_created as ldate, t2.id as lid,
+            t3.lat,t3.lon,t3.timestamp_created as ndate, t2.link_type
+            FROM guifi_devices as t1
+            left join guifi_links as t2 on t1.id = t2.device_id
+            inner join guifi_location as t3 on t1.nid = t3.id
+            where t1.type='radio' and t1.flag='Working' and t3.lat between (%s) and (%s) and t3.lon between (%s) and (%s)
+            and (t2.link_type='wds' or t2.link_type='ap/client')
+            order by t2.id;",$plat1,$plat2,$plon1,$plon2));
+*/
+   while ($record=db_fetch_object($result)){
+      if($record->link_type=="wds"){
+         $v=2;
+      }elseif ($record->link_type=="ap/client"){
+         $v=1;
+      }else{
+         $v=0;
+      }
+      if ($link==$record->lid){
+         if (!isset($nodes["$record->nid"])){
+            $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
+            $vkey="n_".$record->nid;
+            //$objects["$vkey"]=$record->ndate;
+            $objects["$vkey"]=$record->ldate;
+         }else{
+            $vkey="n_".$record->nid;
+            if (isset($objects["$vkey"])){
+               if($objects["$vkey"]>$record->ldate){
+                  $objects["$vkey"]=$record->ldate;
+               }
+            }
+            if($nodes["$record->nid"]["type"]<$v){
+               $nodes["$record->nid"]["type"]=$v;
+            }
+         }
+         if (!isset($links["$record->lid"])){
+            if($ldate<$record->ldate){
+               $ldate=$record->ldate;
+            }
+            
+            if($v>0){
+               $links["$record->lid"]=array("nid1"=>$lnode,"nid2"=>$record->nid,"type"=>$v);
+               $vkey="l_".$record->lid;
+               $objects["$vkey"]=$ldate;
+            }
+         }
+      }else{
+         $link=$record->lid;
+         $ldate=$record->ldate;
+         $lnode=$record->nid;
+         if (!isset($nodes["$record->nid"])){
+            $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
+            $vkey="n_".$record->nid;
+            //$objects["$vkey"]=$record->ndate;
+            $objects["$vkey"]=$record->ldate;
+         }else{
+            $vkey="n_".$record->nid;
+            if (isset($objects["$vkey"])){
+               if($objects["$vkey"]>$record->ldate){
+                  $objects["$vkey"]=$record->ldate;
+               }
+            }
+            if($nodes["$record->nid"]["type"]<$v){
+               $nodes["$record->nid"]["type"]=$v;
+            }
+         }
+      }
+   }
+   asort($objects);
+   
+   $vjson=json_encode(array($objects,$nodes,$links));
+   
+   return $vjson;
+}
+// end growth_map ==================================== 
 ?>
