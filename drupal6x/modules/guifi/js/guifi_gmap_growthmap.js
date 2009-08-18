@@ -60,7 +60,7 @@ var slow_widget;
 var navmapcontrol;
 var nfast = 10;
 var nnormal = 35;
-var nslow = 1000;
+var nslow = 100;
 var speed = nfast;;
 
 function xz()
@@ -501,6 +501,7 @@ function init(){
             canvaslinks.clearRect(0,0,800,600);
             map.disableDoubleClickZoom();
             map.removeControl(navmapcontrol);
+            map.disableScrollWheelZoom();
       }else{
             map.clearOverlays();
       }
@@ -523,6 +524,7 @@ function clean(){
             map.enableDoubleClickZoom();
             if (map.getSize().height >= 300) map.addControl(navmapcontrol = new GLargeMapControl());
             else map.addControl(navmapcontrol = new GSmallMapControl());
+            map.enableScrollWheelZoom();
       }else{
             map.clearOverlays();
       }
