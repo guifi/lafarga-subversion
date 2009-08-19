@@ -40,6 +40,8 @@ var img2;
 var vv1;
 var vv2;
 var vv3;
+var numnodes;
+var numlinks;
 var canvassupernodes;
 var canvasbackbone;
 var canvasnodes;
@@ -317,6 +319,8 @@ function init_calendar(){
       stamp=d.getTime()-86400000;
       stampend=aobjects[total_objects][1]*1000;
       ndisplay=0;
+      numnodes=0;
+      numlinks=0;
 }
 
       
@@ -337,10 +341,12 @@ function calendar(){
             ddate.setTime(stamp);
             d1=String(ddate.getDate());
             d2=String(ddate.getMonth() + 1);
-            document.getElementById("edit-formmap2").value=cero.substr(0,2-d1.length)+d1 +"/"+cero.substr(0,2-d2.length)+d2+ "/"+ ddate.getFullYear();
+            document.getElementById("edit-formmap2").value=
+                  cero.substr(0,2-d1.length)+d1 +"/"+cero.substr(0,2-d2.length)+d2+ "/"+ ddate.getFullYear()+
+                  "   nodes: "+numnodes;
       }else{
             stop_interval();
-            document.getElementById("edit-formmap2").value="The End";
+            document.getElementById("edit-formmap2").value="Total nodes: "+numnodes;
             play_widget.set_state(0);
       }
       if(swbusy==0){
@@ -365,6 +371,7 @@ function display_nodes(){
       while(ndisplay <= total_objects && aobjects[ndisplay][1] < vstamp){
             if (supportsCanvas){
                   if (aobjects[ndisplay][0]=="n"){
+                        numnodes++;
                         vv1=objsupernodes.LatLngToCanvasPixel(aobjects[ndisplay][3]);
                         if(aobjects[ndisplay][2]==2){
                               canvassupernodes.drawImage(img,vv1.x-(zoom/2),vv1.y-(zoom/2),zoom,zoom);
@@ -372,6 +379,7 @@ function display_nodes(){
                               canvasnodes.drawImage(img2,vv1.x-((zoom-2)/2),vv1.y-((zoom-2)/2),zoom-2,zoom-2);
                         }
                   }else if (aobjects[ndisplay][0]=="l"){
+                        numlinks++;
                         vv1=objbackbone.LatLngToCanvasPixel(aobjects[ndisplay][3]);
                         vv2=objbackbone.LatLngToCanvasPixel(aobjects[ndisplay][4]);
                         if(aobjects[ndisplay][2]==2){

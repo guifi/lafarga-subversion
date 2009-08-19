@@ -20,7 +20,7 @@ function guifi_stats_growthmap() {
     $output .= '<canvas id="testcanvas" width="1px" height="1px"></canvas>';
   }
 
-  //guifi_log(GUIFILOG_TRACE,'growthmap',1);
+  guifi_log(GUIFILOG_TRACE,'growthmap',1);
 
   return $output;
 }
@@ -33,10 +33,10 @@ function guifi_growthmap_map_form($form_state) {
     '#type' => 'textfield',
     '#name' => 'formmap2',
     '#default_value' => '',
-    '#size' => 20,
-    '#attributes' => array('style'=>'text-align:center;font-size:24px'),
-    '#prefix' => '<center><div style="align:center">',
-    '#suffix' => '</div></center>'
+    '#size' => 63,
+    '#attributes' => array('style'=>'margin:5px;text-align:center;font-size:24px'),
+    '#prefix' => '<div style="align:center">',
+    '#suffix' => '</div>'
   );
   return $form;
 }

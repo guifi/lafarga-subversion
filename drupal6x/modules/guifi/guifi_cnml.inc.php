@@ -1050,6 +1050,8 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
    $vkey=0;
    $ldate=0;
    $v=0;
+   $numnodes=0;
+   $numlinks=0;
    $result=db_query(sprintf("SELECT t1.nid as nid,t1.timestamp_created as ldate, t2.id as lid,
             t3.lat,t3.lon,t3.timestamp_created as ndate, t2.link_type
             FROM guifi_location as t3
@@ -1057,15 +1059,6 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
             left join guifi_links as t2 on t1.id = t2.device_id
             where t1.type='radio' and t1.flag='Working' and t3.lat between (%s) and (%s) and t3.lon between (%s) and (%s)
             order by t2.id;",$plat1,$plat2,$plon1,$plon2));
-/*   $result=db_query(sprintf("SELECT t1.nid as nid,t1.timestamp_created as ldate, t2.id as lid,
-            t3.lat,t3.lon,t3.timestamp_created as ndate, t2.link_type
-            FROM guifi_devices as t1
-            left join guifi_links as t2 on t1.id = t2.device_id
-            inner join guifi_location as t3 on t1.nid = t3.id
-            where t1.type='radio' and t1.flag='Working' and t3.lat between (%s) and (%s) and t3.lon between (%s) and (%s)
-            and (t2.link_type='wds' or t2.link_type='ap/client')
-            order by t2.id;",$plat1,$plat2,$plon1,$plon2));
-*/
    while ($record=db_fetch_object($result)){
       if($record->link_type=="wds"){
          $v=2;
@@ -1076,9 +1069,9 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
       }
       if ($link==$record->lid){
          if (!isset($nodes["$record->nid"])){
+            $numnodes++;
             $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
             $vkey="n_".$record->nid;
-            //$objects["$vkey"]=$record->ndate;
             $objects["$vkey"]=$record->ldate;
          }else{
             $vkey="n_".$record->nid;
@@ -1097,6 +1090,7 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
             }
             
             if($v>0){
+               $numlinks++;
                $links["$record->lid"]=array("nid1"=>$lnode,"nid2"=>$record->nid,"type"=>$v);
                $vkey="l_".$record->lid;
                $objects["$vkey"]=$ldate;
@@ -1107,9 +1101,9 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
          $ldate=$record->ldate;
          $lnode=$record->nid;
          if (!isset($nodes["$record->nid"])){
+            $numnodes++;
             $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
             $vkey="n_".$record->nid;
-            //$objects["$vkey"]=$record->ndate;
             $objects["$vkey"]=$record->ldate;
          }else{
             $vkey="n_".$record->nid;
@@ -1125,7 +1119,6 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
       }
    }
    asort($objects);
-   
    $vjson=json_encode(array($objects,$nodes,$links));
    
    return $vjson;
