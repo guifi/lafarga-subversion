@@ -157,6 +157,13 @@ function guifi_menu() {
     'page arguments' => array('node/'.guifi_zone_root().'/view/availability'),
     'access arguments' => array('access content'),
   );
+    $items['guifi/menu/workflow/datareview'] = array(
+    'title' => 'Data review',
+    'description' => '',
+    'page callback' => 'guifi_tools_datareview',
+    'access arguments' => array('create guifi nodes'),
+    'file' => 'guifi_tools.inc.php'
+  );
 
   // Network management tools
   $items['guifi/menu/ip'] = array(

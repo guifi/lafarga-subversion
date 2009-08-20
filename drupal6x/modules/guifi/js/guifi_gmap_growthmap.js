@@ -317,7 +317,7 @@ function init_calendar(){
             }
       }
       stamp=d.getTime()-86400000;
-      stampend=aobjects[total_objects][1]*1000;
+      stampend=aobjects[total_objects][1]*1000+86400000;
       ndisplay=0;
       numnodes=0;
       numlinks=0;
@@ -341,12 +341,21 @@ function calendar(){
             ddate.setTime(stamp);
             d1=String(ddate.getDate());
             d2=String(ddate.getMonth() + 1);
-            document.getElementById("edit-formmap2").value=
-                  cero.substr(0,2-d1.length)+d1 +"/"+cero.substr(0,2-d2.length)+d2+ "/"+ ddate.getFullYear()+
+            if (supportsCanvas){
+                  vv3=cero.substr(0,2-d1.length)+d1 +"/"+cero.substr(0,2-d2.length)+d2+ "/"+ ddate.getFullYear()+
                   "   nodes: "+numnodes;
-      }else{
+            }else{
+                  vv3=cero.substr(0,2-d1.length)+d1 +"/"+cero.substr(0,2-d2.length)+d2+ "/"+ ddate.getFullYear()
+            }
+            document.getElementById("edit-formmap2").value=vv3;
+      }else if(swbusy==0){
             stop_interval();
-            document.getElementById("edit-formmap2").value="Total nodes: "+numnodes;
+            if (supportsCanvas){
+                  vv3="Total nodes: "+numnodes;
+            }else{
+                  vv3="The End";
+            }
+            document.getElementById("edit-formmap2").value=vv3;
             play_widget.set_state(0);
       }
       if(swbusy==0){
@@ -368,7 +377,7 @@ function zoomnode(pzoom){
 function display_nodes(){
       swbusy=1;
       vstamp=Math.floor(stamp/1000);
-      while(ndisplay <= total_objects && aobjects[ndisplay][1] < vstamp){
+      while(ndisplay <= total_objects && aobjects[ndisplay][1] <= vstamp){
             if (supportsCanvas){
                   if (aobjects[ndisplay][0]=="n"){
                         numnodes++;
