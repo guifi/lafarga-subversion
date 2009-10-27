@@ -273,6 +273,10 @@ function guifi_cnml($cnmlid,$action = 'help') {
                   $radioXML->addAttribute('snmp_name','br-lan');
                  }
                  break;
+               case 'Freifunk-OLSR':
+               case 'Freifunk-BATMAN':
+                 $radioXML->addAttribute('snmp_name','eth1');
+                 break;
                default:
                  $radioXML->addAttribute('snmp_index',6);
                }
