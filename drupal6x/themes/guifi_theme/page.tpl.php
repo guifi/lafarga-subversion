@@ -12,7 +12,7 @@
       <?php print phptemplate_get_ie_styles(); ?>
     <![endif]-->
   </head>
-  <body<?php print phptemplate_body_class($left, $right); ?>>
+  <body<?php print phptemplate_body_class($left, $right, $is_front); ?>>
 
 <!-- Layout -->
   <div id="header-region" class="clear-block"><?php print $header; ?></div>
@@ -94,7 +94,7 @@
       </div></div></div></div> <!-- /.left-corner, /.right-corner, /#squeeze, /#center -->
 
       <?php if ($right): ?>
-        <div id="sidebar-right" class="sidebar">
+        <div id="sidebar-right" <?php print phptemplate_sidebar_right_class($is_front); ?>>
           <?php if (!$left && $search_box): ?><div class="block block-theme"><?php print $search_box ?></div><?php endif; ?>
           <?php print $right ?>
         </div>

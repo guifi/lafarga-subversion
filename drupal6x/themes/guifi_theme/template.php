@@ -1,44 +1,42 @@
 <?php
 // $Id: template.php,v 1.16 2007/10/11 09:51:29 goba Exp $
-
-/**
- * Override phptemplate_regions(
- *
- * modify guifi.net 11/2009 for diffusion region in contents
- */
-
-function phptemplate_regions() {
-  return array('left' => t('left sidebar'),
-    'right' => t('right sidebar'),
-    'content' => t('content'),
-    'header' => t('header'),
-    'footer' => t('footera'),
-    'diffusion_blocks' => t('diffusion blocks') );
-  }
-
 /**
  * Sets the body-tag class attribute.
  *
  * Adds 'sidebar-left', 'sidebar-right' or 'sidebars' classes as needed.
  */
-function phptemplate_body_class($left, $right) {
-  if ($left != '' && $right != '') {
-    $class = 'sidebars';
+function phptemplate_body_class($left, $right, $is_front) {
+  if ($is_front){
+    $class = 'sidebars-home';
+  } else {
+    if ($left != '' && $right != '') {
+      $class = 'sidebars';
+    }
+    else {
+      if ($left != '') {
+        $class = 'sidebar-left';
+      }
+      if ($right != '') {
+        $class = 'sidebar-right';
+      }
+    }
   }
-  else {
-    if ($left != '') {
-      $class = 'sidebar-left';
-    }
-    if ($right != '') {
-      $class = 'sidebar-right';
-    }
+  
+  if (isset($class)) {
+    print ' class="'. $class .'"';
+  }
+}
+function phptemplate_sidebar_right_class($is_front) {
+  if ($is_front) {
+    $class = 'sidebar-right';
+  }else {
+    $class = 'sidebar';
   }
 
   if (isset($class)) {
     print ' class="'. $class .'"';
   }
 }
-
 /**
  * Return a themed breadcrumb trail.
  *
