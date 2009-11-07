@@ -32,19 +32,36 @@ function unsolclic_airos($dev) {
   $radiotx = $dev->radios[0][antenna_mode];
 
   switch ($dev->variable['model_id']) {
-      case "25":
+    case "25": //NanoStation2
       $net_mode= 'b';
       $lnet_mode= 'B Only (2,4Ghz 11MB)';
       $rate_max= '11M';
-      $txpower= '16';
+      $txpower= '6';
       $ack= '45';
     break;
-    case "26":
+    case "26": //NanoStation5
       $net_mode= 'a';
       $lnet_mode= 'A (5Ghz)';
       $rate_max= '54M';
       $txpower= '19';
       $ack= '25';
+    break;
+    case "34": //NanoStation Loco2
+      $net_mode= 'b';
+      $lnet_mode= 'B Only (2,4Ghz 11MB)';
+      $rate_max= '11M';
+      $txpower= '7';
+      $ack= '25';
+      $radiorx = '1';
+      $radiotx = '1';
+    case "35": //NanoStation Loco5
+      $net_mode= 'a';
+      $lnet_mode= 'A (5Ghz)';
+      $rate_max= '54M';
+      $txpower= '19';
+      $ack= '25';
+      $radiorx = '1';
+      $radiotx = '1';
            }
 
   ## Create Script file
