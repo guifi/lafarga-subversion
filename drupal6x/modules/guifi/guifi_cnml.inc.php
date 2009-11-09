@@ -59,7 +59,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
   case 'detail':
      $tree = guifi_cnml_tree($cnmlid);
      $sql_devices = 'SELECT * FROM {guifi_devices} d';
-     $sql_radios = 'SELECT * FROM {guifi_radios} r';
+     $sql_radios = 'SELECT * FROM {guifi_radios} r ORDER BY r.radiodev_counter ASC';
      $sql_interfaces = 'SELECT i.*,a.ipv4,a.id ipv4_id, a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id';
      $sql_links = 'SELECT l1.id, l1.device_id, l1.interface_id, l1.ipv4_id, l2.device_id linked_device_id, l2.nid linked_node_id, l2.interface_id linked_interface_id, l2.ipv4_id linked_radiodev_counter, l1.link_type, l1.flag status FROM {guifi_links} l1, {guifi_links} l2 WHERE l1.id=l2.id AND l1.device_id != l2.device_id';
      $sql_services = 'SELECT s.* FROM {guifi_services} s';
@@ -75,7 +75,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
        $tree[] = $node;
      }
      $sql_devices = sprintf('SELECT * FROM {guifi_devices} d WHERE nid in (%s)',$cnmlid);
-     $sql_radios = sprintf('SELECT r.* FROM {guifi_radios} r, {guifi_devices} d WHERE d.nid in (%s) AND d.id=r.id',$cnmlid);
+     $sql_radios = sprintf('SELECT r.* FROM {guifi_radios} r, {guifi_devices} d WHERE d.nid in (%s) AND d.id=r.id ORDER BY r.radiodev_counter ASC',$cnmlid);
      $sql_interfaces = sprintf('SELECT i.*,a.ipv4,a.id ipv4_id, a.netmask FROM {guifi_devices} d, {guifi_interfaces} i, {guifi_ipv4} a WHERE d.nid in (%s) AND d.id=i.device_id AND i.id=a.interface_id',$cnmlid);
      $sql_links = sprintf('SELECT l1.id, l1.device_id, l1.interface_id, l1.ipv4_id, l2.device_id linked_device_id, l2.nid linked_node_id, l2.interface_id linked_interface_id, l2.ipv4_id linked_radiodev_counter, l1.link_type, l1.flag status FROM {guifi_links} l1, {guifi_links} l2 WHERE l1.nid in (%s) AND l1.id=l2.id AND l1.device_id != l2.device_id',$cnmlid);
      $sql_services = sprintf('SELECT s.*, r.body FROM {guifi_devices} d, {guifi_services} s, {node} n, {node_revisions} r WHERE d.nid in (%s) AND d.id=s.device_id AND n.nid=s.id AND n.vid=r.vid',$cnmlid);
