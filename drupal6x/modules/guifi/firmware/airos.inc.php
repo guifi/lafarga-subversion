@@ -36,7 +36,7 @@ function unsolclic_airos($dev) {
       $net_mode= 'b';
       $lnet_mode= 'B Only (2,4Ghz 11MB)';
       $rate_max= '11M';
-      $txpower= '6';
+      $txpower= '2';
       $ack= '45';
     break;
     case "26": //NanoStation5
@@ -50,7 +50,7 @@ function unsolclic_airos($dev) {
       $net_mode= 'b';
       $lnet_mode= 'B Only (2,4Ghz 11MB)';
       $rate_max= '11M';
-      $txpower= '7';
+      $txpower= '4';
       $ack= '25';
       $radiorx = '1';
       $radiotx = '1';
