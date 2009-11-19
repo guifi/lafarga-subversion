@@ -709,7 +709,7 @@ function fnodecount($cnmlid){
 	break;
   case 9:  //torna els nodes actius totals i els del ultim minut
 	$afecha=getdate();
-	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mday],$afecha[mon],$afecha[year]);
+	$tiempomin=mktime($afecha[hours],$afecha[minutes]-1,$afecha[seconds],$afecha[mon],$afecha[mday],$afecha[year]);
 	$tiempomax=$tiempomin+60;
   	$result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
   	$result2=db_query("select COUNT(*) as num from {guifi_location} where timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax."");

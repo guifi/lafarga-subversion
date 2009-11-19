@@ -322,6 +322,23 @@ function guifi_menu() {
     'weight' => 1,
     'file' => 'guifi_stats.inc.php'
   );  
+  $items['guifi/menu/stats/nodes'] = array(
+    'title' => 'Node statistics',
+    'description' => '',
+    'page callback' => 'guifi_stats_nodes',
+    'access arguments' => array('access content'),
+    'weight' => 2,
+    'file' => 'guifi_stats.inc.php'
+  );
+  $items['guifi/stats/%/%'] = array(
+    'title' => 'stats charts',
+    'page callback' => 'guifi_stats',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access content'),
+    'file' => 'guifi_stats.inc.php'
+  );
+  
+  
   
 //  $items['guifi/menu/devel/get_ips_new'] = array(
 //    'title' => 'get_ips_new callback',
@@ -1574,8 +1591,8 @@ function guifi_display_block_1() {
       array(t('Wireless<br />links'),
       '<p align="right">#</p>',t('kms.')),$rows);
     
-    //Grafic historic
-    $content.='<br><img src="'.base_path().'guifi/cnml/1/plot">';
+    //history chart
+    $content.='<br><a href="'.base_path().'guifi/menu/stats/nodes"><img src="'.base_path().'guifi/cnml/1/plot"></a>';
     return $content;
 }
 
