@@ -9,24 +9,29 @@ function guifi_stats($action = '',$statsid) {
     return;
   
   switch ($action) {
-  case 'growthchart':
-    guifi_stats_growth_chart();
+  case 'chart01': //growth_chart
+    guifi_stats_chart01(); 
     return;
     break;
-  case 'annualincrement':
-    guifi_stats_annualincrement_chart();
+  case 'chart02':  //annualincrement
+    guifi_stats_chart02();
     return;
     break;
-  case 'mensualaverage':
-    guifi_stats_mensualaverage_chart();
+  case 'chart03':  //monthlyaverage':
+    guifi_stats_chart03();
     return;
     break;
-  case 'lastyear':
-    guifi_stats_lastyear_chart();
+  case 'chart04': //lastyear':
+    guifi_stats_chart04();
+    return;
+    break;
+  case 'chart05': //':
+    guifi_stats_chart05($statsid);
     return;
     break;
   }
 }
+
 /*
  * growthmap
  */
@@ -71,10 +76,13 @@ function guifi_stats_nodes() {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_stats_nodes.js','module');
     $output .= '<div id="plot" style="width: 500px; border-style:none; float:right; margin:5px;"></div>';
     $output .= '<div id="menu" style="width: 200px; margin:5px;">';
-    $output .= '<a href="javascript:growth_chart()">'.t("Growth chart").'</a>';
-    $output .= '<br><a href="javascript:annualincrement_chart()">'.t("Annual increment").'</a>';
-    $output .= '<br><a href="javascript:mensualaverage_chart()">'.t("Mensual average").'</a>';
-    $output .= '<br><a href="javascript:lastyear_chart()">'.t("Last year").'</a>';
+    $output .= '<a href="javascript:guifi_stats_chart01()">'.t("Growth chart").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart02()">'.t("Annual increment").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart03()">'.t("Monthly average").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart04()">'.t("Last year").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(3)">'.t("Nodes per month, avr. 3m.").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(6)">'.t("Nodes per month, avr. 6m.").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(12)">'.t("Nodes per month, avr. 12m.").'</a>';
     $output .= '</div>';
 
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
@@ -82,7 +90,7 @@ function guifi_stats_nodes() {
   return $output;
 }
 //create gif working nodes
-function guifi_stats_growth_chart(){
+function guifi_stats_chart01(){ //growth_chart
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
     $inicial=5;
@@ -170,7 +178,7 @@ function guifi_stats_growth_chart(){
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
     $plot->SetXLabelAngle(0);
-    $plot->SetXLabelType('custom', 'guifi_stats_growth_chart_LabelFormat');
+    $plot->SetXLabelType('custom', 'guifi_stats_chart01_LabelFormat');
     $plot->SetGridColor('red');
     $plot->SetPlotBorderType('left');
     $plot->SetDataColors(array('orange'));
@@ -184,11 +192,11 @@ function guifi_stats_growth_chart(){
     $plot->SetIsInline(true);
     $plot->DrawGraph();
 }
-function guifi_stats_growth_chart_LabelFormat($value){
+function guifi_stats_chart01_LabelFormat($value){
    return($value);
 }
 //create gif annual increment
-function guifi_stats_annualincrement_chart(){
+function guifi_stats_chart02(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
     $tot=0;
@@ -233,8 +241,8 @@ function guifi_stats_annualincrement_chart(){
     $plot->DrawGraph();
 }
 
-//create gif mensual average
-function guifi_stats_mensualaverage_chart(){
+//create gif monthly average
+function guifi_stats_chart03(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $result=db_query("select COUNT(*) as num, month(FROM_UNIXTIME(timestamp_created)) as mes from {guifi_location} where status_flag='Working' GROUP BY MONTH(FROM_UNIXTIME(timestamp_created)) ");
     $tot=0;
@@ -263,7 +271,7 @@ function guifi_stats_mensualaverage_chart(){
     $plot->SetYTickLabelPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Mensual average'));
+    $plot->SetTitle(t('Monthly average'));
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('% Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -282,12 +290,14 @@ function guifi_stats_mensualaverage_chart(){
 }
 
 //create gif last year
-function guifi_stats_lastyear_chart(){
+function guifi_stats_chart04(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
     $today=getdate();
     $year=$today[year];
     $month=$today[mon];
-    $month=$month-11;
+    $month=$month-12;
+    $n=0;
+    $tot=0;
     if($month<1){
       $year=$year-1;
       $month=12+$month;
@@ -297,8 +307,15 @@ function guifi_stats_lastyear_chart(){
       where (timestamp_created >= ".$datemin." and status_flag='Working')  
       GROUP BY Year(FROM_UNIXTIME(timestamp_created)), month(FROM_UNIXTIME(timestamp_created))");
 	while ($record=db_fetch_object($result)){
-        $data[]=array("$record->mes".'/'.substr("$record->year",2,2),$record->num);
+      $data[]=array("$record->mes".'/'.substr("$record->year",2,2),$record->num);
+      if($record->mes!=$today[mon] || $record->year!=$today[year]){
+        $n++;
+        $tot=$tot+$record->num;
+      }
     };
+    if($n>0){
+      $tot=$tot/$n;
+    }
     $shapes = array( 'none');
     $plot = new PHPlot(500,400);
     $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
@@ -306,12 +323,13 @@ function guifi_stats_lastyear_chart(){
     $plot->SetDataType("text-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("bars"); 
-    $plot->SetYTickIncrement(500);
+    $plot->SetYTickIncrement($tot);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
     $plot->SetTickLength(0);
-    $plot->SetXTickPos('none');
+    //$plot->SetXTickPos('none');
     $plot->SetYDataLabelPos('plotin');
+    $plot->SetYLabelType('data', 0);
     $plot->SetTickColor('grey');
     $plot->SetTitle(t('Last year'));
     $plot->SetXTitle(t('Months'));
@@ -329,4 +347,141 @@ function guifi_stats_lastyear_chart(){
     $plot->SetIsInline(true);
     $plot->DrawGraph();
 }
+//Nodes per month, average of 6 months
+function guifi_stats_chart05($nmonths){ 
+    include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
+    $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
+    $inicial=5;
+    $nreg=$inicial;
+    $tot=0;
+    $ano=2004;
+    $mes=5;
+    $items=2004;
+    $label="a";
+    $n=0;
+    $med=0;
+    $datos=array(0,0,0,0,0,0,0,0,0,0,0,0,0);
+    $today=getdate();
+	while ($record=db_fetch_object($result)){
+      if($record->ano>=2004){
+        if($mes==12){
+          $mes=1;
+          $ano++;
+        }else{
+          $mes++;
+        }
+        if($ano==$today[year] && $mes>=$today[mon]){
+          if($mes==1){
+            $mes=12;
+            $ano--;
+          }else{
+            $mes--;
+          }
+          break;
+        }
+        while ($ano<$record->ano || $mes<$record->mes){
+          $nreg++;
+          if($mes==6){
+            $label=$ano;
+          }else{
+            $label='';
+          }
+          if($n==0){
+            $tot+=$record->num;
+          }else{
+            $tot=$record->num;
+          }
+          $tot=fmediacalc($tot,$datos,$n,$nmonths);
+          $data[]=array("$label",$nreg,$tot);
+          if($mes==12){
+            $mes=1;
+            $ano++;
+          }else{
+            $mes++;
+          }
+        }
+        $tot+=$record->num;
+        $nreg++;
+        if($mes==6){
+          $label=$ano;
+        }else{
+          $label='';
+        }
+        if($n==0){
+          $tot+=$record->num;
+        }else{
+          $tot=$record->num;
+        }
+        $tot=fmediacalc($tot,$datos,$n,$nmonths);
+        $data[]=array("$label",$nreg,$tot);
+      }else{
+         $tot+=$record->num;
+      };
+	};
+    while($mes<12){
+      $nreg++;
+      $mes++;
+      if($mes==6){
+        $label=$ano;
+      }else{
+        $label='';
+      }
+      $data[]=array("$label",$nreg,"");
+    }
+    $items=($ano-$items+1)*12;
+    $shapes = array( 'none');
+    $plot = new PHPlot(500,400);
+    $plot->SetPlotAreaWorld(0, 0,$items,NULL);
+    $plot->SetFileFormat('png');
+    $plot->SetDataType("data-data");
+    $plot->SetDataValues($data);
+    $plot->SetPlotType("linepoints"); 
+    $plot->SetYTickIncrement(50);
+    $plot->SetXTickIncrement(12);
+    $plot->SetSkipBottomTick(true);
+    $plot->SetSkipLeftTick(true);
+    $plot->SetXAxisPosition(0);
+    $plot->SetPointShapes($shapes); 
+    $plot->SetPointSizes(10);
+    $plot->SetTickLength(3);
+    $plot->SetDrawXGrid(true);
+    $plot->SetTickColor('grey');
+    $plot->SetTitle(t('Nodes per month, '."$nmonths".' months average'));
+    $plot->SetXTitle(t('Years'));
+    $plot->SetYTitle(t('Working nodes'));
+    $plot->SetDrawXDataLabelLines(false);
+    $plot->SetXLabelAngle(0);
+    $plot->SetXLabelType('custom', 'guifi_stats_chart05_LabelFormat');
+    $plot->SetGridColor('red');
+    $plot->SetPlotBorderType('left');
+    $plot->SetDataColors(array('orange'));
+    $plot->SetTextColor('DimGrey');
+    $plot->SetTitleColor('DimGrey');
+    $plot->SetLightGridColor('grey');
+    $plot->SetBackgroundColor('white');
+    $plot->SetTransparentColor('white');
+    $plot->SetXTickLabelPos('none');
+    $plot->SetXDataLabelPos('plotdown');
+    $plot->SetIsInline(true);
+    $plot->DrawGraph();
+}
+function guifi_stats_chart05_LabelFormat($value){
+   return($value);
+}
+function fmediacalc($tot,&$datos,&$n,$nmonths){
+  $v=0;
+  $i=0;
+  if($n>=$nmonths){
+    $n=1;
+  }else{
+    $n++;
+  }
+  $datos[$n]=$tot;
+  for($i=1;$i<=$nmonths;$i++){
+    $v=$v+$datos[$i];
+  }
+  //return($datos[$n]);
+  return($v/$nmonths);
+}
+
 ?>
