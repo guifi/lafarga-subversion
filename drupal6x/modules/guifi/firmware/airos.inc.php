@@ -54,6 +54,7 @@ function unsolclic_airos($dev) {
       $ack= '25';
       $radiorx = '1';
       $radiotx = '1';
+    break;
     case "35": //NanoStation Loco5
       $net_mode= 'a';
       $lnet_mode= 'A (5Ghz)';
@@ -62,7 +63,7 @@ function unsolclic_airos($dev) {
       $ack= '25';
       $radiorx = '1';
       $radiotx = '1';
-           }
+  }
 
   ## Create Script file
     $File = 'files/nanostation/'.$dev->nick.'.cfg';
