@@ -47,6 +47,11 @@ function guifi_stats_growthmap() {
     $output .= '<div id="map" style="width: 800px; height: 600px; margin:5px;"></div>';
     $output .= '<div id="footmap" style="margin:5px;">'.t('Mode:').'</div>';
     $output .= '<canvas id="testcanvas" width="1px" height="1px"></canvas>';
+    if(isset($_GET['id'])){
+      $output .='<form><input type=hidden value=1 id=maprun /></form>';
+    }else{
+      $output .='<form><input type=hidden value=0 id=maprun /></form>';
+    }
   }
 
   guifi_log(GUIFILOG_TRACE,'growthmap',1);
@@ -72,8 +77,31 @@ function guifi_growthmap_map_form($form_state) {
  * nodes statistics
  */
 function guifi_stats_nodes() {
-    $output = "";
-    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_stats_nodes.js','module');
+  drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_stats_nodes.js','module');
+  $output = "";
+  if(isset($_GET['id'])){
+    $vid=$_GET['id'];
+    switch($vid){
+    case ($vid=='5'):
+      if(isset($_GET['sid'])){
+        $v=$_GET['sid'];
+      }else{
+        $v='12';
+      }
+      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/'.$v.'"></div>';
+      break;
+    case ($vid>='1' && $vid<=9):
+      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/0"></div>';
+      break;
+    default:
+      $vid='0';
+      break;
+    }
+  }else{
+    $vid='0';
+  }
+  
+  if($vid=='0'){
     $output .= '<div id="plot" style="width: 500px; border-style:none; float:right; margin:5px;"></div>';
     $output .= '<div id="menu" style="width: 200px; margin:5px;">';
     $output .= '<a href="javascript:guifi_stats_chart01()">'.t("Growth chart").'</a>';
@@ -84,7 +112,7 @@ function guifi_stats_nodes() {
     $output .= '<br><a href="javascript:guifi_stats_chart05(6)">'.t("Nodes per month, avr. 6m.").'</a>';
     $output .= '<br><a href="javascript:guifi_stats_chart05(12)">'.t("Nodes per month, avr. 12m.").'</a>';
     $output .= '</div>';
-
+  }    
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
 
   return $output;

@@ -226,6 +226,9 @@ function xz()
             supportsCanvas = false;
             document.getElementById("footmap").innerHTML="Mode: SVG/VLM";
       }
+      if(document.getElementById("maprun").value==1){
+            init();
+      };
   }
 }
 
