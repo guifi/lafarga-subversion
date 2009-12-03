@@ -237,6 +237,21 @@ function guifi_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'guifi_traceroute.inc.php'
   );
+  $items['guifi/menu/ip/routingmap'] = array(
+    'title' => 'Routing Map',
+    'description' => 'Routing areas map.',
+    'page callback' => 'guifi_routingmap_init',
+    'access arguments' => array('create guifi nodes'),
+    'weight' => 7,
+    'file' => 'guifi_routingmap.inc.php'
+  );
+  $items['guifi/routingmap/%/%'] = array(
+    'title' => 'Routing Map',
+    'page callback' => 'guifi_routingmap',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('create guifi nodes'),
+    'file' => 'guifi_routingmap.inc.php'
+  );
 
   // Administrator's tools
   $items['guifi/menu/admin'] = array(

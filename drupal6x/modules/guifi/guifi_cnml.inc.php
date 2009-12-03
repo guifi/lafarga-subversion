@@ -928,16 +928,15 @@ function ospf_net($cnmlid){
 
 function ospf_net_search_links(&$nodes,&$nodesid,$nid){
    $n=0;
-   $resultlinks=db_query(sprintf('SELECT id FROM guifi_links where nid = (%s) and routing="OSPF"',$nid));
+   $resultlinks=db_query(sprintf('SELECT id FROM guifi_links where nid = (%s) and routing="OSPF" and (link_type="cable" or link_type="wds")',$nid));
    while ($recordlink=db_fetch_object($resultlinks)){
-      $result=db_query(sprintf("SELECT nid FROM guifi_links where id = (%s) and nid != (%s)",$recordlink->id,$nid));
+      $result=db_query(sprintf("SELECT nid, routing, link_type FROM guifi_links where id = (%s) and nid != (%s)",$recordlink->id,$nid));
       if ($record=db_fetch_object($result)){
-         if (!isset($nodesid["$record->nid"])){
+         if (!isset($nodesid["$record->nid"]) && $record->routing="OSPF" && ($record->link_type="cable" || $record->link_type="wds")){
             $nodesid["$record->nid"]="";
             $nodes[]=$record->nid;
             $n++;
          };
-         
       };
    };
    return $n;
