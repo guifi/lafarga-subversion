@@ -90,7 +90,7 @@ function loaddata(plat,plon){
   var lat2=plat+vinc;
   var lon2=plon+vinc;
   //alert(lat1 + ' ' + lon1 + ' ' + lat2 + ' ' + lon2);
-  var vurl='http://localhost/guifi/routingmap/search/0?lat1='+lat1+'&lon1='+lon1+'&lat2='+lat2+'&lon2='+lon2
+  var vurl='/guifi/routingmap/search/0?lat1='+lat1+'&lon1='+lon1+'&lat2='+lat2+'&lon2='+lon2
   //var vurl='http://localhost/guifi/routingmap/search/0?lat1=41.86486002927498&lon1=2.289477752685547&lat2=41.866860029274974&lon2=2.2914777526855468';
   //alert(vurl);
   loadXMLDoc(vurl);

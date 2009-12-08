@@ -224,7 +224,7 @@ function guifi_routingmap_search_firstdevice($nid){
 
 function guifi_routingmap_search_links(&$nodes,&$nodesid,&$devices,&$devicesid,&$alinks,$deviceid){
   $k=0;
-  $resultlinks=db_query(sprintf('SELECT id FROM guifi_links where device_id = (%s) and routing="OSPF" and (link_type="cable" or link_type="wds")',$deviceid));
+  $resultlinks=db_query(sprintf('SELECT id FROM guifi_links where device_id = (%s) and routing="OSPF" and (link_type="cable" or link_type="wds") and flag="Working"',$deviceid));
   while ($recordlink=db_fetch_object($resultlinks)){
     $result=db_query(sprintf("SELECT nid, device_id, routing, link_type FROM guifi_links where id = (%s) and device_id != (%s)",$recordlink->id,$deviceid));
     if ($record=db_fetch_object($result)){
