@@ -324,13 +324,28 @@ function unsolclic_routeros($dev) {
 
          // Not link only (AP), setting DHCP
          if ($mode=='ap-bridge') {
+           $maxip = ip2long($item[netstart]) + 1;
+           if (($maxip + 5) > (ip2long($item[netend]) - 5)) {
+             $maxip = ip2long($item['netend']);
+             $dhcp_disabled='yes';
+           } else {
+             $maxip = $maxip + 5;
+             $dhcp_disabled='no';
+           }
 
-           // DHCP
+           _outln_comment();
+           _outln_comment('DHCP');
+           _outln(sprintf(':foreach i in [/ip pool find name=dhcp-%s] do={/ip pool remove $i;}',$iname));
+           _outln(sprintf('/ip pool add name=dhcp-%s ranges=%s-%s',$iname,long2ip($maxip),$item[netend]));
+           _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
+           _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
+           _outln(sprintf(':foreach i in [/ip dhcp-server network find address="%s/%d"] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
+           _outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],$iname));
+
            $dhcp = array();
            $dhcp[] = '/ip dhcp-server lease';
            $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
            $dhcp[] = ':delay 1';
-           $maxip = ip2long($item[netstart]) + 1;
            if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
              if (isset($link['interface'][ipv4][ipv4]))
              if (ip2long($link['interface'][ipv4][ipv4]) >= $maxip)
@@ -340,25 +355,8 @@ function unsolclic_routeros($dev) {
              else $rmac = $link['interface'][mac];
              $dhcp[] = sprintf('add address=%s mac-address=%s client-id=%s server=dhcp-%s',$link['interface'][ipv4][ipv4],$rmac,guifi_get_hostname($link[device_id]),$iname);
            }
-           if (($maxip + 5) > (ip2long($item[netend]) - 5)) {
-             $maxip = ip2long($item['netend']);
-             $dhcp_disabled='yes';
-           } else {
-             $maxip = $maxip + 5;
-             $dhcp_disabled='no';
-           }
-           _outln_comment();
-           _outln_comment('DHCP');
            foreach ($dhcp as $outln)
-            _outln($outln);
-           _outln(sprintf(':foreach i in [/ip dhcp-server network find address="%s/%d"] do={/ip dhcp-server network remove $i;}',$item[netid],$item[maskbits]));
-           //_outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net dns-server=%s ntp-server=%s comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],implode(',',array_merge(array($ipv4[ipv4]),explode(' ',guifi_get_dns($zone)))),guifi_get_ntp($zone),$iname));
-           _outln(sprintf(':foreach i in [/ip pool find name=dhcp-%s] do={/ip pool remove $i;}',$iname));
-           _outln(sprintf('/ip pool add name=dhcp-%s ranges=%s-%s',$iname,long2ip($maxip),$item[netend]));
-           _outln(sprintf('/ip dhcp-server network add address=%s/%d gateway=%s domain=guifi.net comment=dhcp-%s',$item[netid],$item[maskbits],$item[netstart],$iname));
-           _outln(sprintf(':foreach i in [/ip dhcp-server find name=dhcp-%s] do={/ip dhcp-server remove $i;}',$iname));
-           _outln(sprintf('/ip dhcp-server add name=dhcp-%s interface=%s address-pool=dhcp-%s disabled=%s',$iname,$iname,$iname,$dhcp_disabled));
-
+           _outln($outln);
          }
        } // wLan, wLan/Lan or client
        _outln_comment();
