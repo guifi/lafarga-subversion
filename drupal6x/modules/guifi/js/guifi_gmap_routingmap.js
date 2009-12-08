@@ -58,7 +58,7 @@ function xz(){
     map.setCenter(new GLatLng(41.83, 2.30), 9);
     map.setMapType(myCustomMapType);
     create_init_widget(8,35,34);
-    
+    document.getElementById("topmap").innerHTML="Find a supernode ospf area and click the init button";
     swinit=1
   }
 }
@@ -72,12 +72,11 @@ function init(p){
     }
   });
   swinit=1;
-  if(p!=1){
-    alert("Click on the initial node");
-  }
+  document.getElementById("topmap").innerHTML="Click on the initial node";
 }
 function init_search(platlng){
   if(swinit==1){
+    document.getElementById("topmap").innerHTML="Searching";
     GEvent.clearListeners(map,"click");
     swinit=2;
     loaddata(platlng.lat(),platlng.lng());
@@ -97,16 +96,23 @@ function loaddata(plat,plon){
   loadXMLDoc(vurl);
 }
 function build_routing(pdata){
+  //alert(pdata);
   adata=eval(pdata);
   vnodeinit = adata[0];
   if(vnodeinit==0){
     alert("You have not selected any node. Has to try again");
     init(1);
     return;
+  }else{
+    document.getElementById("topmap").innerHTML="You've selected the supernode " + vnodeinit + ". Drawing....";
   }
+
   anodes = adata[1];
   alinks = adata[2];
-  //alert(pdata);
+  anets = adata[3];
+  aznets = adata[4];
+  agnets = adata[5];
+  
   for (node in anodes){
     var markerOptions = {icon:icons[1],clickable:false};
     var vpoint = new GLatLng(anodes[node]["lat"],anodes[node]["lon"]);
@@ -120,6 +126,20 @@ function build_routing(pdata){
     var vlink = new GPolyline([vpoint1,vpoint2],"#ff0000", 2,1,polyOptions);
     map.addOverlay(vlink);
   }
+  var output = "ultimate aggregation<br>";
+  for(gnet in agnets){
+    output += agnets[gnet]["netid"] + "/" + agnets[gnet]["maskbits"]+"&nbsp;&nbsp;" + agnets[gnet]["zone"]+"<br>";
+  }
+  output += "<br>aggregate subnets<br>";
+  for(net in anets){
+    output += anets[net]["netid"] + "/" + anets[net]["maskbits"]+"<br>";
+  }
+  output += "<br>zone networks<br>";
+  for(znet in aznets){
+    output += aznets[znet]["netid"] + "/" + aznets[znet]["maskbits"]+"&nbsp;&nbsp;broadcast:"+aznets[znet]["broadcast"]+"&nbsp;&nbsp;zone:"+aznets[znet]["zid"]+"&nbsp;"+aznets[znet]["znick"]+"<br>";
+  }
+  document.getElementById("topmap").innerHTML="Completed";
+  document.getElementById("bottommap").innerHTML=output;
 }
 
 //CONTROLS

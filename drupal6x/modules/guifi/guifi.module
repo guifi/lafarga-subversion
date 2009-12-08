@@ -238,7 +238,7 @@ function guifi_menu() {
     'file' => 'guifi_traceroute.inc.php'
   );
   $items['guifi/menu/ip/routingmap'] = array(
-    'title' => 'Routing Map',
+    'title' => 'OSPF Routing Map',
     'description' => 'Routing areas map.',
     'page callback' => 'guifi_routingmap_init',
     'access arguments' => array('create guifi nodes'),
