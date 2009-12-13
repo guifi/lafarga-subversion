@@ -177,7 +177,7 @@ function guifi_schema() {
          'antenna_angle' => array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'disp-width' => '4'),
          'antenna_gain' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '4'),
          'antenna_azimuth' => array('type' => 'int', 'not null' => FALSE, 'default' => 360, 'disp-width' => '4'),
-         'antenna_mode' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE),
+         'antenna_mode' => array('type' => 'varchar', 'length' => '5', 'not nulrm ~/.gnome2/keyrings/default.keyringl' => TRUE),
          'ly_mb_in' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
          'ly_mb_out' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
          'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
@@ -408,12 +408,13 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('6', 'firmware', 'RouterOSv2.9', 'RouterOS 2.9 from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('7', 'firmware', 'whiterussian', 'OpenWRT-whiterussian', 'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('8', 'firmware', 'kamikaze', 'OpenWRT kamikaze',
-   'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5|RouterStation|Avila GW2348-4|Asus WL-500xx');");
+   'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5|RouterStation|Avila GW2348-4|Asus WL-500xx|Avila1|Avila2|Avila3');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('9', 'firmware', 'Freifunk-BATMAN', 'OpenWRT-Freifunk-v1.6.16 with B.A.T.M.A.N', 'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('10', 'firmware', 'RouterOSv3.x', 'RouterOS 3.x from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|Supertrasto RB433 guifi.net');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('11', 'firmware', 'AirOsv221', 'Ubiquti AirOs 2.2.1', 'NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5')");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('12', 'firmware', 'Freifunk-OLSR', 'OpenWRT-Freifunk-v1.6.16 with OLSR', 'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|WHR-HP-G54, WHR-G54S');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('13', 'firmware', 'AirOsv30', 'Ubiquti AirOs 3.0', 'NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5')");
+  db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('14', 'firmware', 'RouterOSv4.x', 'RouterOS 4.x from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|Supertrasto RB433 guifi.net|Supertrasto RB800 guifi.net');");
 
   // --
   // -- antenna types
@@ -565,6 +566,7 @@ function guifi_install() {
   db_query("INSERT INTO guifi_manufacturer VALUES (11, 'Meraki', 'http://meraki.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (12, 'Gateworks', 'http://www.gateworks.com');");
   db_query("INSERT INTO guifi_manufacturer VALUES (13, 'Asus', 'http://asus.com');");
+  db_query("INSERT INTO guifi_manufacturer VALUES (14, 'Pccengines', 'http://www.pcengines.ch');");
   // --
   // -- guifi_model
   // --
@@ -609,6 +611,10 @@ function guifi_install() {
   db_query("INSERT INTO guifi_model VALUES (38, 10, 'RouterStation', 'Extern', 4, 400, '802.11abg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'Wan', 'http://ubnt.com/products/ls5.php', 'Permet Firmwares de tercers', 'Yes');");
   db_query("INSERT INTO guifi_model VALUES (39, 12, 'Avila GW2348-4', 'Extern', 4, 400, '802.11abg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'Wan', 'http://www.gateworks.com/products/avila/gw2348-4.php', 'Permet Firmwares de tercers', 'Yes');");
   db_query("INSERT INTO guifi_model VALUES (40, 13, 'Asus WL-500xx', 'Extern', 1, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'Wan', 'http://asus.com/products.aspx?l1=29&l2=172&l3=743&l4=60&model=1277&modelmenu=1', 'Permet Firmwares de tercers', 'Yes');");
+  db_query("INSERT INTO guifi_model VALUES (41, 14, 'Alix1', 'Extern', 5, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://www.pcengines.ch/alix1d.htm', 'Permet Firmwares de tercers', 'Yes');");
+  db_query("INSERT INTO guifi_model VALUES (42, 14, 'Alix2', 'Extern', 2, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan|ether2', 'http://www.pcengines.ch/alix2d.htm', 'Permet Firmwares de tercers', 'Yes');");
+  db_query("INSERT INTO guifi_model VALUES (43, 14, 'Alix3', 'Extern', 2, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://www.pcengines.ch/alix3d.htm', 'Permet Firmwares de tercers', 'Yes');");
+  db_query("INSERT INTO guifi_model VALUES (44, 8, 'Supertrasto RB800 guifi.net', NULL, 8, 400, '802.11abg', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5|ether6|ether7|ether8|ether9', 'http://www.routerboard.com', NULL,'Yes');");
 
   // --
   // -- user status types
@@ -975,6 +981,22 @@ function guifi_update_700() {
   $items[] = update_sql("UPDATE guifi_types SET relations = 'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|Asus WL-500xx|WHR-HP-G54, WHR-G54S|NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5|RouterStation|Avila GW2348-4' WHERE id = 4 AND type = 'firmware'");
   $items[] = update_sql("UPDATE guifi_types SET relations = 'NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5' WHERE id = 11 AND type = 'firmware'");
   $items[] = update_sql("UPDATE guifi_types SET relations = 'NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5' WHERE id = 13 AND type = 'firmware'");
+
+  return $items;
+}
+
+function guifi_update_736() {
+  $items = array();
+
+  $items[] = update_sql("INSERT INTO guifi_manufacturer (fid ,nom ,url) VALUES ('14', 'Pcengines', 'http://www.pcengines.ch');");
+  $items[] = update_sql("INSERT INTO guifi_model (mid ,fid ,model ,tipus ,radiodev_max ,potencia_max ,modes ,AP ,virtualAP ,WDS ,bridge ,client ,connector ,antenes ,router ,firewall ,QoS ,snmp ,hack ,interfaces ,url ,comentaris ,supported) VALUES 
+  (41, 14, 'Alix1', 'Extern', 5, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://www.pcengines.ch/alix1d.htm', 'Permet Firmwares de tercers', 'Yes'),
+  (42, 14, 'Alix2', 'Extern', 2, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan|ether2', 'http://www.pcengines.ch/alix2d.htm', 'Permet Firmwares de tercers', 'Yes'),
+  (43, 14, 'Alix3', 'Extern', 2, 400, '802.11bg', 'No', 'No', 'No', 'No', 'Si', 'RP-SMA', '2', 'Si', 'Si', 'Si', 'Si', 'Si', 'wLan/Lan', 'http://www.pcengines.ch/alix3d.htm', 'Permet Firmwares de tercers', 'Yes'),
+  (44, 8, 'Supertrasto RB800 guifi.net', NULL, 8, 400, '802.11abg', 'Si', 'Yes', 'Si', 'Si', 'Si', 'N-Female', '2', 'Si', 'Si', 'Si', 'Si', 'No', 'wLan/Lan|ether2|ether3|ether4|ether5|ether6|ether7|ether8|ether9', 'http://www.routerboard.com', NULL,'Yes');
+
+  $items[] = update_sql("UPDATE guifi_types SET relations = 'WRT54Gv1-4|WRT54GL|WRT54GSv1-2|WRT54GSv4|Meraki/Fonera|Wrap|Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|NanoStation2|NanoStation5|LiteStation2|LiteStation5|NanoStation Loco2|NanoStation Loco5|Bullet2|Bullet5|RouterStation|Avila GW2348-4|Asus WL-500xx|Avila1|Avila2|Avila3' WHERE id = 8 AND type = 'firmware'");
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('14', 'firmware', 'RouterOSv4.x', 'RouterOS 4.x from Mikrotik', 'Supertrasto RB532 guifi.net|Supertrasto RB133C guifi.net|Supertrasto RB133 guifi.net|Supertrasto RB112 guifi.net|Supertrasto RB153 guifi.net|Supertrasto guifiBUS guifi.net|Supertrasto RB600 guifi.net|Supertrasto RB411 guifi.net|Supertrasto RB333 guifi.net|Supertrasto RB433 guifi.net|Supertrasto RB800 guifi.net');");
 
   return $items;
 }

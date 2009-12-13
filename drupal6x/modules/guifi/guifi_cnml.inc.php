@@ -289,6 +289,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
                        'Supertrasto RB112 guifi.net' ,
                        'Supertrasto RB153 guifi.net' ,
                        'Supertrasto RB600 guifi.net' ,
+                       'Supertrasto RB800 guifi.net' ,
                        'Supertrasto RB333 guifi.net' ,
                        'Supertrasto RB411 guifi.net',
                        'Supertrasto RB412 guifi.net',
@@ -318,7 +319,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
                    }
               }
                 else if  (in_array($model_name,
-                     array('Meraki/Fonera' , 'RouterStation', 'Avila GW2348-4', 'Asus WL-500xx'))) {
+                     array('Meraki/Fonera' , 'RouterStation', 'Avila GW2348-4', 'Asus WL-500xx', 'Alix1', 'Alix2', 'Alix3'))) {
                  switch ($device->variable['firmware']) {
                  case 'kamikaze':
                    $radioXML->addAttribute('snmp_name','ath0');
