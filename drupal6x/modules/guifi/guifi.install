@@ -177,7 +177,7 @@ function guifi_schema() {
          'antenna_angle' => array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'disp-width' => '4'),
          'antenna_gain' => array('type' => 'int', 'not null' => FALSE, 'disp-width' => '4'),
          'antenna_azimuth' => array('type' => 'int', 'not null' => FALSE, 'default' => 360, 'disp-width' => '4'),
-         'antenna_mode' => array('type' => 'varchar', 'length' => '5', 'not nulrm ~/.gnome2/keyrings/default.keyringl' => TRUE),
+         'antenna_mode' => array('type' => 'varchar', 'length' => '5', 'not null' => TRUE),
          'ly_mb_in' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
          'ly_mb_out' => array('type' => 'numeric', 'disp-width' => 25, 'not null' => FALSE, 'default' => null),
          'clients_accepted' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not null' => TRUE, 'default' => 'Yes'),
