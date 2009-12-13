@@ -606,7 +606,6 @@ function fnodecount($cnmlid){
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
   switch ($vid){
-  case 5:
   case 6:
   case 7:
   case 8:
@@ -707,6 +706,25 @@ function fnodecount($cnmlid){
 	    }
     }
 	$classXML->addAttribute('numtypes',$nreg);
+	break;
+  case 5:  //node count group zone, year, state
+  	$result=db_query("select COUNT(*) as num, t1.zone_id, t2.title, YEAR(FROM_UNIXTIME(t1.timestamp_created)) as year, t1.status_flag
+                  from guifi_location as t1
+                  inner join guifi_zone as t2 on t1.zone_id = t2.id
+                  GROUP BY zone_id,YEAR(FROM_UNIXTIME(timestamp_created)),status_flag ");
+    
+	$classXML = $CNML->addChild('nodesxzonexyearxstatus');
+	$nreg=0;
+	while ($record=db_fetch_object($result)){
+	  $nreg++;
+	  $reg = $classXML->addChild('rec');
+	  $reg->addAttribute('nodes',$record->num);
+      $reg->addAttribute('zone_id',$record->zone_id);
+      $reg->addAttribute('year',$record->year);
+	  $reg->addAttribute('status',$record->status_flag);
+	  $reg->addAttribute('zone',$record->title);
+	};
+	$classXML->addAttribute('numrecs',$nreg);
 	break;
   case 9:  //torna els nodes actius totals i els del ultim minut
 	$afecha=getdate();
