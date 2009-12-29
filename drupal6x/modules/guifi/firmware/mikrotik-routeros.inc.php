@@ -54,7 +54,15 @@ function unsolclic_routeros($dev) {
   $zone = node_load(array('nid'=>$node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
-  _outln_comment(t('Configuration for RouterOS > 2.9.51 or 3.x'));
+  if ($dev->variable[firmware] == 'RouterOSv2.9') {
+    _outln_comment(t('Configuration for RouterOS 2.9.51'));
+  }
+  if ($dev->variable[firmware] == 'RouterOSv3.x') {
+    _outln_comment(t('Configuration for RouterOS 3.30'));
+  }
+  if ($dev->variable[firmware] == 'RouterOSv4.x') {
+    _outln_comment(t('Configuration for RouterOS 4.4'));
+  }
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
   _outln_comment(t('WARNING: Beta version'));
@@ -522,9 +530,14 @@ function unsolclic_routeros($dev) {
   // OSPF
        _outln_comment();
        _outln_comment(t('OSPF Routing'));
+  if ($dev->variable[firmware] == 'RouterOSv3.x') {
        _outln(sprintf('/routing ospf set router-id=%s distribute-default=never redistribute-connected=no 
      redistribute-static=no redistribute-rip=no redistribute-bgp=as-type-1',$ospf_routerid));
-
+  }
+  if ($dev->variable[firmware] == 'RouterOSv4.x') {
+       _outln(sprintf('/routing ospf instance set default name=default router-id=%s comment="" disabled=no distribute-default=never 
+     redistribute-bgp=as-type-1 redistribute-connected=no redistribute-other-ospf=no redistribute-rip=no redistribute-static=no in-filter=ospf-in out-filter=ospf-out',$ospf_routerid));
+  }
 
   // End of Unsolclic
   _outln_comment();
