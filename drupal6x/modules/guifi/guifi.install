@@ -598,6 +598,40 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('3', 'adhoc', 'BATMAN', 'ad-hoc mesh - BATMAN', 'kamikaze|freifunk-BATMAN');");
   db_query("INSERT INTO guifi_types (id, type, text, description, relations) VALUES ('4', 'adhoc', 'RouterOS', 'ad-hoc mesh - RouterOS', 'RouterOSv3.x');");
 
+  // Antenna Gain Types
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('1', 'antenna_gain', '5', '5', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('2', 'antenna_gain', '6', '6', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('3', 'antenna_gain', '7', '7', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('4', 'antenna_gain', '8', '8', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('5', 'antenna_gain', '9', '9', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('6', 'antenna_gain', '10', '10', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('7', 'antenna_gain', '11', '11', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('8', 'antenna_gain', '12', '12', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('9', 'antenna_gain', '13', '13', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('10', 'antenna_gain', '14', '14', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('11', 'antenna_gain', '15', '15', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('12', 'antenna_gain', '16', '16', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('13', 'antenna_gain', '17', '17', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('14', 'antenna_gain', '18', '18', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('15', 'antenna_gain', '19', '19', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('16', 'antenna_gain', '20', '20', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('17', 'antenna_gain', '21', '21', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('18', 'antenna_gain', '22', '22', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('19', 'antenna_gain', '23', '23', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('20', 'antenna_gain', '24', '24', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('21', 'antenna_gain', '25', '25', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('22', 'antenna_gain', '26', '26', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('23', 'antenna_gain', '27', '27', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('24', 'antenna_gain', '28', '28', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('25', 'antenna_gain', '29', '29', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('26', 'antenna_gain', '30', '30', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('27', 'antenna_gain', '31', '31', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('28', 'antenna_gain', '32', '32', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('29', 'antenna_gain', '33', '33', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('30', 'antenna_gain', '34', '34', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('31', 'antenna_gain', '35', '35', NULL);");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('32', 'antenna_gain', '36', '36', '');");
+  db_query("INSERT INTO `guifi_types` (`id`, `type`, `text`, `description`, `relations`) VALUES ('33', 'antenna_gain', 'more...', 'more...', NULL);");
 
   // --
   // -- Volcant dades de la taula guifi_manufacturer
