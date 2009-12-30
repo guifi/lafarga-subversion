@@ -184,6 +184,7 @@ function unsolclic_routeros($dev) {
     case 'ap':
       $mode = 'ap-bridge';
       $ssid = $radio[ssid];
+      $gain = $radio[antenna_gain];
       break;
     case 'client';
     case 'clientrouted':
@@ -209,7 +210,7 @@ function unsolclic_routeros($dev) {
     _outln(sprintf('/interface wireless set wlan%d name="wlan%d" \ ',$radio_id+1,$radio_id+1));
     _outln(sprintf('    radio-name="%s" mode=%s ssid="guifi.net-%s" \ ',$radio[ssid],$mode,$ssid));
     _outln(sprintf('    band="%s" \ ',$band));
-    _outln(sprintf('    frequency-mode=manual-txpower country=spain antenna-gain=0 \ ',$band));
+    _outln(sprintf('    frequency-mode=regulatory-domain country=spain antenna-gain=%s \ ',$gain));
     if (($radio[channel] != 0) and ($radio[channel] != 5000)) { // if not auto.. set channel
       if ($radio[channel] < 20) {
         $incr = $radio[channel] * 5;
@@ -530,7 +531,7 @@ function unsolclic_routeros($dev) {
   // OSPF
        _outln_comment();
        _outln_comment(t('OSPF Routing'));
-  if ($dev->variable[firmware] == 'RouterOSv3.x') {
+  if (($dev->variable[firmware] == 'RouterOSv3.x') or ($dev->variable['firmware'] == 'RouterOSv2.9')) {
        _outln(sprintf('/routing ospf set router-id=%s distribute-default=never redistribute-connected=no 
      redistribute-static=no redistribute-rip=no redistribute-bgp=as-type-1',$ospf_routerid));
   }
