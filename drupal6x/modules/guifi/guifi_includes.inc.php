@@ -135,6 +135,19 @@ function guifi_types($type,$start = 24,$end = 0,$relations = null) {
   return $values;
 }
 
+function guifi_validate_types($type, $text, $relations = null) {
+  if ($relations == null) {
+    $query = db_query("SELECT COUNT(*) AS count FROM {guifi_types} WHERE type='%s' AND text = '%s' ORDER BY id", $type, $text);
+  }
+  else {
+    $query = db_query("SELECT COUNT(*) AS count FROM {guifi_types} WHERE type='%s' AND text = '%s' AND relations LIKE '%s' ORDER BY id", $type, $text, "%$relations%" );
+  }
+  $count = db_fetch_object($query);
+  
+  return $count->count > 0;
+}
+
+
 function guifi_get_mac($id,$itype) {
   $dev = db_fetch_object(db_query("SELECT mac from {guifi_devices} WHERE id = %d",$id));
   $mac = db_fetch_object(db_query("SELECT relations FROM {guifi_types} WHERE type='interface' AND text='%s'",$itype));
@@ -1097,7 +1110,7 @@ function guifi_ipcalc_find_subnet(
     $increment = 1;
   else {
     $item = _ipcalc($base_ip,$mask_allocated);
-    $increment = ip2long($item['hosts'] + 2);
+    $increment = $item['hosts'] + 2;
   }
 
   if ($end_dec < ($net_dec + $increment))

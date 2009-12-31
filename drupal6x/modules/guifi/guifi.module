@@ -23,6 +23,9 @@ include_once("guifi_sql.inc.php");       // database changes
 include_once("guifi_ahah.inc.php");      // AHAH functions
 include_once("GeoCalc.class.php");       // geographic routines
 
+include_once("guifi_api.inc.php");       // Guifi public API includes
+include_once("libs/GuifiAPI.php");       // Guifi API
+
 
 
 /** Implementation of drupal main hooks.
@@ -34,7 +37,6 @@ include_once("GeoCalc.class.php");       // geographic routines
 
 function guifi_menu() {
   $items = array();
-
   //
   // ADMINISTRATION settings
   //
@@ -923,6 +925,16 @@ function guifi_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
+  );
+  
+  // General guifi menu
+  $items['api'] = array(
+     'title' => 'guifi.net API',
+     'description' => 'Public API for guifi.net network management',
+     'page callback' => 'guifi_api',
+     'access callback' => 'user_access',
+     'access arguments' => array('access content'),
+  	 'type' => CALLBACK
   );
 
   return $items;
@@ -2093,6 +2105,32 @@ function guifi_user($op, &$edit, &$account, $category = NULL) {
      break;
     case 'validate':
       break;
+  }
+}
+
+if( !function_exists( 'array2object') ) {
+  function array2object($array) {
+    if (is_array($array)) {
+        $obj = new StdClass();
+ 
+        foreach ($array as $key => $val){
+            $obj->$key = $val;
+        }
+    } else { $obj = $array; }
+ 
+    return $obj;
+  }
+}
+
+if( !function_exists( 'object2array' ) ) {
+  function object2array($object) {
+    if (is_object($object)) {
+      foreach ($object as $key => $value) {
+        $array[$key] = $value;
+      }
+    } else { $array = $object; }
+    
+    return $array;
   }
 }
 

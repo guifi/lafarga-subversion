@@ -384,15 +384,7 @@ function guifi_device_form($form_state, $params = array()) {
 
   // if nick is null, get a default name
   if ($form_state['values']['nick'] == "") {
-    $devs = db_fetch_object(db_query("
-      SELECT count(*) count
-      FROM {guifi_devices}
-      WHERE type = '%s'
-        AND nid = %d",
-      $form_state['values']['type'],$form_state['values']['nid']));
-    $form_state['values']['nick'] =
-      $node->nick.ucfirst(guifi_trim_vowels($form_state['values']['type'])).
-                                            ($devs->count + 1);
+    $form_state['values']['nick'] = guifi_device_get_default_nick($node, $form_state['values']['type'], $form_state['values']['nid'] );
   }
 
   // if device zone_mode was null, get the zone mode (ad-hoc or infrastructure)
@@ -1513,5 +1505,14 @@ function guifi_device_get_service($id, $type ,$path = false) {
   return $ret;
 }
 
+function guifi_device_get_default_nick($node, $type, $nid) {
+    $devs = db_fetch_object(db_query("
+      SELECT count(*) count
+      FROM {guifi_devices}
+      WHERE type = '%s'
+        AND nid = %d",
+      $type, $nid));
+    return $node->nick.ucfirst(guifi_trim_vowels($type)).($devs->count + 1);
+}
 
 ?>

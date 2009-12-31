@@ -41,9 +41,11 @@ function guifi_node_access($op, $node) {
  * to build the breadcrumb
 **/
 function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d', $zlink = 'node/%s') {
-  if (is_numeric($node))
+  if (is_numeric($node)) {
     $node = guifi_node_load($node);
-
+    $node->title = $node->nick; // hack to show the node title
+  }
+  
   $ret = array();
   $ret[] = l(t('Home'), NULL);
   $ret[] = l(t('Main menu'),'guifi');
@@ -77,6 +79,7 @@ function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d'
     $child[count($child)-1] = $child[count($child)-1].')</small>';
     $ret = array_merge($ret,$child);
   }
+  
   return $ret;
 }
 
@@ -630,7 +633,6 @@ function guifi_node_delete($node) {
     ???->node_prepare($node:obj-node):obj-node
 **/
 function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
-
   node_prepare($node);
   if ($teaser)
     return $node;
@@ -1097,7 +1099,6 @@ function guifi_node_set_flag($id) {
 /* Themes (presentation) functions */
 
 function theme_guifi_node_data($node,$links = false) {
-
   $zone = db_fetch_object(db_query('SELECT id, title, master, zone_mode FROM {guifi_zone} WHERE id = %d',
                       $node->zone_id));
 

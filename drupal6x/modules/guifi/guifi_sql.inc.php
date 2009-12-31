@@ -22,11 +22,14 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
       $table,key),
     $idata);
 
-  if (is_object($idata))
-    foreach ($idata as $k=>$v)
+  if (is_object($idata)) {
+    foreach ($idata as $k => $v) {
       $data[$k] = $v;
-  else
+    }
+  }
+  else {
     $data = &$idata;
+  }
 
   // delete?
   if ($data['deleted']) {
@@ -38,7 +41,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
   if ($data['new'])
     $insert = true;
 
-  $qc = db_query('SHOW COLUMNS FROM '.$table);
+  $qc = db_query('SHOW COLUMNS FROM ' . $table);
   while ($column = db_fetch_object($qc))
     $columns[] = $column->Field;
 
@@ -50,67 +53,70 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
   $data = $sqldata;
 
   // processing insert triggers to fill new ids etc...
-  if ($insert)
-  switch ($table) {
-  case 'budget_funds':
-    $data['timestamp_created'] = time();
-  case 'budget_items':
-    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table} " .
-        "WHERE budget_id = %d",$data['budget_id']));
-    if (is_null($next_id['id']))
-      $next_id['id'] = 1;
-    $data['id'] = $next_id['id'];
-    break;
-  case 'guifi_devices':
-  case 'guifi_users':
-    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
-    if (is_null($next_id['id']))
-      $next_id['id'] = 1;
-    $data['id'] = $next_id['id'];
-  case 'guifi_zone':
-  case 'guifi_services':
-  case 'guifi_location':
-  case 'guifi_networks':
-    $data['user_created'] = $user->uid;
-    $data['timestamp_created'] = time();
-    break;
-//  case 'guifi_radios':
-//      // radio id already comes (device exists), looking for next radio id  at this device  (radiodev_counter)
-//      $next_id = db_fetch_array(db_query('SELECT max(radiodev_counter)+1 id FROM {guifi_radios} WHERE id=%d',$data['id']));
-//      if (is_null($next_id['id']))
-//        $next_id['id'] = 0;
-//      $data['radiodev_counter']=$next_id['id'];
-//    break;
-  case 'guifi_interfaces':
-    $new_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
-    $data['id']=$new_id['id'];
-    break;
-  case 'guifi_ipv4':
-    $next_id = db_fetch_array(db_query('SELECT max(a.id) + 1 id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.id=%d',$data['interface_id']));
-    if (is_null($next_id['id']))
-      $next_id['id'] = 0;
-    $data['id'] = $next_id['id'];
-    break;
-  case 'guifi_links':
-    // fill only if insert (remote id already know the id)
-    if (($insert) && ($data['id']==-1))  {
-      $next_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_links}'));
-      if (is_null($next_id['id']))
-        $next_id['id'] = 1;
-      $data['id']=$next_id['id'];
-    }
-    break;
-  } // insert triggers switch table
+  if ($insert) {
+    switch ($table) {
+	  case 'budget_funds':
+	    $data['timestamp_created'] = time();
+	  case 'budget_items':
+	    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table} " .
+	        "WHERE budget_id = %d",$data['budget_id']));
+	    if (is_null($next_id['id']))
+	      $next_id['id'] = 1;
+	    $data['id'] = $next_id['id'];
+	    break;
+	  case 'guifi_devices':
+	  case 'guifi_users':
+	    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
+	    if (is_null($next_id['id']))
+	      $next_id['id'] = 1;
+	    $data['id'] = $next_id['id'];
+	  case 'guifi_zone':
+	  case 'guifi_services':
+	  case 'guifi_location':
+	  case 'guifi_networks':
+	    $data['user_created'] = $user->uid;
+	    $data['timestamp_created'] = time();
+	    break;
+	//  case 'guifi_radios':
+	//      // radio id already comes (device exists), looking for next radio id  at this device  (radiodev_counter)
+	//      $next_id = db_fetch_array(db_query('SELECT max(radiodev_counter)+1 id FROM {guifi_radios} WHERE id=%d',$data['id']));
+	//      if (is_null($next_id['id']))
+	//        $next_id['id'] = 0;
+	//      $data['radiodev_counter']=$next_id['id'];
+	//    break;
+	  case 'guifi_interfaces':
+	    $new_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_interfaces}'));
+	    $data['id']=$new_id['id'];
+	    break;
+	  case 'guifi_ipv4':
+	    $next_id = db_fetch_array(db_query('SELECT max(a.id) + 1 id FROM {guifi_ipv4} a, {guifi_interfaces} i WHERE a.interface_id=i.id AND i.id=%d',$data['interface_id']));
+	    if (is_null($next_id['id']))
+	      $next_id['id'] = 0;
+	    $data['id'] = $next_id['id'];
+	    break;
+	  case 'guifi_links':
+	    // fill only if insert (remote id already know the id)
+	    if (($insert) && ($data['id']==-1))  {
+	      $next_id=db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_links}'));
+	      if (is_null($next_id['id']))
+	        $next_id['id'] = 1;
+	      $data['id']=$next_id['id'];
+	    }
+	    break;
+	  } // insert triggers switch table
+  }
   // processing update triggers
-  else switch ($table) {
-    case 'guifi_zone':
-    case 'guifi_location':
-    case 'guifi_devices':
-    case 'guifi_services':
-    case 'guifi_users':
-      $data['user_changed'] = $user->uid;
-      $data['timestamp_changed'] = time();
-    break;
+  else {
+    switch ($table) {
+      case 'guifi_zone':
+      case 'guifi_location':
+      case 'guifi_devices':
+      case 'guifi_services':
+      case 'guifi_users':
+        $data['user_changed'] = $user->uid;
+        $data['timestamp_changed'] = time();
+        break;
+    }
   }
 
   // processing all cases triggers
@@ -135,22 +141,22 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 //     $data['lipv4'] = ip2long($data['ip4']);
 // }
 
- $sql_str = '';
- $values_data = array();
- if ($insert) {
-   // insert
-   foreach ($data as $k=>$value) {
-     if (is_numeric($value)) {
-       if (is_float($value)) {
-         $values_data[$k] = "%f";
-       } else
-         $values_data[$k] = "%d";
-     } else
-       $values_data[$k] = "'%s'";
-   }
-   $sql_str .= "INSERT INTO {".$table."} (".implode(',',array_keys($data)).") VALUES (".implode(',',$values_data).")";
-   $new_data = $data;
- } else {
+  $sql_str = '';
+  $values_data = array();
+  if ($insert) {
+      // insert
+    foreach ($data as $k => $value) {
+      if (is_numeric($value)) {
+        if (is_float($value)) {
+          $values_data[$k] = "%f";
+        } else
+          $values_data[$k] = "%d";
+      } else
+        $values_data[$k] = "'%s'";
+    }
+    $sql_str .= "INSERT INTO {" . $table . "} (" . implode(',', array_keys($data)) . ") VALUES (" . implode(',', $values_data) . ")";
+    $new_data = $data;
+  } else {
    // update
 
    // constructing where with primary keys
@@ -167,7 +173,6 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
            ' WHERE '.implode(' AND ',$where_data);
    $ck = 0;
    $qc = db_query($sqlqc);
-
 
    while ($odata = db_fetch_array($qc)) {
      $orig_data = $odata;
@@ -233,21 +238,17 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
    $sql_str .= "UPDATE {".$table."} SET ".implode(', ',$values_data).
                " WHERE ".implode(' AND ',$where_data);
  }
-
- // execute SQL statement
- $log .= $sql_str.' ('.implode(', ',$new_data).')<br />';
- db_query($sql_str,$new_data);
- return($data);
-
+    
+  // execute SQL statement
+  $log .= $sql_str . ' (' . implode(', ', $new_data) . ')<br />';
+  db_query($sql_str, $new_data);
+  return ($data);
 }
 
 /** _guifi_db_delete(): Delete SQL statements for node, devices, radios, users, services, interfaces, ipv4, links, zones...
 ***/
 function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = true) {
   global $user;
-
-  if ($depth == 0)
-    $dlinks = array();
 
   $log = str_repeat('- ',$depth);
   $depth++;
