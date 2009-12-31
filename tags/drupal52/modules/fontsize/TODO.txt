@@ -1,0 +1,3 @@
+$Id: TODO.txt, 5.x-1.3 2007/05/11 21:00:00 hass Exp $
+
+1. make all settings theme specific (currently no idea how)

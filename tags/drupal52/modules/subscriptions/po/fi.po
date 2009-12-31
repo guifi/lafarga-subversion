@@ -1,0 +1,347 @@
+# $Id: fi.po,v 1.1.2.2 2007/03/08 22:37:16 mindless Exp $
+#
+# Finnish translation of Drupal (subscriptions.module)
+# Copyright 2007 Niklas Koponen <niklas.koponen@iki.fi>
+# Generated from file: subscriptions.module,v 1.62.2.25 2007/02/27 06:41:17 arthuregg
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2007-02-28 22:48+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: subscriptions.module:27
+msgid "\n        <p>This module enables users to subscribe to be notified of changes to threads, categories and content types.\n        Once enabled, all nodes will have an additional link that allows the user to subscribe to them.\n        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n        No configuration is required for this module, although roles must be given permission to\n        use it.</p>\n        <p>While no configuration is required, administrators are offered a few configurable options:</p>\n        <p>\"<b>Omitted vocabularies</b>\" allows the admin to exclude certain node categories from this list of those\n        available for subscription.</p>\n        <p>\"<b>Omitted content types</b>\" allows the admin to exclude certain content types from this list of those\n        available for subscription.</p>\n        <p>\"<b>Notify poster of own posts</b>\" sends a notification to a node poster about their own posts. Useful principally during testing. Default is OFF.</p>\n        <p>\"<b>Use cron for notifications</b>\" allows you to postpone subscription\n        notifications until the next cron job is run.  Default behavior is to notify all subscribers immediately\n        upon content change.  This behavior is probably best for low volume sites, but high volume sites could\n        observe appreciable pauses upon node or comment insert, and should probably use the cron option.\n        <p>\"<b>Display watchdog entries for successful mailings</b>\" should also probably be disabled for high volume sites,\n        as a large number of mailings could completely fill the log.</p>\n        <p>\"<b>Test held posts prior to sending</b>\" tells Subscriptions to test if a node or comment\n        is still active\\published prior toi sending a notification.  This is mainly to avoid sending\n        notifications for for posts that have been deleted.  This will result in a small performance\n        hit, and only makes sense if you are delaying the notifications with \"Use cron for notifications\".</p>\n        <p>\"<b>Show Subscriptions users menu on main menu</b>\" tells Subscriptions to display the\n        Subscriptions user menu, used to manage one's own subscriptions, on the main menu.  The default\n        setting is OFF.</p>\n        <p>\"<b>Show Subscriptions users menu under 'my account'</b>\" tells Subscriptions to display the\n        Subscriptions user menu, used to manage one's own subscriptions, under the 'My Account' menu.  The default\n        setting is ON.</p>\n        <p>\"<b>Set all users to 'autosubscribe' by default</b>\" set's the default value of the 'autosubscribe'\n        option in each user's account to ON.  This value will not be set, however, until the user saves their\n        account preferences.  This, essentially, pre-checks the option associated with 'autosubscribe'. The\n        default value is OFF.</p>\n\n        "
+msgstr "Tämä modulin avulla käyttäjien on mahdollista tilata tiedotus muutoksista keskustelupalstoille, aihealueisiin ja eri sisältö tyyppeihin.\nKun moduli on valittu ilmestyy viesteihin linkki jonka avulla voi tilata ilmoituksen muutoksista viestiin.\nTämän lisäksi käyttäjällä on mahdollisuus tilata automaattisesti ilmoitus päivityksistä keskusteluihin joihin hän on osallistunut.\nTämä moduli ei vaadi erillistä konfigurointia. Käyttäjille on kuitenkin annettava lupa käyttää modulia.\nVaikka moduli ei vaadikaan konfigurointia niin ylläpitäjällä on kuitenkin mahdollisuus määritellä tilauksiin liittyviä asioita kuten esim. mitkä aihealueet jätetään pois valinnoista.\n"
+
+#: subscriptions.module:85
+msgid "Subscription settings"
+msgstr "Tilausten asetukset"
+
+#: subscriptions.module:91
+msgid "Autosubscribe"
+msgstr "Automaattinen tilaus"
+
+#: subscriptions.module:93
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to. You will recieve an email with a title and link to the post."
+msgstr "Valitsemalla tämän tilaat automaattisesti keskustelusäikeen johon olet osallistunut. Saat sähköpostiisi otsikon ja linkin viestiin."
+
+#: subscriptions.module:97
+msgid "Include teaser"
+msgstr "Sisällytä esittely"
+
+#: subscriptions.module:99
+msgid "Checking this box adds an excerpt of the post to the subscription email."
+msgstr "Valitsemalla tämän saat poiminnon viestistä sähköpostiisi."
+
+#: subscriptions.module:115
+msgid "Taxonomy settings"
+msgstr "Sisältöluokituksen asetukset"
+
+#: subscriptions.module:120
+msgid "none"
+msgstr "ei mitään"
+
+#: subscriptions.module:127
+msgid "Omitted vocabularies"
+msgstr "Pois jätetyt sanastot"
+
+#: subscriptions.module:130
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Valitse sanastot jotka tulee jättää pois tilauslistasta."
+
+#: subscriptions.module:154
+msgid "Omitted content types"
+msgstr "Pois jätetyt viestityypit"
+
+#: subscriptions.module:157
+msgid "Select content types which should be <strong>omitted</strong> from subscription listings."
+msgstr "Valitse viestityypit jotka tulee jättää pois tilauslistasta."
+
+#: subscriptions.module:163
+msgid "Notify poster of own posts"
+msgstr "Ilmoita lähettäjälle omista viesteistä"
+
+#: subscriptions.module:165
+msgid "Notifies a node poster about their own posts.  Useful principally during testing.  Default is OFF."
+msgstr "Ilmoittaa viestin lähettäjälle omista viesteistä. Käytännöllinen testauksessa. Oletuksena pois päältä."
+
+#: subscriptions.module:169
+msgid "Use cron for notifications"
+msgstr "Käytä cron:ia ilmoituksien lähetykseen"
+
+#: subscriptions.module:171
+msgid "Sends subscription notification when cron module runs.  Default is to send upon node update.  <br /><em>Note:  Currently only tested with MySQL.</em>"
+msgstr "Lähettää ilmoitukset muuttuneista sivuista ajettaessa cron modulia. Vakiona ilmoitukset lähetetään sivun päivittyessä. <em>Huom: Testattu ainoastaan MySQL:llä</em>."
+
+#: subscriptions.module:175
+msgid "Display watchdog entries for successful mailings"
+msgstr "Lisää watchdogiin rivi onnistuneen ilmoituksen lähetyksestä"
+
+#: subscriptions.module:177
+msgid "Inserts notification of successful mailings in the watchdog log.  Default is ON."
+msgstr "Lisää watchdogin lokiin rivin onnistuneesta ilmoituksen lähetyksestä. Tämä ominaisuus on vakiona PÄÄLLÄ."
+
+#: subscriptions.module:181
+msgid "Test held posts prior to sending"
+msgstr "Varmista pidossa olevat ilmoituksien lähetykset ennen lähettämistä"
+
+#: subscriptions.module:183
+msgid "Tests to see if a post about to be sent by cron is still active.  Adds a small amount of overhead.  Default is OFF."
+msgstr "Varmistaa cron:illa lähettettävien ilmoitusten aiheellisuuden ennen ilmoituksen lähettämistä. Lisää hieman overheadia. Tämä ominaisuus on vakiona POIS PÄÄLTÄ."
+
+#: subscriptions.module:187
+msgid "Show Subscriptions users menu under \"My account\""
+msgstr "Näytä Tilaukset valinta käyttäjän omassa valikossa."
+
+#: subscriptions.module:189
+msgid "Displays the Subscriptions users menu as a tab under \"My account\". Default is ON."
+msgstr "Näytä Tilaukset välilehti käyttäjän omissa asetuksissa. Tämä ominaisuus on vakiona PÄÄLLÄ."
+
+#: subscriptions.module:193
+msgid "Set all users to \"autosubscribe\" by default"
+msgstr "Aseta kaikille käyttäjille \"automaattinen tilaus\" vakiona päälle."
+
+#: subscriptions.module:195
+msgid "Sets each users \"autosubscribe\" profile option. Default is OFF."
+msgstr "Asettaa jokaisen käyttäjän \"automaattinen tilaus\" vaihtoehdon päälle. Tämä ominaisuus on vakiona POIS PÄÄLTÄ."
+
+#: subscriptions.module:210;226;867
+msgid "Subscriptions"
+msgstr "Tilaukset"
+
+#: subscriptions.module:211
+msgid "Enables site settings for user subscriptions."
+msgstr "Mahdollistaa käyttäjien tilausten hallinnan muuttuneista sivuista sivustolla."
+
+#: subscriptions.module:237;314
+msgid "blogs"
+msgstr "Blogit"
+
+#: subscriptions.module:248;303
+msgid "threads"
+msgstr "Keskustelusäikeet"
+
+#: subscriptions.module:258;325
+msgid "content types"
+msgstr "Viestityypit"
+
+#: subscriptions.module:269;336
+msgid "categories"
+msgstr "Keskustelupalstat ja aihealueet"
+
+#: subscriptions.module:280;347
+msgid "rss feed"
+msgstr "RSS syöte"
+
+#: subscriptions.module:293
+msgid "My subscriptions"
+msgstr "Tilaukseni"
+
+#: subscriptions.module:470
+msgid "subscription notification for "
+msgstr "ilmoitus tilauksesta "
+
+#: subscriptions.module:474
+msgid "error mailing subscription notification: "
+msgstr "virhe lähetettäessä ilmoitusta päivityksestä: "
+
+#: subscriptions.module:527
+msgid "new blog for "
+msgstr "uusi blogi "
+
+#: subscriptions.module:876
+msgid "Subscribe"
+msgstr "Tilaa"
+
+#: subscriptions.module:877
+msgid "Receive notification of replies or comments to this node."
+msgstr "Tilaa ilmoitus päivityksistä tähän viestii tai siihen liittyviin kommentteihin."
+
+#: subscriptions.module:912
+msgid "unsubscribe blog"
+msgstr "lopeta blogin tilaus"
+
+#: subscriptions.module:914
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Ei enää ilmoituksia tämän blogin päivityksistä."
+
+#: subscriptions.module:920
+msgid "subscribe blog"
+msgstr "tilaa blogi"
+
+#: subscriptions.module:922
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Vastaanota ilmoitus sähköpostiin tämän blogin päivittymisestä."
+
+#: subscriptions.module:928
+msgid "unsubscribe post"
+msgstr "lopeta tilaus"
+
+#: subscriptions.module:931
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Ei enää ilmoituksia tämän @type päivityksistä."
+
+#: subscriptions.module:937
+msgid "subscribe post"
+msgstr "tilaa ilmoitus päivityksestä"
+
+#: subscriptions.module:939
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Vastaanota ilmoitus sähköpostiin tämän @type päivityksestä."
+
+#: subscriptions.module:982;992
+msgid "unsubscribe"
+msgstr "lopeta tilaus"
+
+#: subscriptions.module:982
+msgid "Unsubscribe from this category."
+msgstr "Lopeta tämän keskustelupalstan tai aihealueen tilaus."
+
+#: subscriptions.module:985;995
+msgid "subscribe"
+msgstr "tilaa"
+
+#: subscriptions.module:985
+msgid "Subscribe to this category."
+msgstr "Tilaa tämä keskustelupalsta tai aihealue."
+
+#: subscriptions.module:992
+msgid "Unsubscribe from this node type."
+msgstr "Lopeta tämän sisällön tilaus."
+
+#: subscriptions.module:995
+msgid "Subscribe to this node type."
+msgstr "Tilaa ilmoitus päivityksestä tähän sisältöön."
+
+#: subscriptions.module:1052;1117;1203;1265
+msgid "Save"
+msgstr "Tallenna"
+
+#: subscriptions.module:1073
+msgid "Your subscription(s) was deactivated."
+msgstr "Tilauksesi on lopetettu."
+
+#: subscriptions.module:1134;1219;1282;1352
+msgid "Your subscription was deactivated."
+msgstr "Tilauksesi on lopetettu."
+
+#: subscriptions.module:1223;1286;1345
+msgid "Your subscription was activated."
+msgstr "Tilauksesi on vastaanotettu."
+
+#: subscriptions.module:1362
+msgid "thread"
+msgstr "keskustelusäie"
+
+#: subscriptions.module:1366
+msgid "blog"
+msgstr "blogi"
+
+#: subscriptions.module:1379
+msgid "category"
+msgstr "keskustelupalsta tai aihealue"
+
+#: subscriptions.module:1389
+msgid "content type"
+msgstr "sisältön muoto"
+
+#: subscriptions.module:1392
+msgid "type"
+msgstr "muoto"
+
+#: subscriptions.module:1392
+msgid "title"
+msgstr "otsikko"
+
+#: subscriptions.module:1392
+msgid "subscribers"
+msgstr "tilaajat"
+
+#: subscriptions.module:1396
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "Sinulla ei ole tilauksia keskustelupalstoihin, aihealueisiin tai keskustelusäikeisiin."
+
+#: subscriptions.module:1401
+msgid "Subscriptions Summary"
+msgstr "Tilauksien yhteenveto"
+
+#: subscriptions.module:1414
+msgid "You are not currently subscribed to any active blogs"
+msgstr "Sinulla ei ole tilauksia blogeihin"
+
+#: subscriptions.module:1420;1430
+msgid "You are currently subscribed to the following:"
+msgstr "Sinulla on tilaus seuraaviin:"
+
+#: subscriptions.module:1423;1425
+msgid "There are no active categories."
+msgstr "Ei keskustelupalstoja tai aihealueita saatavilla."
+
+#: subscriptions.module:1433
+msgid "You are not currently subscribed to any active threads"
+msgstr "Sinulla ei ole tilauksia keskustelusäikeisiin."
+
+#: subscriptions.module:1441
+msgid "There are no active content types."
+msgstr "Ei sisältömuotoja."
+
+#: subscriptions.module:1450;1489
+msgid "!name Subscriptions"
+msgstr "!name tilaukset"
+
+#: subscriptions.module:1520
+msgid "Combine this with \"Node: Type\" to find nodes of that type that logged in user is subscribed to"
+msgstr "Yhdistä tämä \"Node: Type\":en selvittääksesi sivut joita sisäänkirjautunut käyttäjä on tilannut"
+
+#: subscriptions.module:1537
+msgid "Greetings, !name.\n\nA !type to which you have subscribed has been updated.\n!title\n!teaser\nTo view the thread, navigate to !url \n\n--\nThis is an automatic message from !site.\nTo manage your subscriptions, browse to !manage-url"
+msgstr "Hei !name!\n\nTilaamasi sisältö (!type) on päivittynyt.\n\n!title\n!teaser\n\nOhessa linkki päivittyneelle sivulle !url.\n\n-- \nTämä on automaattinen viesti !site:stä\n\nVoit muuttaa tilaustesi asetuksia osoitteessa !manage-url"
+
+#: subscriptions.module:1561
+msgid "[!site] !type subscription update for !name : !subject"
+msgstr "[!site] !type sivu on päivittynyt / !name : !subject"
+
+#: subscriptions.module:470
+msgid "regular"
+msgstr "normaali"
+
+#: subscriptions.module:474
+msgid "error"
+msgstr "virhe"
+
+#: subscriptions.module:67
+msgid "subscribe to content"
+msgstr "sisällön tilaus"
+
+#: subscriptions.module:67
+msgid "subscribe to taxonomy terms"
+msgstr "keskustelupalstojen tai aihealueiden tilaus"
+
+#: subscriptions.module:67
+msgid "subscribe to content types"
+msgstr "sisältömuotojen tilaus"
+
+#: subscriptions.module:67
+msgid "subscribe to blogs"
+msgstr "blogien tilaus"
+
+#: subscriptions.module:67
+msgid "admin users subscriptions"
+msgstr "hallinnoi käyttäjien tilauksia"
+
+#: subscriptions.module:67
+msgid "maintain own subscriptions"
+msgstr "hallinnoi omia tilauksia"
+
+#: subscriptions.module:0
+msgid "subscriptions"
+msgstr "tilauksia"
+

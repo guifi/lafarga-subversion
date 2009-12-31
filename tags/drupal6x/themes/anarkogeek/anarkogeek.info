@@ -1,0 +1,9 @@
+; $Id: anarkogeek.info,v 3.0 2008/05/21 23:27:32 goba Exp $
+name = Anarkogeek
+description = Some description here.
+version = 6.x-dev6.x
+core = 6.x
+engine = phptemplate
+stylesheets[all][] = style.css
+
+

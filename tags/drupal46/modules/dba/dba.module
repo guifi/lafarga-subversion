@@ -1,0 +1,821 @@
+<?php
+// $Id: dba.module,v 1.21.2.1 2005/03/24 08:39:52 chx Exp $
+
+/*
+** dba.module:
+**   Allows administrators direct access to their Drupal database.
+** Written by Jeremy Andrews <jeremy@kerneltrap.org>, June 2004.
+** PostgreSQL functionality provided by AAM <aam@ugpl.de>
+*/
+
+
+// standard Drupal functions
+function dba_perm() {
+  return array ('dba view database', 'dba administer database');
+}
+
+function dba_help($section = '') {
+  switch ($section) {
+    case 'admin/modules/dba':
+    case 'admin/modules#description':
+      $output = t('Directly administer your Drupal database.');
+      break;
+    case 'admin/help#dba':
+      $output .= t('
+      <p>The dba module allows site administrators a method for direct database administration.  This is a dangerous module, in that it gives unlimited access and control over the active database.  With this module, it is possible to corrupt or delete an entire drupal database.  Use at your own risk.</p>
+');
+      break;
+  }
+  return $output;
+}
+
+function dba_menu($may_cache) {
+  $items = array();
+  $access = user_access('dba view database') || user_access('dba administer database');
+  if ($may_cache) {
+    // provide menus to dbas with view permissions
+    $items[] = array('path' => 'admin/database', 'title' => t('database'),
+      'callback' => 'dba_admin',
+      'access' => $access);
+
+    // tabs
+    $items[] = array('path' => 'admin/database/table', 'title' => t('tables'),
+      'callback' => 'dba_admin', 'type' => MENU_DEFAULT_LOCAL_TASK);
+    $items[] = array('path' => 'admin/database/script',
+      'title' => t('run script'), 'callback' => 'dba_admin',
+      'access' => user_access('dba administer database'),
+      'type' => MENU_LOCAL_TASK, 'weight' => 10);
+  }
+  else if (strstr(drupal_get_path_alias($_GET['q']), 'admin/database')) {
+    // you can only view or describe one table at a time
+    $tables = dba_get_active_tables($edit, 0);
+    $quantity = sizeof(explode(',', $tables));
+
+    // subtabs
+    $items[] = array('path' => "admin/database/table/$tables/view",
+      'title' => t('view'), 'callback' => 'dba_admin',
+      'access' => $access && $tables && $quantity == 1, 'type' => MENU_LOCAL_TASK,
+      'weight' => 0);
+    $items[] = array('path' => "admin/database/table/$tables/describe",
+      'title' => t('describe'), 'callback' => 'dba_admin',
+      'access' => $access && $tables && $quantity == 1, 'type' => MENU_LOCAL_TASK,
+      'weight' => 2);
+    $items[] = array('path' => "admin/database/table/$tables/check",
+      'title' => t('check'), 'callback' => 'dba_admin',
+      'access' => $access && $tables && $quantity > 0 && _is_mysql(),
+      'type' => MENU_LOCAL_TASK, 'weight' => 4);
+    $items[] = array('path' => 'admin/database/table/checkall',
+      'title' => t('check all'), 'callback' => 'dba_admin',
+      'access' => $access && !$tables && $quantity == 1 && _is_mysql(),
+      'type' => MENU_LOCAL_TASK, 'weight' => 6);
+
+    // subtabs for dbas with administer permissions
+    $items[] = array('path' => "admin/database/table/$tables/backup",
+      'title' => t('backup'), 'callback' => 'dba_admin',
+      'access' => user_access('dba administer database') && $tables &&
+      $quantity > 0, 'type' => MENU_LOCAL_TASK, 'weight' => 8);
+    $items[] = array('path' => "admin/database/table/$tables/empty",
+      'title' => t('empty'), 'callback' => 'dba_admin',
+      'access' => user_access('dba administer database') && $tables &&
+       $quantity > 0, 'type' => MENU_LOCAL_TASK, 'weight' => 8);
+    $items[] = array('path' => "admin/database/table/$tables/drop",
+      'title' => t('drop'), 'callback' => 'dba_admin',
+      'access' => user_access('dba administer database') && $tables &&
+       $quantity > 0, 'type' => MENU_LOCAL_TASK, 'weight' => 10);
+  }
+  return $items;
+}
+
+function dba_settings() {
+  // Backups
+  $group = form_textfield(t('Default backup filename'), 'dba_default_filename', variable_get('dba_default_filename', 'backup.sql'), 45, 255, t('Default filename to use when backing up multiple tables.  If backing up only one table, the filename will default to the name of the table.  You will have an opportunity to modify this filename when you actually perform the backup.'));
+  $output = form_group(t('Database backup'), $group);
+
+  // MySQL
+  $group = form_radios(t('Default check type'), 'dba_default_check_type', variable_get('dba_default_check_type', 'MEDIUM'), array('QUICK' => t('Quick'), 'FAST' => t('Fast'), 'CHANGED' => t('Changed'), 'MEDIUM' => t('Medium'), 'EXTENDED' => t('Extended')), t('MySQL databases support many types of database integrity checks.  Select your preferred default type from the list above.  Medium is the MySQL recommended default type.'));
+  $group .= form_radios(t('Repair option'), 'dba_repair', variable_get('dba_repair', 0), array('0' => t('Automatic'), '1' => t('Always'), '2' => ('Never')), t('By default, the dba module will only display a repair button if a table has been determined to need a repair.  Alternatively, you can make the module always display a repair button, or never display a repair button.'));
+  $output .= _is_mysql() ? form_group(t('MySQL table check & repair'), $group) : '';
+
+  return $output;
+}
+
+// dba module specific functions
+function dba_admin() {
+  $op = $_POST['op'];
+  $edit = $_POST['edit'];
+
+  if (empty($op)) {
+    $op = arg(2);
+  }
+
+  switch ($op) {
+    case 'Check again':
+    case 'table':
+      if (arg(4)) {
+        $op2 = arg(4);
+        switch ($op2) {
+          case 'view':
+            $output = dba_table_overview(arg(3));
+            break;
+          case 'describe':
+            $output = dba_table_describe(arg(3));
+            break;
+          case 'check':
+            $output = dba_check_tables($edit);
+            break;
+          case 'backup':
+          case 'empty':
+          case 'drop':
+            $output = dba_verify($edit, $op2);
+            break;
+          case 'edit':
+            if (arg(5) && arg(6)) {
+              $output = dba_edit_row(arg(3), arg(5), arg(6));
+            }
+            break;
+          case 'delete':
+            if (arg(5) && arg(6)) {
+              $output = dba_delete_row(arg(3), arg(5), arg(6));
+            }
+            break;
+          default:
+            $output = dba_database_overview();
+            break;
+        }
+      }
+      else {
+        // administrator navigating menus - could provide alt interface here
+        $op2 = arg(3);
+        switch ($op2) {
+          case 'checkall':
+            $output = dba_check_tables($edit, 'check');
+            break;
+          default:
+            $output = dba_database_overview();
+            break;
+        }
+      }
+      break;
+    case 'Repair table':
+      if (user_access('dba administer database')) {
+        $output = dba_check_tables($edit, 'repair');
+      }
+      break;
+    case t('Empty table'):
+      if (user_access('dba administer database')) {
+        dba_delete_table($edit['tables']);
+      }
+      $output = dba_database_overview();
+      break;
+    case t('Backup'):
+      if (user_access('dba administer database')) {
+        $output = dba_verify($edit, 'backup');
+      }
+      break;
+    case t('Backup table'):
+    case t('Backup tables'):
+      if (user_access('dba administer database')) {
+        $database = dba_get_database();
+        $backup = "-- Drupal dba.module database dump\n--\n-- Database: $database\n-- Date: " . format_date(time(), 'large') ."\n\n";
+        foreach (explode(',', $edit['tables']) as $table) {
+          $backup .= dba_backup_table($table);
+        }
+      }
+      Header("Content-type: application/octet-stream");
+      Header("Content-Disposition: attachment; filename=". $edit['file_name']);
+      echo $backup;
+      exit(0);
+      break;
+    case t('Empty'):
+      if (dba_get_active_tables($edit, 0)) {
+        $output = dba_verify($edit, 'empty');
+      }
+      else {
+        drupal_set_message(t('Unable to \'empty\', no table selected.'), 'error');
+        $output = dba_database_overview();
+      }
+      break;
+    case t('Empty tables'):
+      if (user_access('dba administer database')) {
+        $tables = dba_get_active_tables($edit, 0);
+        foreach (explode(',', $tables) as $table) {
+          dba_delete_table($table);
+        }
+      }
+      $output = dba_database_overview();
+      break;
+    case t('Drop'):
+      if (dba_get_active_tables($edit, 0)) {
+        $output = dba_verify($edit, 'drop');
+      }
+      else {
+        drupal_set_message(t('Unable to \'drop\', no table selected.'), 'error');
+        $output = dba_database_overview();
+      }
+      break;
+    case t('Drop table'):
+    case t('Drop tables'):
+      if (user_access('dba administer database')) {
+        dba_drop_table($edit['tables']);
+      }
+      $output = dba_database_overview();
+      break;
+    case t('Edit row'):
+      $output = dba_make_row_edit($edit);
+      $table = $edit['table'];
+      // we use goto so tablesort works
+      drupal_goto("admin/database/table/$table/view");
+      break;
+    case t('Delete row'):
+      $output = dba_make_row_delete($edit);
+      $table = $edit['table'];
+      // we use goto so tablesort works
+      drupal_goto("admin/database/table/$table/view");
+      break;
+    case 'script':
+      $output = dba_script();
+      break;
+    case 'Check':
+      $output = dba_check_tables($edit, 'check');
+      break;
+    case 'Execute script':
+      $output = dba_script($edit);
+      break;
+    default:
+      $output = dba_database_overview();
+      break;
+  }
+
+  print theme('page', $output);
+}
+
+function dba_database_overview() {
+  $rows = array();
+  $database = dba_get_database();
+  drupal_set_title(t('View database \'%database\'', array('%database' => "$database")));
+
+  // it'd be great to use the pager and tablesort, but doesn't appear possible
+  $header = array('', t('tables'), t('rows'), t('actions'));
+  $tables = dba_get_tables();
+  foreach ($tables as $table) {
+    $action = NULL;
+    $count = dba_get_row_count($table);
+    $action = '['. l(t('view'), "admin/database/table/$table/view", array('title' => t('View all rows of table \'%table\'', array('%table' => "$table")))) .']';
+    $action .= ' ['. l(t('describe'), "admin/database/table/$table/describe", array('title' => t('Describe table \'%table\'', array('%table' => "$table")))) .']';
+    $action .= _is_mysql() ? ' ['. l(t('check'), "admin/database/table/$table/check", array('title' => t('Check integrity of table \'%table\'', array('%table' => "$table")))) .']' : '';
+    if (user_access('dba administer database')) {
+      $action .= ' ['. l(t('backup'), "admin/database/table/$table/backup", array('title' => t('Backup all data from table \'%table\' to file', array('%table' => "$table")))) .']';
+      $action .= ' ['. l(t('empty'), "admin/database/table/$table/empty", array('title' => t('Delete all rows from table \'%table\'', array('%table' => "$table")))) .']';
+      $action .= ' ['. l(t('drop'), "admin/database/table/$table/drop", array('title' => t('Drop table \'%table\'', array('%table' => "$table")))) .']';
+    $checkbox = form_checkbox('', $table, 1, $edit['$table']);
+    }
+    $rows[] = array($checkbox, $table, $count, $action);
+  }
+
+  $output .= theme('table', $header, $rows);
+  $output .= _is_mysql() ? form_submit(t('Check')) : '';
+  if (user_access('dba administer database')) {
+    $output .= form_submit(t('Backup'));
+    $output .= form_submit(t('Empty'));
+    $output .= form_submit(t('Drop'));
+  }
+
+  return form ($output);
+}
+
+function dba_delete_row($table, $key, $keyid) {
+  $rows = array();
+  $keyid = str_replace('__2F_', '/', $keyid);
+  $tables = dba_get_active_tables($table);
+  $quantity = sizeof(explode(',', $tables));
+  if ($quantity == 1) {
+    $display = '<em>'. $table .'</em>';
+    $result = db_query('SELECT * FROM {%s} WHERE %s = "%s"', $table, $key, $keyid);
+    $row = db_fetch_array($result);
+    $rows[] = $row;
+    $header = array_keys($row);
+    $extra = (theme('table', $header, $rows));
+    $extra .= form_hidden('table', $table);
+    $extra .= form_hidden('key', $key);
+    $extra .= form_hidden('keyid', $keyid);
+    $output = theme('confirm',
+                    t('Are you sure you want to delete this row from the "%table" table?', array('%table' => $display)),
+                    'admin/database',
+                    t('By clicking "delete row" you will permanently remove this row from the %table table.  This action cannot be undone.', array('%table' => $display)),
+                    t('Delete row'),
+                    t('Cancel'),
+                    $extra);
+  }
+  return $output;
+}
+
+function dba_edit_row($table, $key, $keyid) {
+  $rows = array();
+  $keyid = str_replace('__2F_', '/', $keyid);
+  $tables = dba_get_active_tables($table);
+  $quantity = sizeof(explode(',', $tables));
+  if ($quantity == 1) {
+    $display = '<em>'. $table .'</em>';
+    $result = db_query('SELECT * FROM {%s} WHERE %s = "%s"', $table, $key, $keyid);
+    $row = db_fetch_array($result);
+    $header = array_keys($row);
+    foreach ($row as $k => $value) {
+      if ($k == $key) {
+        $r[] = $value;
+      }
+      else {
+        $size = strlen($value);
+        if ($size > 255) {
+          $r[] = form_textarea('', "$k", $value, 70, 10);
+        }
+        else {
+          $r[] = form_textfield('', "$k", $value, $size, 255);
+        }
+      }
+    }
+    $rows[] = $r;
+    $extra = (theme('table', $header, $rows));
+    $extra .= form_hidden('table', $table);
+    $extra .= form_hidden('key', $key);
+    $extra .= form_hidden('keyid', $keyid);
+
+    $output = theme('confirm',
+                    t('Edit row from the "%table" table', array('%table' => $display)),
+                    'admin/database',
+                    t('By clicking "edit row" you will save any changes you make to this row of the %table table.  This action cannot be undone.', array('%table' => $display)),
+                    t('Edit row'),
+                    t('Cancel'),
+                    $extra);
+  }
+  return $output;
+
+}
+
+function dba_make_row_edit($edit) {
+  if (user_access('dba administer database')) {
+    $key = $edit['key'];
+    $keyid = $edit['keyid'];
+    $table = $edit['table'];
+    $fields = dba_get_fields($table);
+    foreach ($fields as $field) {
+      if ($field != $key) {
+        $value = "{$edit[$field]}";
+        if (isset($query)) {
+          $query .= ", $field = \"$value\"";
+        }
+        else {
+          $query = "$field = \"$value\"";
+        }
+      }
+    }
+    $query = "UPDATE {$table} SET $query WHERE $key = \"$keyid\"";
+    drupal_set_message($query);
+    db_query($query);
+  }
+}
+
+function dba_make_row_delete($edit) {
+  if (user_access('dba administer database')) {
+    $key = $edit['key'];
+    $keyid = $edit['keyid'];
+    $table = $edit['table'];
+    $query = "DELETE FROM {$table} WHERE $key = \"$keyid\"";
+    drupal_set_message($query);
+    db_query($query);
+  }
+}
+
+function dba_table_overview($table) {
+  $rows = array();
+  $tables = dba_get_active_tables($edit);
+  $quantity = sizeof(explode(',', $tables));
+  if ($quantity == 1) {
+    drupal_set_title(t('View table \'%table\'', array('%table' => "$table")));
+
+    if (user_access('dba administer database')) {
+      $primary = dba_get_primary_key($table);
+    }
+    else {
+      $primary = NULL;
+    }
+
+    $fields = dba_get_fields($table);
+    foreach ($fields as $field) {
+      $header[] = array('data' => "$field", 'field' => "$field");
+    }
+
+    $sql = "SELECT * FROM {$table}";
+    $sql .= tablesort_sql($header);
+    $result = pager_query($sql, 20);
+
+    if (!is_null($primary)) {
+      $header[] = t('actions');
+    }
+
+    if (db_num_rows($result)) {
+      while ($row = db_fetch_object($result)) {
+        if (!is_null($primary)) {
+          $id = "{$row->$primary}";
+          $id = str_replace('/', '__2F_', $id);
+          $row->actions = '['. l(t('edit'), "admin/database/table/$table/edit/$primary/$id") .']';
+          $row->actions .= ' ['. l(t('delete'), "admin/database/table/$table/delete/$primary/$id") .']';
+        }
+        $rows[] = $row;
+      }
+      if ($pager = theme('pager', NULL, 20, 0, tablesort_pager())) {
+        $rows[] = array(array('data' => $pager, 'colspan' => sizeof($fields)));
+      }
+      $output = theme('table', $header, $rows);
+    }
+    else {
+      $output = t('The table is empty.');
+    }
+  }
+  else {
+    drupal_set_message(t('Unable to view more than one table at a time.'), 'error');
+    $output .= dba_database_overview();
+  }
+  return $output;
+}
+
+function dba_get_primary_key($table) {
+  if (_is_mysql()) {
+    $rows = array();
+    $tables = dba_get_active_tables($edit);
+    $quantity = sizeof(explode(',', $tables));
+    if ($quantity == 1) {
+      $result = dba_describe_table($table, FALSE);
+      while ($row = db_fetch_array($result)) {
+        if ($row['Key'] == "PRI") {
+          return ($row['Field']);
+        }
+      }
+    }
+    else {
+      drupal_set_message(t('Unable to return the primary key for more than one table at a time.'), 'error');
+    }
+  }
+  else {
+    // not MySQL, so currently unsupported
+    return;
+  }
+  return;
+}
+
+function dba_table_describe($table) {
+  $rows = array();
+  $tables = dba_get_active_tables($edit);
+  $quantity = sizeof(explode(',', $tables));
+  if ($quantity == 1) {
+    drupal_set_title(t('Describe table \'%table\'', array('%table' => "$table")));
+    $result = dba_describe_table($table);
+    while ($row = db_fetch_array($result)) {
+      if (!$header) {
+        $header = array_keys($row);
+      }
+      $rows[] = $row;
+    }
+    return (theme('table', $header, $rows));
+  }
+  else {
+    drupal_set_message(t('Unable to describe more than one table at a time.'), 'error');
+    $output .= dba_database_overview();
+  }
+  return $output;
+}
+
+function dba_script($edit = array()) {
+  if (!empty($edit['dba_script'])) {
+    unset ($output);
+    // execute each sql statement individually
+    foreach (explode(';', $edit['dba_script']) as $sql) {
+      if (trim($sql) == '')
+        break;
+      $result = dba_execute_script($sql);
+      if ($result && $result != 1 && db_num_rows($result)) {
+        while ($row = db_fetch_array($result)) {
+          if (!$header) {
+            $header = array_keys($row);
+          }
+          $rows[] = array_values($row);
+        }
+      }
+      if (!is_null($rows)) {
+        $group = theme('table', $header, $rows);
+        $output .= form_group(t('Result'), $group);
+      }
+      unset ($rows);
+    }
+  }
+
+  if (user_access('dba administer database')) {
+    $group = form_textarea(t('Database script'), 'dba_script', $edit['dba_script'], 70, 10, t('Enter the text of your database script.  This will be executed directly in your database, so the action can not be undone.  Be sure to wrap the table name in {}.  For example, if counting the rows in the \'accesslog\' table, you would enter the following simple script: \'SELECT COUNT(*) FROM {accesslog}\'.'));
+    $group .= form_submit(t('Execute script'));
+    $group .= l(t('Cancel'), 'admin/database');
+    $output .= form_group(t('Script'), $group);
+  }
+
+  return form($output, 'post', url('admin/database/script'));
+}
+
+function dba_execute_script($sql) {
+  if (user_access('dba administer database')) {
+    drupal_set_message($sql);
+    return db_query($sql);
+  }
+}
+
+function dba_check_tables($edit, $action = 'check') {
+  $repair = array();
+
+  if (!$edit['check_type']) {
+    $edit['check_type'] = variable_get('dba_default_check_type', 'MEDIUM');
+  }
+  $type = $edit['check_type'];
+
+  if ("$action" == 'check') {
+    drupal_set_title(t('Performing %type table check.', array('%type' => $type)));
+    $tables = dba_get_active_tables($edit);
+    $result = dba_check_table($tables, $type);
+  }
+  else {
+    $tables = array();
+    if ($edit['repair_tables'])
+      $tables = $edit['repair_tables'];
+    else {
+      $tables = implode(',', $tables);
+    }
+    drupal_set_title(t('Performing table repair.'));
+    $result = dba_repair_table($tables);
+  }
+
+  $header = array(t('Table'), t('Operation'), t('Message type'), t('Message text'));
+  while ($row = db_fetch_object($result)) {
+    $rows[] = $row;
+    if ($row->Msg_type == 'status') {
+      $status = $row->Msg_text;
+      if ($status != 'OK' && $status != 'Table is already up to date') {
+        /* An error message will result if we use the database name when trying to
+        ** repair a table and the database has '-' in the name, so to be safe we strip
+        ** off the database name.
+        */
+        $repair_table = explode('.', $row->Table);
+        $repair[] = $repair_table[1];
+      }
+    }
+  }
+  $group = theme('table', $header, $rows);
+
+  if ($repair) {
+    $group .= '<h3>'. t('One or more tables need repairs.'). '</h3>';
+    $to_repair = 1;
+  }
+  else {
+    $group .= '<h3>'. t('No repairs are required.') .'</h3>';
+    $to_repair = 0;
+  }
+  $output = form_group(t('Result'), $group);
+
+  $group = form_radios(t('Check type'), 'check_type', $edit['check_type'], array('QUICK' => t('Quick'), 'FAST' => t('Fast'), 'CHANGED' => t('Changed'), 'MEDIUM' => t('Medium'), 'EXTENDED' => t('Extended')));
+  $group .= form_submit(t('Check again'));
+  $repair_option = variable_get('dba_repair', 0);
+  if (user_access('dba administer database')) {
+    if (($repair_option == 0 && $to_repair) ||
+        $repair_option == 1) {
+      $group .= form_submit(t('Repair'));
+      if (!$repair_option)
+        $group .= form_hidden('repair_tables', implode(',' ,$repair));
+    }
+  }
+  $group .= form_hidden('tables', $tables);
+  $output .= form_group(t('Actions'), $group);
+
+  return form($output, 'post', url("admin/database/table/$tables/check"));
+}
+
+function dba_get_active_tables($edit, $default = 1) {
+  $tables = array();
+  if ($edit['tables']) {
+    $tables = $edit['tables'];
+  }
+  else if (arg(4) && arg(3)) {
+    $tables = arg(3);
+  }
+  else {
+    foreach (dba_get_tables() as $table) {
+      if ($edit["$table"]) {
+        $tables[] = $table;
+      }
+    }
+    if (sizeof($tables)) {
+      $tables = implode(',', $tables);
+    }
+    // no tables were set, by default we will return a list of all tables
+    else if ($default) {
+      $tables = dba_get_tables();
+      $tables = implode(',', $tables);
+    }
+  }
+  return $tables;
+}
+
+function dba_verify($edit, $action) {
+  $tables = dba_get_active_tables($edit, 0);
+  $quantity = sizeof(explode(',', $tables));
+  if ($quantity) {
+    $display = '<em>'. str_replace(',', ', ', $tables) .'</em>';
+    $extra = form_hidden('tables', "$tables");
+    switch ($action) {
+      case 'empty':
+        $output = theme('confirm',
+                       t('Are you sure you want to delete all rows from the "%tables" %table?', array('%tables' => $display, '%table' => format_plural($quantity, 'table', 'tables'))),
+                       'admin/database',
+                       t('By clicking "empty %table" you will completely remove all data from %this %table, though the %table %itself will not be dropped.  This action cannot be undone.', array('%tables' => $display, '%table' => format_plural($quantity, 'table', 'tables'), '%this' => format_plural($quantity, 'this', 'these'), '%itself' => format_plural($quantity, 'itself', 'themselves'))),
+                       t('Empty %table', array('%table' => format_plural($quantity, 'table', 'tables'))),
+                       t('Cancel'),
+                       $extra);
+        break;
+      case 'drop':
+        $output = theme('confirm',
+                       t('Are you sure you want to drop the "%tables" %table?', array('%tables' => $display, '%table' => format_plural($quantity, 'table', 'tables'))),
+                       'admin/database',
+                       t('By clicking "drop %table" you will be completely removing %this %table and all %its data from the database.  This action cannot be undone.', array('%tables' => $display, '%table' => format_plural($quantity, 'table', 'tables'), '%this' => format_plural($quantity, 'this', 'these'), '%its' => format_plural($quantity, 'its', 'their'))),
+                       t('Drop %table', array('%table' => format_plural($quantity, 'table', 'tables'))),
+                       t('Cancel'),
+                       $extra);
+        break;
+      case 'backup':
+        $filename = ($quantity == 1 ? $tables .'.sql' : variable_get('dba_default_filename', 'backup.sql'));
+        $extra .= form_textfield(t('Backup filename'), 'file_name', $filename, 40, 255, t("Please specify the filename you wish to give your database backup.  Once you click 'Backup %table' below your web browser will allow you to save the database backup to your local computer.", array('%table' => format_plural($quantity, 'table', 'tables'))));
+        $output = theme('confirm',
+                       t('Backup %table to local computer?', array('%table' => format_plural($quantity, 'table', 'tables'))),
+                       'admin/database',
+                       t('By clicking "backup %table" you will be prompted to save the following %table to your local computer: %tables', array('%tables' => $display, '%table' => format_plural($quantity, 'table', 'tables'))),
+                       t('Backup %table', array('%table' => format_plural($quantity, 'table', 'tables'))),
+                       t('Cancel'),
+                       $extra);
+        break;
+
+    }
+  }
+  return $output;
+}
+
+/**********
+* dba api *
+**********/
+
+// return as array all tables in active database
+function dba_get_tables() {
+  global $db_prefix;
+  static $table_list = array();
+  if ($table_list) {
+    // cache copy so function can be called multiple times efficiently
+    return $table_list;
+  }
+
+  if (_is_mysql()) {
+    $result = db_query('show tables');
+  }
+  else {
+    $result = db_query('SELECT DISTINCT tabname as Table FROM {drupal_system_catalog}');
+  }
+
+  while ($tables = db_fetch_object($result)) {
+    foreach ($tables as $db => $table) {
+      if (preg_match("/^($db_prefix)/", $table)) {
+        $table_list[] = $table;
+      }
+    }
+  }
+
+  return $table_list;
+}
+
+// Return name of active database
+function dba_get_database() {
+  static $database = array();
+  if ($database) {
+    // cache copy so function can be called multiple times efficiently
+    return $database;
+  }
+
+  if (_is_mysql()) {
+    $database = array_keys(db_fetch_array(db_query('show tables')));
+    $database = preg_replace('/^Tables_in_/', '', $database[0]);
+  }
+  else {
+    $result = db_fetch_object(db_query('SELECT DISTINCT dbname FROM {drupal_system_catalog} LIMIT 1'));
+    $database = $result->dbname;
+  }
+
+  return $database;
+}
+
+// Return as array all fields in specified table
+function dba_get_fields($table) {
+  $fields = array();
+
+  if (_is_mysql()) {
+    $result = db_query("DESCRIBE {$table}");
+    while ($row = db_fetch_object($result)) {
+      $fields[] = $row->Field;
+    }
+  }
+  else {
+    // lowercase of names of resulting columns seems to be important for postgresql
+    $result = db_query("SELECT colname as field FROM {drupal_system_catalog} WHERE tabname = '".$table."'");
+    while ($row = db_fetch_object($result)) {
+      $fields[] = $row->field;
+    }
+  }
+
+  return $fields;
+}
+
+// Return the number of rows in the specified table
+function dba_get_row_count($table) {
+  $rows = db_fetch_object(db_query("SELECT COUNT(*) as count FROM {$table}"));
+  return $rows->count;
+}
+
+// Perform specified check type on specified table (MySQL specific)
+function dba_check_table($table, $type = 'MEDIUM') {
+  $query = 'CHECK TABLE {'. str_replace(',', ', ', $table) ."} $type;";
+  drupal_set_message($query);
+  return db_query($query);
+}
+
+// Repair specified table (MySQL specific)
+function dba_repair_table($table) {
+  $query = "REPAIR TABLE {$table};";
+  drupal_set_message($query);
+  return db_query($query);
+}
+
+// Describe table
+function dba_describe_table($table, $verbose = TRUE) {
+  if (_is_mysql()) {
+    $query = "DESCRIBE {$table};";
+  }
+  else {
+    // lower case names of resulting colums are important for PostgreSQL
+    $query = "SELECT tabname as table, colname as field, coltype as type, colnull as null, coldefault as default, colextra as extra FROM {drupal_system_catalog} WHERE tabname = '{$table}' ORDER BY colextra;";
+  }
+  if ($verbose) {
+    drupal_set_message($query);
+  }
+  return db_query($query);
+}
+
+// Backup table to file
+function dba_backup_table($table) {
+  $output = "--\n";
+  $output .= "-- Dumping data for table '$table'\n";
+  $output .= "--\n\n";
+
+  $result = db_query("select * from {$table}");
+  $numrow = db_num_rows($result);
+  $fields = dba_get_fields($table);
+  $num_fields = sizeof($fields);
+
+  while ($row = db_fetch_array($result)) {
+    $output .= "INSERT INTO $table VALUES(";
+    $i = 0;
+    foreach($row as $value) {
+      $value = addslashes($value);
+      $value = ereg_replace("\n","\\n",$value);
+      $output .= (isset($value)) ? "\"$value\"" : "\"\"";
+      $output .= (++$i < $num_fields) ? ',' : ");\n";
+    }
+  }
+  $output .= "\n\n";
+
+  return $output;
+}
+
+// Delete table contents
+function dba_delete_table($table) {
+  if (_is_mysql()) {
+    $query = "DELETE FROM {$table};";
+  }
+  else {
+    drupal_set_message(t('Support for deleting the contents of tables is not currently available in PostgreSQL.'), 'error');
+    return;
+  }
+  drupal_set_message($query);
+  return db_query($query);
+}
+
+// Drop table and all contents from current database
+function dba_drop_table($table) {
+  $query = "DROP TABLE {$table};";
+  drupal_set_message($query);
+  return db_query($query);
+}
+
+function _is_mysql() {
+  return $GLOBALS['db_type'] == 'mysql' ? 1 : 0;
+}
+
+?>

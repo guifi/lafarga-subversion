@@ -1,0 +1,20 @@
+$Id: CHANGELOG.txt,v 1.4 2005/03/07 21:34:07 chris Exp $
+$Name: DRUPAL-4-6 $
+
+Drupal 4.6.0, 2005-03-07
+------------------------
+- ported to 4.6 module standards.  Chris Johnson.
+
+Drupal 4.5.0, 2005-02-12
+------------------------
+- ported 4.5 and minor enhancements by Chris Johnson and Allie Micka.
+  * adds subscription block separate from subscription page.
+  * mailing lists admin interface much improved.
+
+Drupal 4.4.0, 2004-04-20
+-------------------------
+- ported to 4.4 by Drumm.
+
+Drupal 4.2.0, 2003-07-01
+-------------------------
+- Initial release.  Original auther: Stéphane Couture

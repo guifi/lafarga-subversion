@@ -1,0 +1,249 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cs\n"
+"POT-Creation-Date: 2006-07-18\n"
+"PO-Revision-Date: 2006-07-18\n"
+"Last-Translator: Jiri Pavlik <pavlik@herme.net>\n"
+"Language-Team: Czech\n"
+"MIME-Version: 1.1\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: subscriptions.module:11
+msgid ""
+"\n"
+"        <p>This module enables users to subscribe to be notified of changes to threads or categories.\n"
+"        Once enabled, all nodes will have an additional link that allows the user to change their subscriptions.\n"
+"        Additionally, all users will be given an account option to auto-subscribe to any thread to which they post.\n"
+"        No configuration is required for this module, although roles must be given permission to\n"
+"        use it.</p>\n"
+"\n"
+"        <p>Note that because this module causes the comment insert to pause while all\n"
+"        subscribers are notified, it may not be practical for large sites.</p>"
+msgstr ""
+"\n"
+"        <p>Tento modul umožňuje uživatelům přihlásit se k odebírání informací o změnách v příspěvcích a kategoriích.\n"
+"        Po jeho zapnutí bude u všech uzlů nový link, který dovolí uživatelům změnit své nastavení odebírání.\n"
+"        Dále budou mít všichni uživatelé možnost nastavit automatické odebírání informací o změnách vláken, do kterých přispěli.\n"
+"        Tento modul nevyžaduje žádné nastavení kromě povolení přístupu k modulu podle uživatelských rolí.</p>\n"
+"\n"
+"        <p>Tento modul rozesílá po vložení nového komentáře informaci všem odběratelům, není proto příliš vhodný pro značně frekventované weby.</p>"
+
+#: subscriptions.module:22
+msgid "Allows users to subscribe to nodes and taxonomy terms."
+msgstr "Umožňuje uživatelům nastavit si odebírání informací o změnách podle uzlů a termínů taxonomie."
+
+#: subscriptions.module:60
+msgid "Subscription settings"
+msgstr "Nastavení odebírání"
+
+#: subscriptions.module:60
+msgid "Automatically subscribe to threads in which you post."
+msgstr "Automaticky odebírat informace o změnách vláken, do kterých přispěju."
+
+#: subscriptions.module:60
+msgid "Checking this box allows you to be automatically subscribe to any thread you create or post a comment to."
+msgstr "Zaškrtnutím tohoto políčka nastavíte automatické odebírání ze všech vláken, která vytvoříte nebo do kterých přispějete."
+
+#: subscriptions.module:70
+msgid "none"
+msgstr "žádný"
+
+#: subscriptions.module:74
+msgid "Omitted vocabularies"
+msgstr "Nezahrnuté slovníky"
+
+#: subscriptions.module:74
+msgid "Select vocabularies which should be <strong>omitted</strong> from subscription listings."
+msgstr "Vybrat slovníky, které se <strong>nemají</strong> zahrnout do seznamu odebírání."
+
+#: subscriptions.module:170
+msgid "subscription notification for "
+msgstr "vyžádané oznámení pro"
+
+#: subscriptions.module:173
+msgid "error mailing subscription notification: "
+msgstr "chyba při odesílání vyžádaného oznámení:"
+
+#: subscriptions.module:211
+msgid "new blog for "
+msgstr "nový blog pro"
+
+#: subscriptions.module:229
+msgid "[%site] %type subscription update for %name : %subject"
+msgstr "[%site] %type změna nastavení odebírání pro %name : %subject"
+
+#: subscriptions.module:230
+msgid ""
+"Greetings, %name.\n"
+"\n"
+"A %type to which you have subscribed has been updated.  To view the thread,\n"
+"navigate to %url\n"
+"\n"
+"--\n"
+"This is an automatic mail from %site.\n"
+"To manage your subscriptions, browse to %manage-url"
+msgstr ""
+"Zdravím, %name.\n"
+"\n"
+"Došlo ke změně v %type, k jehož odebírání jste se přihlásil/a. Vlákno,\n"
+"si můžete prohlédnout vai na %url\n"
+"\n"
+"--\n"
+"Toto je automaticky odeslaný mail ze stránek %site.\n"
+"Pro nastavení odebírání těchto zpráv jděte na %manage-url."
+
+#: subscriptions.module:315
+msgid "Subscribe"
+msgstr "Přihlásit k odebírání"
+
+#: subscriptions.module:315
+msgid "Receive notification of replies to this %name."
+msgstr "Dostávat oznámení o reakcích na %name."
+
+#: subscriptions.module:328
+msgid "my subscriptions"
+msgstr "odebírání"
+
+#: subscriptions.module:331;0
+msgid "subscriptions"
+msgstr "odebírání"
+
+#: subscriptions.module:347
+msgid "unsubscribe blog"
+msgstr "neodebírat blog"
+
+#: subscriptions.module:347
+msgid "Stop receiving an e-mail whenever a new entry is made to this person's blog."
+msgstr "Nedostávat e-mail, až bude přidán nový příspěvek do blogu této osoby."
+
+#: subscriptions.module:350
+msgid "subscribe blog"
+msgstr "odebírat blog"
+
+#: subscriptions.module:350
+msgid "Receive an e-mail whenever a new entry is made to this person's blog."
+msgstr "Dostávat e-mail, až bude přidán nový příspěvek do blogu této osoby."
+
+#: subscriptions.module:354
+msgid "unsubscribe post"
+msgstr "neodebírat"
+
+#: subscriptions.module:354
+msgid "Stop receiving an e-mail whenever a new comment is posted to this @type."
+msgstr "Nedostávat e-mail, až bude přidán nový komentář k tomuto příspěvku."
+
+#: subscriptions.module:357
+msgid "subscribe post"
+msgstr "odebírat"
+
+#: subscriptions.module:357
+msgid "Receive an e-mail whenever a comment is posted to this @type."
+msgstr "Dostávat e-mail, až bude přidán nový komentář k tomuto příspěvku."
+
+#: subscriptions.module:381;492;496
+msgid "unsubscribe"
+msgstr "neodebírat"
+
+#: subscriptions.module:381
+msgid "Unsubscribe from this category."
+msgstr "Neodebírat z této kategorie."
+
+#: subscriptions.module:384
+msgid "subscribe"
+msgstr "odebírat"
+
+#: subscriptions.module:384
+msgid "Subscribe to this category."
+msgstr "Odebírat z této kategorie."
+
+#: subscriptions.module:420
+msgid "<p>Your subscription was activated.</p>"
+msgstr "<p>Odebírání informací o změnách vám bylo nastaveno.</p>"
+
+#: subscriptions.module:423
+msgid "Return to the blog"
+msgstr "Zpět na blog"
+
+#: subscriptions.module:426;439
+msgid "Return to the thread"
+msgstr "Zpět na vlákno"
+
+#: subscriptions.module:429;441
+msgid "Return to the subscriptions"
+msgstr "Zpět k nastavení odebírání"
+
+#: subscriptions.module:430
+msgid "Subscription Activated"
+msgstr "Odebírání nastaveno"
+
+#: subscriptions.module:437
+msgid "<p>Your subscription was deactivated.</p>"
+msgstr "<p>Odebírání informací o změnách vám zrušeno.</p>"
+
+#: subscriptions.module:442
+msgid "Subscription Deactivated"
+msgstr "Odebírání zrušeno"
+
+#: subscriptions.module:452;492
+msgid "thread"
+msgstr "vlákno"
+
+#: subscriptions.module:456;496
+msgid "blog"
+msgstr "blog"
+
+#: subscriptions.module:469;509
+msgid "category"
+msgstr "kategorie"
+
+#: subscriptions.module:473;514
+msgid "type"
+msgstr "typ"
+
+#: subscriptions.module:473;514
+msgid "title"
+msgstr "nadpis"
+
+#: subscriptions.module:473
+msgid "subscribers"
+msgstr "odběratelé"
+
+#: subscriptions.module:477
+msgid "<p>No threads or categories are currently subscribed.</p>"
+msgstr "<p>Není nastaveno odebírání z žádného vlákna ani kategorie.</p>"
+
+#: subscriptions.module:482
+msgid "Subscriptions Summary"
+msgstr "Přehled odebírání"
+
+#: subscriptions.module:492
+msgid "Unsubscribe from this thread."
+msgstr "Neodebírat z tohoto vlákna."
+
+#: subscriptions.module:496
+msgid "Unsubscribe from this user's blog."
+msgstr "Neodebírat z blogu tohoto uživatele."
+
+#: subscriptions.module:514
+msgid "operations"
+msgstr "operace"
+
+#: subscriptions.module:517
+msgid "<p>You are not currently subscribed to any active threads or categories.</p>"
+msgstr "<p>Nejste přihlášen/a k odebírání žádných vláken ani kategorií.</p>"
+
+#: subscriptions.module:170
+msgid "regular"
+msgstr "řádně proběhlo"
+
+#: subscriptions.module:173
+msgid "error"
+msgstr "chyba"
+
+#: subscriptions.module:30
+msgid "maintain subscriptions"
+msgstr "spravovat odebírání"
+

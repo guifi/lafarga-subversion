@@ -1,0 +1,4 @@
+This module and the example smileys that come with it were made by
+Steven Wittens <unconed@drop.org>.
+
+Feel free to contact me about it!

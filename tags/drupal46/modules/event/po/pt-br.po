@@ -1,0 +1,536 @@
+# Brazilian Portuguese Translation of Drupal
+# Copyright (c) 2005 Henrique Recidive <recidive@gmail.com>
+# $Id: pt-br.po,v 1.1.2.1 2005/05/18 16:31:18 recidive Exp $
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal 4.6\n"
+"POT-Creation-Date: 2005-05-16 17:08-0300\n"
+"PO-Revision-Date: 2005-05-18 13:30-0300\n"
+"Last-Translator: Henrique Recidive Gonçalves <henrique@recidive.com>\n"
+"Language-Team: SacraHome.net <sacrahome@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-Language: Portuguese\n"
+"X-Poedit-Country: BRAZIL\n"
+
+#: event.module:35
+#: ;38
+msgid "calendar"
+msgstr "calendário"
+
+#: event.module:43
+#: ;58;65
+msgid "week"
+msgstr "semana"
+
+#: event.module:43
+#: ;58;65
+msgid "Week view"
+msgstr "Visão da semana"
+
+#: event.module:44
+#: ;51;66
+msgid "day"
+msgstr "dia"
+
+#: event.module:44
+#: ;51;66
+msgid "Day view"
+msgstr "Visão do dia"
+
+#: event.module:45
+#: ;52;59
+msgid "table"
+msgstr "tabela"
+
+#: event.module:45
+#: ;52;59
+msgid "Table view"
+msgstr "Visão da tabela"
+
+#: event.module:50
+#: ;57;64
+msgid "month"
+msgstr "mês"
+
+#: event.module:50
+#: ;57;64
+msgid "Month view"
+msgstr "Vista do mês"
+
+#: event.module:84
+msgid "events"
+msgstr "eventos"
+
+#: event.module:89
+msgid "add item to calendar"
+msgstr "adicionar ítem no calendário"
+
+#: event.module:94
+msgid "filter by content type"
+msgstr "filtrar por tipo de conteúdo"
+
+#: event.module:99
+msgid "filter by taxonomy"
+msgstr "filtrar por taxonomia"
+
+#: event.module:104
+msgid "event rss feed"
+msgstr "alimentação RSS de evento"
+
+#: event.module:124
+#: ;134
+msgid "Event timezone input"
+msgstr "Entrada de zona de tempo do evento"
+
+#: event.module:124
+#: ;134
+msgid "Use the sitewide timezone"
+msgstr "Usar a zone de tempo do site"
+
+#: event.module:124
+#: ;134
+msgid "Use the timezone of the user editing or creating the event"
+msgstr "Usar a zona de tempo do usuário que está editando ou criando o evento"
+
+#: event.module:124
+#: ;134
+msgid "Allow users to set event timezones"
+msgstr "Permite que os usuários configurem as zonas de tempo do evento"
+
+#: event.module:124
+msgid "Events are saved with a timezone value. This setting allows you to determine how the timezone is determined when creating or editing an event."
+msgstr "Eventos são salvos com um valor de zona de tempo. Este ajuste permite que você determine como a zona de tempo é determinada quando está criando ou editando um evento."
+
+#: event.module:126
+#: ;136
+msgid "Event timezone display"
+msgstr "Exibição da zona de tempo do evento"
+
+#: event.module:126
+msgid "Use the event's timezone."
+msgstr "Usar a zona de tempo do evento."
+
+#: event.module:126
+msgid "Use the user's timezone."
+msgstr "Usar a zona de tempo do usuário."
+
+#: event.module:126
+msgid "Events are saved with a timezone value. This setting allows you to determine if the event's timezone or the user's personal timezone setting is used to display the time for an event."
+msgstr "Eventos são salvos com um valor de zona de tempo. Este ajuste permite que você determine se a zona de tempo do evento ou a zona de tempo pessoal do usuário será usada para exibir o tempo para um evento."
+
+#: event.module:134
+msgid "Events are saved with a timezone value. This setting allows you to determine how the timezone is determined when creating or editing an event. You must have 'Configurable time zones' enabled in %url before you can enable user's timezones for this feature."
+msgstr "Eventos são salvos com um valor de zona de tempo. Este ajuste permite que você determine como a zona de tempo é determinada quando está criando ou editando um evento. Você deve ativar 'Zonas de tempo configuráveis' em %url antes de poder habilitar zonas de tempo de usuários nesta característica."
+
+#: event.module:134
+#: ;136
+msgid "site configuration"
+msgstr "configuração do site"
+
+#: event.module:136
+msgid "Use the event's timezone"
+msgstr "Usar a zona de tempo do evento"
+
+#: event.module:136
+msgid "Use the user's timezone"
+msgstr "Usar a zona de tempo do usuário"
+
+#: event.module:136
+msgid "Events are saved with a timezone value. This setting allows you to determine if the event's timezone or the user's personal timezone setting is used to display the time for an event. You must have 'Configurable time zones' enabled in %url before you can enable user's timezones for this feature."
+msgstr "Eventos são salvos com um valor de zona de tempo. Este ajuste permite que você determine se a zona de tempo do evento ou a zona de tempo do usuário é usada para exibir o tempo para um evento. Você deve ativar 'Zonas de tempo configuráveis' em %url antes de poder habilitar zonas de tempo de usuários nesta característica."
+
+#: event.module:138
+msgid "Time notation preference"
+msgstr "Preferência de notação de tempo"
+
+#: event.module:138
+msgid "24h"
+msgstr "24h"
+
+#: event.module:138
+msgid "12h"
+msgstr "12h"
+
+#: event.module:138
+msgid "The time notation system used for entering event times."
+msgstr "O sistema de notação de tempo usado para escolher horários de eventos."
+
+#: event.module:139
+msgid "General Event options"
+msgstr "Opções gerais de Evento"
+
+#: event.module:141
+msgid "Default overview"
+msgstr "Visão geral padrão"
+
+#: event.module:141
+msgid "Day"
+msgstr "Dia"
+
+#: event.module:141
+msgid "Week"
+msgstr "Semana"
+
+#: event.module:141
+msgid "Month"
+msgstr "Mês"
+
+#: event.module:141
+msgid "Table"
+msgstr "Tabela"
+
+#: event.module:141
+msgid "The default event view to display when no format is specifically requested. This is also the view that will be displayed from the block calendar links."
+msgstr "A visão padrão de evento para exibir quando nenhum formato é pedido especificamente. Isto também é a visão que irá ser exibida pelos links do bloco de calendário."
+
+#: event.module:142
+msgid "Table view default period"
+msgstr "Período padrão para visão em tabela"
+
+#: event.module:142
+msgid "The default number of days to display in the table view. You can specify a different number of days in the url. More info on the event url format %link"
+msgstr "O número padrão de dias para exibir na visão de tabela. Você pode especificar um número diferente de dias na url. Mais informações sobre o formato da url de evento em %link"
+
+#: event.module:142
+msgid "here"
+msgstr "aqui"
+
+#: event.module:147
+msgid "Show taxonomy filter control on calendar views"
+msgstr "Mostrar o filtro de controle de taxonomia nas visões do calendário"
+
+#: event.module:148
+msgid "Only show taxonomy filter control when taxonomy filter view is requested"
+msgstr "Mostrar o filtro de controle de taxonomia quando a visão do filtro de taxonomia é requisitado"
+
+#: event.module:149
+msgid "Never show taxonomy filter control"
+msgstr "Nunca exibir o filtro de controle de taxonomia"
+
+#: event.module:153
+msgid "Show content type filter control on calendar views"
+msgstr "Mostrar o filtro de controle de tipo de conteúdo nas visões do calendário"
+
+#: event.module:154
+msgid "Only show content type filter control when content type filter view is requested"
+msgstr "Apenas mostrar o filtro de controle de tipo de conteúdo quando a visão do filtro de tipo de conteúdo é requisitado"
+
+#: event.module:155
+msgid "Never show content type filter control"
+msgstr "Nunca mostrar o controle de filtro de tipo de conteúdo"
+
+#: event.module:157
+msgid "Event overview options"
+msgstr "Opções de visão geral de evento"
+
+#: event.module:193
+msgid "Home"
+msgstr "Principal"
+
+#: event.module:194
+#: ;309;1377
+msgid "Events"
+msgstr "Eventos"
+
+#: event.module:223
+#: ;234
+msgid "view all"
+msgstr "ver tudo"
+
+#: event.module:224
+msgid "Filter"
+msgstr "Filtro"
+
+#: event.module:256
+msgid "%weekday %month %day, %year"
+msgstr "%weekday, %day de %month de %year"
+
+#: event.module:263
+msgid "Week of %month %day, %year"
+msgstr "Semana de %day de %month de %year"
+
+#: event.module:269
+msgid "%month %year"
+msgstr "%month %year"
+
+#: event.module:278
+#: ;537
+msgid "%startmonth %startdate, %startyear - %endmonth %enddate, %endyear"
+msgstr "%startdate de %startmonth, %startyear - %enddate de %endmonth, %endyear"
+
+#: event.module:564
+msgid " - Events Feed"
+msgstr "- Alimentação de Eventos"
+
+#: event.module:958
+#: ;961
+msgid "Mon"
+msgstr "Seg"
+
+#: event.module:958
+#: ;961
+msgid "Tue"
+msgstr "Ter"
+
+#: event.module:958
+#: ;961
+msgid "Wed"
+msgstr "Qua"
+
+#: event.module:958
+#: ;961
+msgid "Thu"
+msgstr "Qui"
+
+#: event.module:958
+#: ;961
+msgid "Fri"
+msgstr "Sex"
+
+#: event.module:958
+#: ;961
+msgid "Sat"
+msgstr "Sáb"
+
+#: event.module:958
+#: ;961
+msgid "Sun"
+msgstr "Dom"
+
+#: event.module:1091
+msgid "g"
+msgstr "g"
+
+#: event.module:1096
+msgid "H"
+msgstr "H"
+
+#: event.module:1108
+msgid "January"
+msgstr "Janeiro"
+
+#: event.module:1108
+msgid "February"
+msgstr "Fevereiro"
+
+#: event.module:1108
+msgid "March"
+msgstr "Março"
+
+#: event.module:1108
+msgid "April"
+msgstr "Abril"
+
+#: event.module:1108
+msgid "May"
+msgstr "Maio"
+
+#: event.module:1108
+msgid "June"
+msgstr "Junho"
+
+#: event.module:1108
+msgid "July"
+msgstr "Julho"
+
+#: event.module:1108
+msgid "August"
+msgstr "Agosto"
+
+#: event.module:1108
+msgid "September"
+msgstr "Setembro"
+
+#: event.module:1108
+msgid "October"
+msgstr "Outubro"
+
+#: event.module:1108
+msgid "November"
+msgstr "Novembro"
+
+#: event.module:1108
+msgid "December"
+msgstr "Dezembro"
+
+#: event.module:1112
+msgid "am"
+msgstr "am"
+
+#: event.module:1112
+msgid "pm"
+msgstr "pm"
+
+#: event.module:1303
+msgid "Select event terms to filter by"
+msgstr "Selecione os termos de evento para filtrar por"
+
+#: event.module:1333
+msgid "Select event type to filter by"
+msgstr "Selecione o tipo de evento para filtrar por"
+
+#: event.module:1358
+msgid "Calendar to browse events."
+msgstr "Calendário para navegar pelos eventos"
+
+#: event.module:1359
+msgid "List of upcoming events."
+msgstr "Lista dos próximos eventos."
+
+#: event.module:1381
+msgid "Upcoming events"
+msgstr "Próximos eventos"
+
+#: event.module:1383
+msgid "more"
+msgstr "mais"
+
+#: event.module:1383
+msgid "More events."
+msgstr "Mais eventos."
+
+#: event.module:1413
+msgid "NOW"
+msgstr "AGORA"
+
+#: event.module:1454
+msgid "Show in event calendar"
+msgstr "Mostrar no calendário de eventos"
+
+#: event.module:1454
+msgid "Never"
+msgstr "Nunca"
+
+#: event.module:1454
+msgid "All views"
+msgstr "Todas as visões"
+
+#: event.module:1454
+msgid "Only in views for this type"
+msgstr "Apenas em visões para este tipo"
+
+#: event.module:1454
+msgid "None: This content type will not be associated with the events calendar.<br />All views: This content type will be available for display on all calendar views, including with other events.<br />Only in views for this type: This content type will only appear in calendar views specific to this type and never with other events."
+msgstr "Nenhum: Este tipo de conteúdo não será associado com o calendário de eventos.<br />Todos: Este tipo de conteúdo estará disponível para exibição em todas as visões de calendário, inclusive com outros eventos.<br />Somente em visões para este tipo: Este tipo de conteúdo irá aparecer somente nas visões de calendário específicas para este tipo e nunca com outros eventos."
+
+#: event.module:1460
+msgid "Start"
+msgstr "Início"
+
+#: event.module:1460
+msgid "Start date."
+msgstr "Data de início."
+
+#: event.module:1462
+msgid "End"
+msgstr "Fim"
+
+#: event.module:1462
+msgid "End date."
+msgstr "Data de fim."
+
+#: event.module:1465
+msgid "Time zone"
+msgstr "Zona de tempo"
+
+#: event.module:1465
+msgid "Select the time zone this event occurs in."
+msgstr "Selecione a zona de tempo em que este evento irá ocorrer."
+
+#: event.module:1598
+msgid "Lets users make events and keep calendars."
+msgstr "Permite usuários enviar eventos e manter calendários."
+
+#: event.module:1601
+msgid ""
+"\n"
+"      <h3>Background</h3>\n"
+"      <p>This version of event module implements the drupal nodeapi system. There is no native event node type as in versions previous to 4.6, but instead node types can be 'event-enabled' through the %configure-link, the same way in which file attachments are assigned to node types with upload.module. This, combined with the dynamic content type functionality of %flexinode-link, make it possible to define almost any kind of calendar.</p>\n"
+"      <p>Node types can be assigned to general calendar views, or only on their own calendar. For example, this makes it possible to have a general calendar which shows all 'meetups' and 'house parties' in the same place, but perhaps have a separate calendar for 'rallies' which only contains that type. The ability to filter calendar views by node type and taxonomy is also implemented, which allows many different possibilities for displaying content in the calendar system.</p>\n"
+"      \n"
+"      <h3><a id=\"url-format\"></a>Calendar display url formats</h3>\n"
+"      The ability to filter calendar views by content type and taxonomy enables almost unlimited possibilities for displaying content with the calendar system. You can combine taxonomy and content type filters, the url construction scheme is currently as follows:\n"
+"      <blockquote>\n"
+"      ?q=event/$year/$month/$day/$view_type/$content_type/$taxonomy_terms/$duration<br /><br />\n"
+"      <strong>$year:</strong> year value such as '2005'<br />\n"
+"      <strong>$month:</strong> month value with leading zeroes such as '02' for february<br />\n"
+"      <strong>$day:</strong> day value with leading zeroes such as '14'<br />\n"
+"      <strong>$view_type:</strong> type of calendar layout, values may include 'month', 'week', 'day', 'table' and 'feed' for an rss feed.<br />\n"
+"      <strong>$content_type:</strong> list of node types, separated by '+'. Flexinode types only require the integer value of the type. For example, to view story nodes and type flexinode-1, you would use 'story+1'. The value 'all' will show all types.<br />\n"
+"      <strong>$taxonomy_terms:</strong> list of term ids, seperated by '+'. For example to view entries assigned to the taxonomy terms with ids 4 and 9 you would use '4+9'. The value 'all' will show all terms.<br />\n"
+"      <strong>$duration:</strong> number of days to display, currently only the table view obeys this setting. Eventually it may be used to specify additional duration parameters such as multiple weeks in the week view, or months in the month view.\n"
+"      </blockquote>\n"
+"      <p>There are url wrapper functions as well, which make it possible to easily create menu items to calendars by event type or taxonomy terms. This is necessary if you wish to create a link to a calendar but do not have a way to dynamically create the url based on the date, like in the menu or in a post.</p>\n"
+"      <p>For links to a taxonomy filtered calendar the format is:\n"
+"      <blockquote>\n"
+"      ?q=event/term/$taxonomy_terms<br /><br />\n"
+"      <strong>$taxonomy_terms:</strong> list of term ids, seperated by '+'. For example to view entries assigned to the taxonomy terms with ids 4 and 9 you would use '4+9'<br />\n"
+"      </blockquote>\n"
+"      For links to a content type filtered calendar the format is:\n"
+"      <blockquote>\n"
+"      ?q=event/type/$content_type<br /><br />\n"
+"      <strong>$content_type:</strong> list of node types, separated by '+'. Flexinode types only require the integer value of the type. For example, to view story nodes and type flexinode-1, you would use 'story+1'\n"
+"      </blockquote></p>"
+msgstr ""
+"\n"
+"<h3>Introdução</h3>\n"
+"<p>Esta versão do módulo de eventos implementa o sistema de objetos do Drupal. Não existe o tipo de objeto evento nas versões anteriores a 4.6, mas ao invés disso os objetos podem ser 'marcados como evento através do %configure-link, do mesmo modo que arquivos são adicionados a tipos de objetos com o upload.module. Este, combinado com a funcionalidade de se criar tipos de objetos dinâmicos com o %flexinode-link, faz-se possível definir quase todo tipo de calendário.</p>\n"
+"<p>Tipos de objetos podem ser apontados para visões gerais de calendário, ou apenas no seu próprio calendário. Por exemplo, isto torna possível ter um calendário geral que mostra todas as 'reuniões' e 'festas' no mesmo lugar, mas é possível ter um calendário separado para 'palestras' que irá conter apenas este tipo de evento. A habilidade de filtrar visualizações de calendários por tipo de objeto e taxonomia também foi implementada, isso possibilita diferentes possibilidades de visualização de conteúdo no sistema de calendário.</p>\n"
+"<h3><a id=\"url-format\"></a>Formatos de url pra exibir calendários</h3>\n"
+"A opção de filtrar o calendário por tipo de conteúdo e taxonomia possibilita inumeras maneiras de exibir conteúdo no sistema de calendário. Você pode combinar filtros de taxonomia e tipos de conteúdo, o esquema de contrução de url é atualmente o seguinte:\n"
+"<blockquote>\n"
+"?q=event/$ano/$mês/$dia/$tipo_de_visualização/$tipo_de_conteúdo/$termos_da_taxonomia/$duração<br /><br />\n"
+"<strong>$ano:</strong> valor do ano tipo '2005'<br />\n"
+"<strong>$mês:</strong> valor do mês com zeros como '02' para fevereiro<br />\n"
+"<strong>$dia:</strong> valor do dia com zeros como '14'<br />\n"
+"<strong>$tipo_de_visualização:</strong> tipo do layout do calendário, os valores devem ser 'month', 'week', 'day', 'table' ou 'feed' para um feed RSS.<br />\n"
+"<strong>$tipo_de_conteúdo:</strong> lista dos tipos de objetos separados por '+'. Os tipos de conteúdo do módulo Flexinode apenas exigem o valor inteiro do tipo. Por exemplo, para ver matérias e o tipo Flexinode 1, você deve usar 'story+1'. O valor 'all' irá mostrar todos os tipos.<br />\n"
+"<strong>$termos_da_taxonomia:</strong> lista de identificadores de termos separados por '+'. Por exemplo para ver entradas apontadas para os termos com os ids 4 e 9 você deve usar '4+9'. O valor 'all' irá mostrar todos os termos.<br />\n"
+"<strong>$duração:</strong> número de dias para mostrar, atualmente apenas a visualização de tabela obedece esta opção. Eventualmente isso pode ser usado para especificar parametros adicionais de duração como várias semanas na visualização de semana ou meses na visualização de mês.\n"
+"</blockquote>\n"
+"<p>Também existem funções que tornam possível criar itens de menu para calendários por tipo de evento ou termos de taxonomia. Isto é necessário se você quiser criar um link para um calendário mas não tem uma forma de criar dinamicamente a url baseada na data, como no menu ou em uma entrada.</p>\n"
+"<p>Para links para um calendário filtrado por taxonomia é:\n"
+"<blockquote>\n"
+"?q=event/term/$termos_da_taxonomia<br /><br />\n"
+"<strong>$termos_da_taxonomia:</strong> lista de identificadores de termos separados por '+'. Por exemplo para ver entradas apontadas para os termos com os ids 4 e 9 você deve usar '4+9'.<br />\n"
+"</blockquote>\n"
+"Para links para um calendário filtrado po tipo de conteúdo é:\n"
+"<blockquote>\n"
+"?q=event/type/$tipo_de_conteúdo<br /><br />\n"
+"<strong>$tipo_de_conteúdo:</strong> lista dos tipos de objetos separados por '+'. Os tipos de conteúdo do módulo Flexinode apenas exigem o valor inteiro do tipo. Por exemplo, para ver matérias e o tipo Flexinode 1, você deve usar 'story+1'.\n"
+"</blockquote></p>"
+
+#: event.module:1629
+msgid "content type management admin area"
+msgstr "Área administrativa de gerenciamento de tipo de conteúdo"
+
+#: event.module:1629
+msgid "flexinode"
+msgstr "Nó flexível"
+
+#: event.module:1416
+msgid "1 minute"
+msgid_plural "%count minutes"
+msgstr[0] "1 minuto"
+msgstr[1] "%count minutos"
+
+#: event.module:1419
+msgid "1 hour"
+msgid_plural "%count hours"
+msgstr[0] "1 hora"
+msgstr[1] "%count horas"
+
+#: event.module:1431
+msgid "1 day"
+msgid_plural "%count days"
+msgstr[0] "1 dia"
+msgstr[1] "%count dias"
+
+#: event.module:0
+msgid "event"
+msgstr "evento"
+

@@ -1,0 +1,203 @@
+# LANGUAGE translation of Drupal (image.module)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from file: image.module,v 1.146.2.4 2005/05/10 14:35:09 walkah
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2005-05-16 17:12-0300\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: image.module:10
+msgid "Allows uploading of images and creating image galleries."
+msgstr ""
+
+#: image.module:12
+msgid "An image (with thumbnail). This is ideal for publishing photographs or screenshots."
+msgstr ""
+
+#: image.module:14
+msgid "Image galleries can be used to organize and present groups of images. Galleries may be nested. To add a new gallery click the \"add gallery\" tab."
+msgstr ""
+
+#: image.module:22;92;98;0
+msgid "image"
+msgstr ""
+
+#: image.module:57
+msgid "Default image path"
+msgstr ""
+
+#: image.module:57
+msgid "Subdirectory in the directory \"%dir\" where pictures will be stored."
+msgstr ""
+
+#: image.module:58
+msgid "File paths"
+msgstr ""
+
+#: image.module:77
+msgid "Label"
+msgstr ""
+
+#: image.module:77
+msgid "Width"
+msgstr ""
+
+#: image.module:77
+msgid "Height"
+msgstr ""
+
+#: image.module:78
+msgid "Select various pixel dimensions, \"thumbnail\" and \"preview\" are required."
+msgstr ""
+
+#: image.module:79
+msgid "Allow users to view original image"
+msgstr ""
+
+#: image.module:80
+msgid "Image sizes"
+msgstr ""
+
+#: image.module:94;102;171
+msgid "image galleries"
+msgstr ""
+
+#: image.module:105
+msgid "list"
+msgstr ""
+
+#: image.module:108
+msgid "add gallery"
+msgstr ""
+
+#: image.module:140
+msgid "Uploaded file is not a valid image"
+msgstr ""
+
+#: image.module:192
+msgid "view original"
+msgstr ""
+
+#: image.module:207;216
+msgid "Latest image"
+msgstr ""
+
+#: image.module:208;221
+msgid "Random image"
+msgstr ""
+
+#: image.module:248
+msgid "Thumbnail"
+msgstr ""
+
+#: image.module:252
+msgid "Image"
+msgstr ""
+
+#: image.module:252
+msgid "Click \"Browse...\" to select an image to upload."
+msgstr ""
+
+#: image.module:253;459
+msgid "Description"
+msgstr ""
+
+#: image.module:396
+msgid "Image galleries"
+msgstr ""
+
+#: image.module:417;476
+msgid "Delete"
+msgstr ""
+
+#: image.module:442
+msgid "Name"
+msgstr ""
+
+#: image.module:442
+msgid "Operations"
+msgstr ""
+
+#: image.module:447
+msgid "edit gallery"
+msgstr ""
+
+#: image.module:458
+msgid "Gallery name"
+msgstr ""
+
+#: image.module:458
+msgid "The name is used to identify the gallery."
+msgstr ""
+
+#: image.module:459
+msgid "The description can be used to provide more information about the forum, or further details about the topic."
+msgstr ""
+
+#: image.module:470
+msgid "Parent"
+msgstr ""
+
+#: image.module:470
+msgid "root"
+msgstr ""
+
+#: image.module:471
+msgid "Weight"
+msgstr ""
+
+#: image.module:471
+msgid "In listings, the heavier (with a higher weight value) terms will sink and the lighter terms will be positioned nearer the top."
+msgstr ""
+
+#: image.module:474
+msgid "Submit"
+msgstr ""
+
+#: image.module:500
+msgid "Last updated: %date"
+msgstr ""
+
+#: image.module:519
+msgid "Posted by: %name"
+msgstr ""
+
+#: image.module:581
+msgid "Unable to create %label image"
+msgstr ""
+
+#: image.module:614
+msgid "thumbnail"
+msgstr ""
+
+#: image.module:615
+msgid "preview"
+msgstr ""
+
+#: image.module:672
+msgid "Image Galleries"
+msgstr ""
+
+#: image.module:498
+msgid "There is %count image in this gallery"
+msgid_plural "There are %count images in this gallery"
+msgstr[0] ""
+msgstr[1] ""
+
+#: image.module:29
+msgid "administer images"
+msgstr ""
+
+#: image.module:29
+msgid "create images"
+msgstr ""
+

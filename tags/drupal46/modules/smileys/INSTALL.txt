@@ -1,0 +1,59 @@
+Readme
+------
+
+This is a simple smiley-filter that allows the easy use of graphical
+smileys (or 'emoticons') on a Drupal site. It comes with a set of example
+smileys, but you can define an unlimited amount of custom smileys as well.
+
+NOTE: Please don't rip the example smileys and use them without this module.
+      I spent quite some time creating those little buggers.
+
+Installation
+------------
+
+1. Create the SQL table. This depends a little on your system, but the most
+   common method is:
+     mysql -u username -ppassword drupal < smileys.mysql
+
+2. Copy the smileys.module to the Drupal modules/ directory.
+
+3. Go to the administration section, into "adminster > modules"
+   and enable the smileys module.
+
+4. Now you can either:
+    (a) Add the included example smileys to your SQL tables by using:
+         mysql -u username -ppassword drupal < examples.mysql
+
+    (b) Go to the "smileys" page in "administer > filters" and
+        add your own smileys. There are two blank smiley pictures included in
+        the examples directory to get you started.
+
+5. If you selected (a) above, create a new directory called 'smileys' in the
+   'misc' directory on your Drupal site. Copy all the images from the
+   'examples' directory there.
+   
+6. (optionally) Go to "administer > filters > ordering" and
+   adjust the filter order to resolve any filter conflicts.
+
+Updating
+--------
+
+If you have an older version of smileys that requires you to enter each acronym
+separately, you'll have to update the smileys table with the following SQL
+command:
+
+ ALTER TABLE smileys CHANGE acronym acronyms varchar(255) DEFAULT '' NOT NULL;
+
+If you have smileys with several acronyms defined, you should edit them in the
+administration interface and group them into one entry.
+
+However, if you're only using the example smileys, it's easier to simply insert
+the new smileys.mysql and examples.mysql into your database. The old table will
+automatically be dropped and recreated.
+
+
+Author
+------
+
+Steven Wittens <unconed@drupal.org>
+

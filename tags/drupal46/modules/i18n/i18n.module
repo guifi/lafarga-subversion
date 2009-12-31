@@ -1,0 +1,304 @@
+<?php
+// $Id: i18n.module,v 1.18 2005/04/11 21:46:44 jareyero Exp $
+
+/**
+ * Internationalization (i18n) module
+ *
+ * @author Jose A. Reyero, 2004
+ *
+ */
+
+/**
+ * Module initialization
+ * 
+ * Get language from path if exists and Initialize i18n system
+ * May do a redirect from home page for not to get wrong versions in cache
+ */
+
+function i18n_init(){
+  global $i18n_langpath;
+  // Some functions only to be included when module is enabled
+
+  $path = _i18n_get_original_path();
+  $i18n_langpath = i18n_get_lang_prefix($path);
+  $lang = _i18n_get_lang();
+  
+  if ($path == '') { // Main page
+    // Check for update script
+    if (isset($_GET['op'])) {
+      return ;
+    }
+    if( variable_get('cache',0) && $lang != i18n_default_language() ) {
+      // Redirect to main page in $lang
+      drupal_goto($lang);
+    } elseif (variable_get('i18n_frontpage',0)){
+      $_GET['q'] = i18n_frontpage();
+    } 
+  } 
+  elseif ($lang == $path) { // When path is only language code
+    $_GET['q'] =  variable_get('i18n_frontpage',0) ? i18n_frontpage() : variable_get('site_frontpage','node'); 
+  }
+  elseif ($i18n_langpath) {
+    //search alias with and without lang and remove lang
+    $_GET['q'] = i18n_get_normal_path($path);
+  } 
+
+  // Multi table, for backwards compatibility and experimentation
+  if (variable_get('i18n_multi' , 0)) {
+    _i18n_set_db_prefix(_i18n_get_lang());
+  }
+
+  // If not in bootstrap, include hooks
+  if(!_i18n_is_bootstrap()){
+    include 'modules/i18n/i18n.inc';    
+  }
+}   
+
+/**
+ *  Common module functions
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function i18n_help($section = 'admin/help#i18n' ) {
+  switch ($section) {
+    case 'admin/help#i18n' :
+      $output = t('
+        <p>This module provides support for internationalization of Drupal sites:</p>
+        <ul>
+        <li>Translation of the user interface for anonymous users (combined with locale)</li>
+        <li>Multi-language for content. Adds a language field for nodes and taxonomy vocabularies and terms</li>
+        <li>Basic translation management</li>
+        <li>Browser language detection</li>
+        <li>Keeps the language setting accross consecutive requests using URL rewriting</li>
+        <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li>
+        <li>Support for long locale names</li>
+        </ul>
+        <p><small>Module developed by <a href="http://freelance.reyero.net">freelance.reyero.net</a></small></p>' );
+      break;
+  case 'admin/modules#description' :
+    $output = t('Enables multilingual content. <b>Requires locale module for interface translation</b>' );
+    break;
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_settings().
+ */
+function i18n_settings() {
+  global $db_prefix_i18n;
+  global $i18n_languages;
+  // Basic settings
+  $config_languages = is_array($i18n_languages) ? implode(', ',$i18n_languages) : 'Not defined';
+  $output .= form_radios(t('Supported languages'), 'i18n_supported_langs' , variable_get('i18n_supported_langs', 'locale'), 
+    array(
+      'locale' => t('Defined by the locale module'),
+      'i18n'  => t('Defined in the configuration file (%config_languages)', array('%config_languages' => $config_languages))
+    ), t('Where to get the list of supported languages from' ));
+  $output .= form_radios(t('Browser language detection'), 'i18n_browser', variable_get('i18n_browser', 0), array(t('Disabled'), t('Enabled' )));
+  $output .= form_select(t('Front page'), 'i18n_frontpage', variable_get('i18n_frontpage', 0), array(t('Default'), t('Language dependent')), t(" If 'language dependent' is selected, default front page will be prepended with language code, i.e. 'en/node'"));
+  /*
+  $output .= form_textfield(t('Language icons html tag'), 'i18n_flags', variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12" alt="Language Flag" />'), 70, 180, 
+    t('HTML tag for flags. Asterisk \'*\' is a placeholder for language code. It should be something like &lt;img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/&gt'));
+  */
+  $output .= form_textfield(t('Language icons path'), 'i18n_flags_path', variable_get('i18n_flags_path', 'modules/i18n/flags/*.png'), 70, 180, 
+    t('Path for language icons, relative to Drupal installation. \'*\' is a placeholder for language code.'));
+  $output .= form_textfield(t('Language icons sixe'), 'i18n_flags_size', variable_get('i18n_flags_size', '16x12'), 10, 10, 
+    t('Image size for language icons, in the form "width x height".'));
+  
+  $output .= t('<h2>Multilingual content</h2>' );
+  foreach (node_list() as $node) {
+    $subform.=form_checkbox(t($node), 'i18n_node_'.$node, 1, variable_get('i18n_node_'.$node, 0));
+  }   
+  $output .= form_group(t('Nodes' ), $subform, t('Select node types to be translated.' ));
+  
+  $output .= t('<h2>Advanced Features</h2>' );
+  $output .= t('<p>These are intended only for advanced users. Some changes to the database are required. Please, do read the INSTALL.txt and README.txt files before enabling these options</p>' );
+
+  // Advanced features
+  // Language dependent tables
+  if (is_array($db_prefix_i18n)) {
+    $multi=true;
+    $text = '<strong>'.t('Current language dependent tables are: '). implode(', ', array_keys($db_prefix_i18n)).'</strong>' ;
+  }  else {
+    $text = t("Check the module's SETUP.txt file.");
+  }
+  $output .= form_radios(t('Language dependent tables'), 'i18n_multi', variable_get('i18n_multi', 0), array(t('Disabled'), t('Enabled')), t('If enabled, different tables for each language will be used. They must be defined in the configuration file.') . ' ' . $text);
+ 
+  return $output;
+}
+
+/**
+ * i18n api
+ */
+
+/**
+ * Get list of supported languages
+ */
+function i18n_supported_languages() {
+  global $i18n_languages;  
+  static $languages;
+  if ($languages) {
+    return $languages;
+  }
+  elseif (variable_get('i18n_supported_langs', 'locale') == 'locale') {
+    $languages = _i18n_locale_supported_languages();
+    return $languages;
+  } 
+  elseif (is_array($i18n_languages)) {
+    return $languages = $i18n_languages;
+  } 
+  else {
+    return array();
+  }
+} 
+
+/**
+ * Returns default language
+ */
+function i18n_default_language(){
+  $tmp = i18n_supported_languages();
+  return key($tmp);
+}
+
+// Get language from browser settings, but only if it is in the $i18n_languages array
+function i18n_get_browser_lang() {
+  $languages = i18n_supported_languages();
+  $accept=explode(',',array_shift( explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"])));
+  foreach ($accept as $lang) {
+    $lang=substr($lang,0,2);
+    if ( !empty($lang) && array_key_exists($lang,$languages)) {
+      return $lang;
+    }
+  }
+}
+
+/**
+ * Get language code from path.
+ *
+ * @param $path
+ * @param $trim true to remove language code from $path
+ */
+function i18n_get_lang_prefix(&$path, $trim = false) {
+  $ary = explode('/',$path);
+  $maybelang = array_shift($ary);
+  $languages = i18n_supported_languages();
+  if(array_key_exists($maybelang, $languages)){
+    if($trim) {
+      $path = trim(substr($path, strlen($maybelang)),'/');
+    }
+    return $maybelang;
+  }
+  /*
+  if (preg_match("/^\w\w($|\/.*)/", $path)) {
+    return substr($path, 0, 2);
+  }
+  */
+}
+
+/**
+ * Language dependent front page
+ */
+function i18n_frontpage() {
+  $path = _i18n_get_lang().'/'.variable_get('site_frontpage','node');
+  return i18n_get_normal_path($path);
+}
+
+/**
+ * This function is similar to drupal_get_normal_path, but language-aware
+ * Also removes language from path
+ */
+function i18n_get_normal_path($path) {
+  // First, check alias with lang
+  if (($map = drupal_get_path_map()) && isset($map[$path])) {
+    return $map[$path];
+  } elseif ($lang = i18n_get_lang_prefix($path, true)) {
+    // Check alias without lang
+    //$path = trim(substr($path, strlen($lang)),'/');
+    if( isset($map[$path])) {
+      return $map[$path];
+    } 
+  } 
+  // We only get here when no alias is defined, with or without lang
+  return $path;
+}
+
+/**
+ *	Gets language, checking in order:
+ *
+ *	1. Path language
+ *	2. User language
+ *	3. Browser language
+ *	4. Default language
+ */
+
+function _i18n_get_lang() {
+  global $user, $i18n_langpath;
+  static $i18n_lang;
+  
+  //see if the language is already set.
+  if ($i18n_lang) {
+    return $i18n_lang;
+  }
+
+  $languages = i18n_supported_languages();
+   
+  if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
+    $i18n_lang = $i18n_langpath;
+  }
+  elseif ($user->uid && $user->language && array_key_exists($user->language,$languages)) {
+    $i18n_lang = $user->language;
+  }
+  elseif (variable_get("i18n_browser",0) && $lang=i18n_get_browser_lang()) {
+    $i18n_lang=$lang;
+  }
+  else {
+    $i18n_lang=key($languages);
+  }
+  
+  return $i18n_lang;
+}
+
+/**
+ * Check whether we are in bootstrap mode
+ */  
+function _i18n_is_bootstrap(){
+  return !function_exists('drupal_get_headers');
+}    
+
+/**
+ * Sets db_prefix to given language
+ */
+function _i18n_set_db_prefix($lang) {
+  global $db_prefix, $db_prefix_i18n;
+  if (is_array($db_prefix_i18n)) {
+    $db_prefix = array_merge($db_prefix, str_replace('**', $lang, $db_prefix_i18n));
+  }
+}
+
+/**
+ * To get the original path. 
+ * Cannot use $_GET["q"] cause it may have been already changed
+ */
+function _i18n_get_original_path() {
+  return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
+}
+
+
+/**
+ * Returns list of enabled languages from locale module
+ *
+ * * Some code borrowed from locale module
+ */
+function _i18n_locale_supported_languages() {
+  $enabled = array();
+  $result = db_query('SELECT locale, name FROM {locales_meta} WHERE enabled = 1 ORDER BY isdefault DESC, name ASC');
+  while ($row = db_fetch_object($result)) {
+    $enabled[$row->locale] = $row->name;
+  }
+  return $enabled;
+}
+
+?>

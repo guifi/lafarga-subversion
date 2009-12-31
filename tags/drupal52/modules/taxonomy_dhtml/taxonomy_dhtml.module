@@ -1,0 +1,268 @@
+<?php
+// $Id: taxonomy_dhtml.module,v 1.66.4.3 2007/03/03 13:07:47 meba Exp $
+
+function taxonomy_dhtml_block($op = "list", $delta = 0) {
+  if($op == "list") {
+    $vocabularies = taxonomy_get_vocabularies();
+    foreach ($vocabularies as $vocabulary) {
+      $blocks[$vocabulary->vid]["info"] = $vocabulary->name;
+    }
+    return $blocks;
+  }
+  elseif ($op == 'view') {
+    if (user_access("access content")) {
+      $vocabularies = taxonomy_get_vocabularies();
+      $block["subject"]= t($vocabularies[$delta]->name);
+      $block["content"]= taxonomy_dhtml_vocab_vert($vocabularies[$delta]->vid);
+      return $block;
+    }
+  }
+}
+
+
+// TODO: recipe.module and node_aggregator did use $type to filter results to their own node type. no longer supported (but should be)
+function taxonomy_dhtml_vocab_vert($vocabulary_id, $op = NULL) {
+  $tree = taxonomy_get_tree($vocabulary_id);
+  // build an array which holds all children of current term. necessary to build a proper 'or' value in the HREF
+  foreach ($tree as $term) {
+    $url = "taxonomy/term/$term->tid/9";
+    if ($op) {
+      $url .= "/$op";
+    }
+    $link = l(t($term->name), $url, array("title" => t($term->description)));
+//    $out .= _taxonomy_depth($term->depth, "&nbsp;")."- $link";
+    $out .= str_repeat("&nbsp;", $term->depth) . "- $link";
+    $count = taxonomy_term_count_nodes($term->tid);
+    if ($count) {
+      $out .= " ($count)";
+    }
+    $out .= "<br />";
+  }
+  return $out;
+}
+
+// accepts an optional param for restricting nodes to a particular type
+function taxonomy_dhtml_overview($type = 0) {
+  $n=0;
+  $vocabularies = taxonomy_dhtml_get_vocabularies($type);
+
+  foreach ($vocabularies as $vocabulary) {
+    if ($cache = cache_get("taxonomy_dhtml:tree_nodes_$type". $vocabulary->vid)) {
+      $tree_nodes = unserialize($cache->data);
+    }
+    else {
+      $tree = taxonomy_get_tree($vocabulary->vid);
+
+
+      // localize and append the node count to each term name
+      for ($m=0; $m<count($tree); $m++) {
+        $tree[$m]->name = t($tree[$m]->name);
+        if ($count = taxonomy_term_count_nodes($tree[$m]->tid, $type)) {
+          $tree[$m]->name .= " ($count)";
+        }
+      }
+
+      $tree_nodes = taxonomy_dhtml_inject_nodes($tree, $type);
+      cache_set("taxonomy_dhtml:tree_nodes_$type". $vocabulary->vid, "cache", serialize($tree_nodes), CACHE_TEMPORARY);
+    }
+   $boxes[$n]["content"] = theme("taxonomy_dhtml_render_outline", $tree_nodes);
+    $boxes[$n]["subject"] = $vocabulary->name;
+    $n++;
+  }
+
+  return $boxes ? $boxes : array();
+}
+
+function taxonomy_dhtml_get_vocabularies($type = 0) {
+  $vocabularies = taxonomy_get_vocabularies($type);
+   //omit undesired vocabularies from listing
+   if (!$type) {
+    $omits = variable_get("taxonomy_dhtml_overview_vocab", array());
+    foreach ($omits as $omit) {
+      unset($vocabularies[$omit]);
+    }
+  }
+  return $vocabularies;
+}
+
+function taxonomy_dhtml_menu($may_cache) {
+  if ($may_cache) {
+    $items[] = array('path' => 'taxonomy_dhtml', 'title' => t("Categories"),
+    'callback' => 'taxonomy_dhtml_page',
+    'access' => user_access('access content'),
+    'weight' => 5,
+    'type' => MENU_NORMAL_ITEM);
+	$items[] = array(
+    'path' => 'admin/settings/taxonomy_dhtml',
+    'title' => t('Taxonomy DHTML'),
+    'description' => t('Set the settings FIXTHIS.'),
+    'callback' => 'drupal_get_form',
+    'callback arguments' => 'taxonomy_dhtml_settings',
+    'access' => user_access('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM, // optional
+   );
+    return $items;
+  }
+  else {
+  	$modpath = drupal_get_path('module', 'taxonomy_dhtml');
+     drupal_add_css($modpath . '/menuExpandable4.css', 'screen');
+     drupal_add_js($modpath . '/menuExpandable4.js');
+     drupal_add_js("$(document).ready(function() { initializeMenu('" . $modpath . "') } );", 'inline');
+  }
+}
+
+function taxonomy_dhtml_syndication() {
+  $vocabularies = taxonomy_dhtml_get_vocabularies();
+
+  $i=0;
+  foreach ($vocabularies as $vocabulary) {
+    $result = db_query_range("SELECT tid, name FROM {term_data} WHERE vid = '$vocabulary->vid' ORDER BY weight ASC", 0, 3);
+    while ($term = db_fetch_object($result)) {
+      $tids[] = $term->tid;
+      $names[] = $term->name;
+    }
+    if ($tids && $names) {
+      if (count($names) > 2) {
+        $tids = implode("+", $tids);
+        $names = implode(", ", $names);
+        $link = l($names, "taxonomy/term/$tids/0/feed");
+        $output = t("<p>The feeds above may be mixed by listing term IDs at the end of the url. ");
+        $output .= t(" ID's should be separated by commas. For example, here is a feed for %s</p>", array ("%s" => $link));
+      }
+      $box[$i]['content']= taxonomy_dhtml_vocab_vert($vocabulary->vid, 'feed'). $output;
+      $box[$i]['subject']= $vocabulary->name;
+      unset($output, $tids, $names);
+    }
+    $i++;
+  }
+  return $box;
+}
+
+// given a taxonomy tree, add nodes below all relevant terms
+function taxonomy_dhtml_inject_nodes($tree, $type = NULL) {
+  $tree_node = $tree;
+  // iterate over the tree backwards, so I don't trip on the new items
+  for ($i=count($tree)-1; $i>=0 ; $i--) {
+    $term = $tree[$i];
+    /* restrict to a single type if given */
+    $type_q = ($type ? "n.type = '$type'" : 1);
+    $result = db_query_range(db_rewrite_sql("SELECT n.nid, n.title, n.type, u.uid, u.name FROM {term_node} r LEFT JOIN {node} n ON r.nid = n.nid LEFT JOIN {users} u ON n.uid = u.uid WHERE n.status = 1 AND $type_q AND r.tid = '$term->tid' ORDER BY n.changed DESC"), 0, variable_get("taxonomy_dhtml_overview_count", 50));
+    while ($node = db_fetch_object($result)) {
+      if (module_exists('comment')) {
+        $detail = t("Author: %name, comments: %num", array ("%name" => strip_tags(theme('username', $node)), "%num" => comment_num_all($node->nid)));
+      }
+      $link = l($node->title, "node/$node->nid", array ("title" => $detail, "class" => "dhtml_node"));
+      $term_node = (object)(array ("nid" => $node->nid, "depth" => $term->depth+1, "link" => $link));
+      $part1 = array_slice($tree_node, 0, $i+1);
+      $part2 = array_slice($tree_node, $i+1, count($tree_node));
+      $part1[] = $term_node;
+      $tree_node = array_merge($part1, $part2);
+    }
+  }
+  return $tree_node;
+}
+
+function theme_taxonomy_dhtml_render_outline($tree) {
+  global $tdhtml_ul;
+  
+  $old_depth = -1;
+  $output = "";  
+  for ($m = 0; $m < count($tree); $m++) {
+    $term = $tree[$m];
+    if ($term->depth > $old_depth) {
+      $output .= "<ul class=\"".($term->depth == 0 ? "menuList" : "submenu"). "\" id=\"menuactuator$tdhtml_ul\">\n";
+      $tdhtml_ul++;
+    }
+    if ($term->depth < $old_depth) {
+      $delta = $old_depth - $term->depth;
+      $output .= str_repeat("</ul>\n", ($delta > 0 ? $delta : 0 ));
+    }
+
+    $old_depth = $term->depth;
+    // if children exist, output with proper class and id attributes, else, output item with specified link or default link
+    if ($term->depth < $tree[$m+1]->depth) {
+      $link = l(t($term->name), "taxonomy/term/$term->tid/9",
+                array("title" => t($term->description),
+                      "class" => "actuator",
+                      "id"    => "actuatorlink$tdhtml_ul"));
+      $output .= "<li class=\"menubar\" id=\"actuator$tdhtml_ul\">$link</li>\n";
+    }
+    else if ($term->link){
+      $link = $term->link;
+      $output .= "<li>$link</li>\n";
+    } else {
+      $link = l(t($term->name), "taxonomy/term/$term->tid/9", array("title" => t($term->description)));
+      $output .= "<li>$link</li>\n";
+    }
+  }
+  $output .= str_repeat("</ul>\n", 1+$term->depth);
+  return $output;
+}
+
+function taxonomy_dhtml_settings() {
+  $vocabularies = taxonomy_get_vocabularies();
+  $select[0] = "<". t("none") .">";
+  foreach ($vocabularies as $vocabulary) {
+    $select[$vocabulary->vid] = $vocabulary->name;
+  }
+  
+  $form['taxonomy_dhtml_overview_vocab'] = array(
+  '#type' => 'select',
+  '#title' => 'Omitted vocabularies',
+  '#default_value' => variable_get('taxonomy_dhtml_overview_vocab', array()),
+  '#options' => $select,
+  '#description' => t('Select vocabularies which should be <b>omitted</b> from listings.'),
+  '#multiple' => TRUE,
+  );
+  
+  $form['taxonomy_dhtml_overview_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of items'),
+    '#default_value' => variable_get('taxonomy_dhtml_overview_count', 50),
+    '#size' => 3,
+    '#maxlength' => 3,
+    '#description' => t('The number of items to display per vocabulary in the overview page.'),
+  );
+  return system_settings_form($form);
+}
+
+function taxonomy_dhtml_page() {
+  switch (arg(1)) {
+    case "overview":
+    default:
+      if ($type = $_GET['type']) {
+        $boxes = taxonomy_dhtml_overview($type);
+      }
+      else {
+        $boxes = taxonomy_dhtml_overview();
+      }
+
+      foreach ($boxes as $box) {
+       $output .= "<div class=\"voc\">\n";
+       $output .= "<h3>". $box['subject']. "</h3>\n";
+       $output .= $box['content']. "\n";
+       $output .= "</div>\n";
+      }
+      return $output;
+  }
+}
+
+function taxonomy_dhtml_help($section) {
+  $output ="";
+
+  switch ($section) {
+    case 'admin/modules#description':
+      $output = t("A user interface for taxonomy featuring a collapsible list on main page");
+      break;
+    case 'admin/help#taxonomy_dhtml':
+    case 'admin/settings/taxonomy_dhtml':
+      $output = "This module provides a DHTML representation of this site's taxonomy. Currently, a ". l("block", "admin/build/block"). " is provided for each vocabulary as well as an ";
+      $output .= l("overview", "taxonomy_dhtml");
+      $output .= " page showing all vocabularies, terms, and recent nodes within each term. Finally, a box showing taxonomy feeds is outputted on the ". l("syndication page", "syndication"). " if <i>syndication.module</i> is installed.";
+      break;
+  }
+
+  return $output;
+}
+
+?>

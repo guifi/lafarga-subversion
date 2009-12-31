@@ -1,0 +1,38 @@
+<?php
+function subscriptions_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("CREATE TABLE {subscriptions_holding} (
+          rid int(11) NOT NULL auto_increment,
+          content blob NOT NULL,
+          ptype tinytext NOT NULL,
+          op tinytext NOT NULL,
+          pid int(11) NOT NULL default '0',
+          PRIMARY KEY  (`rid`)
+        ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      db_query("CREATE TABLE {subscriptions} (
+          sid int(10) unsigned NOT NULL,
+          uid int(10) unsigned NOT NULL,
+          stype varchar(25) NOT NULL
+      ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      drupal_set_message(t('Subscriptions database tables have been installed.'));
+    break;
+    case 'pgsql':
+      db_query("CREATE TABLE {subscriptions_holding} (
+          rid serial NOT NULL,
+          content text NOT NULL,
+          ptype text NOT NULL,
+          op text NOT NULL,
+          pid integer NOT NULL default 0
+      )");
+      db_query("CREATE TABLE {subscriptions} (
+          sid integer NOT NULL,
+          uid integer NOT NULL,
+          stype text NOT NULL
+      )");
+    drupal_set_message(t('Subscriptions database tables have been installed.'));
+    break;
+  }
+}
+?>

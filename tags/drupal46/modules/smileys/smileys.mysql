@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS smileys;
+CREATE TABLE smileys (
+  id int(11) auto_increment,
+  acronyms varchar(255) DEFAULT '' NOT NULL,
+  image varchar(255) DEFAULT '' NOT NULL,
+  description varchar(64) DEFAULT '' NOT NULL,
+  standalone tinyint(1) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (id)
+);

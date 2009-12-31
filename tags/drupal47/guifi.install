@@ -1,0 +1,15 @@
+<?php
+
+
+function guifi_update_1() {
+    return _system_update_utf8(
+        array('guifi_location','guifi_networks','guifi_zone',
+              'guifi_devices','guifi_links','guifi_interfaces',
+              'guifi_radios','guifi_types','guifi_services',
+              'guifi_users','guifi_manufacturer','guifi_model',
+              'guifi_ipv4')
+    );
+}
+
+
+?>
