@@ -51,62 +51,90 @@ function guifi_kamikaze_common_files($dev,$zone) {
     $ntp[] .= $ntp2;
 
 //FILE NTP
-
-  $file_ntp='
-config \'ntpserver\'
-       option \'hostname\' \''.$ntp1.'\'
-       option \'port\' \'123\'
-
-config \'ntpserver\'
-       option \'hostname\' \''.$ntp2.'\'
-       option \'port\' \'123\'
-
-config \'ntpserver\'
-       option \'hostname\' \'1.openwrt.pool.ntp.org\'
-       option \'port\' \'123\'
-
-config \'ntpclient\'
-       option \'interval\' \'60\'
-
-config \'ntpdrift\'
-       option \'freq\' \'0\'
+  _outln_comment();
+  _outln_comment();
+  _outln_comment(t('NTPClient Settings'));
+  print '<pre>';
+  print 'COUNTER=0
+while [  $COUNTER -lt 4 ]; do
+  `uci delete ntpclient.@ntpserver[0] 2>/dev/null`
+  let COUNTER=COUNTER+1 
+done
 ';
-  _outln_comment();
-  _outln_comment();
-  _outln_comment(t('File /etc/config/ntpclient'));
-  _out_file($file_ntp,'/etc/config/ntpclient');
+  print 'uci add ntpclient ntpserver
+uci set ntpclient.@ntpserver[0]=ntpserver
+uci set ntpclient.@ntpserver[0].hostname='.$ntp1.'
+uci set ntpclient.@ntpserver[0].port=123
+uci add ntpclient ntpserver
+uci set ntpclient.@ntpserver[1]=ntpserver
+uci set ntpclient.@ntpserver[1].hostname='.$ntp2.'
+uci set ntpclient.@ntpserver[1].port=123
+uci add ntpclient ntpserver
+uci set ntpclient.@ntpserver[2]=ntpserver
+uci set ntpclient.@ntpserver[2].hostname=1.openwrt.pool.ntp.org
+uci set ntpclient.@ntpserver[2].port=123
+uci set ntpclient.@ntpclient[0]=ntpclient
+uci set ntpclient.@ntpclient[0].interval=60
+uci set ntpclient.@ntpdrift[0]=ntpdrift
+uci set ntpclient.@ntpdrift[0].freq=0
+';
+  print 'sleep 1</pre>';
   
 //FILE SYSTEM
-if (($dev->variable['model_id']  == 25) or ($dev->variable['model_id']  == 26)) {
-  $resetbutton='
-config \'button\'
-        option \'button\' \'reset\'
-        option \'action\' \'released\'
-        option \'handler\' \'logger reboot\'
-        option \'min\' \'0\'
-        option \'max\' \'4\'
-        
-config \'button\'
-        option \'button\' \'reset\'
-        option \'action\' \'released\'
-        option \'handler\' \'logger factory default\'
-        option \'min\' \'5\'
-        option \'max\' \'30\'
-';
-} else {
- $resetbutton=NULL;
- }
-  $file_system='
-config \'system\'
-        option \'hostname\' \''.$dev->nick.'\'
-        option \'zonename\' \'Europe/Andorra\'
-        option \'timezone\' \'CET-1CEST,M3.5.0,M10.5.0/3\'
-        '.$resetbutton.'
-';
   _outln_comment();
   _outln_comment();
-  _outln_comment(t('File /etc/config/system'));
-  _out_file($file_system,'/etc/config/system');
+  _outln_comment(t('System Settings'));
+  print '<pre>';
+  print 'uci set system.@system[0]=system
+uci set system.@system[0].hostname='.$dev->nick.'
+uci set system.@system[0].zonename=Europe/Andorra
+uci set system.@system[0].timezone=CET-1CEST,M3.5.0,M10.5.0/3
+uci delete system.@button[0]
+uci delete system.@button[1]
+uci add system button
+uci set system.@button[0]=button
+uci set system.@button[0].button=reset
+uci set system.@button[0].action=released
+uci set system.@button[0].handler="logger reboot"
+uci set system.@button[0].min=0
+uci set system.@button[0].max=4
+uci add system button
+uci set system.@button[1]=button
+uci set system.@button[1].button=reset
+uci set system.@button[1].action=released
+uci set system.@button[1].handler="logger factory default"
+uci set system.@button[1].min=5
+uci set system.@button[1].max=30
+';
+  print 'sleep 1</pre>';
+
+  _outln_comment();
+  _outln_comment();
+  _outln_comment(t('SNMP Settings'));
+  $loc = node_load(array('nid'=>$dev->nid));
+  print '<pre>';
+  print 'uci set snmpd.@system[0]=system
+uci set snmpd.@system[0].sysLocation='.$loc->nick.'
+uci set snmpd.@system[0].sysContact='.$loc->notification.'
+uci set snmpd.@system[0].sysName=guifi.net
+uci set snmpd.@system[0].sysDescr="Xarxa Oberta, Lliure i Neutral"
+';
+  print 'sleep 1</pre>';
+
+  _outln_comment();
+  _outln_comment();
+  _outln_comment(t('LLDP Settings'));
+  $loc = node_load(array('nid'=>$dev->nid));
+  print '<pre>';
+  print 'uci set lldpd.config=lldpd
+uci set lldpd.config.enable_cdp=1
+uci set lldpd.config.enable_fdp=1
+uci set lldpd.config.enable_sonmp=1
+uci set lldpd.config.enable_edp=1
+uci set lldpd.config.lldp_class=4
+uci set lldpd.config.lldp_location=2:ES:6:'.$loc->nick.':3:guifi.net:19:'.$dev->id.'
+';
+  print 'sleep 1</pre>';
 
 //FILE PASSWD
   $file_pass='
@@ -119,158 +147,8 @@ quagga:x:51:51:quagga:/tmp/.quagga:/bin/false
   _outln_comment();
   _outln_comment(t('File /etc/passwd'));
   _out_file($file_pass,'/etc/passwd');
-
-  if (($dev->variable['model_id']  == 25) or ($dev->variable['model_id']  == 26) or ($dev->variable['model_id']  == 34) or ($dev->variable['model_id']  == 35)or ($dev->variable['model_id']  == 36) or ($dev->variable['model_id']  == 37)) {
-// FILE LEDS NANOSTATION/LOCO/BULLET
-  $file_leds='#!/bin/sh
-# Control de LEDs de la nano2 per indicar la qualitat de Link
-# joan.llopart +A+ guifi.net
-#
-# minimod de la feina del Xavi Martinez :-)
-
-  L1=0
-  L2=0
-  L3=0
-  L4=0
-
-#Iniciem el loop
-
-while [ 1 ] 
-  do
-
-# Pillem la qualitat de l\'enllac
-  QUAL=\`awk \'/ath0/ {print \$3}\' /proc/net/wireless\`
-#Li traiem el punt final
-  QUAL=\${QUAL%.*}
-# Inicialment, tots a 0
-  L1T=0
-  L2T=0
-  L3T=0
-  L4T=0
-# Comprobem un a un
-  if [ \$QUAL != 0 ]
-    then
-      L1T=1
-      if [ \$QUAL -gt 15 ]
-        then
-          L2T=1
-      fi
-      if [ \$QUAL -gt 30 ]
-        then
-          L3T=1
-      fi
-      if [ \$QUAL -gt 45 ]
-        then
-          L4T=1
-      fi
-  fi
-# Encenem/apaguem LED nomes si hi ha canvi
-  if [ \$L1 -ne \$L1T ]
-    then
-      if [ \$L1T -ne 0 ]
-        then
-          gpioctl set 0
-        else
-          gpioctl clear 0
-      fi
-    L1=\$L1T 
-  fi
-  if [ \$L2 -ne \$L2T ]
-    then
-      if [ \$L2T == 0 ]
-        then
-          gpioctl clear 1
-        else
-          gpioctl set 1
-      fi
-    L2=\$L2T
-  fi
-  if [ \$L3 -ne \$L3T ]
-    then
-      if [ \$L3T == 0 ]
-        then
-          gpioctl clear 3
-        else
-          gpioctl set 3
-      fi
-    L3=\$L3T
-  fi
-  if [ \$L4 -ne \$L4T ]
-    then
-      if [ \$L4T == 0 ]
-        then
-          gpioctl clear 4
-        else
-          gpioctl set 4
-      fi
-    L4=\$L4T
-  fi
-
-  sleep 1
-done
-
+ print '<pre>sleep 1</pre>
 ';
-  _outln_comment();
-  _outln_comment();
-  _outln_comment(t('File /etc/leds.sh'));
-  _out_file($file_leds,'/etc/leds.sh');
-  _out('chmod +x /etc/leds.sh');
-
-// FILE RC LEDS NANOSTATION
-  $file_rcleds='#!/bin/sh /etc/rc.common
-START=80
-start() {
-        /etc/leds.sh &
-        }
-
-stop() {
-       ps ax > /tmp/ledspid
-       PID=\`awk \'/leds.sh/ {print \$1}\' /tmp/ledspid\`
-       kill -9 \$PID
-       rm /tmp/ledspid
-       sleep 1
-       gpioctl clear 0
-       gpioctl clear 1
-       gpioctl clear 3
-       gpioctl clear 4
-       }
-
-';
-  _outln_comment();
-  _outln_comment();
-  _outln_comment(t('File /etc/init.d/nanoleds'));
-  _out_file($file_rcleds,'/etc/init.d/nanoleds');
-  _out('chmod +x /etc/init.d/nanoleds');
-  _out('ln -s /etc/init.d/nanoleds /etc/rc.d/S80nanoleds');
-
-  }
-  
-/* NOT NEEDED FILES??
-// FILE SNMPD
-  $file_snmpd='
-config \'snmp\' \'snmp\'
-        option \'privatename\'      \'guifi.net\'
-        option \'privatesrc\'       \'guifi.net\'
-        option \'publicname\'       \'guifi.net\'
-        option \'publicsrc\'        \'guifi.net\'
-';
-  _outln_comment();
-  _outln_comment();
-  _outln_comment(t('File /etc/config/snmpd'));
-  _out_file($file_snmpd,'/etc/config/snmpd');
-
-//FILE DROPBEAR
-  $sshd_config='
-config dropbear
-        option \'PasswordAuth\' \'on\'
-        option \'Port\'         \'22\'
-';
-  _outln_comment();
-  _outln_comment();
-  _outln_comment(t('File /etc/config/dropbear'));
-  _out_file($sshd_config,'/etc/config/dropbear');
-
-*/
 
 }
   switch ($dev->variable['model_id']) {
@@ -288,13 +166,21 @@ config dropbear
       $firmware_tftp = 'broadcom/openwrt-wrt54gs_v4-squashfs.bin';
       $firmware = 'broadcom/openwrt-brcm-2.4-squashfs.trx';
       break;
-    case "25":	// NanoStation2
+    case "25": // NanoStation2
+    case "34": // NanoStationLoco2
+    case "36": // Bullet2
       $firmware_tftp = 'atheros/openwrt-ns2-squashfs.bin';
       $firmware = 'atheros/openwrt-ns2-squashfs.bin';
       break;
-    case "26":	// NanoStation5
+    case "26": // NanoStation5
+    case "35": // NanoStationLoco5
+    case "37": // Bullet5
       $firmware_tftp = 'atheros/openwrt-ns5-squashfs.bin';
       $firmware = 'atheros/openwrt-ns5-squashfs.bin';
+      break;
+    case "38":	// RouterStation
+      $firmware_tftp = 'ar7xx/openwrt-ar71xx-ubnt-rs-squashfs.bin';
+      $firmware = 'ar7xx/openwrt-ar71xx-ubnt-rs-squashfs.bin';
       break;
   }
     $model = db_fetch_object(db_query("
@@ -332,10 +218,12 @@ config dropbear
   guifi_kamikaze_files($dev, $zone);
   guifi_kamikaze_common_files($dev, $zone);
 
-_outln_comment();
+  _outln_comment();
   _outln_comment(t('end of script and reboot'));
-  _out('reboot');
-
+  print '<pre>';
+  print 'uci commit
+reboot';
+  print '</pre>';
 }
  function atheros_channel($radio) {
 
