@@ -65,6 +65,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 	    $data['id'] = $next_id['id'];
 	    break;
 	  case 'guifi_devices':
+	  case 'guifi_dns_domains':
 	  case 'guifi_users':
 	    $next_id = db_fetch_array(db_query("SELECT max(id)+1 id FROM {$table}"));
 	    if (is_null($next_id['id']))
@@ -74,6 +75,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 	  case 'guifi_services':
 	  case 'guifi_location':
 	  case 'guifi_networks':
+	  case 'guifi_dns_hosts':
 	    $data['user_created'] = $user->uid;
 	    $data['timestamp_created'] = time();
 	    break;
@@ -111,7 +113,9 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
       case 'guifi_zone':
       case 'guifi_location':
       case 'guifi_devices':
+      case 'guifi_dns_domains':
       case 'guifi_services':
+      case 'guifi_dns_hosts':
       case 'guifi_users':
         $data['user_changed'] = $user->uid;
         $data['timestamp_changed'] = time();
@@ -275,6 +279,21 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
     break;
   // delete Device
+
+  case 'guifi_dns_domains':
+    $item=db_fetch_object(db_query(
+      'SELECT d.id did, d.name dname, d.notification, d.sid,
+        l.nick nname, l.notification ncontact
+       FROM {guifi_dns_domains} d LEFT JOIN {guifi_services} l ON d.sid=l.id
+       WHERE d.id = %d',
+       $key['id']));
+    $log .= t('Domain %id-%name at node %nname deleted.',array('%id'=>$key['id'],'%name'=>$item->dname,'%nname'=>$item->nname));
+    // cascade to dns_hosts
+    $qc = db_query('SELECT id FROM {guifi_dns_hosts} WHERE id=%s',$key['id']);
+    while ($host = db_fetch_array($qc))
+      $log .= '<br />'._guifi_db_delete('guifi_dns_hosts',$host,$to_mail,$depth);
+  break;
+
   case 'guifi_devices':
     $item=db_fetch_object(db_query(
       'SELECT d.nick dname, d.notification, d.nid, d.type, d.comment,
