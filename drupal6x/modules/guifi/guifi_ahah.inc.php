@@ -579,4 +579,24 @@ function guifi_ahah_select_channel($rid){
   exit;
 }
 
+function guifi_ahah_add_domain() {
+  $form_state = array('storage' => NULL, 'submitted' => FALSE);
+  $form_build_id = $_POST['form_build_id'];
+  $form = form_get_cache($form_build_id, $form_state);
+
+  $args = $form['#parameters'];
+  $form_id = array_shift($args);
+  $form_state['post'] = $form['#post'] = $_POST;
+  $form['#programmed'] = $form['#redirect'] = FALSE;
+
+  drupal_process_form($form_id, $form, $form_state);
+  $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
+
+  $textfields = $form['domain_type_form'];
+  $output = drupal_render($textfields);
+
+  // Final rendering callback.
+  print drupal_json(array('status' => TRUE, 'data' => $output));
+  exit();
+}
 ?>

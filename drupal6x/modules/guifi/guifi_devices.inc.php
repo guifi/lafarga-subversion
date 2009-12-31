@@ -761,7 +761,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
   guifi_node_set_flag($edit['nid']);
   guifi_clear_cache($edit['nid']);
   guifi_clear_cache($edit['id']);
-
+  variable_set('guifi_refresh_dns',time());
   return $ndevice['id'];
 
 }

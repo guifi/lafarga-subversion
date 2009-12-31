@@ -351,7 +351,7 @@ function guifi_service_form($node, $param) {
   $delta = 0;
   if ($node->nid > 0)
   switch ($node->service_type) {
-  case 'mail': case 'DNS':
+  case 'mail':
     $f['var']['domains'] =
       guifi_service_multiplefield($node->var['domains'],'domains',
         t('Managed domains'));
@@ -769,13 +769,69 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
     $node->content['body']['#value'] =
       theme('box',t('Description'),$node->content['body']['#value']);
     $node->content['body']['#weight'] = 1;
-    $node->content['data'] = array(
-      array(
-        '#value' => theme('box', t('service information'),
-           theme_guifi_service_data($node, false)),
-        '#weight' => -0,
-      )
-    );
+    $service_data = 
+        array(
+          '#value' => theme('box', t('service information'),
+             theme_guifi_service_data($node, false)),
+          '#weight' => -0,
+        );
+
+    if ($node->service_type == 'DNS') {
+      $form = drupal_get_form('guifi_domain_create_form',$node);
+      $id = $node->id;
+      $rows = array();
+      $header = array( '<h2>'.t('Domain').'</h2>', array('data'=>t('type'),'style'=>'text-align: left;'),array('data'=>t('Scope')),array('data'=>t('Edit')),array('data'=>t('Delete')));
+      $query = db_query("SELECT d.id FROM {guifi_dns_domains} d WHERE sid=%d",$id);
+        while ($d = db_fetch_object($query)) {
+          $domain = guifi_domain_load($d->id);
+          if (guifi_domain_access('update',$domain['id'])) {
+            $edit_domain = l(guifi_img_icon('edit.png'),'guifi/domain/'.$domain['id'].'/edit',
+            array(
+              'html'=>true,
+              'title' => t('edit domain'),
+              'attributes'=>array('target'=>'_blank'))).'</td><td>'.
+                 l(guifi_img_icon('drop.png'),'guifi/domain/'.$domain['id'].'/delete',
+            array(
+              'html'=>true,
+              'title' => t('delete domain'),
+              'attributes'=>array('target'=>'_blank')));
+          }
+
+          $rows[] = array(
+            '<a href="'.url('guifi/domain/'.$domain[id]).'">'.$domain['name'].'</a>',
+            array('data' => $domain['type'],'style'=>'text-align: left;'),
+            array('data' => $domain['scope']),
+            $edit_domain,
+          ); 
+        }
+        if (count($rows)) {
+          $node->content['data'] = array(
+            $service_data,
+            array(
+              '#value' => theme('table', $header, $rows).$form,
+              '#weight' => 1,
+            )
+          );
+        } 
+        else {
+          $node->content['data'] = array(
+            array(
+              '#value' => theme('box', t('service information'),
+                 theme_guifi_service_data($node, false)).$form,
+              '#weight' => -0,
+             )
+          );
+        }
+    } 
+    else {
+      $node->content['data'] = array(
+        array(
+         '#value' => theme('box', t('service information'),
+                 theme_guifi_service_data($node, false)).$form,
+         '#weight' => -0,
+        )
+      );
+    }
   }
   return $node;
 }
