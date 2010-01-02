@@ -6,6 +6,7 @@
 // 		http://www.gnu.org/licenses/gpl-2.0.html
 // GENERAL PUBLIC LICENSE v2.0 is also included in the file called "LICENSE.txt".
 
+
 function guifi_api() {
   $gapi = new GuifiAPI();
   $gapi->parseRequest($_GET);
@@ -114,7 +115,7 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
     }
   }
   
-  if (isset($graph_server)) {
+  if (!empty($graph_server)) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'SNPgraphs'", $graph_server));
     if (!$server->id) {
       $gapi->addError(403, "graph_server: $graph_server");
@@ -124,7 +125,7 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
   
   if (isset($proxy_server)) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'Proxy'", $proxy_server));
-    if (!$server->id) {
+    if (!empty($proxy_server) && !$server->id) {
       $gapi->addError(403, "proxy_server: $proxy_server");
       return false;
     } else {
@@ -133,9 +134,9 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
   }
   
   if (isset($zone_mode)) {
-    $zone_modes = array('infrastructre', 'ad-hoc' );
+    $zone_modes = array('infrastructure', 'ad-hoc' );
     if (!in_array($zone_mode, $zone_modes)) {
-      $gapi->addError(403, "zone-mode: $zone_mode");
+      $gapi->addError(403, "zone_mode: $zone_mode");
       return false;
     }
   }
@@ -235,6 +236,7 @@ function guifi_api_zone_update(&$gapi, $parameters) {
       $gapi->addError(403, $err);
     }
   }
+  
   node_save($node);
   
   return true;
@@ -269,6 +271,16 @@ function guifi_api_zone_remove(&$gapi, $parameters) {
 
 function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
   extract($parameters);
+  
+  if (isset($status)) {
+    if (guifi_validate_types('status', $status)) {
+      $parameters['status_flag'] = $status;
+      unset($parameters['status']);
+    } else {
+      $gapi->addError(403, "status: $status");
+      return false;
+    }
+  }
   
   if (isset($lat) || isset($lon)) {
     if (isset($lat) && isset($lon)) {
@@ -313,7 +325,6 @@ function guifi_api_node_add(&$gapi, $parameters) {
   $title = $parameters['title'];
   
   $node = _guifi_api_prepare_node('guifi_node', $title);
-  
   // Set defaults
   $node->nick = guifi_abbreviate($title);
   $node->notification = $user->mail;
@@ -371,7 +382,7 @@ function guifi_api_node_update(&$gapi, $parameters) {
   foreach ($parameters as $key => $value) {
     $node->$key = $value;
   }
-  
+  $gapi->addResponseField('node', $node);
   if (!guifi_node_access('update', $node)) {
     $gapi->addError(501);
     return false;
@@ -445,6 +456,23 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
     }
   }
   
+  if (!empty($nick)) {
+    guifi_validate_nick($nick);
+    if ($errors = form_get_errors()) {
+      foreach ($errors as $err) {
+        $gapi->addError(403, $err);
+      }
+      return false;
+    }
+    
+    $query = db_query("SELECT nick FROM {guifi_devices} WHERE lcase(nick) = lcase('%s') AND id != %d", strtolower($nick), intval($parameters['device_id']));
+    
+    while (db_fetch_object($query)) {
+      $gapi->addError(403, 'nick already in use');
+      return false;
+    }
+  }
+  
   switch ($type) {
     case 'radio':
       if (!guifi_api_check_fields($gapi, array('mac', 'model_id', 'firmware' ), $parameters)) {
@@ -490,41 +518,37 @@ function guifi_api_device_add(&$gapi, $parameters) {
     return false;
   }
   
-  extract($parameters);
+  // default values
+  $device = array();
+  $device['type'] = $parameters['type'];
+  $device['nid'] = $parameters['node_id'];
+  $device['notification'] = $user->mail;
   
-  $device = new StdClass();
-  $device->type = $type;
-  $device->nid = $node_id;
-  $device->notification = $user->mail;
+  $node = (array) node_load($device['nid']);
   
-  $node = node_load(array('nid' => $device->nid ));
-  $device->nick = guifi_device_get_default_nick($node, $device->type, $device->nid);
-  
-  if (empty($type)) {
-    $gapi->addError(402, 'type');
-    return false;
-  } else if (empty($node_id)) {
-    $gapi->addError(402, 'node_id');
+  if (!$node['id']) {
+    $gapi->addError(500, "node_id = {$parameters['node_id']}");
     return false;
   }
+  
+  $device['nick'] = guifi_device_get_default_nick($node, $device['type'], $device['nid']);
   
   if (!_guifi_api_device_check_parameters($gapi, &$parameters)) {
     return false;
   }
   
   foreach ($parameters as $key => $value) {
-    $device->$key = $value;
+    $device[$key] = $value;
   }
   
-  $device->new = true;
-  $device->variable = array('model_id' => $device->model_id, 'firmware' => $device->firmware );
+  $device['new'] = true;
+  $device['variable'] = array('model_id' => $device['model_id'], 'firmware' => $device['firmware'] );
   
   if (!guifi_device_access('create', $device)) {
     $gapi->addError(501);
     return false;
   }
   
-  $device = object2array($device);
   $device_id = guifi_device_save($device);
   
   //  $data = _guifi_db_sql('guifi_devices', array('id' => $device->id ), $device, $log, $to_mail);
@@ -538,9 +562,9 @@ function guifi_api_device_update(&$gapi, $parameters) {
     return false;
   }
   
-  $device = guifi_device_load($parameters['device_id'], '');
+  $device = guifi_device_load($parameters['device_id']);
   
-  if (!$device->id) {
+  if (!$device['id']) {
     $gapi->addError(500, "device_id = {$parameters['device_id']}");
     return false;
   }
@@ -555,12 +579,11 @@ function guifi_api_device_update(&$gapi, $parameters) {
   }
   
   foreach ($parameters as $key => $value) {
-    $device->$key = $value;
+    $device[$key] = $value;
   }
   
-  $device->variable = array('model_id' => $device->model_id, 'firmware' => $device->firmware );
+  $device['variable'] = array('model_id' => $device['model_id'], 'firmware' => $device['firmware'] );
   
-  $device = object2array($device);
   $device_id = guifi_device_save($device);
 }
 
@@ -646,7 +669,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
   switch ($mode) {
     case 'ap':
       if (isset($clients_accepted)) {
-        $clients_accepted_values = array('Yes', 'No' );
+        $clients_accepted_modes = array('Yes', 'No' );
         if (!in_array($clients_accepted, $clients_accepted_modes)) {
           $gapi->addError(403, "clients_accepted: $clients_accepted");
           return false;
@@ -826,13 +849,13 @@ function guifi_api_radio_remove(&$gapi, $parameters) {
   
   $device = guifi_device_load($parameters['device_id']);
   
-  if (!guifi_device_access('update', $device)) {
-    $gapi->addError(501);
+  if (!$device['id']) {
+    $gapi->addError(500, "device not found: {$parameters['device_id']}");
     return false;
   }
   
-  if (!$device['id']) {
-    $gapi->addError(500, "device not found: {$parameters['device_id']}");
+  if (!guifi_device_access('update', $device)) {
+    $gapi->addError(501);
     return false;
   }
   

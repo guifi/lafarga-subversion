@@ -678,10 +678,13 @@ function guifi_services_select($stype) {
 }
 
 function guifi_validate_nick($nick) {
-  if  ($nick != htmlentities($nick, ENT_QUOTES))
+  if  ($nick != htmlentities($nick, ENT_QUOTES)) {
     form_set_error('nick', t('No special characters allowed for nick name, use just 7 bits chars.'));
+  }
 
-  if (count(explode(' ',$nick)) > 1)     form_set_error('nick', t('Nick name have to be a single word.'));
+  if (count(explode(' ',$nick)) > 1) {
+    form_set_error('nick', t('Nick name have to be a single word.'));
+  }
    if (isset($nick)) {
     if (trim($nick) == '') {
       form_set_error('nick', t('You have to specify a nick.'));

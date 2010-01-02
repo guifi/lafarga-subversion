@@ -1122,6 +1122,21 @@ function guifi_update_736() {
   return $items;
 }
 
+function guifi_update_743() {
+  $items = array();
+  
+  $items[] = update_sql("CREATE TABLE IF NOT EXISTS `guifi_api_tokens` (
+	  `uid` int(8) unsigned NOT NULL,
+	  `token` varchar(255) NOT NULL,
+	  `created` timestamp NULL DEFAULT NULL,
+	  `rand_key` int(6) NOT NULL,
+	  PRIMARY KEY (`uid`)
+	) ENGINE=MyISAM");
+  return $items;
+}
+
+
+
   /* Converting IPv4 tables from strings to long integers
   db_query("CREATE TABLE {guifi_ipv4s} (
        id int(11) NOT NULL COMMENT 'primary key 1st column, numbers the sequential order of each address into the same interface',
