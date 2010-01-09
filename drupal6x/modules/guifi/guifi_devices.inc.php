@@ -784,9 +784,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
   // ipv4
   if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
     $ipv4['interface_id'] = $ninterface['id'];
-    guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)',
-      $ipv4_id,$ipv4['interface_id']),
-      $ipv4);
+    guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)', $ipv4_id, $ipv4['interface_id']), $ipv4);
 
     if (($ipv4['netmask']=='255.255.255.252') and (!count($ipv4['links'])))
       $ipv4['deleted'] = true;

@@ -6,6 +6,7 @@
 // 		http://www.gnu.org/licenses/gpl-2.0.html
 // GENERAL PUBLIC LICENSE v2.0 is also included in the file called "LICENSE.txt".
 
+
 class GuifiAPI {
   public $command = '';
   
@@ -21,8 +22,14 @@ class GuifiAPI {
   
   private $_input_format = 'rest';
   private $_output_format = 'json';
-  
+
   private $_response_code = 200;
+  
+  /**
+   * If the API has initialized correctly, and is ready to parse requests
+   * @var boolean
+   */
+  public $ready = false;
   
   function __construct() {
     $this->codes[200] = "Request completed successfully";
@@ -35,13 +42,21 @@ class GuifiAPI {
     
     $this->codes[500] = "Request could not be completed. The object was not found";
     $this->codes[501] = "You don't have the required permissions";
+    $this->codes[502] = "The given Auth token is invalid";
     
     $headers = apache_request_headers();
     foreach ($headers as $key => $val) {
       if ($key == 'Authorization') {
-        $this->parseAuthorization($val);
+        $authorized = $this->parseAuthorization($val);
+        if (!$authorized) {
+          $this->addError(502);
+          $this->printResponse();
+          return false;
+        }
       }
     }
+    $this->ready = true;
+    return true;
   }
   
   private function parseAuthorization($auth) {
@@ -64,14 +79,17 @@ class GuifiAPI {
       return false;
     }
     
-    $max_date = time() - 2 * 3600;
+    $max_date = time() - 12 * 3600; // 12 hours since created
     
-    $dbtoken = db_fetch_object(db_query("SELECT * FROM {guifi_api_tokens} WHERE token = '%s' AND created > UNIX_TIMESTAMP(%d)", $this->auth_token, $max_date));
 
+    db_query("DELETE FROM {guifi_api_tokens} WHERE created < FROM_UNIXTIME(%d)", $max_date);
+    
+    $dbtoken = db_fetch_object(db_query("SELECT * FROM {guifi_api_tokens} WHERE token = '%s'", $this->auth_token, $max_date));
+    
     if (!$dbtoken->uid) {
       return false;
     }
-
+    
     $token = base64_decode($this->auth_token);
     $token = explode(':', $token);
     if (count($token) < 3) {
@@ -91,7 +109,6 @@ class GuifiAPI {
     $check = md5($account->mail . $account->pass . $account->created . $account->uid . $time . $dbtoken->rand_key);
     
     if ($check == $hash) {
-      db_query("UPDATE {guifi_api_tokens} SET created = NOW() WHERE token = '%s' AND uid = %d", $token, $uid);
       $user = $account;
       return true;
     }

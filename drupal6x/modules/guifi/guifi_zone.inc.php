@@ -1230,6 +1230,84 @@ function guifi_zone_l($id, $title = null, $linkto = 'node/') {
   return l($title, $linkto. $id);
 }
 
+/**
+ * Gets nearest zone of a selected point
+ * @param $lat Latitude of the point
+ * @param $lon Longitude of the point
+ * @return mixed[] The best selected zone which can contain a point
+ */
+function guifi_zone_get_nearest($lat, $lon, $zones = null) {
+  if( $zones == null ) {
+    $zones = guifi_zone_get_nearest_candidates($lat, $lon);
+  }
+  
+  if( $zones ) {
+    $maxd = 0;
+    $oGC = new GeoCalc();
+    foreach( $zones as $zone ) {
+      if( empty( $zone['d']) ) {
+        $d1 = $oGC->EllipsoidDistance($lat, $lon, $zone['max_lat'], $zone['max_lon']);
+        $d2 = $oGC->EllipsoidDistance($lat, $lon, $zone['min_lat'], $zone['min_lon']);
+        $zone['d'] = sqrt( $d1 * $d1 + $d2 * $d2 );
+      }
+      
+      if( empty( $maxd ) || $zone['d'] < $maxd ) {
+        $maxd = $zone['d'];
+        $candidate_zone = $zone;
+      }
+    }
+    return $candidate_zone;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Get candidate zones to be inside a given point
+ * @param $lat Latitude of the point
+ * @param $lon Longitude of the point
+ * @param $max_distance Maximum distance to be considered a candidate
+ * @param $zones Zones to be looked after
+ * @return mixed[] Array of zone which can contain a point and are small enough
+ */
+function guifi_zone_get_nearest_candidates($lat, $lon, $max_distance = 15, $zones = null) {
+  if( $zones == null ) {
+    $zones = guifi_zone_get_containing($lat, $lon);
+  }
+  
+  if( !$zones ) {
+    return false;
+  }
+  
+  $candidates = array();
+  foreach( $zones as $zone ) {
+    $oGC = new GeoCalc();
+    $d1 = $oGC->EllipsoidDistance($lat, $lon, $zone['max_lat'], $zone['max_lon']);
+    $d2 = $oGC->EllipsoidDistance($lat, $lon, $zone['min_lat'], $zone['min_lon']);
+    $zone['d'] = sqrt( $d1 * $d1 + $d2 * $d2 );
+    
+    if( $zone['d'] < $max_distance ) {
+      $candidates[] = $zone;
+    }
+  }
+  return $candidates;
+}
+
+/**
+ * Gets zones which can contain a selected point
+ * @param $lat Latitude of the point
+ * @param $lon Longitude of the point
+ * @return mixed[] Array of the zones which can contain the specified point
+ */
+function guifi_zone_get_containing($lat, $lon) {
+  $zones = array();
+  $query = db_query("SELECT id, title, minx AS min_lon, maxx AS max_lon, miny AS min_lat, maxy AS max_lat FROM {guifi_zone} WHERE minx < %f AND maxx > %f AND miny < %f AND maxy > %f", $lon, $lon, $lat, $lat);
+  while ($zone = db_fetch_array($query)) {
+    $zones[] = $zone;
+  }
+  return $zones;
+}
+
 function theme_guifi_zone_nodes($node,$links = true) {
 
   if (!isset($node->id))
