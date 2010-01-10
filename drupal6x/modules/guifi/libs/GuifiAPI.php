@@ -33,6 +33,7 @@ class GuifiAPI {
   
   function __construct() {
     $this->codes[200] = "Request completed successfully";
+    $this->codes[201] = "Request could not be completed, errors found";
     
     $this->codes[400] = "Request is not well-formatted: input command is empty or invalid";
     $this->codes[401] = "Request is not valid: input command is not implemented";
@@ -84,7 +85,7 @@ class GuifiAPI {
 
     db_query("DELETE FROM {guifi_api_tokens} WHERE created < FROM_UNIXTIME(%d)", $max_date);
     
-    $dbtoken = db_fetch_object(db_query("SELECT * FROM {guifi_api_tokens} WHERE token = '%s'", $this->auth_token, $max_date));
+    $dbtoken = db_fetch_object(db_query("SELECT * FROM {guifi_api_tokens} WHERE token = '%s'", $this->auth_token));
     
     if (!$dbtoken->uid) {
       return false;
@@ -163,6 +164,7 @@ class GuifiAPI {
       $error['extra'] = $extra;
     }
     $this->errors[] = $error;
+    $this->_response_code = 201; // errors found
   }
   
   function executeRequest() {
@@ -184,12 +186,12 @@ class GuifiAPI {
     $resp = array();
     
     $resp['command'] = $this->command;
+    $resp['code'] = array('code' => $this->_response_code, 'str' => $this->codes[$this->_response_code] );
     
     $errors = $this->getErrors();
     if ($errors) {
       $resp['errors'] = $errors;
-    } else {
-      $resp['code'] = array('code' => $this->_response_code, 'str' => $this->codes[$this->_response_code] );
+    } else { 
       if ($this->responses) {
         $resp['responses'] = $this->responses;
       }

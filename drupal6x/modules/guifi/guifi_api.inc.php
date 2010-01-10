@@ -408,7 +408,7 @@ function guifi_api_node_update(&$gapi, $parameters) {
   }
   
   if ($node->type != 'guifi_node') {
-    $gapi->addError(500, "zone_id = $node->id is not a zone");
+    $gapi->addError(500, "zone_id = $node->id is not a guifi node");
     return false;
   }
   
@@ -442,7 +442,7 @@ function guifi_api_node_remove(&$gapi, $parameters) {
   }
   
   if ($node->type != 'guifi_node') {
-    $gapi->addError(500, "node_id = $node->id is not a node");
+    $gapi->addError(500, "node_id = $node->id is not a guifi node");
     return false;
   }
   
@@ -550,7 +550,7 @@ function guifi_api_device_add(&$gapi, $parameters) {
     return false;
   }
   
-  $device['nick'] = guifi_device_get_default_nick($node, $device['type'], $device['nid']);
+  $device['nick'] = guifi_device_get_default_nick((object)$node, $device['type'], $device['nid']);
   
   if (!_guifi_api_device_check_parameters($gapi, &$parameters)) {
     return false;
@@ -643,7 +643,7 @@ function guifi_api_device_remove(&$gapi, $parameters) {
 function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
   extract($parameters);
   
-  if (isset($mac)) {
+  if (!empty($mac)) {
     if (!_guifi_validate_mac($mac)) {
       $gapi->addError(403, "mac: $mac");
       return false;
@@ -757,7 +757,7 @@ function guifi_api_radio_add(&$gapi, $parameters) {
   
   $radio = _guifi_radio_prepare_add_radio($device);
   
-  $fields = array('mac', 'antenna_angle', 'antenna_gain', 'antenna_azimuth', 'antenna_mode' );
+  $fields = array('antenna_angle', 'antenna_gain', 'antenna_azimuth', 'antenna_mode' );
   if ($parameters['mode'] == 'ap') {
     $fields = array_merge($fields, array('ssid', 'protocol', 'channel', 'clients_accepted' ));
   } else if ($parameters['mode'] == 'ad-hoc') {
@@ -889,6 +889,83 @@ function guifi_api_radio_remove(&$gapi, $parameters) {
   
   guifi_device_save($device);
   return true;
+}
+
+function guifi_api_radio_nearest(&$gapi, $parameters) {
+   if (!guifi_api_check_fields(&$gapi, array('node_id' ), $parameters)) {
+    return false;
+  }
+  
+  $node = node_load($parameters['node_id']);
+  
+  if (!$node->id) {
+    $gapi->addError(500, "node not found: {$parameters['node_id']}");
+    return false;
+  }
+  
+  if ($node->type != 'guifi_node') {
+    $gapi->addError(500, "zone_id = $node->id is not a node");
+    return false;
+  }
+  
+  if( empty( $parameters['dmax'] ) ) {
+    $parameters['dmax'] = 15;
+  }
+  if( empty( $parameters['dmin'] ) ) {
+    $parameters['dmin'] = 0;
+  }
+  
+  $query = sprintf("
+      SELECT
+        l.lat, l.lon, r.id, r.radiodev_counter, r.nid, z.id zone_id,
+        r.radiodev_counter, r.ssid, r.mode, r.antenna_mode
+      FROM {guifi_radios} r, {guifi_location} l, {guifi_zone} z
+      WHERE l.id <> %d
+        AND r.nid = l.id
+        AND r.mode = 'ap' 
+        AND l.zone_id = z.id",
+        $node->id);
+  
+  $devdist = array();
+  $devarr = array();
+  $k = 0;
+  $devsq = db_query($query);
+  
+  while ($device = db_fetch_object($devsq)) {
+    $k++;
+    $l = false;
+    
+    $oGC = new GeoCalc();
+    $distance = round( $oGC->EllipsoidDistance($device->lat, $device->lon, $node->lat, $node->lon), 3);
+    
+    if (($distance > $parameters['dmax']) or ($distance < $parameters['dmin'])) {
+      continue;
+    }
+
+    $l = true;
+    
+    if ($l) {
+      $devdist[$k] = $distance;
+      $devarr[$k] = $device;
+      $devarr[$k]->distance = $distance;
+    }
+  }
+  
+  asort($devdist);
+  
+  $devices = array();
+  
+  foreach ($devdist as $id => $foo) {
+    $device = $devarr[$id];
+ 
+    $devices[] = array('device_id' => $device->id, 'radiodev_counter' => $device->radiodev_counter, 'ssid' => $device->ssid, 'distance' => $device->distance);
+    
+    if( count( $devices ) == 50 ) {
+      break;
+    }
+  }
+  
+  $gapi->addResponseField('radios', $devices);
 }
 
 function guifi_api_interface_add(&$gapi, $parameters) {

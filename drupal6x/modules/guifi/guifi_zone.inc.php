@@ -1301,7 +1301,7 @@ function guifi_zone_get_nearest_candidates($lat, $lon, $max_distance = 15, $zone
  */
 function guifi_zone_get_containing($lat, $lon) {
   $zones = array();
-  $query = db_query("SELECT id, title, minx AS min_lon, maxx AS max_lon, miny AS min_lat, maxy AS max_lat FROM {guifi_zone} WHERE minx < %f AND maxx > %f AND miny < %f AND maxy > %f", $lon, $lon, $lat, $lat);
+  $query = db_query("SELECT id, title, nick, minx AS min_lon, maxx AS max_lon, miny AS min_lat, maxy AS max_lat FROM {guifi_zone} WHERE minx < %f AND maxx > %f AND miny < %f AND maxy > %f", $lon, $lon, $lat, $lat);
   while ($zone = db_fetch_array($query)) {
     $zones[] = $zone;
   }

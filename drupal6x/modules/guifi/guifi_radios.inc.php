@@ -1358,15 +1358,14 @@ function guifi_radio_add_wds_form(&$form,&$form_state) {
         [$form_state['filters']['from_radio']]['ssid'])));
 
   // Filter form
-  $form['filters_region'] = guifi_devices_select_filter($form_state,'guifi_radio_add_wds_confirm_submit');
+  $form['filters_region'] = guifi_devices_select_filter($form_state, 'guifi_radio_add_wds_confirm_submit');
 //    $form,
 //    implode(',',$action),
 //    $form_state['values']['filters'],
 //    $form_weight);
 
 
-  $form['devices-list'] = guifi_devices_select($form_state['values']['filters'],
-     'guifi_radio_add_wds_confirm_submit');
+  $form['devices-list'] = guifi_devices_select($form_state['values']['filters'], 'guifi_radio_add_wds_confirm_submit');
 
 /*
   if (count($choices) == 0) {

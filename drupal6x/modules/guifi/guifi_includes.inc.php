@@ -259,15 +259,14 @@ function _set_value($device,$node,&$var,$id,$rid,$search) {
  * function guifi_devices_select
  * pupulates an array to be used as a select list for selecting WDS/p2p, cable or ap/client connections
 ***/
-function guifi_devices_select($filters,$action = '') {
-
+function guifi_devices_select($filters, $action = '') {
   guifi_log(GUIFILOG_TRACE,'function guifi_devices_select()',$filters);
 
   $var = array();
   $found = false;
 
   if ($filters['type'] == 'cable') {
-    if ($filters['mode'] != 'cable-router')
+    if ($filters['mode'] != 'cable-router') {
       $query = sprintf("
         SELECT
           l.lat, l.lon, r.nick ssid, r.id, r.nid, z.id zone_id
@@ -277,7 +276,7 @@ function guifi_devices_select($filters,$action = '') {
           AND r.nid=l.id
           AND l.zone_id=z.id",
         $filters['from_node']);
-    else
+    } else {
       $query = sprintf("
         SELECT
           l.lat, l.lon, r.nick ssid, r.id r.nid, z.id zone_id, r.type
@@ -286,7 +285,8 @@ function guifi_devices_select($filters,$action = '') {
           AND l.id=%d AND r.nid=l.id
           AND l.zone_id=z.id",
         $filters['from_node']);
-  } else
+    }
+  } else {
     $query = sprintf("
       SELECT
         l.lat, l.lon, r.id, r.clients_accepted, r.nid, z.id zone_id,
@@ -296,6 +296,7 @@ function guifi_devices_select($filters,$action = '') {
         AND r.nid=l.id
         AND l.zone_id=z.id",
         $filters['from_node']);
+  }
 
   $devdist = array();
   $devarr = array();
@@ -312,30 +313,29 @@ function guifi_devices_select($filters,$action = '') {
         FROM {guifi_location}
         WHERE id=%d',
         $filters['from_node']));
-      $distance = round($oGC->EllipsoidDistance(
-        $device->lat, $device->lon,
-        $node->lat, $node->lon),3);
-      if (($distance > $filters['dmax']) or
-        ($distance < $filters['dmin']))
+      $distance = round( $oGC->EllipsoidDistance($device->lat, $device->lon, $node->lat, $node->lon), 3);
+      if (($distance > $filters['dmax']) or ($distance < $filters['dmin'])) {
         continue;
+      }
       if ($filters['azimuth']) {
-        foreach (explode('-',$filters['azimuth']) as $minmax) {
-          list($min,$max) = explode(',',$minmax);
-          $Az = round($oGC->GCAzimuth(
-            $device->lat, $device->lon,
-            $node->lat, $node->lon));
-          if (($Az <= $max) and ($Az >= $min))
+        foreach (explode('-', $filters['azimuth']) as $minmax) {
+          list($min, $max) = explode(',', $minmax);
+          $Az = round($oGC->GCAzimuth($device->lat, $device->lon, $node->lat, $node->lon));
+          if (($Az <= $max) and ($Az >= $min)) {
             $l = true;
+          }
         }
-      } else
+      } else {
         $l = true;
+      }
     }
     if ($l) {
       $devdist[$k] = $distance;
       $devarr[$k] = $device;
-      $devarr[$k]->distance=$distance;
+      $devarr[$k]->distance = $distance;
     }
   }
+  
   asort($devdist);
 
 //  ob_start();
@@ -345,25 +345,27 @@ function guifi_devices_select($filters,$action = '') {
 //  ob_end_clean();
 
 
-  if (!empty($devdist)) foreach ($devdist as $id=>$foo) {
+  if (!empty($devdist)) foreach ($devdist as $id => $foo) {
     $device = $devarr[$id];
 
     switch ($filters['type']) {
       case 'ap/client':
           if (($filters['mode'] == 'ap') and ($device->mode == 'client')) {
             $cr = guifi_count_radio_links($device->id);
-            if ($cr[ap] < 1)
-              _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+            if ($cr['ap'] < 1) {
+              _set_value($device, $node, $var, $filters['from_device'], $filters['from_radio'], $filters['search']);
+            }
           } else
-          if (($filters['mode'] == 'client') and ($device->mode == 'ap'))
-            _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+          if (($filters['mode'] == 'client') and ($device->mode == 'ap')) {
+            _set_value($device, $node, $var, $filters['from_device'], $filters['from_radio'], $filters['search']);
+          }
         break;
       case 'wds':
         if ($device->mode == 'ap')
-          _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+          _set_value($device, $node, $var, $filters['from_device'], $filters['from_radio'], $filters['search']);
         break;
       case 'cable':
-          _set_value($device,$node,$var,$filters['from_device'],$filters['from_radio'],$filters['search']);
+          _set_value($device, $node, $var, $filters['from_device'], $filters['from_radio'], $filters['search']);
         break;
       } // eof switch link_type
   } // eof while query device,node,zone
@@ -390,7 +392,7 @@ function guifi_devices_select($filters,$action = '') {
 //      '#prefix'=>'<div id="list-devices">',
 //      '#suffix'=>'</div>',
     );
-    $form['dbuttons'] = guifi_device_buttons(true,$action,0);
+    $form['dbuttons'] = guifi_device_buttons(true, $action, 0);
     return $form;
   }
 
@@ -423,7 +425,7 @@ function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
 
 
 function guifi_get_possible_interfaces($edit = array()) {
-  if ($edit[type] == 'radio')
+  if ($edit['type'] == 'radio')
     $model = db_fetch_array(db_query('
       SELECT m.interfaces
       FROM {guifi_model} m
