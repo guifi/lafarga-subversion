@@ -11,9 +11,15 @@ function guifi_routingmap($action = 'init',$actionid) {
 	switch ($action) {
 	case 'init':
 		guifi_routingmap_init();
+	case 'allinit':
+    guifi_routingmap_all_init();
 	case 'search':
 		$json=guifi_routingmap_search($_GET["lat1"],$_GET["lon1"],$_GET["lat2"],$_GET["lon2"]);
-		//echo $json;
+		echo $json;
+		return;
+		break;
+	case 'allsearch':
+		$json=guifi_routingmap_all_search($_GET["lat1"],$_GET["lon1"],$_GET["lat2"],$_GET["lon2"]);
 		echo $json;
 		return;
 		break;
@@ -262,7 +268,59 @@ function guifi_routingmap_add_device_networks(&$networks,$deviceid,$nid){
    };
    return 0;
 }
-  //$vjson=json_encode(array($objects,$nodes,$links));
-  //return $vjson;
+ 
+//******all routingmap  
+function guifi_routingmap_all_init(){
+  $output = "";
+  if (guifi_gmap_key()) {
+    drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_routingmapall.js','module');
+    $output .=  '<form>' .
+        '<input type=hidden value='.base_path().drupal_get_path('module','guifi').'/js/'.' id=edit-jspath />' .
+        '<input type=hidden value='.variable_get('guifi_wms_service','').' id=guifi-wms />' .
+        '</form>';
+    $output .= '<div id="topmap" style="margin:5px;text-align:center;font-size:14px"></div>';
+    $output .= '<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>';
+    $output .= '<div id="bottommap" style="margin:5px;"></div>';
+  }
 
+  guifi_log(GUIFILOG_TRACE,'routingmap',1);
+
+  return $output;
+} 
+function guifi_routingmap_all_search($plat1,$plon1,$plat2,$plon2){
+
+   $result=db_query(sprintf("SELECT t1.nid as nid,t2.id as lid, t2.link_type, t2.routing, t3.lat, t3.lon
+            FROM guifi_location as t3
+            inner join guifi_devices as t1 on t1.nid = t3.id
+            left join guifi_links as t2 on t1.id = t2.device_id
+            where (t2.routing='OSPF' or t2.routing='BGP') and (t2.link_type='cable' or t2.link_type='wds') and t2.flag='Working'
+            and t3.lat between (%s) and (%s) and t3.lon between (%s) and (%s)
+            order by t1.nid;",$plat1,$plat2,$plon1,$plon2));
+	
+  $nmax=600;   //max nodes
+  $nodes=Array(); //array node data + repetition control
+  $links=Array(); //Array links
+  $n=0;
+  $vospf=0;
+  $vbgp=0;
+
+  while ($record=db_fetch_object($result)){
+    if($record->routing=="OSPF") $vospf=1; else $vospf=0;
+    if($record->routing=="BGP") $vbgp=1; else $vbgp=0;
+    if(!isset($nodes[$record->nid])){
+      $n++;
+      if($n>$nmax) break;
+      $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"ospf"=>$vospf,"bgp"=>$vbgp);
+    }else{
+      $nodes["$record->nid"]["ospf"]=$nodes["$record->nid"]["ospf"]+$vospf;
+      $nodes["$record->nid"]["bgp"]=$nodes["$record->nid"]["bgp"]+$vbgp;
+    }
+    if(!isset($links[$record->lid])){
+      $links["$record->lid"]=array("n1"=>$record->nid,"n2"=>0,"routing"=>$record->routing,"type"=>$record->link_type);
+    }else{
+      $links["$record->lid"]["n2"]=$record->nid;
+    }
+  }
+  return json_encode(array($n,$nodes,$links));
+}
 ?>
