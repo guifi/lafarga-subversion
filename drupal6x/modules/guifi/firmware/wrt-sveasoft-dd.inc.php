@@ -1,47 +1,10 @@
 <?php
 
 function unsolclic_wrt($dev) {
-  $version = "v3.6-beta";
+  $version = "v3.7";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
 
-function guifi_unsolclic_qos() {
-  $cmd = "\n<br />nvram set ";
-
-  $output = "\n<br />#"
-           ."\n<br /># QoS" 
-           .$cmd ."wshaper_enable=1"
-           .$cmd ."wshaper_dev=LAN"
-           .$cmd ."action_service=filters"
-           .$cmd ."svqos_svcs=\"h323 l7 0:0 10 |"
-                 ."\n<br /> "
-                 ." aim l7 0:0 20 |"
-                 ." jabber l7 0:0 20 |"
-                 ." http l7 0:0 20 |"
-                 ." HTTPS tcp 443:443 20 |"
-                 ." irc l7 0:0 20 |"
-                 ." Telnet tcp 23:23 20 |"
-                 ." Ping icmp 0:0 20 |"
-                 ." SSH tcp 22:22 20 |"
-                 ." msn l7 0:0 20 |"
-                 ."\n<br />"
-                 ." audiogalaxy l7 0:0 40 |"
-                 ." bearshare l7 0:0 40 |"
-                 ." bittorrent l7 0:0 40 |"
-                 ." edonkey l7 0:0 40 |"
-                 ." FTP tcp 21:21 40 |"
-                 ." flash l7 0:0 40 |"
-                 ." Gnutella p2p 0:0 40 |"
-                 ." jpeg l7 0:0 40 |"
-                 ." SFTP tcp 115:115 40 |"
-                 ." postscript l7 0:0 40 |"
-                 ." pdf l7 0:0 40 |"
-                 ." quicktime l7 0:0 40 |"
-                 ."\n<br />\"";
-// Mentre duri el bug al QoS, res;
-  return "";
-  return $output;
-}
 
 function guifi_unsolclic_startup($dev, $version, $rc_startup) {
   global $ospf_zone;
@@ -71,9 +34,6 @@ function guifi_unsolclic_startup($dev, $version, $rc_startup) {
   _out('\' >/tmp/bird/bird.conf');
   }
 
-  // Bug del Talisman 1.0.5
-  if ($dev->variable['firmware'] == 'Talisman') 
-    _out("iptables -t nat -A POSTROUTING -j MASQUERADE");
   _outln_comment();
   print $rc_startup;
   if ($dev->variable['firmware'] == 'DD-WRT') {
@@ -156,24 +116,28 @@ function guifi_unsolclic_ospf($dev,$zone) {
   _outln_comment();
   _outln_comment(t('Firewall disabled'));
   _outln_nvram('filter','off');
-  $ospf_zone = guifi_get_ospf_zone($zone);
+  _outln_comment(t(' '.$dev->variable['firmware'].' OSPF routing'));
+  _outln_nvram('dr_setting','3');
+  _outln_nvram('dr_lan_rx','1 2');
+  _outln_nvram('dr_lan_tx','1 2');
+  _outln_nvram('dr_wan_rx','1 2');
+  _outln_nvram('dr_wan_tx','1 2');
+  _outln_nvram('wk_mode','ospf');
+  if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')) {
+    _outln_nvram('routing_lan','on');
+    _outln_nvram('routing_wan','on');
+    _outln_nvram('routing_ospf','on');
+  }
   if ($dev->variable['firmware'] == 'Alchemy') {
-    _outln_comment(t('Alchemy OSPF routing'));
-    _outln_nvram('wk_mode','ospf');
-    _outln_nvram('dr_setting','3');
     _outln_nvram('route_default','1');
-    _outln_nvram('dr_lan_rx','1 2');
-    _outln_nvram('dr_lan_tx','1 2');
-    _outln_nvram('dr_wan_rx','1 2');
-    _outln_nvram('dr_wan_tx','1 2');
-    if ($ospf_zone != '0') {
-      _outln_nvram('expert_mode','1');
-      _out_nvram('ospfd_conf');
-      _out('!');
-      _out('password guifi');
-      _out('enable password guifi');
-      _out('!');
-
+    _outln_nvram('expert_mode','1');
+  }
+  _out_nvram('ospfd_conf');
+  _out('!');
+  _out('password guifi');
+  _out('enable password guifi');
+  _out('!');
+  
 // TODO: List of routing interfaces, by now, all
       foreach (guifi_get_alchemy_ifs($dev) as $if => $exists) {
         _out('interface '.$if);
@@ -183,48 +147,56 @@ function guifi_unsolclic_ospf($dev,$zone) {
       _out('!');
       _out('router ospf');
       _out(' ospf router-id '.$wlan_lan->ipv4);
-      _out(' redistribute kernel');
-      _out(' redistribute connected');
-      _out(' redistribute static');
-      _out(' network 0.0.0.0/0 area '.$ospf_zone);
+
+      foreach ($dev->radios as $radio_id=>$radio)
+        foreach ($radio[interfaces] as $interface_id=>$interface)
+          if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
+            foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
+              $network = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
+                _out('  network '.$network[netid].'/'.$network[maskbits].' area 0');
+
+          }
+      
+      $wds_links = array();
+      foreach ($dev->radios as $radio_id=>$radio)
+        foreach ($radio[interfaces] as $interface_id=>$interface)
+          if ($interface[interface_type] == 'wds/p2p')
+            foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
+              foreach ($ipv4[links] as $link_id=>$link)
+                if ($link['link_type'] == 'wds')
+                  $wds_links[] = $link;
+                  foreach ($wds_links as $key => $wds) {
+                    $iplocal[] = $wds['interface']['ipv4'];
+                      if ($wds['routing'] == 'OSPF') {
+                        $wds_network = _ipcalc($iplocal[$key][ipv4],$iplocal[$key][netmask]);
+                          if (preg_match("/(Working|Testing|Building)/",$wds['flag']))
+                            _out('  network '.$wds_network[netid].'/'.$wds_network[maskbits].' area 0');
+                      }
+                  }
+                  
+       foreach ($dev->interfaces as $interface_id=>$interface)
+         foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+           $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
+             if (($ipv4['ipv4_type'] == '1') && ($interface[interface_type] != 'wLan/Lan')) {
+               _out('  network '.$item[netid].'/'.$item[maskbits].' area 0');
+             }
+             foreach ($ipv4[links] as $link_id=>$link) {
+               $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
+               if ($ipv4['ipv4_type'] == '2') {
+                 if ($link['routing'] == 'OSPF') {
+                   if (preg_match("/(Working|Testing|Building)/",$link['flag']))
+                     _out('  network '.$item[netid].'/'.$item[maskbits].' area 0');
+                 }
+               }
+             }
+         }
+      
       _out(' default-information originate');
       _out('!');
       _out('line vty');
       _out('!','"');
-    }
-    return;
-  }
-  if ($dev->variable['firmware'] == 'Talisman') {
-    _outln_comment(t('Talisman OSPF routing'));
-    _outln_nvram('wk_mode','router');
-    _outln_nvram('routing_lan','on');
-    _outln_nvram('routing_wan','on');
-    _outln_nvram('routing_ospf','on');
-    _outln_nvram('routing_ospf_security','off');
-//    _out_nvram('bird_conf');
-//    _out('router id ' .$dev->ipv4);
-//    _out('protocol kernel { learn; persist; scan time 10; import all; export all; }');
-//    _out('protocol device { scan time 10; }');
-//    _out('protocol direct { interface \\\"*\\\"; }');
-//    _out('protocol ospf WRT54G_ospf {');
-//    _out('area '.$ospf_zone.' {');
-//    _out('interface \\\"*\\\" { cost 10; };');
-//    _out('}; }','"');
-    return;
-  }
-  if (($dev->variable['firmware'] == 'DD-WRT') or ($dev->variable['firmware'] == 'DD-guifi')) {
-    _outln_comment(t('DD-WRT OSPF routing'));
-    _outln_nvram('wk_mode','ospf');
-    _outln_nvram('routing_lan','on');
-    _outln_nvram('routing_wan','on');
-    _outln_nvram('routing_ospf','on');
-    _outln_nvram('dr_setting','3');
-    _outln_nvram('dr_lan_rx','1 2');
-    _outln_nvram('dr_lan_tx','1 2');
-    _outln_nvram('dr_wan_rx','1 2');
-    _outln_nvram('dr_wan_tx','1 2');
 
-  }
+    return;
 }
 
 function guifi_unsolclic_dhcp($dev) {
