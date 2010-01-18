@@ -1,8 +1,10 @@
-<h4 id="method_misc_model">guifi.misc.model</h4>
-<p>Aquest mètode serveix per retornar els diversos tipus de models de
-dispositius (o trastos) suportats per guifi.net.</p>
+<h4 id="method_misc_model"><?php _e("guifi.misc.model")?></h4>
+<p><?php _e("Aquest mètode serveix per retornar els diversos tipus de models de
+dispositius (o trastos) suportats per guifi.net.")?></p>
 
-<h5 id="method_misc_model_params">Paràmetres</h5>
+<h5 id="method_misc_model_params"><?php _e("Paràmetres")?></h5>
+
+<p><?php _e("L'ordre bàsica d'ús d'aquest mètode conté els camps bàsics descrits a la taula de continuació.")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -12,39 +14,40 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
-			<th scope="row">Per defecte</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
+			<th scope="row"><?php _e("Per defecte")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>type</td>
 			<td>string</td>
-			<td>Tipus de models a retornar. Possibles valors: <em><strong>Extern</strong></em>,
-			<em><strong>PCMCIA</strong></em>, <em><strong>PCI</strong></em>.</td>
+			<td><?php _e("Tipus de models a retornar. Possibles valors: <em><strong>Extern</strong></em>,
+			<em><strong>PCMCIA</strong></em>, <em><strong>PCI</strong></em>.")?></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>fid</td>
 			<td>integer</td>
-			<td><a href="#method_misc_manufacturer">ID del fabricant</a> dels
-			models a retornar.</td>
+			<td><?php _e("<a href=\"%s\">ID del fabricant</a> dels models a retornar.", '#method_misc_manufacturer')?></td>
 			<td></td>
 		</tr>
 		<tr>
 			<td>supported</td>
 			<td>string</td>
-			<td>Si el model està suportat o no. Possibles valors: <em><strong>Yes</strong></em>
+			<td><?php _e("Si el model està suportat o no. Possibles valors: <em><strong>Yes</strong></em>
 			(se suporta el model), <em><strong>Deprecated</strong></em> (ja no se
-			suporta el model).</td>
+			suporta el model).")?></td>
 			<td><em>Yes</em></td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_model_return">Retorna</h5>
+<h5 id="method_misc_model_return"><?php _e("Retorna")?></h5>
+
+<p><?php _e("Els camps que retorna aquest mètode en cas d'èxit són els descrits a continuació:")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -54,23 +57,23 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr class="group">
 			<td>models</td>
 			<td>array</td>
-			<td>Tots els models que concorden amb els paràmetres passats</td>
+			<td><?php _e("Tots els models que concorden amb els paràmetres passats")?></td>
 		</tr>
 		<tr class="subgroup">
 			<td colspan="3">
 			<dl>
 				<dt class="field_name">mid</dt>
 				<dd class="field_type">integer</dd>
-				<dd class="field_description" style="width: 545px">ID del model.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("ID del model.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -79,7 +82,7 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">fid</dt>
 				<dd class="field_type">integer</dd>
-				<dd class="field_description" style="width: 545px">ID del fabricant del model.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("ID del fabricant del model.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -88,7 +91,7 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">model</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Nom del model.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Nom del model.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -97,7 +100,7 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">type</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Tipus del model.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Tipus del model.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -106,15 +109,15 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">supported</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Si se suporta el model o no.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Si se suporta el model o no.")?></dd>
 			</dl>
 			</td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_model_list">Llistat</h5>
-<p>Un llistat útil de models de dispositius és el següent:</p>
+<h5 id="method_misc_model_list"><?php _e("Llistat")?></h5>
+<p><?php _e("Un llistat útil de models de dispositius és el següent:")?></p>
 <table class="sample">
 	<colgroup>
 		<col class="field_name" />

@@ -1,13 +1,13 @@
-<h3 id="working_errors">Codis d'error</h3>
+<h3 id="working_errors"><?php _e("Codis d'error")?></h3>
 
-<p>A l'utilitzar l'API de guifi.net és possible que hi hagi crides mal
-formulades, que l'API no entén, o que no es poden realitzar.</p>
+<p><?php _e("A l'utilitzar l'API de guifi.net és possible que hi hagi crides mal
+formulades, que l'API no entén, o que no es poden realitzar.")?></p>
 
-<p>Per saber si s'està en una d'aquestes crides, l'API retorna un camp
+<p><?php _e("Per saber si s'està en una d'aquestes crides, l'API retorna un camp
 de dades especial, <em><strong>errors</strong></em>, tal com s'explica a
-<a href="#working_responses">respostes de l'API</a>.</p>
+<a href=\"%s\">respostes de l'API</a>.", '#working_responses')?></p>
 
-<p>Aquests errors està conformat pels següents camps:</p>
+<p><?php _e("Aquests errors estan conformats pels següents camps:")?></p>
 
 <table>
 	<colgroup>
@@ -17,35 +17,33 @@ de dades especial, <em><strong>errors</strong></em>, tal com s'explica a
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>code</td>
 			<td>integer</td>
-			<td>Identificador del codi d'error.</td>
+			<td><?php _e("Identificador del codi d'error.")?></td>
 		</tr>
 		<tr>
 			<td>str</td>
 			<td>string</td>
-			<td>Cadena de caràcters explicativa del codi d'error (i unívoca al
-			codi d'error).</td>
+			<td><?php _e("Cadena de caràcters explicativa del codi d'error (i unívoca al codi d'error).")?></td>
 		</tr>
 		<tr>
 			<td>extra</td>
 			<td>string</td>
-			<td>Cadena de caràcters opcional, per definir més concretament
+			<td><?php _e("Cadena de caràcters opcional, per definir més concretament
 			l'error. Un mateix codi d'error pot venir amb diferents valors al
-			camp extra.</td>
+			camp extra.")?></td>
 		</tr>
 	</tbody>
 </table>
 
-<p>A continuació hi ha un llistat amb els possibles valors que poden
-tenir aquests errors.</p>
+<p><?php _e("A continuació hi ha un llistat amb els possibles valors que poden tenir aquests errors.")?></p>
 
 <table>
 	<colgroup>
@@ -54,8 +52,8 @@ tenir aquests errors.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Codi</th>
-			<th scope="row">Cadena de caràcters explicativa</th>
+			<th scope="row"><?php _e("Codi")?></th>
+			<th scope="row"><?php _e("Cadena de caràcters explicativa")?></th>
 		</tr>
 	</thead>
 	<tbody>

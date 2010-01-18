@@ -1,10 +1,12 @@
-<h4 id="method_misc_protocol">guifi.misc.protocol</h4>
-<p>Aquest mètode serveix per retornar els diversos tipus de protocols de
-dispositius (o trastos) suportats per guifi.net.</p>
+<h4 id="method_misc_protocol"><?php _e("guifi.misc.protocol")?></h4>
+<p><?php _e("Aquest mètode serveix per retornar els diversos tipus de protocols de
+dispositius (o trastos) suportats per guifi.net.")?></p>
 
-<p>No té paràmetres d'entrada, només de retorn.</p>
+<p><?php _e("No té paràmetres d'entrada, només de retorn.")?></p>
 
-<h5 id="method_misc_protocol_return">Retorna</h5>
+<h5 id="method_misc_protocol_return"><?php _e("Retorna")?></h5>
+
+<p><?php _e("Els camps que retorna aquest mètode en cas d'èxit són els descrits a continuació:")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -13,23 +15,23 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr class="group">
 			<td>protocols</td>
 			<td>array</td>
-			<td>Protocols suportats de guifi.net retornats</td>
+			<td><?php _e("Protocols suportats de guifi.net retornats")?></td>
 		</tr>
 		<tr class="subgroup">
 			<td colspan="3">
 			<dl>
 				<dt class="field_name">title</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Nom del protocol.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Nom del protocol.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -38,15 +40,15 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">description</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Descripció del protocol.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Descripció del protocol.")?></dd>
 			</dl>
 			</td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_protocol_list">Llistat</h5>
-<p>Un llistat útil de protocols és el següent:</p>
+<h5 id="method_misc_protocol_list"><?php _e("Llistat")?></h5>
+<p><?php _e("Un llistat útil de protocols és el següent:")?></p>
 <table class="sample">
 	<colgroup>
 		<col class="field_name" />

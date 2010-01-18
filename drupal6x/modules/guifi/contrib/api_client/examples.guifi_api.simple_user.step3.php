@@ -1,5 +1,5 @@
 <?php
-// The source code packaged with this file is Free Software, Copyright (C) 2005 by
+// The source code packaged with this file is Free Software, Copyright (C) 2010 by
 // Eduard Duran <eduard.duran at iglu.cat>.
 // It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
 // You can get copies of the licenses here:
@@ -51,13 +51,13 @@ if( empty( $device_id ) ) {
 
 <p>Has aconseguit afegir completament el teu node a guifi.net. Pots
 veure el teu node complet a la pàgina següent:</p>
-<p><a href="http://guifi.net/node/<?php
-echo $node_id?>">http://guifi.net/node/<?php
+<p><a href="http://test.guifi.net/node/<?php
+echo $node_id?>">http://test.guifi.net/node/<?php
 echo $node_id?></a></p>
 
 <p>Ara només et queda configurar la teva antena. Per això, et pots baixa la configuració UnSolClic, i enviar-la a la teva antena.</p>
 <p>Et pots baixar aquesta configuració des de l'adreça següent:</p>
-<p><a href="http://guifi.net/guifi/device/<?php echo $device_id ?>/view/unsolclic">http://guifi.net/guifi/device/<?php echo $device_id ?>/view/unsolclic</a></p>
+<p><a href="http://test.guifi.net/guifi/device/<?php echo $device_id ?>/view/unsolclic">http://test.guifi.net/guifi/device/<?php echo $device_id ?>/view/unsolclic</a></p>
 
 </div>
 </div>

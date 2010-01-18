@@ -1,5 +1,5 @@
 <?php
-// The source code packaged with this file is Free Software, Copyright (C) 2005 by
+// The source code packaged with this file is Free Software, Copyright (C) 2010 by
 // Eduard Duran <eduard.duran at iglu.cat>.
 // It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
 // You can get copies of the licenses here:

@@ -1,14 +1,12 @@
-<h3 id="working_responses">Respostes de l'API</h3>
+<h3 id="working_responses"><?php _e("Respostes de l'API")?></h3>
 
-<p>Les respostes de l'API de guifi.net vénen donades també pel protocol
-HTTP.</p>
+<p><?php _e("Les respostes de l'API de guifi.net vénen donades també pel protocol HTTP.")?></p>
 
-<p>La resposta de l'API està al contingut de la resposta HTTP, i ve
+<p><?php _e("La resposta de l'API està al contingut de la resposta HTTP, i ve
 formatat. Actualment, l'únic format implementat de la resposta és
-mitjançant <a href="http://en.wikipedia.org/wiki/JSON">JSON</a>.</p>
+mitjançant <a href=\"%s\">JSON</a>.", 'http://en.wikipedia.org/wiki/JSON')?></p>
 
-<p>Els camps de resposta definits per la resposta de l'API de guifi.net
-són els següents:</p>
+<p><?php _e("Els camps de resposta definits per la resposta de l'API de guifi.net són els següents:")?></p>
 
 <table>
 	<colgroup>
@@ -18,38 +16,37 @@ són els següents:</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>command</td>
 			<td>string</td>
-			<td>Nom del mètode al qual s'està responent.</td>
+			<td><?php _e("Nom del mètode al qual s'està responent.")?></td>
 		</tr>
 		<tr>
 			<td>code</td>
 			<td>mixed</td>
-			<td><a href="#working_codes">Codi de resposta</a> de l'API.</td>
+			<td><?php _e("<a href=\"%s\">Codi de resposta</a> de l'API.", '#working_codes')?></td>
 		</tr>
 		<tr>
 			<td>responses</td>
 			<td>mixed</td>
-			<td>Resposta que es retorna sobre el mètode que s'utilitza. Correspon
-			al <em><strong>retorn</strong></em> de cada <a href=#methods">mètode</a>.</td>
+			<td><?php _e("Resposta que es retorna sobre el mètode que s'utilitza. Correspon
+			al <em><strong>retorn</strong></em> de cada <a href=\"%s\">mètode</a>.", '#methods')?></td>
 		</tr>
 		<tr>
 			<td>errors</td>
 			<td>mixed</td>
-			<td><a href="#working_errors">Codi d'error</a> en la crida a un mètode de l'API.</td>
+			<td><?php _e("<a href=\"%s\">Codi d'error</a> en la crida a un mètode de l'API.", '#working_errors')?></td>
 		</tr>
 	</tbody>
 </table>
 
-<p>Per tant, una possible resposta de l'API de guifi.net (responent a la
-crida anterior) seria:</p>
+<p><?php _e("Per tant, una possible resposta de l'API de guifi.net (responent a la crida anterior) seria:")?></p>
 
 <blockquote>{"command":"guifi.misc.protocol","code":{"code":200,"str":"Request
 completed

@@ -1,9 +1,9 @@
-<h3 id="working_codes">Codis de resposta</h3>
+<h3 id="working_codes"><?php _e("Codis de resposta")?></h3>
 
-<p>Tota crida que es faci a l'API de guifi.net obté un codi de resposta,
-tal i com s'explica a <a href="#working_responses">respostes de l'API</a>.</p>
+<p><?php _e("Tota crida que es faci a l'API de guifi.net obté un codi de resposta,
+tal i com s'explica a <a href=\"\">respostes de l'API</a>.", '#working_responses')?></p>
 
-<p>Aquests codi de resposta està conformat pels següents camps:</p>
+<p><?php _e("Aquests codis de resposta estan conformats pels següents camps:")?></p>
 
 <table>
 	<colgroup>
@@ -13,28 +13,26 @@ tal i com s'explica a <a href="#working_responses">respostes de l'API</a>.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>code</td>
 			<td>integer</td>
-			<td>Identificador del codi de resposta.</td>
+			<td><?php _e("Identificador del codi de resposta.")?></td>
 		</tr>
 		<tr>
 			<td>str</td>
 			<td>string</td>
-			<td>Cadena de caràcters explicativa del codi de resposta (i unívoca al
-			codi d'error).</td>
+			<td><?php _e("Cadena de caràcters explicativa del codi de resposta (i unívoca al codi de resposta).")?></td>
 		</tr>
 	</tbody>
 </table>
 
-<p>A continuació hi ha un llistat amb els possibles valors que poden
-tenir aquests codis.</p>
+<p><?php _e("A continuació hi ha un llistat amb els possibles valors que poden tenir aquests codis.")?></p>
 
 <table>
 	<colgroup>
@@ -43,8 +41,8 @@ tenir aquests codis.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Codi</th>
-			<th scope="row">Cadena de caràcters explicativa</th>
+			<th scope="row"><?php _e("Codi")?></th>
+			<th scope="row"><?php _e("Cadena de caràcters explicativa")?></th>
 		</tr>
 	</thead>
 	<tbody>

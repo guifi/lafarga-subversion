@@ -1,8 +1,9 @@
-<h4 id="method_misc_channel">guifi.misc.channel</h4>
-<p>Aquest mètode serveix per retornar els diversos tipus de channels de
-dispositius (o trastos) suportats per guifi.net.</p>
+<h4 id="method_misc_channel"><?php _e("guifi.misc.channel")?></h4>
+<p><?php _e("Aquest mètode serveix per retornar els diversos tipus de channels de dispositius (o trastos) suportats per guifi.net.")?></p>
 
-<h5 id="method_misc_channel_params">Paràmetres</h5>
+<h5 id="method_misc_channel_params"><?php _e("Paràmetres")?></h5>
+
+<p><?php _e("L'ordre bàsica d'ús d'aquest mètode conté els camps bàsics descrits a la taula de continuació.")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -12,23 +13,25 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
-			<th scope="row">Per defecte</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
+			<th scope="row"><?php _e("Per defecte")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr class="required">
 			<td>protocol</td>
 			<td>string</td>
-			<td><a href="#method_misc_protocol">Nom del protocol</a> que suporta els canals retornats.</td>
+			<td><?php _e("<a href=\"%s\">Nom del protocol</a> que suporta els canals retornats.", '#method_misc_protocol')?></td>
 			<td></td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_channel_return">Retorna</h5>
+<h5 id="method_misc_channel_return"><?php _e("Retorna")?></h5>
+
+<p><?php _e("Els camps que retorna aquest mètode en cas d'èxit són els descrits a continuació:")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -38,23 +41,23 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr class="group">
 			<td>channels</td>
 			<td>array</td>
-			<td>Canals suportats de guifi.net retornats</td>
+			<td><?php _e("Canals suportats de guifi.net retornats")?></td>
 		</tr>
 		<tr class="subgroup">
 			<td colspan="3">
 			<dl>
 				<dt class="field_name">title</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Nom del canal.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Nom del canal.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -63,20 +66,20 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">description</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Descripció del canal.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Descripció del canal.")?></dd>
 			</dl>
 			</td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_channel_list">Llistat</h5>
-<p>Un llistat útil de canals és el següent, ordenats per <a href="#method_misc_protocol">nom de protocol</a>:</p>
+<h5 id="method_misc_channel_list"><?php _e("Llistat")?></h5>
+<p><?php _e("Un llistat útil de canals és el següent, ordenats per <a href=\"%s\">nom de protocol</a>:", '#method_misc_protocol')?></p>
 <table class="sample">
 	<thead>
 		<tr>
-			<th scope="row">Nom del canal</th>
-			<th scope="row">Descripció del canal</th>
+			<th scope="row"><?php _e("Nom del canal")?></th>
+			<th scope="row"><?php _e("Descripció del canal")?></th>
 		</tr>
 	</thead>
 	<tbody>

@@ -1,5 +1,5 @@
 <?php
-// The source code packaged with this file is Free Software, Copyright (C) 2005 by
+// The source code packaged with this file is Free Software, Copyright (C) 2010 by
 // Eduard Duran <eduard.duran at iglu.cat>.
 // It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
 // You can get copies of the licenses here:
@@ -163,7 +163,7 @@ i ja podràs configurar la teva antena!</p>
 </div>
 
 <script
-	src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAr3qx5ND13lr9SgNvfMaXFRQfurk9f5l92xDxpL8LRqlGozpssRQ37VNTwe_pc8OOYwLhYa-lhKZg4w"
+	src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAr3qx5ND13lr9SgNvfMaXFRSoMVdXjUpvF1gB4BZ5UHlg8i0YjxT29fejT_uEaVdsMzklRndOuKIb6g"
 	type="text/javascript"></script>
 <script type="text/javascript">
 //<![CDATA[

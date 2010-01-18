@@ -1,8 +1,10 @@
-<h4 id="method_misc_firmware">guifi.misc.firmware</h4>
-<p>Aquest mètode serveix per retornar els diversos tipus de firmwares de
-dispositius (o trastos) suportats per guifi.net.</p>
+<h4 id="method_misc_firmware"><?php _e("guifi.misc.firmware")?></h4>
+<p><?php _e("Aquest mètode serveix per retornar els diversos tipus de firmwares de
+dispositius (o trastos) suportats per guifi.net.")?></p>
 
-<h5 id="method_misc_firmware_params">Paràmetres</h5>
+<h5 id="method_misc_firmware_params"><?php _e("Paràmetres")?></h5>
+
+<p><?php _e("L'ordre bàsica d'ús d'aquest mètode conté els camps bàsics descrits a la taula de continuació.")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -12,23 +14,25 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
-			<th scope="row">Per defecte</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
+			<th scope="row"><?php _e("Per defecte")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>model_id</td>
 			<td>integer</td>
-			<td><a href="#method_misc_model">ID de model</a> que suporta el firmware retornat.</td>
+			<td><?php _e("<a href=\"%s\">ID de model</a> que suporta el firmware retornat.", '#method_misc_model')?></td>
 			<td></td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_firmware_return">Retorna</h5>
+<h5 id="method_misc_firmware_return"><?php _e("Retorna")?></h5>
+
+<p><?php _e("Els camps que retorna aquest mètode en cas d'èxit són els descrits a continuació:")?></p>
 <table>
 	<colgroup>
 		<col class="field_name" />
@@ -37,23 +41,23 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom</th>
-			<th scope="row">Tipus</th>
-			<th scope="row">Descripció</th>
+			<th scope="row"><?php _e("Nom")?></th>
+			<th scope="row"><?php _e("Tipus")?></th>
+			<th scope="row"><?php _e("Descripció")?></th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr class="group">
 			<td>firmwares</td>
 			<td>array</td>
-			<td>Firmwares suportats de guifi.net retornats</td>
+			<td><?php _e("Firmwares suportats de guifi.net retornats")?></td>
 		</tr>
 		<tr class="subgroup">
 			<td colspan="3">
 			<dl>
 				<dt class="field_name">title</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Nom del firmware.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Nom del firmware.")?></dd>
 			</dl>
 			</td>
 		</tr>
@@ -62,15 +66,15 @@ dispositius (o trastos) suportats per guifi.net.</p>
 			<dl>
 				<dt class="field_name">description</dt>
 				<dd class="field_type">string</dd>
-				<dd class="field_description" style="width: 545px">Descripció del firmware.</dd>
+				<dd class="field_description" style="width: 545px"><?php _e("Descripció del firmware.")?></dd>
 			</dl>
 			</td>
 		</tr>
 	</tbody>
 </table>
 
-<h5 id="method_misc_firmware_list">Llistat</h5>
-<p>Un llistat útil de firmwares de dispositius és el següent:</p>
+<h5 id="method_misc_firmware_list"><?php _e("Llistat")?></h5>
+<p><?php _e("Un llistat útil de firmwares de dispositius és el següent:")?></p>
 <table class="sample">
 	<colgroup>
 		<col class="field_name" />
@@ -78,8 +82,8 @@ dispositius (o trastos) suportats per guifi.net.</p>
 	</colgroup>
 	<thead>
 		<tr>
-			<th scope="row">Nom del firmware</th>
-			<th scope="row">Descripció del firmware</th>
+			<th scope="row"><?php _e("Nom del firmware")?></th>
+			<th scope="row"><?php _e("Descripció del firmware")?></th>
 		</tr>
 	</thead>
 	<tbody>
