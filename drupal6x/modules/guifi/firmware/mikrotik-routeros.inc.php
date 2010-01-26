@@ -189,6 +189,7 @@ function unsolclic_routeros($dev) {
     case 'client';
     case 'clientrouted':
       $mode = 'station';
+      $gain = $radio[antenna_gain];
       foreach ($radio[interfaces] as $interface)
       foreach ($interface[ipv4] as $ipv4)
       foreach ($ipv4[links] as $link)
