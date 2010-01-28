@@ -61,8 +61,8 @@ function unsolclic_airos($dev) {
       $rate_max= '54M';
       $txpower= '19';
       $ack= '25';
-      $radiorx = '1';
-      $radiotx = '1';
+      $radiorx = '2';
+      $radiotx = '2';
   }
 
   ## Create Script file
