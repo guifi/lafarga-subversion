@@ -798,18 +798,21 @@ function guifi_trim_vowels($str) {
 function guifi_abbreviate($str,$len = 5) {
   $str = guifi_to_7bits($str);
   if  (strlen($str) > $len) {
-    $words = str_word_count(ucwords($str),1);
+    $words = str_word_count(ucwords($str),1,'1234567890');
+    
     if (count($words) > 1) {
       $s = "";
       foreach ($words as $k=>$word) {
-        if ($k == 1)
+        if ($k == 1) {
           $s .= substr($word,0,3);
-        else
+        } else {
           $s .= substr($word,0,1);
+        }
       }
       return $s;
-    } else
+    } else {
       return guifi_trim_vowels($str);
+    }
   }
   return str_replace(" ","",$str);
 }
@@ -1438,7 +1441,7 @@ function guifi_zone_childs_recurse($id, $childs, $children) {
 
 function guifi_cnml_tree($zid) {
   $result = db_query('
-    SELECT z.id, z.master parent_id, z.title, z.time_zone, z.ntp_servers,
+    SELECT z.id, z.master parent_id, z.title, z.nick, z.time_zone, z.ntp_servers,
       z.dns_servers, z.graph_server, z.homepage, z.minx, z.miny, z.maxx,
       z.maxy,z.timestamp_created, z.timestamp_changed,
       r.body

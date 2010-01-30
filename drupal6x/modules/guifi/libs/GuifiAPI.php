@@ -1,11 +1,10 @@
 <?php
-// The source code packaged with this file is Free Software, Copyright (C) 2005 by
+// The source code packaged with this file is Free Software, Copyright (C) 2010 by
 // Eduard Duran <eduard.duran@iglu.cat>.
 // It's licensed under the GENERAL PUBLIC LICENSE v2.0 unless stated otherwise.
 // You can get copies of the licenses here:
 // 		http://www.gnu.org/licenses/gpl-2.0.html
 // GENERAL PUBLIC LICENSE v2.0 is also included in the file called "LICENSE.txt".
-
 
 class GuifiAPI {
   public $command = '';

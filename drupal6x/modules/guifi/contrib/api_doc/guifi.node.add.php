@@ -94,8 +94,8 @@
 			<td><?php _e("Estat del dispositiu. Possibles valors: <em><strong>%s</strong></em>
 			(Projectat), <em><strong>%s</strong></em> (Reservat), <em><strong>%s</strong></em>
 			(En construcció), <em><strong>%s</strong></em> (En proves), <em><strong>%s</strong></em>
-			(Operatiu) i <em><strong>%s</strong></em> (Esborrat).</td>
-			<td><em>Working</em>", 'Planned', 'Reserved', 'Building', 'Testing', 'Working', 'Dropped')?></td>
+			(Operatiu) i <em><strong>%s</strong></em> (Esborrat).", 'Planned', 'Reserved', 'Building',
+			'Testing', 'Working', 'Dropped')?></td>
 			<td><em>Planned</em></td>
 		</tr>
 	</tbody>

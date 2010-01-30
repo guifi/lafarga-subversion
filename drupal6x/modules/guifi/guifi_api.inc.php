@@ -1,5 +1,5 @@
 <?php
-// The source code packaged with this file is Free Software, Copyright (C) 2005 by
+// The source code packaged with this file is Free Software, Copyright (C) 2010 by
 // Eduard Duran <eduard.duran@iglu.cat>.
 // It's licensed under the GENERAL PUBLIC LICENSE v2.0 unless stated otherwise.
 // You can get copies of the licenses here:
@@ -27,14 +27,14 @@ function guifi_api() {
 function guifi_api_auth_login(&$gapi, $parameters) {
   global $user;
   
-  if (!guifi_api_check_fields(&$gapi, array('method' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('method' ), $parameters)) {
     return false;
   }
   $method = $parameters['method'];
   
   switch ($method) {
     case 'password':
-      if (!guifi_api_check_fields(&$gapi, array('username', 'password' ), $parameters)) {
+      if (!guifi_api_check_fields($gapi, array('username', 'password' ), $parameters)) {
         return false;
       }
       
@@ -155,7 +155,7 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
 function guifi_api_zone_add(&$gapi, $parameters) {
   global $user;
   
-  if (!guifi_api_check_fields(&$gapi, array('title', 'master', 'minx', 'miny', 'maxx', 'maxy' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('title', 'master', 'minx', 'miny', 'maxx', 'maxy' ), $parameters)) {
     return false;
   }
   
@@ -206,7 +206,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
  * @param mixed $parameters Paramaters passed to specify zone properties
  */
 function guifi_api_zone_update(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('zone_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('zone_id' ), $parameters)) {
     return false;
   }
   
@@ -245,7 +245,7 @@ function guifi_api_zone_update(&$gapi, $parameters) {
 }
 
 function guifi_api_zone_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('zone_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('zone_id' ), $parameters)) {
     return false;
   }
   
@@ -272,7 +272,7 @@ function guifi_api_zone_remove(&$gapi, $parameters) {
 }
 
 function guifi_api_zone_nearest(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('lat', 'lon' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('lat', 'lon' ), $parameters)) {
     return false;
   }
 
@@ -335,7 +335,7 @@ function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
 function guifi_api_node_add(&$gapi, $parameters) {
   global $user;
   
-  if (!guifi_api_check_fields(&$gapi, array('title', 'zone_id', 'lat', 'lon' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('title', 'zone_id', 'lat', 'lon' ), $parameters)) {
     return false;
   }
   
@@ -386,7 +386,7 @@ function guifi_api_node_add(&$gapi, $parameters) {
  * @return unknown_type
  */
 function guifi_api_node_update(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('node_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
     return false;
   }
   
@@ -430,7 +430,7 @@ function guifi_api_node_update(&$gapi, $parameters) {
  * @return unknown_type
  */
 function guifi_api_node_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('node_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
     return false;
   }
   
@@ -533,7 +533,7 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
  */
 function guifi_api_device_add(&$gapi, $parameters) {
   global $user;
-  if (!guifi_api_check_fields(&$gapi, array('node_id', 'type' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('node_id', 'type' ), $parameters)) {
     return false;
   }
   
@@ -577,7 +577,7 @@ function guifi_api_device_add(&$gapi, $parameters) {
 }
 
 function guifi_api_device_update(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('device_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('device_id' ), $parameters)) {
     return false;
   }
   
@@ -614,7 +614,7 @@ function guifi_api_device_update(&$gapi, $parameters) {
  * @return boolean Whether the device was removed or not
  */
 function guifi_api_device_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('device_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('device_id' ), $parameters)) {
     return false;
   }
   
@@ -728,7 +728,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
  * @return unknown_type
  */
 function guifi_api_radio_add(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('mode', 'device_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('mode', 'device_id' ), $parameters)) {
     return false;
   }
   
@@ -748,7 +748,7 @@ function guifi_api_radio_add(&$gapi, $parameters) {
   }
   
   if (count($device['radios']) > 0) {
-    if (!guifi_api_check_fields(&$gapi, array('mac' ), $parameters)) {
+    if (!guifi_api_check_fields($gapi, array('mac' ), $parameters)) {
       return false;
     }
   }
@@ -812,7 +812,7 @@ function guifi_api_radio_add(&$gapi, $parameters) {
 }
 
 function guifi_api_radio_update(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
     return false;
   }
   
@@ -862,7 +862,7 @@ function guifi_api_radio_update(&$gapi, $parameters) {
 }
 
 function guifi_api_radio_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
     return false;
   }
   
@@ -892,7 +892,7 @@ function guifi_api_radio_remove(&$gapi, $parameters) {
 }
 
 function guifi_api_radio_nearest(&$gapi, $parameters) {
-   if (!guifi_api_check_fields(&$gapi, array('node_id' ), $parameters)) {
+   if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
     return false;
   }
   
@@ -969,7 +969,7 @@ function guifi_api_radio_nearest(&$gapi, $parameters) {
 }
 
 function guifi_api_interface_add(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
     return false;
   }
   
@@ -1026,7 +1026,7 @@ function guifi_api_interface_add(&$gapi, $parameters) {
 }
 
 function guifi_api_interface_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('interface_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('interface_id' ), $parameters)) {
     return false;
   }
   
@@ -1101,7 +1101,7 @@ function _guifi_api_link_validate_local_ipv4($l_ipv4, $r_ipv4) {
 }
 
 function guifi_api_link_add(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('from_device_id', 'from_radiodev_counter' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('from_device_id', 'from_radiodev_counter' ), $parameters)) {
     return false;
   }
   
@@ -1120,7 +1120,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
     return false;
   }
   
-  if (!guifi_api_check_fields(&$gapi, array('to_device_id', 'to_radiodev_counter' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('to_device_id', 'to_radiodev_counter' ), $parameters)) {
     return false;
   }
   $to_device_id = $parameters['to_device_id'];
@@ -1237,7 +1237,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
 }
 
 function guifi_api_link_update(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('link_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('link_id' ), $parameters)) {
     return false;
   }
   
@@ -1305,7 +1305,7 @@ function guifi_api_link_update(&$gapi, $parameters) {
 }
 
 function guifi_api_link_remove(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('link_id' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('link_id' ), $parameters)) {
     return false;
   }
   
@@ -1462,7 +1462,7 @@ function guifi_api_misc_protocol(&$gapi, $parameters) {
 }
 
 function guifi_api_misc_channel(&$gapi, $parameters) {
-  if (!guifi_api_check_fields(&$gapi, array('protocol' ), $parameters)) {
+  if (!guifi_api_check_fields($gapi, array('protocol' ), $parameters)) {
     return false;
   }
   if( !guifi_validate_types('protocol', $parameters['protocol'])) {
