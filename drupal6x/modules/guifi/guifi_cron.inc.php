@@ -80,25 +80,24 @@ function guifi_notify_send($send = true) {
   return $output;
 }
 
+function to_date($str) {
+  if ($str == 'n/a')
+    return null;
+
+  $datestr = str_replace(array(" ",":","/"),"",$str);
+  if (strlen($datestr) != 12)
+    return null;
+
+  return mktime(
+    (int)substr($datestr,8,2),
+    (int)substr($datestr,10,2),
+    (int)0,
+    (int)substr($datestr,4,2),
+    (int)substr($datestr,6,2),
+    (int)substr($datestr,0,4));
+}
+
 function guifi_cron_loadCNMLstats($graph_server,$verbose=false) {
-
-  function to_date($str) {
-    if ($str == 'n/a')
-      return null;
-
-    $datestr = str_replace(array(" ",":","/"),"",$str);
-    if (strlen($datestr) != 12)
-      return null;
-
-    return mktime(
-      (int)substr($datestr,8,2),
-      (int)substr($datestr,10,2),
-      (int)0,
-      (int)substr($datestr,4,2),
-      (int)substr($datestr,6,2),
-      (int)substr($datestr,0,4));
-  }
-
   if (is_null($gs))
     $gs = guifi_service_load($graph_server);
 
