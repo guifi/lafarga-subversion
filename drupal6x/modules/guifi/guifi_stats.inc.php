@@ -4,13 +4,17 @@
  *
  * functions for statistics graphs
  */
-function guifi_stats($action = '',$statsid) {
-  if (!is_numeric($statsid))
+function guifi_stats($action,$statsid = 0) {
+ if (!is_numeric($statsid))
     return;
   
   switch ($action) {
+  case 'chart':
+    guifi_stats_chart();
+    return;
+    break;
   case 'chart01': //growth_chart
-    guifi_stats_chart01(); 
+    guifi_stats_chart01();
     return;
     break;
   case 'chart02':  //annualincrement
@@ -27,6 +31,11 @@ function guifi_stats($action = '',$statsid) {
     break;
   case 'chart05': //':
     guifi_stats_chart05($statsid);
+    return;
+    break;
+  case 'nodes': //total working nodes http://guifi.net/guifi/stats/nodes/0
+    $ret=guifi_stats_numnodes($statsid);
+    echo $ret;
     return;
     break;
   }
@@ -103,19 +112,56 @@ function guifi_stats_nodes() {
   
   if($vid=='0'){
     $output .= '<div id="plot" style="width: 500px; border-style:none; float:right; margin:5px;"></div>';
-    $output .= '<div id="menu" style="width: 200px; margin:5px;">';
-    $output .= '<a href="javascript:guifi_stats_chart01()">'.t("Growth chart").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart02()">'.t("Annual increment").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart03()">'.t("Monthly average").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart04()">'.t("Last year").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart05(3)">'.t("Nodes per month, avr. 3m.").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart05(6)">'.t("Nodes per month, avr. 6m.").'</a>';
-    $output .= '<br><a href="javascript:guifi_stats_chart05(12)">'.t("Nodes per month, avr. 12m.").'</a>';
+    $output .= '<div id="menu" style="width: 230px; margin:5px;">';
+    $output .= '<a href="javascript:guifi_stats_chart01()">'.t("1 Growth chart").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart02()">'.t("2 Annual increment").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart03()">'.t("3 Monthly average").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart04()">'.t("4 Last year").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(3)">'.t("5.3 Nodes per month, avr. 3m.").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(6)">'.t("5.6 Nodes per month, avr. 6m.").'</a>';
+    $output .= '<br><a href="javascript:guifi_stats_chart05(12)">'.t("5.12 Nodes per month, avr. 12m.").'</a>';
+    $output .= '</div>';
+    $output .= '<div style="height:300px">&nbsp;</div>';
+    $output .= '<div style="width:700px;">';
+    $output .= t('link:').' http://guifi.net/guifi/menu/stats/nodes?id=N';
+    $output .= '<br />'.t('link:').' http://guifi.net/guifi/menu/stats/nodes?id=N&sid=M';
+    $output .= '<br />'.t('link:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N"&gt;';
+    $output .= '<br />'.t('link:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N&sid=M"&gt;';
     $output .= '</div>';
   }    
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
 
   return $output;
+}
+function guifi_stats_chart() {
+  if(isset($_GET['id'])){
+    $vid=$_GET['id'];
+    switch($vid){
+    case '1':
+      guifi_stats_chart01();
+      break;
+    case '2':
+      guifi_stats_chart02();
+      break;
+    case '3':
+      guifi_stats_chart03();
+      break;
+    case '4':
+      guifi_stats_chart04();
+      break;
+    case '5':
+      if(isset($_GET['sid'])){
+        $v=$_GET['sid'];
+      }else{
+        $v='12';
+      }
+      guifi_stats_chart05($v);
+      break;
+    default:
+      guifi_stats_chart01();
+      break;
+    }
+  }
 }
 //create gif working nodes
 function guifi_stats_chart01(){ //growth_chart
@@ -334,7 +380,7 @@ function guifi_stats_chart04(){
     $result=db_query("select COUNT(*) as num, max(timestamp_created) as fecha, max(month(FROM_UNIXTIME(timestamp_created))) as mes,max(year(FROM_UNIXTIME(timestamp_created))) as year from {guifi_location}
       where (timestamp_created >= ".$datemin." and status_flag='Working')  
       GROUP BY Year(FROM_UNIXTIME(timestamp_created)), month(FROM_UNIXTIME(timestamp_created))");
-	while ($record=db_fetch_object($result)){
+    while ($record=db_fetch_object($result)){
       $data[]=array("$record->mes".'/'.substr("$record->year",2,2),$record->num);
       if($record->mes!=$today[mon] || $record->year!=$today[year]){
         $n++;
@@ -390,6 +436,7 @@ function guifi_stats_chart05($nmonths){
     $med=0;
     $datos=array(0,0,0,0,0,0,0,0,0,0,0,0,0);
     $today=getdate();
+    if($nmonths==0) $nmonths=12;
 	while ($record=db_fetch_object($result)){
       if($record->ano>=2004){
         if($mes==12){
@@ -510,6 +557,20 @@ function fmediacalc($tot,&$datos,&$n,$nmonths){
   }
   //return($datos[$n]);
   return($v/$nmonths);
+}
+
+//stats Nodes
+function guifi_stats_numnodes($pnum){
+  $ret=0;
+  switch ($pnum) {
+  case 0: //total nodes
+    $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
+    if ($record=db_fetch_object($result)){
+      $ret=$record->num;
+    };
+    break;
+  }
+  return($ret);
 }
 
 ?>

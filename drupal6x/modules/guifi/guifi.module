@@ -245,7 +245,7 @@ function guifi_menu() {
     'title' => 'OSPF Routing Map',
     'description' => 'Routing areas map.',
     'page callback' => 'guifi_routingmap_init',
-    'access arguments' => array('access content'),
+    'access arguments' => array('create guifi nodes'),
     'weight' => 7,
     'file' => 'guifi_routingmap.inc.php'
   );
@@ -253,7 +253,7 @@ function guifi_menu() {
     'title' => 'All Routing Map',
     'description' => 'Routing areas map.',
     'page callback' => 'guifi_routingmap_all_init',
-    'access arguments' => array('access content'),
+    'access arguments' => array('create guifi nodes'),
     'weight' => 8,
     'file' => 'guifi_routingmap.inc.php'
   );
@@ -355,6 +355,13 @@ function guifi_menu() {
     'page callback' => 'guifi_stats_nodes',
     'access arguments' => array('access content'),
     'weight' => 2,
+    'file' => 'guifi_stats.inc.php'
+  );
+  $items['guifi/stats/%'] = array(
+    'title' => 'stats charts',
+    'page callback' => 'guifi_stats',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
     'file' => 'guifi_stats.inc.php'
   );
   $items['guifi/stats/%/%'] = array(
