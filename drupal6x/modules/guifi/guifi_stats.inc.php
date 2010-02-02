@@ -33,8 +33,8 @@ function guifi_stats($action,$statsid = 0) {
     guifi_stats_chart05($statsid);
     return;
     break;
-  case 'nodes': //total working nodes http://guifi.net/guifi/stats/nodes/0
-    $ret=guifi_stats_numnodes($statsid);
+  case 'feeds': //total working nodes http://guifi.net/guifi/stats/nodes/0
+    $ret=guifi_stats_feeds($statsid);
     echo $ret;
     return;
     break;
@@ -560,17 +560,28 @@ function fmediacalc($tot,&$datos,&$n,$nmonths){
 }
 
 //stats Nodes
-function guifi_stats_numnodes($pnum){
-  $ret=0;
+function guifi_stats_feeds($pnum){
+  $output ='<?xml version="1.0" encoding="utf-8"?>';
+  $output .= '<rss version="2.0" xml:base="http://guifi.net"  xmlns:dc="http://purl.org/dc/elements/1.1/">';
+  $output .= '<channel>';
+  $output .= '<title>'.utf8_encode('guifi.net - estadísticas').'</title>';
+  $output .= '<link>http://guifi.net</link>';
+  $output .= '<description>'.utf8_encode('estadísticas guifi.net').'</description>';
   switch ($pnum) {
   case 0: //total nodes
     $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
     if ($record=db_fetch_object($result)){
-      $ret=$record->num;
+      $output .= '<item>';
+      $output .= '<description>';
+      $output .= date ( "d/m/Y h:i" , time() ).' guifi.net tiene '.$record->num.' nodos operativos';
+      $output .= '</description>';
+      $output .= '</item>';
     };
     break;
   }
-  return($ret);
+  $output .= '</channel>';
+  $output .= '</rss>';
+  return($output);
 }
 
 ?>
