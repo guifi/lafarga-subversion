@@ -1,7 +1,7 @@
 <?php
 
 function unsolclic_airos($dev) {
-  $version = "1.0.2";
+  $version = "1.1";
   $loc = node_load(array('nid'=>$dev->nid));
   $zone = node_load(array('nid'=>$loc->zone_id));
   $wan = guifi_unsolclic_if($dev->id,'Wan');
@@ -22,12 +22,21 @@ function unsolclic_airos($dev) {
   }
 
   $apssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
-    if (empty($dev->radios[0][antenna_mode]))
-         $dev->radios[0][antenna_mode]= 'Main';
-        if ($dev->radios[0][antenna_mode] != 'Main') 
-          $dev->radios[0][antenna_mode]= '1';
-        else
-          $dev->radios[0][antenna_mode]= '2';
+   
+  if (empty($dev->radios[0][antenna_mode]))
+    $dev->radios[0][antenna_mode]= 'Main';
+  if ($dev->radios[0][antenna_mode] == 'Main') {
+    if ($dev->variable['model_id'] == '34') // NanoStation Loco2.
+      $dev->radios[0][antenna_mode]= '1'; // Main on NanoStation Loco2.
+    else
+      $dev->radios[0][antenna_mode]= '2'; // Main on NanoStation2, Nanostation5 and  Loco5.
+  } else {
+    if ($dev->variable['model_id'] == '34') // NanoStation Loco2.
+      $dev->radios[0][antenna_mode]= '2'; // External on NanoStation Loco2.
+    else
+      $dev->radios[0][antenna_mode]= '1'; // External on NanoStation2, Nanostation5 and  Loco5.
+  }
+
   $radiorx = $dev->radios[0][antenna_mode];
   $radiotx = $dev->radios[0][antenna_mode];
 
@@ -52,8 +61,6 @@ function unsolclic_airos($dev) {
       $rate_max= '11M';
       $txpower= '4';
       $ack= '25';
-      $radiorx = '1';
-      $radiotx = '1';
     break;
     case "35": //NanoStation Loco5
       $net_mode= 'a';
@@ -61,8 +68,6 @@ function unsolclic_airos($dev) {
       $rate_max= '54M';
       $txpower= '19';
       $ack= '25';
-      $radiorx = '2';
-      $radiotx = '2';
   }
 
   ## Create Script file
@@ -198,6 +203,21 @@ radio.1.tx_antenna=$radiotx
   print 'Put the mouse cursor over the link. Right click the link and select "Save Link/Target As..." to save to your Desktop.<br /><br />';
   fclose($Handle);
 
+  if ( $radiorx == '2') {
+    if ($dev->variable['model_id'] == '34') // NanoStation Loco2.
+      $ant = 'Horizontal';
+    if ($dev->variable['model_id'] == '35') // NanoStation Loco5.
+      $ant = 'Vertical';
+    if (($dev->variable['model_id'] == '25') || ($dev->variable['model_id'] == '26')) // NanoStation2 and NanoStation5.
+      $ant = 'Main/Internal - Vertical';
+  } else {
+    if ($dev->variable['model_id'] == '34') // NanoStation Loco2.
+      $ant = 'Vertical';
+    if ($dev->variable['model_id'] == '35') // NanoStation Loco5.
+      $ant = 'Horizontal';
+    if (($dev->variable['model_id'] == '25') || ($dev->variable['model_id'] == '26')) // NanoStation2 and NanoStation5.
+      $ant = 'Aux/External - Vertical';
+  }
   _outln_comment('Configuration for AirOs> Unsolclic version:'.$version.' !! WARNING: Beta version !!');
   _outln_comment(' Device: '.$dev->nick.'');
   _outln_comment();
@@ -227,7 +247,8 @@ radio.1.tx_antenna=$radiotx
     Primary DNS Server = '.$primary_dns.'<br />
     Secondary DNS Server = '.$secondary_dns.'<br />
     Device HostName = '.$dev->nick.'<br />
-    IEEE 802.11 Mode: = '.$lnet_mode.'
+    IEEE 802.11 Mode: = '.$lnet_mode.'<br />
+    Antenna Selection or/and Polarization: = '.$ant.'<br />
         ');
 }
 ?>

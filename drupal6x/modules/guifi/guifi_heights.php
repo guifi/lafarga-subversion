@@ -353,4 +353,4 @@ if (array_key_exists("height",$_GET))
   passthru("gnuplot ".$fname);
   }
   
-?>  
+?>
