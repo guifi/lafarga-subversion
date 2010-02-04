@@ -306,6 +306,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
                    $radioXML->addAttribute('snmp_name','ath0');
                  case 'RouterOSv2.9':
                  case 'RouterOSv3.x':
+		 case 'RouterOSv4.x':
                    $radioXML->addAttribute('snmp_name','wlan'.(string) ($id + 1));
                  break;
                    }
