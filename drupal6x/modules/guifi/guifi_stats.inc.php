@@ -561,26 +561,38 @@ function fmediacalc($tot,&$datos,&$n,$nmonths){
 
 //stats Nodes
 function guifi_stats_feeds($pnum){
-  $output ='<?xml version="1.0" encoding="utf-8"?>';
-  $output .= '<rss version="2.0" xml:base="http://guifi.net"  xmlns:dc="http://purl.org/dc/elements/1.1/">';
-  $output .= '<channel>';
-  $output .= '<title>'.utf8_encode('guifi.net - estadísticas').'</title>';
-  $output .= '<link>http://guifi.net</link>';
-  $output .= '<description>'.utf8_encode('estadísticas guifi.net').'</description>';
+  $output="";
   switch ($pnum) {
   case 0: //total nodes
+    if(isset($_GET['tex'])){
+      $vt=$_GET['tex'];
+    }else{
+      $vt="%d% %n% - ".t("working nodes");
+    }
+    $output ='<?xml version="1.0" encoding="utf-8"?>';
+    //$output .= '<rss version="2.0" xml:base="http://guifi.net"  xmlns:dc="http://purl.org/dc/elements/1.1/">';
+    $output .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">';
+    $output .= '<channel>';
+    $output .= '<title>'.utf8_encode('guifi.net - estadísticas').'</title>';
+    $output .= '<link>http://guifi.net/guifi/stats/feeds/0</link>';
+    $output .= '<atom:link href="http://guifi.net/guifi/stats/feeds/0" rel="self" type="application/rss+xml" />';
+    $output .= '<description>'.utf8_encode('estadísticas guifi.net').'</description>';
     $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
     if ($record=db_fetch_object($result)){
       $output .= '<item>';
+      $output .= '<guid isPermaLink="false">http://guifi.net/guifi/menu/stats/nodes?dat='.date("d/m/Y",time()).'</guid>';
       $output .= '<description>';
-      $output .= date ( "d/m/Y h:i" , time() ).' guifi.net tiene '.$record->num.' nodos operativos';
+      $vt = str_replace("%d%", date("d/m/Y",time()), $vt);
+      $vt = str_replace("%n%", $record->num, $vt);
+      $output .= $vt;
+      //$output .= date("d/m/Y",time()).' = nodos activos = '.$record->num.' = fully working nodes!';
       $output .= '</description>';
       $output .= '</item>';
     };
+    $output .= '</channel>';
+    $output .= '</rss>';
     break;
   }
-  $output .= '</channel>';
-  $output .= '</rss>';
   return($output);
 }
 
