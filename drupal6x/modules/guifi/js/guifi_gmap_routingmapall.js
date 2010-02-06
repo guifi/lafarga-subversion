@@ -8,6 +8,9 @@ if(Drupal.jsEnabled) {
 	}
 
 var init_widget;
+var bgp_widget;
+var ospf_widget;
+var area_widget;
 var swinit;
     
 var alinks = new Array;
@@ -16,6 +19,8 @@ var colors = new Array("","#ff0000","#00aeff")
 var pics = new Array(0,1,5,2)
 var icons = new Array();
 var picspath = new Array();
+
+var narea;
 
 function xz(){
   swinit=0
@@ -54,7 +59,15 @@ function xz(){
     map.addMapType(myCustomMapType);
     map.setCenter(new GLatLng(41.83, 2.30), 9);
     map.setMapType(myCustomMapType);
-    create_init_widget(8,35,34);
+    var vh=25;
+    var vw=50;
+    create_init_widget(8,35,vw);
+    create_bgp_widget(8,35+1*vh,vw);
+    bgp_widget.set_state(1);
+    create_ospf_widget(8,35+2*vh,vw);
+    ospf_widget.set_state(1);
+    create_area_widget(8,35+3*vh,vw);
+    disable_widgets();
     document.getElementById("topmap").innerHTML="Find routing area and click the init button";
     swinit=1
   }
@@ -85,9 +98,11 @@ function build_routing(pdata){
   adata=eval(pdata);
   document.getElementById("topmap").innerHTML="Building...";
 
-  //alert(adata[0]);
+  avars = adata[0];
   anodes = adata[1];
   alinks = adata[2];
+  
+  narea = 0;
   
   var v=0;
   for (node in anodes){
@@ -96,8 +111,8 @@ function build_routing(pdata){
     if(anodes[node]["ospf"]>0) v=v+2; 
     var markerOptions = {icon:icons[v],clickable:false};
     var vpoint = new GLatLng(anodes[node]["lat"],anodes[node]["lon"]);
-    var vnode= new GMarker(vpoint,markerOptions);
-    map.addOverlay(vnode);
+    anodes[node]["overlay"]= new GMarker(vpoint,markerOptions);
+    map.addOverlay(anodes[node]["overlay"]);
   }
   var polyOptions = {clickable:false};
   for(link in alinks){
@@ -105,11 +120,100 @@ function build_routing(pdata){
         var vpoint1 = new GLatLng(anodes[alinks[link]["n1"]]["lat"],anodes[alinks[link]["n1"]]["lon"]);
         var vpoint2 = new GLatLng(anodes[alinks[link]["n2"]]["lat"],anodes[alinks[link]["n2"]]["lon"]);
         if(alinks[link]["routing"]=="BGP") v=1; else v=2;            
-        var vlink = new GPolyline([vpoint1,vpoint2],colors[v], 2,1,polyOptions);
-        map.addOverlay(vlink);
+        alinks[link]["overlay"] = new GPolyline([vpoint1,vpoint2],colors[v], 2,1,polyOptions);
+        map.addOverlay(alinks[link]["overlay"]);
     }
   }
   document.getElementById("topmap").innerHTML="<img src='"+picspath[1]+"'>&nbsp;BGP&nbsp;&nbsp;&nbsp;<img src='"+picspath[3]+"'>&nbsp;BGP/OSPF&nbsp;&nbsp;&nbsp;<img src='"+picspath[2]+"'>&nbsp;OSPF";
+  enable_widgets();
+}
+
+function enable_widgets(){
+  bgp_widget.enable();
+  ospf_widget.enable();
+  area_widget.enable();
+}
+function disable_widgets(){
+  bgp_widget.disable();
+  ospf_widget.disable();
+  area_widget.disable();
+}
+
+function fbgp(p){
+  var v=0;
+  for (node in anodes){
+    v=0;
+    if(anodes[node]["bgp"]>0) v=1; 
+    if(anodes[node]["ospf"]>0) v=v+2;
+    if(p==0){
+        if(v==1 || ospf_widget.state==0){
+            anodes[node]["overlay"].hide()
+        }
+    }else{
+        if(v==1 || v==3){
+            anodes[node]["overlay"].show();
+        }
+    }
+  }
+    for(link in alinks){
+      if(alinks[link]["n1"]>0 && alinks[link]["n2"]>0 && alinks[link]["type"]=="wds") {
+          if(alinks[link]["routing"]=="BGP"){
+            if(p==0){
+                alinks[link]["overlay"].hide();
+            }else{
+                alinks[link]["overlay"].show();
+            }
+          }
+      }
+    }    
+}
+
+function fospf(p){
+  var v=0;
+  for (node in anodes){
+    v=0;
+    if(anodes[node]["bgp"]>0) v=1; 
+    if(anodes[node]["ospf"]>0) v=v+2;
+     if(p==0){
+        if(v==2 || bgp_widget.state==0){
+            anodes[node]["overlay"].hide()
+        }
+    }else{
+        if(v==2 || v==3){
+            anodes[node]["overlay"].show();
+        }
+    }
+  }
+    for(link in alinks){
+      if(alinks[link]["n1"]>0 && alinks[link]["n2"]>0 && alinks[link]["type"]=="wds") {
+          if(alinks[link]["routing"]=="OSPF"){
+            if(p==0){
+                alinks[link]["overlay"].hide();
+            }else{
+                alinks[link]["overlay"].show();
+            }
+          }
+      }
+    }    
+}
+
+function farea(){
+    if(narea>=avars[1]){
+        narea=0;
+        alert("Total "+avars[1]+" area's");
+    }
+    for(link in alinks){
+      if(alinks[link]["n1"]>0 && alinks[link]["n2"]>0 && alinks[link]["type"]=="wds") {
+          if(alinks[link]["routing"]=="OSPF"){
+            if(alinks[link]["area"]==narea){
+                alinks[link]["overlay"].setStrokeStyle({color:"#0000ff"});
+            }else{
+                alinks[link]["overlay"].setStrokeStyle({color:colors[2]});
+            }
+          }
+      }
+    }
+    narea++;
 }
 
 //CONTROLS
@@ -124,9 +228,27 @@ function exec_or_value(f, o) {
 }
 
 function create_init_widget(x, y, width) {
-  WTGControl(map, x, y, width, '<b>Init</b>', '<b>Init</b>', null,
+  WTGControl(map, x, y, width, 'Init', 'Init', null,
     function(i) { if (i) init(0); else init(0);},
     function() { init_widget = this; });
+}
+
+function create_bgp_widget(x, y, width) {
+  WTGControl(map, x, y, width, 'BGP', '<b>BGP</b>', null,
+    function(i) { if (i) fbgp(1); else fbgp(0);},
+    function() { bgp_widget = this; });
+}
+
+function create_ospf_widget(x, y, width) {
+  WTGControl(map, x, y, width, 'OSPF', '<b>OSPF</b>', null,
+    function(i) { if (i) fospf(1); else fospf(0);},
+    function() { ospf_widget = this; });
+}
+
+function create_area_widget(x, y, width) {
+  WTGControl(map, x, y, width, 'Area', 'Area', null,
+    function(i) { if (i) farea(); else farea();},
+    function() { area_widget = this; });
 }
 
 function WTControl(parent, n_states, enablef, disablef, innerHTMLf, titlef, clickf) {
