@@ -234,7 +234,7 @@ function guifi_device_graph_overview($radio) {
           'data'=> '<a href='.base_path().'guifi/graph_detail?'.
                    guifi_cnml_args($args,'direction=out').
                    '><img src="'.
-                   guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out&cached').
+                   guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out').
                    '"></a>',
           'align'=>'center'));
       } else if (($radio['type']=='radio') or

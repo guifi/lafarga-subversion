@@ -1103,7 +1103,7 @@ function theme_guifi_node_data($node,$links = false) {
                       $node->zone_id));
 
   $rows[] = array(t('node'),$node->nid .' ' .$node->nick,'<b>' .$node->title .'</b>');
-  $rows[] = array(t('zone (mode)'),$zone->title.' ('.t($zone->zone_mode).')',$node->zone_description);
+  $rows[] = array(t('zone (mode)'),l($zone->title,'node/'.$zone->id).' ('.t($zone->zone_mode).')',$node->zone_description);
   $rows[] = array(t('position (lat/lon)'),sprintf('<a href="http://maps.guifi.net/world.phtml?Lat=%f&Lon=%f&Layers=all" target="_blank">Lat:%f<br />Lon:%f</a>',
                    $node->lat,$node->lon,$node->lat,$node->lon),$node->elevation .'&nbsp;'.t('meters above the ground'));
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
@@ -1189,7 +1189,7 @@ function theme_guifi_node_graphs_overview($node,$links = false) {
         'data'=> '<a href='.base_path().'guifi/graph_detail?'.
                  guifi_cnml_args($args,'direction=out').
                  '><img src="'.
-                 guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out&cached').
+                 guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out').
                  '"></a>',
         'align'=>'center'));
 
