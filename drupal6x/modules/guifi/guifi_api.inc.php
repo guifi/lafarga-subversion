@@ -593,7 +593,7 @@ function guifi_api_device_update(&$gapi, $parameters) {
     return false;
   }
   
-  if (!_guifi_api_device_check_parameters(&$gapi, &$parameters)) {
+  if (!_guifi_api_device_check_parameters($gapi, &$parameters)) {
     return false;
   }
   
@@ -764,7 +764,7 @@ function guifi_api_radio_add(&$gapi, $parameters) {
     $fields = array_merge($fields, array('ssid', 'protocol', 'channel' ));
   }
   
-  if (!_guifi_api_radio_check_parameters(&$gapi, $parameters)) {
+  if (!_guifi_api_radio_check_parameters($gapi, $parameters)) {
     return false;
   }
   
@@ -839,7 +839,7 @@ function guifi_api_radio_update(&$gapi, $parameters) {
     $fields = array_merge($fields, array('ssid', 'protocol', 'channel' ));
   }
   
-  if (!_guifi_api_radio_check_parameters(&$gapi, $parameters)) {
+  if (!_guifi_api_radio_check_parameters($gapi, $parameters)) {
     return false;
   }
   
@@ -1147,7 +1147,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
     }
   }
   
-  if (!_guifi_api_link_check_parameters(&$gapi, $parameters)) {
+  if (!_guifi_api_link_check_parameters($gapi, $parameters)) {
     return false;
   }
   
@@ -1241,7 +1241,7 @@ function guifi_api_link_update(&$gapi, $parameters) {
     return false;
   }
   
-  if (!_guifi_api_link_check_parameters(&$gapi, $parameters)) {
+  if (!_guifi_api_link_check_parameters($gapi, $parameters)) {
     return false;
   }
   
@@ -1376,7 +1376,7 @@ function _guifi_api_misc_model_check_parameters(&$gapi, &$parameters) {
 function guifi_api_misc_model(&$gapi, $parameters) {
   $sql = "SELECT mid, fid, model, tipus AS type, supported FROM {guifi_model}";
   
-  if (!_guifi_api_misc_model_check_parameters(&$gapi, $parameters)) {
+  if (!_guifi_api_misc_model_check_parameters($gapi, $parameters)) {
     return false;
   }
   
