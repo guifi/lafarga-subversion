@@ -4,10 +4,11 @@
  *
  * functions for statistics graphs
  */
-function guifi_stats($action,$statsid = 0) {
+
+ function guifi_stats($action,$statsid = 0) {
  if (!is_numeric($statsid))
     return;
-  
+    
   switch ($action) {
   case 'chart':
     guifi_stats_chart();
@@ -88,8 +89,19 @@ function guifi_growthmap_map_form($form_state) {
 function guifi_stats_nodes() {
   drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_stats_nodes.js','module');
   $output = "";
+  //print_r($_GET['zone']);
   if(isset($_GET['id'])){
     $vid=$_GET['id'];
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    if($zone_id!="0")
+      $vz="?zone=".$zone_id;
+    else
+      $vz="";
     switch($vid){
     case ($vid=='5'):
       if(isset($_GET['sid'])){
@@ -97,10 +109,10 @@ function guifi_stats_nodes() {
       }else{
         $v='12';
       }
-      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/'.$v.'"></div>';
+      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/'.$v.$vz.'"></div>';
       break;
     case ($vid>='1' && $vid<=9):
-      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/0"></div>';
+      $output .= '<div id="plot" style="width: 500px; border-style:none; margin:5px;"><img src="/guifi/stats/chart0'.$vid.'/0'.$vz.'"></div>';
       break;
     default:
       $vid='0';
@@ -111,6 +123,8 @@ function guifi_stats_nodes() {
   }
   
   if($vid=='0'){
+    $output .= drupal_get_form('guifi_stats_nodes_form');
+    $output .= '<div id="sep" style="height: 5px; border-style:none; float:none; margin:5px;"></div>';
     $output .= '<div id="plot" style="width: 500px; border-style:none; float:right; margin:5px;"></div>';
     $output .= '<div id="menu" style="width: 230px; margin:5px;">';
     $output .= '<a href="javascript:guifi_stats_chart01()">'.t("1 Growth chart").'</a>';
@@ -132,6 +146,12 @@ function guifi_stats_nodes() {
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
 
   return $output;
+}
+function guifi_stats_nodes_form($form_state) {
+    $form['#action'] = '';
+    $form['zone_id'] = guifi_zone_select_field(0,'zone_id');
+    $form['zone_id']['#weight'] = 1;
+    return $form;
 }
 function guifi_stats_chart() {
   if(isset($_GET['id'])){
@@ -163,10 +183,33 @@ function guifi_stats_chart() {
     }
   }
 }
+
 //create gif working nodes
 function guifi_stats_chart01(){ //growth_chart
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
+    $gwidth=500;
+    $gheight=450;
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    $vsql="select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano
+      from {guifi_location} where status_flag='Working' ";
+    if($zone_id!="0"){
+      $achilds=guifi_zone_childs($zone_id);
+      $v="";
+      foreach ($achilds as $key=>$child) {
+        if($v=="")
+          $v .= "zone_id=".$child;
+        else
+          $v .= " or zone_id=".$child;
+      }
+      $vsql .= "AND (".$v.") ";
+    }
+    $vsql .= "GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ";
+    $result=db_query($vsql);
     $inicial=5;
     $nreg=$inicial;
     $tot=0;
@@ -229,15 +272,22 @@ function guifi_stats_chart01(){ //growth_chart
       }
       $data[]=array("$label",$nreg,"");
     }
+    if($zone_id=="0") $inc=1000;
+    else if($tot<=10) $inc=1;
+    else {
+      $vlen=strlen($tot);
+      $vini=substr($tot,0,1);
+      $inc=str_pad($vini,$vlen-1,"0");
+    }
     $items=($ano-$items+1)*12;
     $shapes = array( 'none');
-    $plot = new PHPlot(500,400);
+    $plot = new PHPlot($gwidth,$gheight);
     $plot->SetPlotAreaWorld(0, 0,$items,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
-    $plot->SetPlotType("linepoints"); 
-    $plot->SetYTickIncrement(1000);
+    $plot->SetPlotType("linepoints");
+    $plot->SetYTickIncrement($inc);
     $plot->SetXTickIncrement(12);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
@@ -247,7 +297,10 @@ function guifi_stats_chart01(){ //growth_chart
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Growth chart'));
+    if($zone_id=="0")
+      $plot->SetTitle("guifi.net      \n".t('Growth chart'));
+    else
+      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Growth chart'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
@@ -272,33 +325,67 @@ function guifi_stats_chart01_LabelFormat($value){
 //create gif annual increment
 function guifi_stats_chart02(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $result=db_query("select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ");
+    $gwidth=500;
+    $gheight=450;
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    $vsql="select COUNT(*) as num, YEAR(FROM_UNIXTIME(timestamp_created)) as ano
+      from {guifi_location} where status_flag='Working' ";
+    if($zone_id!="0"){
+      $achilds=guifi_zone_childs($zone_id);
+      $v="";
+      foreach ($achilds as $key=>$child) {
+        if($v=="")
+          $v .= "zone_id=".$child;
+        else
+          $v .= " or zone_id=".$child;
+      }
+      $vsql .= "AND (".$v.") ";
+    }
+    $vsql .= "GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)) ";
+    
+    $result=db_query($vsql);    
     $tot=0;
+    $max=0;
 	while ($record=db_fetch_object($result)){
       if($record->ano>=2004){
          //$nreg++;
          $tot+=$record->num;
          $data[]=array("$record->ano",$tot);
+         if($tot>$max) $max=$tot;
          $tot=0;
       }else{
          $tot+=$record->num;
       };
 	};
+    if($max<=10) $inc=1;
+    else {
+      $vlen=strlen($max);
+      $vini=substr($max,0,1);
+      $inc=str_pad($vini,$vlen-1,"0");
+    }
     $shapes = array( 'none');
-    $plot = new PHPlot(500,400);
+    $plot = new PHPlot($gwidth,$gheight);
     $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("bars"); 
-    $plot->SetYTickIncrement(500);
+    $plot->SetYTickIncrement($inc);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
     $plot->SetTickLength(0);
     $plot->SetXTickPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Annual increment'));
+    if($zone_id=="0")
+      $plot->SetTitle("guifi.net      \n".t('Annual increment'));
+    else
+      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Annual increment'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -318,7 +405,32 @@ function guifi_stats_chart02(){
 //create gif monthly average
 function guifi_stats_chart03(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $result=db_query("select COUNT(*) as num, month(FROM_UNIXTIME(timestamp_created)) as mes from {guifi_location} where status_flag='Working' GROUP BY MONTH(FROM_UNIXTIME(timestamp_created)) ");
+    $gwidth=500;
+    $gheight=450;
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    $vsql="select COUNT(*) as num, month(FROM_UNIXTIME(timestamp_created)) as mes
+      from {guifi_location} where status_flag='Working' ";
+    if($zone_id!="0"){
+      $achilds=guifi_zone_childs($zone_id);
+      $v="";
+      foreach ($achilds as $key=>$child) {
+        if($v=="")
+          $v .= "zone_id=".$child;
+        else
+          $v .= " or zone_id=".$child;
+      }
+      $vsql .= "AND (".$v.") ";
+    }
+
+    $vsql .= "GROUP BY MONTH(FROM_UNIXTIME(timestamp_created)) ";
+    
+    $result=db_query($vsql);        
+    
     $tot=0;
     $valor=0;
 	while ($record=db_fetch_object($result)){
@@ -329,7 +441,7 @@ function guifi_stats_chart03(){
         $dat[1]=$dat[1]*100/$tot;
 	};
     $shapes = array( 'none');
-    $plot = new PHPlot(500,400);
+    $plot = new PHPlot($gwidth,$gheight);
     $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
@@ -345,7 +457,10 @@ function guifi_stats_chart03(){
     $plot->SetYTickLabelPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Monthly average'));
+    if($zone_id=="0")
+      $plot->SetTitle("guifi.net      \n".t('Monthly average'));
+    else
+      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Monthly average'));
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('% Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -366,6 +481,8 @@ function guifi_stats_chart03(){
 //create gif last year
 function guifi_stats_chart04(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
+    $gwidth=500;
+    $gheight=450;
     $today=getdate();
     $year=$today[year];
     $month=$today[mon];
@@ -377,9 +494,32 @@ function guifi_stats_chart04(){
       $month=12+$month;
     }
     $datemin=mktime(0,0,0,$month,1,$year);
-    $result=db_query("select COUNT(*) as num, max(timestamp_created) as fecha, max(month(FROM_UNIXTIME(timestamp_created))) as mes,max(year(FROM_UNIXTIME(timestamp_created))) as year from {guifi_location}
-      where (timestamp_created >= ".$datemin." and status_flag='Working')  
-      GROUP BY Year(FROM_UNIXTIME(timestamp_created)), month(FROM_UNIXTIME(timestamp_created))");
+    
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    $vsql="select COUNT(*) as num, max(timestamp_created) as fecha, max(month(FROM_UNIXTIME(timestamp_created))) as mes,max(year(FROM_UNIXTIME(timestamp_created))) as year
+      from {guifi_location}
+      where timestamp_created >= ".$datemin." and status_flag='Working' ";
+    if($zone_id!="0"){
+      $achilds=guifi_zone_childs($zone_id);
+      $v="";
+      foreach ($achilds as $key=>$child) {
+        if($v=="")
+          $v .= "zone_id=".$child;
+        else
+          $v .= " or zone_id=".$child;
+      }
+      $vsql .= "AND (".$v.") ";
+    }
+
+    $vsql .= "GROUP BY Year(FROM_UNIXTIME(timestamp_created)), month(FROM_UNIXTIME(timestamp_created)) ";
+    
+    $result=db_query($vsql);        
+    
     while ($record=db_fetch_object($result)){
       $data[]=array("$record->mes".'/'.substr("$record->year",2,2),$record->num);
       if($record->mes!=$today[mon] || $record->year!=$today[year]){
@@ -391,7 +531,7 @@ function guifi_stats_chart04(){
       $tot=$tot/$n;
     }
     $shapes = array( 'none');
-    $plot = new PHPlot(500,400);
+    $plot = new PHPlot($gwidth,$gheight);
     $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
@@ -405,7 +545,10 @@ function guifi_stats_chart04(){
     $plot->SetYDataLabelPos('plotin');
     $plot->SetYLabelType('data', 0);
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Last year'));
+    if($zone_id=="0")
+      $plot->SetTitle("guifi.net      \n".t('Last year'));
+    else
+      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Last year'));
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -424,7 +567,33 @@ function guifi_stats_chart04(){
 //Nodes per month, average of 6 months
 function guifi_stats_chart05($nmonths){ 
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $result=db_query("select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano from {guifi_location} where status_flag='Working' GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ");
+    $gwidth=500;
+    $gheight=450;
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
+    $vsql="select COUNT(*) as num, MONTH(FROM_UNIXTIME(timestamp_created)) as mes, YEAR(FROM_UNIXTIME(timestamp_created)) as ano 
+      from {guifi_location}
+      where status_flag='Working' ";
+    if($zone_id!="0"){
+      $achilds=guifi_zone_childs($zone_id);
+      $v="";
+      foreach ($achilds as $key=>$child) {
+        if($v=="")
+          $v .= "zone_id=".$child;
+        else
+          $v .= " or zone_id=".$child;
+      }
+      $vsql .= "AND (".$v.") ";
+    }
+
+    $vsql .= "GROUP BY YEAR(FROM_UNIXTIME(timestamp_created)),MONTH(FROM_UNIXTIME(timestamp_created)) ";
+    
+    $result=db_query($vsql);
+    
     $inicial=5;
     $nreg=$inicial;
     $tot=0;
@@ -437,6 +606,7 @@ function guifi_stats_chart05($nmonths){
     $datos=array(0,0,0,0,0,0,0,0,0,0,0,0,0);
     $today=getdate();
     if($nmonths==0) $nmonths=12;
+    $max=0;
 	while ($record=db_fetch_object($result)){
       if($record->ano>=2004){
         if($mes==12){
@@ -466,8 +636,9 @@ function guifi_stats_chart05($nmonths){
           }else{
             $tot=$record->num;
           }
-          $tot=fmediacalc($tot,$datos,$n,$nmonths);
-          $data[]=array("$label",$nreg,$tot);
+          $tot2=fmediacalc($tot,$datos,$n,$nmonths);
+          $data[]=array("$label",$nreg,$tot2);
+          if(floor($tot2)>$max) $max=floor($tot2);
           if($mes==12){
             $mes=1;
             $ano++;
@@ -487,8 +658,9 @@ function guifi_stats_chart05($nmonths){
         }else{
           $tot=$record->num;
         }
-        $tot=fmediacalc($tot,$datos,$n,$nmonths);
-        $data[]=array("$label",$nreg,$tot);
+        $tot2=fmediacalc($tot,$datos,$n,$nmonths);
+        $data[]=array("$label",$nreg,$tot2);
+        if(floor($tot2)>$max) $max=floor($tot2);
       }else{
          $tot+=$record->num;
       };
@@ -503,15 +675,21 @@ function guifi_stats_chart05($nmonths){
       }
       $data[]=array("$label",$nreg,"");
     }
+    if($tot<=10) $inc=1;
+    else {
+      $vlen=strlen($max);
+      $vini=substr($max,0,1);
+      $inc=str_pad($vini,$vlen-1,"0");
+    }
     $items=($ano-$items+1)*12;
     $shapes = array( 'none');
-    $plot = new PHPlot(500,400);
+    $plot = new PHPlot($gwidth,$gheight);
     $plot->SetPlotAreaWorld(0, 0,$items,NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("linepoints"); 
-    $plot->SetYTickIncrement(50);
+    $plot->SetYTickIncrement($inc);
     $plot->SetXTickIncrement(12);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
@@ -521,7 +699,10 @@ function guifi_stats_chart05($nmonths){
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
-    $plot->SetTitle(t('Nodes per month, '."$nmonths".' months average'));
+    if($zone_id=="0")
+      $plot->SetTitle("guifi.net      \n".t('Nodes per month, '."$nmonths".' months average'));
+    else
+      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Nodes per month, '."$nmonths".' months average'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
@@ -559,24 +740,25 @@ function fmediacalc($tot,&$datos,&$n,$nmonths){
   return($v/$nmonths);
 }
 
-//stats Nodes
+//stats feeds
 function guifi_stats_feeds($pnum){
   $output="";
   switch ($pnum) {
   case 0: //total nodes
+    $vst=t('statistics');
     if(isset($_GET['tex'])){
       $vt=$_GET['tex'];
     }else{
-      $vt="%d% %n% - ".t("working nodes");
+      $vt="%d% - %n% ".t('working nodes');
     }
     $output ='<?xml version="1.0" encoding="utf-8"?>';
     //$output .= '<rss version="2.0" xml:base="http://guifi.net"  xmlns:dc="http://purl.org/dc/elements/1.1/">';
     $output .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">';
     $output .= '<channel>';
-    $output .= '<title>'.utf8_encode('guifi.net - estadísticas').'</title>';
+    $output .= '<title>'.'guifi.net - '.$vst.'</title>';
     $output .= '<link>http://guifi.net/guifi/stats/feeds/0</link>';
     $output .= '<atom:link href="http://guifi.net/guifi/stats/feeds/0" rel="self" type="application/rss+xml" />';
-    $output .= '<description>'.utf8_encode('estadísticas guifi.net').'</description>';
+    $output .= '<description>'.$vst.' guifi.net'.'</description>';
     $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
     if ($record=db_fetch_object($result)){
       $output .= '<item>';

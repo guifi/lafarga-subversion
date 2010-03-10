@@ -6,22 +6,27 @@
 
 
 function guifi_stats_chart01(){   //growth_chart
-      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart01/0">';
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart01/0?zone='+v+'">';
 }
 
 function guifi_stats_chart02(){   //annualincrement_chart
-       document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart02/0">';
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart02/0?zone='+v+'">';
 }
 
 function guifi_stats_chart03(){   //monthlyaverage_chart
-       document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart03/0">';
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart03/0?zone='+v+'">';
 }
 
 function guifi_stats_chart04(){    //lastyear_chart
-       document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart04/0">';
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart04/0?zone='+v+'">';
 }
 
 function guifi_stats_chart05(nmonths){    //Nodes per month, average of 6 months
-       document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart05/'+nmonths+'">';
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart05/'+nmonths+'?zone='+v+'">';
 }
 
