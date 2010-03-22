@@ -1135,32 +1135,58 @@ function plot_guifi($cnmlid){
     $label="";
     while ($record=db_fetch_object($result)){
       if($record->ano>=2004){
-         if($mes==12){
+        if($mes==12){
             $mes=1;
             $ano++;
-         }else{
+        }else{
             $mes++;
-         }
-         while ($ano<$record->ano || $mes<$record->mes){
+        }
+        while ($ano<$record->ano || $mes<$record->mes){
             $nreg++;
+            if($mes==6){
+              $label=$ano;
+            }else{
+              $label='';
+            }
             $data[]=array("$label",$nreg,$tot,'');
-             if($mes==12){
+            if($mes==12){
                $mes=1;
                $ano++;
             }else{
                $mes++;
             }
-         }
-         $tot+=$record->num;
-         $nreg++;
-         $data[]=array("$label",$nreg,$tot,'');
-       }else{
+        }
+        $tot+=$record->num;
+        $nreg++;
+        if($mes==6){
+          $label=$ano;
+        }else{
+          $label='';
+        }
+        $data[]=array("$label",$nreg,$tot,'');
+      }else{
          $tot+=$record->num;
       };
     };
+    while($mes<12){
+      $nreg++;
+      $mes++;
+      if($mes==6){
+        $label=$ano;
+      }else{
+        $label='';
+      }
+      $data[]=array("$label",$nreg,"");
+    }
     $items=($ano-$items+1)*12;
     if ($tot % 1000 < 30){
       $data[$nreg-$inicial-1][3]=$tot;
+      $vt=floor($tot/1000)*1000;
+      $vtitle=$vt." ".t('Nodes')."!!!";
+      $tcolor='red';
+    }else{
+      $vtitle=t('Working nodes');
+      $tcolor='DimGrey';
     }
     $shapes = array( 'none', 'circle');
     $plot = new PHPlot(200,150);
@@ -1169,7 +1195,7 @@ function plot_guifi($cnmlid){
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("linepoints"); 
-    $plot->SetYTickIncrement(1000);
+    $plot->SetYTickIncrement(2000);
     $plot->SetXTickIncrement(12);
     $plot->SetSkipBottomTick(true);
     $plot->SetSkipLeftTick(true);
@@ -1179,8 +1205,7 @@ function plot_guifi($cnmlid){
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
-    $plot->SetTitle('Nodes operatius');
-    $plot->SetXDataLabelPos('none');
+    $plot->SetTitle($vtitle);
     $plot->SetDrawXDataLabelLines(false);
     $plot->SetXLabelAngle(0);
     $plot->SetXLabelType('custom', 'Plot1_LabelFormat');
@@ -1188,16 +1213,20 @@ function plot_guifi($cnmlid){
     $plot->SetPlotBorderType('left');
     $plot->SetDataColors(array('orange'));
     $plot->SetTextColor('DimGrey');
-    $plot->SetTitleColor('DimGrey');
+    $plot->SetTitleColor($tcolor);
     $plot->SetLightGridColor('grey');
     $plot->SetBackgroundColor('white');
     $plot->SetTransparentColor('white');
+    $plot->SetXTickLabelPos('none');
+    $plot->SetXDataLabelPos('plotdown');
     $plot->SetIsInline(true);
     $plot->DrawGraph();
 }
 function Plot1_LabelFormat($value){
-   $v=$value/12+2003;
-   return ("{$v}   .");
+  if($value>2004)
+    return (substr($value,2));
+  else
+    return($value);
 }
 
 // return JSON string with list nodes and links map zone

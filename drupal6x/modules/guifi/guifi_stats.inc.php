@@ -139,8 +139,9 @@ function guifi_stats_nodes() {
     $output .= '<div style="width:700px;">';
     $output .= t('link:').' http://guifi.net/guifi/menu/stats/nodes?id=N';
     $output .= '<br />'.t('link:').' http://guifi.net/guifi/menu/stats/nodes?id=N&sid=M';
-    $output .= '<br />'.t('link:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N"&gt;';
-    $output .= '<br />'.t('link:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N&sid=M"&gt;';
+    $output .= '<br />'.t('image:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N"&gt;';
+    $output .= '<br />'.t('image:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N&sid=M"&gt;';
+    $output .= '<br />'.t('options:').' &zone=nnnn"';
     $output .= '</div>';
   }    
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
@@ -300,7 +301,7 @@ function guifi_stats_chart01(){ //growth_chart
     if($zone_id=="0")
       $plot->SetTitle("guifi.net      \n".t('Growth chart'));
     else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Growth chart'));
+      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Growth chart'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
@@ -385,7 +386,7 @@ function guifi_stats_chart02(){
     if($zone_id=="0")
       $plot->SetTitle("guifi.net      \n".t('Annual increment'));
     else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Annual increment'));
+      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Annual increment'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -460,7 +461,7 @@ function guifi_stats_chart03(){
     if($zone_id=="0")
       $plot->SetTitle("guifi.net      \n".t('Monthly average'));
     else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Monthly average'));
+      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Monthly average'));
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('% Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -548,7 +549,7 @@ function guifi_stats_chart04(){
     if($zone_id=="0")
       $plot->SetTitle("guifi.net      \n".t('Last year'));
     else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Last year'));
+      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Last year'));
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -702,7 +703,7 @@ function guifi_stats_chart05($nmonths){
     if($zone_id=="0")
       $plot->SetTitle("guifi.net      \n".t('Nodes per month, '."$nmonths".' months average'));
     else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Nodes per month, '."$nmonths".' months average'));
+      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Nodes per month, '."$nmonths".' months average'));
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
