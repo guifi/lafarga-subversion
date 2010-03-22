@@ -9,12 +9,6 @@
 
 /* main node (locations) hooks */
 /** guifi_node_access(): construct node permissions
-
-  guifi_node_access($op:string,$node:Obj-node):boolean
-  globals
-    $user:Obj-user
-  functions
-    ???->user_access(p1:string):boolean
 */
 
 
@@ -85,10 +79,6 @@ function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d'
 
 
 /** guifi_node_add(): creates a new node
-
-  guifi_node_add($id:int):Void
-  functions
-    guifi_zone.inc->guifi_zone_load($node:int*):obj-zone
 */
 function guifi_node_add($id) {
   $zone = guifi_zone_load($id);
@@ -99,8 +89,6 @@ function guifi_node_add($id) {
 
 
 /** guifi_node_load(): load and constructs node array from the database
-
-  guifi_node_load($node:obj-node):obj-location
 **/
 function guifi_node_load($node) {
   if (is_object($node))
@@ -268,9 +256,12 @@ function guifi_node_form(&$node, $form_state) {
   };
 
   if (empty($node->nid)) {
-    $zone_id = $user->guifi_default_zone;
-  }
-  else {
+    if(empty($user->guifi_default_zone)){
+      $zone_id=$node->zone_id;
+    }else{
+      $zone_id = $user->guifi_default_zone;
+    }
+  }else {
     $zone_id = $node->zone_id;
   }
   $form['zone_id'] = guifi_zone_select_field($zone_id,'zone_id');
@@ -471,11 +462,6 @@ function guifi_node_get_service($id, $type ,$path = false) {
 }
 
 /** guifi_node_validate(): Confirm that an edited guifi item has fields properly filled in.
-
-  guifi_node_validate($node:obj-node,$form:obj-form):void si hi ha un error cancela la gravacio
-  functions
-    ???->guifi_validate_nick($nick:string):????
-    guifi_includes.inc->guifi_coord_dmstod($deg:int,$min:int,$seg:int):$coord:float or NULL
  */
 function guifi_node_validate($node,$form) {
   guifi_validate_nick($node->nick);
@@ -484,6 +470,13 @@ function guifi_node_validate($node,$form) {
   if (($node->zone_id == 0) or ($node->zone_id == guifi_zone_root())){
     form_set_error('zone_id',
       t('Can\'t be assigned to root zone, please assign the node to an appropiate zone.'));
+  }else{
+    $nz=0;
+    guifi_zone_childs_tree_depth($node->zone_id, 3, $nz);
+    if($nz>2){
+      form_set_error('zone_id',
+        t('Can\'t be assigned to parent zone, please assign the node to an final zone.'));
+    }
   }
 
   if ($node->elevation == 0){$node->elevation = NULL;}
@@ -499,12 +492,6 @@ function guifi_node_validate($node,$form) {
 }
 
 /** guifi_node_insert(): Create a new node in the database
-
-  guifi_node_insert($node:Obj-node):void
-  functions
-    ???->_guifi_db_sql(???):????
-    ???->guifi_notify(???):void
-    guifi_includes.inc->guifi_coord_dmstod($deg:int,$min:int,$seg:int):$coord:float or NULL
  */
 function guifi_node_insert($node) {
   global $user;
@@ -543,12 +530,6 @@ function guifi_node_insert($node) {
 }
 
 /** guifi_node_update(): Update a node in the database
-
-  guifi_node_update($node:Obj-node):void
-  functions
-    ???->_guifi_db_sql(???):????
-    ???->guifi_notify(???):void
-    guifi_includes.inc->guifi_coord_dmstod($deg:int,$min:int,$seg:int):$coord:float or NULL
 */
 function guifi_node_update($node) {
   global $user;
@@ -599,10 +580,6 @@ function guifi_node_update($node) {
 
 /** guifi_node_delete(): deletes a given node
 
-  guifi_node_delete($node:Obj-node):void
-  functions
-    ???->_guifi_db_delete(???):????
-    ???->guifi_notify(???):void
 **/
 function guifi_node_delete($node) {
   global $user;
@@ -627,10 +604,6 @@ function guifi_node_delete($node) {
 
 /** guifi_node_view(): outputs the node information
 
-  guifi_node_view($node:obj-node*,$teaser:boolean,$page:boolean):obj-node*
-  functions
-    ???->node_load($node:obj-node):obj-node
-    ???->node_prepare($node:obj-node):obj-node
 **/
 function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
   node_prepare($node);
@@ -688,11 +661,6 @@ function guifi_node_hidden_map_fileds($node) {
 
 /** guifi_node_print_distances(): list of neighbors
 
-  guifi_node_distances($id:int,$edit:???):form
-  functions
-    ???->guifi_log(???):????
-    ???->node_load(???):????
-    ???->guifi_devices_select_filter(???):????
 **/
 
 function guifi_node_distances_map($node) {
