@@ -197,7 +197,7 @@ function unsolclic_routeros($dev) {
       $gain = $radio[antenna_gain];
       foreach ($radio[interfaces] as $interface)
       foreach ($interface[ipv4] as $ipv4)
-      foreach ($ipv4[links] as $link)
+      foreach ($ipv4[links] as $link) {
         $ssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
         $protocol = guifi_get_ap_protocol($link['interface']['device_id'],$link['interface']['radiodev_counter']);
         $channel = guifi_get_ap_channel($link['interface']['device_id'],$link['interface']['radiodev_counter']);
@@ -207,11 +207,8 @@ function unsolclic_routeros($dev) {
           $band = '5ghz';
         if (($protocol = '802.11n') AND ($channel > 5000))
           $band = '5ghz-a/n';
-
-      $mode = 'station';
-      if ($radio[mode]=='client')
+      }
         $firewall=true;
-
       break;
     }
 
