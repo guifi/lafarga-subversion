@@ -185,13 +185,13 @@ function unsolclic_routeros($dev) {
       $mode = 'ap-bridge';
       $ssid = $radio[ssid];
       $gain = $radio[antenna_gain];
-    if ($radio[channel] < 5000)
-      $band = '2.4ghz-b';
-    else
-      $band = '5ghz';
+      if ($radio[channel] < 5000)
+        $band = '2.4ghz-b';
+      else
+        $band = '5ghz';
 
       break;
-    case 'client';
+    case 'client':
     case 'clientrouted':
       $mode = 'station';
       $gain = $radio[antenna_gain];

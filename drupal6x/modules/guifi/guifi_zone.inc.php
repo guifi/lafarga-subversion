@@ -351,7 +351,7 @@ function guifi_zone_form(&$node, &$param) {
   $form['zone_services']['proxystr'] = array(
     '#type'=>'textfield',
     '#title'=>t('default proxy'),
-    '#maxlength'=>60,
+    '#maxlength'=>80,
     '#default_value'=> $proxystr,
     '#autocomplete_path'=> 'guifi/js/select-service/proxy',
     '#element_validate' => array('guifi_service_name_validate',
@@ -368,7 +368,7 @@ function guifi_zone_form(&$node, &$param) {
   $form['zone_services']['graph_serverstr'] = array(
     '#type' => 'textfield',
     '#title' => t('default graphs server'),
-    '#maxlength'=>60,
+    '#maxlength'=>80,
     '#required' => FALSE,
     '#default_value' => $graphstr,
     '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',

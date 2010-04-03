@@ -730,6 +730,16 @@ function guifi_get_ap_ssid($id,$radiodev_counter) {
   return guifi_clean_ssid($radio->ssid);
 }
 
+function guifi_get_ap_protocol($id,$radiodev_counter) {
+  $radio = db_fetch_object(db_query("SELECT r.protocol, d.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE r.id=%d AND r.radiodev_counter=%d",$id,$radiodev_counter));
+  return $radio->protocol;
+}
+
+function guifi_get_ap_channel($id,$radiodev_counter) {
+  $radio = db_fetch_object(db_query("SELECT r.channel, d.id FROM {guifi_radios} r LEFT JOIN {guifi_devices} d ON r.id=d.id WHERE r.id=%d AND r.radiodev_counter=%d",$id,$radiodev_counter));
+  return $radio->channel;
+}
+
 function guifi_get_devicename($id, $format = 'nick') {
   switch ($format) {
   case 'large':
