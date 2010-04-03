@@ -201,11 +201,11 @@ function unsolclic_routeros($dev) {
         $ssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
         $protocol = guifi_get_ap_protocol($link['interface']['device_id'],$link['interface']['radiodev_counter']);
         $channel = guifi_get_ap_channel($link['interface']['device_id'],$link['interface']['radiodev_counter']);
-        if ($protocol = '802.11b')
+        if ($protocol == '802.11b')
           $band = '2.4ghz-b';
-        if ($protocol = '802.11a')
+        if ($protocol == '802.11a')
           $band = '5ghz';
-        if (($protocol = '802.11n') AND ($channel > 5000))
+        if (($protocol == '802.11n') AND ($channel > 5000))
           $band = '5ghz-a/n';
       }
         $firewall=true;
