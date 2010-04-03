@@ -185,6 +185,11 @@ function unsolclic_routeros($dev) {
       $mode = 'ap-bridge';
       $ssid = $radio[ssid];
       $gain = $radio[antenna_gain];
+    if ($radio[channel] < 5000)
+      $band = '2.4ghz-b';
+    else
+      $band = '5ghz';
+
       break;
     case 'client';
     case 'clientrouted':
@@ -194,6 +199,15 @@ function unsolclic_routeros($dev) {
       foreach ($interface[ipv4] as $ipv4)
       foreach ($ipv4[links] as $link)
         $ssid = guifi_get_ap_ssid($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+        $protocol = guifi_get_ap_protocol($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+        $channel = guifi_get_ap_channel($link['interface']['device_id'],$link['interface']['radiodev_counter']);
+        if ($protocol = '802.11b')
+          $band = '2.4ghz-b';
+        if ($protocol = '802.11a')
+          $band = '5ghz';
+        if (($protocol = '802.11n') AND ($channel > 5000))
+          $band = '5ghz-a/n';
+
       $mode = 'station';
       if ($radio[mode]=='client')
         $firewall=true;
@@ -201,10 +215,6 @@ function unsolclic_routeros($dev) {
       break;
     }
 
-    if ($radio[channel] < 5000)
-      $band = '2.4ghz-b';
-    else
-      $band = '5ghz';
 
     _outln_comment();
     _outln_comment('Radio#: '.$radio_id.' '.$radio[ssid]);
