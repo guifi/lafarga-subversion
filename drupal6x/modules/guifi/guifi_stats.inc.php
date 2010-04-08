@@ -89,7 +89,6 @@ function guifi_growthmap_map_form($form_state) {
 function guifi_stats_nodes() {
   drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_stats_nodes.js','module');
   $output = "";
-  //print_r($_GET['zone']);
   if(isset($_GET['id'])){
     $vid=$_GET['id'];
     if(isset($_GET['zone'])){
@@ -101,7 +100,13 @@ function guifi_stats_nodes() {
     if($zone_id!="0")
       $vz="?zone=".$zone_id;
     else
-      $vz="";
+      $vz="?zone=0";
+    if(isset($_GET['width']))
+      $vz.="&width=".$_GET['width'];
+    if(isset($_GET['height']))
+      $vz.="&height=".$_GET['height'];
+    if(isset($_GET['title']))
+      $vz.="&title=".$_GET['title'];
     switch($vid){
     case ($vid=='5'):
       if(isset($_GET['sid'])){
@@ -141,7 +146,7 @@ function guifi_stats_nodes() {
     $output .= '<br />'.t('link:').' http://guifi.net/guifi/menu/stats/nodes?id=N&sid=M';
     $output .= '<br />'.t('image:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N"&gt;';
     $output .= '<br />'.t('image:').' &lt;img src="http://guifi.net/guifi/stats/chart?id=N&sid=M"&gt;';
-    $output .= '<br />'.t('options:').' &zone=nnnn"';
+    $output .= '<br />'.t('options:').' &zone=nnnn&width=nnn&height=nnn&title=';
     $output .= '</div>';
   }    
   guifi_log(GUIFILOG_TRACE,'stats_nodes',1);
@@ -188,8 +193,17 @@ function guifi_stats_chart() {
 //create gif working nodes
 function guifi_stats_chart01(){ //growth_chart
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gwidth=500;
-    $gheight=450;
+    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    if(isset($_GET['width'])){
+      $gwidth=$_GET['width'];
+    }else{
+      $gwidth=500;
+    }
+    if(isset($_GET['height'])){
+      $gheight=$_GET['height'];
+    }else{
+      $gheight=450;
+    }
     if(isset($_GET['zone'])){
       $zone_id=$_GET['zone'];
       if($zone_id=="3671") $zone_id="0";
@@ -298,10 +312,17 @@ function guifi_stats_chart01(){ //growth_chart
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
-    if($zone_id=="0")
-      $plot->SetTitle("guifi.net      \n".t('Growth chart'));
-    else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Growth chart'));
+    $plot->SetTTFPath($gDirTTFfonts);
+    $plot->SetFontTTF('title', 'Vera.ttf', 12);
+    if(isset($_GET['title'])){
+      if($_GET['title']!='void')
+        $plot->SetTitle("guifi.net      \n".t($_GET['title']));
+    }else{
+      if($zone_id=="0")
+        $plot->SetTitle("guifi.net      \n".t('Growth chart'));
+      else
+        $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Growth chart'));
+    }
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);
@@ -326,8 +347,17 @@ function guifi_stats_chart01_LabelFormat($value){
 //create gif annual increment
 function guifi_stats_chart02(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gwidth=500;
-    $gheight=450;
+    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    if(isset($_GET['width'])){
+      $gwidth=$_GET['width'];
+    }else{
+      $gwidth=500;
+    }
+    if(isset($_GET['height'])){
+      $gheight=$_GET['height'];
+    }else{
+      $gheight=450;
+    }
     if(isset($_GET['zone'])){
       $zone_id=$_GET['zone'];
       if($zone_id=="3671") $zone_id="0";
@@ -383,10 +413,16 @@ function guifi_stats_chart02(){
     $plot->SetXTickPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
-    if($zone_id=="0")
-      $plot->SetTitle("guifi.net      \n".t('Annual increment'));
-    else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Annual increment'));
+    $plot->SetTTFPath($gDirTTFfonts);
+    $plot->SetFontTTF('title', 'Vera.ttf', 12);
+    if(isset($_GET['title'])){
+        $plot->SetTitle("guifi.net      \n".t($_GET['title']));
+    }else{
+      if($zone_id=="0")
+        $plot->SetTitle("guifi.net      \n".t('Annual increment'));
+      else
+        $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Annual increment'));
+    }    
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -406,8 +442,17 @@ function guifi_stats_chart02(){
 //create gif monthly average
 function guifi_stats_chart03(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gwidth=500;
-    $gheight=450;
+    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    if(isset($_GET['width'])){
+      $gwidth=$_GET['width'];
+    }else{
+      $gwidth=500;
+    }
+    if(isset($_GET['height'])){
+      $gheight=$_GET['height'];
+    }else{
+      $gheight=450;
+    }
     if(isset($_GET['zone'])){
       $zone_id=$_GET['zone'];
       if($zone_id=="3671") $zone_id="0";
@@ -458,10 +503,16 @@ function guifi_stats_chart03(){
     $plot->SetYTickLabelPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
-    if($zone_id=="0")
-      $plot->SetTitle("guifi.net      \n".t('Monthly average'));
-    else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Monthly average'));
+    $plot->SetTTFPath($gDirTTFfonts);
+    $plot->SetFontTTF('title', 'Vera.ttf', 12);
+    if(isset($_GET['title'])){
+        $plot->SetTitle("guifi.net      \n".t($_GET['title']));
+    }else{
+      if($zone_id=="0")
+        $plot->SetTitle("guifi.net      \n".t('Monthly average'));
+      else
+        $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Monthly average'));
+    }
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('% Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -482,8 +533,17 @@ function guifi_stats_chart03(){
 //create gif last year
 function guifi_stats_chart04(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gwidth=500;
-    $gheight=450;
+    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    if(isset($_GET['width'])){
+      $gwidth=$_GET['width'];
+    }else{
+      $gwidth=500;
+    }
+    if(isset($_GET['height'])){
+      $gheight=$_GET['height'];
+    }else{
+      $gheight=450;
+    }
     $today=getdate();
     $year=$today[year];
     $month=$today[mon];
@@ -546,10 +606,16 @@ function guifi_stats_chart04(){
     $plot->SetYDataLabelPos('plotin');
     $plot->SetYLabelType('data', 0);
     $plot->SetTickColor('grey');
-    if($zone_id=="0")
-      $plot->SetTitle("guifi.net      \n".t('Last year'));
-    else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Last year'));
+    $plot->SetTTFPath($gDirTTFfonts);
+    $plot->SetFontTTF('title', 'Vera.ttf', 12);
+    if(isset($_GET['title'])){
+        $plot->SetTitle("guifi.net      \n".t($_GET['title']));
+    }else{
+      if($zone_id=="0")
+        $plot->SetTitle("guifi.net      \n".t('Last year'));
+      else
+        $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Last year'));
+    }
     $plot->SetXTitle(t('Months'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetXDataLabelPos('plotdown');
@@ -568,8 +634,17 @@ function guifi_stats_chart04(){
 //Nodes per month, average of 6 months
 function guifi_stats_chart05($nmonths){ 
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gwidth=500;
-    $gheight=450;
+    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    if(isset($_GET['width'])){
+      $gwidth=$_GET['width'];
+    }else{
+      $gwidth=500;
+    }
+    if(isset($_GET['height'])){
+      $gheight=$_GET['height'];
+    }else{
+      $gheight=450;
+    }
     if(isset($_GET['zone'])){
       $zone_id=$_GET['zone'];
       if($zone_id=="3671") $zone_id="0";
@@ -700,10 +775,16 @@ function guifi_stats_chart05($nmonths){
     $plot->SetTickLength(3);
     $plot->SetDrawXGrid(true);
     $plot->SetTickColor('grey');
-    if($zone_id=="0")
-      $plot->SetTitle("guifi.net      \n".t('Nodes per month, '."$nmonths".' months average'));
-    else
-      $plot->SetTitle("guifi.net    ".t('zone').": ".utf8_decode(guifi_get_zone_name($zone_id))."\n".t('Nodes per month, '."$nmonths".' months average'));
+    $plot->SetTTFPath($gDirTTFfonts);
+    $plot->SetFontTTF('title', 'Vera.ttf', 12);
+    if(isset($_GET['title'])){
+        $plot->SetTitle("guifi.net      \n".t($_GET['title']));
+    }else{
+      if($zone_id=="0")
+        $plot->SetTitle("guifi.net      \n".t('Nodes per month, '."$nmonths".' months average'));
+      else
+        $plot->SetTitle("guifi.net    ".t('zone').": ".guifi_get_zone_name($zone_id)."\n".t('Nodes per month, '."$nmonths".' months average'));
+    }
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
     $plot->SetDrawXDataLabelLines(false);

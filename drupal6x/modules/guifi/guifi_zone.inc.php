@@ -1203,9 +1203,12 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       array('width'=>'100%')
     ),
     '#weight' => 1);
+  $node->content['graph']=array(
+    '#value' => theme_guifi_zone_stats($node,false),
+    '#weight' => 2);
   $node->content['nodes']= array(
     '#value' => theme_guifi_zone_nodes($node,false),
-    '#weight' => 2);
+    '#weight' => 3);
 
   return $node;
 }
@@ -1502,4 +1505,21 @@ function theme_guifi_zone_data($zone,$links = true) {
   return $output;
 }
 
+/** theme_guifi_zone_stats():  outputs the stats graph
+**/
+function theme_guifi_zone_stats($zone,$links = true) {
+  $output = '<script type="text/javascript" src="/misc/collapse.js"></script>';
+  $output .= '<fieldset class="collapsible collapsed">';
+  $output .= '<legend>'.t('zone statistics').'</legend>';
+  $output .= '<div>'.theme('table', null, guifi_zone_stats_data($zone->id),array('width'=>'100%')).'</div>';
+  $output .= '</fieldset><br>';
+  return $output;
+}
+/** guifi_zone_stats_data(): outputs the zone statistics data
+**/
+function guifi_zone_stats_data($zone) {
+
+  $rows[] = array('<img src="http://localhost/guifi/stats/chart?id=1&zone='.$zone.'&width=400&height=300&title=void">','&nbsp;');
+  return array_merge($rows);
+}
 ?>
