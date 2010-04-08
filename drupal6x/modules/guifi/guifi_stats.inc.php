@@ -125,10 +125,16 @@ function guifi_stats_nodes() {
     }
   }else{
     $vid='0';
+    if(isset($_GET['zone'])){
+      $zone_id=$_GET['zone'];
+      if($zone_id=="3671") $zone_id="0";
+    }else{
+      $zone_id="0";
+    }
   }
   
   if($vid=='0'){
-    $output .= drupal_get_form('guifi_stats_nodes_form');
+    $output .= drupal_get_form('guifi_stats_nodes_form',$zone_id);
     $output .= '<div id="sep" style="height: 5px; border-style:none; float:none; margin:5px;"></div>';
     $output .= '<div id="plot" style="width: 500px; border-style:none; float:right; margin:5px;"></div>';
     $output .= '<div id="menu" style="width: 230px; margin:5px;">';
@@ -153,9 +159,9 @@ function guifi_stats_nodes() {
 
   return $output;
 }
-function guifi_stats_nodes_form($form_state) {
+function guifi_stats_nodes_form($form_state,$zone_id) {
     $form['#action'] = '';
-    $form['zone_id'] = guifi_zone_select_field(0,'zone_id');
+    $form['zone_id'] = guifi_zone_select_field((int)$zone_id,'zone_id');
     $form['zone_id']['#weight'] = 1;
     return $form;
 }
@@ -193,7 +199,7 @@ function guifi_stats_chart() {
 //create gif working nodes
 function guifi_stats_chart01(){ //growth_chart
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    $gDirTTFfonts=drupal_get_path('module','guifi').'/contrib/fonts/';  
     if(isset($_GET['width'])){
       $gwidth=$_GET['width'];
     }else{
@@ -347,7 +353,7 @@ function guifi_stats_chart01_LabelFormat($value){
 //create gif annual increment
 function guifi_stats_chart02(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    $gDirTTFfonts=drupal_get_path('module','guifi').'/contrib/fonts/';  
     if(isset($_GET['width'])){
       $gwidth=$_GET['width'];
     }else{
@@ -442,7 +448,7 @@ function guifi_stats_chart02(){
 //create gif monthly average
 function guifi_stats_chart03(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    $gDirTTFfonts=drupal_get_path('module','guifi').'/contrib/fonts/';  
     if(isset($_GET['width'])){
       $gwidth=$_GET['width'];
     }else{
@@ -533,7 +539,7 @@ function guifi_stats_chart03(){
 //create gif last year
 function guifi_stats_chart04(){
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    $gDirTTFfonts=drupal_get_path('module','guifi').'/contrib/fonts/';  
     if(isset($_GET['width'])){
       $gwidth=$_GET['width'];
     }else{
@@ -634,7 +640,7 @@ function guifi_stats_chart04(){
 //Nodes per month, average of 6 months
 function guifi_stats_chart05($nmonths){ 
     include drupal_get_path('module','guifi').'/contrib/phplot/phplot.php';
-    $gDirTTFfonts=$_SERVER['DOCUMENT_ROOT'].'/guifimaps/fonts/';  
+    $gDirTTFfonts=drupal_get_path('module','guifi').'/contrib/fonts/';  
     if(isset($_GET['width'])){
       $gwidth=$_GET['width'];
     }else{

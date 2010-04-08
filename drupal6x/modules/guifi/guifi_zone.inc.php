@@ -1519,7 +1519,7 @@ function theme_guifi_zone_stats($zone,$links = true) {
 **/
 function guifi_zone_stats_data($zone) {
 
-  $rows[] = array('<img src="/guifi/stats/chart?id=1&zone='.$zone.'&width=400&height=300&title=void">','&nbsp;');
+  $rows[] = array('<a "href=/guifi/menu/stats/nodes?zone='.$zone.'"><img src="/guifi/stats/chart?id=1&zone='.$zone.'&width=400&height=300&title=void"></a>','&nbsp;');
   return array_merge($rows);
 }
 ?>
