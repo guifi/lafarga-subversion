@@ -1,4 +1,4 @@
-Name: dnsservices
+Name: guifi-dnsservices
 Version: 1.0
 Release: 41%{?dist}
 Summary: The CNML services to generated DNS configuration files
