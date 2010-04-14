@@ -274,7 +274,7 @@ function guifi_host_add_host_submit(&$form, &$form_state) {
   $edit = $form_state['values'];
 
   // next id
-  $rc = 0; // Radio hostdev_counter next pointer
+  $rc = 0; // Host hostdev_counter next pointer
   $tc = 0; // Total active hosts
 
   // fills $rc & $tc proper values
@@ -304,8 +304,8 @@ function guifi_host_delete_submit($form, &$form_state) {
   $host_id = $form_state['clicked_button']['#parents'][1];
   $form_state['values']['hosts'][$host_id]['deleted'] = true;
   $form_state['values']['hosts'][$host_id]['unfold'] = true;
-  drupal_set_message(t('Radio#%num has been deleted.',
-    array('%num'=>$host_id)));
+  drupal_set_message(t('Hostname %hostname has been deleted.',
+    array('%hostname'=>$host_id)));
   $form_state['rebuild'] = true;
   return;
 }

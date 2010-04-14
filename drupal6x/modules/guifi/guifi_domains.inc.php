@@ -331,13 +331,14 @@ function guifi_domain_form_validate($form,&$form_state) {
   guifi_log(GUIFILOG_TRACE,'function guifi_domain_form_validate()',$form_state);
 
   if (isset($form['main']['name'])) {
-    guifi_validate_nick($form_state['values']['name']);
+    if (ereg('[^a-z0-9.]', $form_state['values']['name']))
+      form_set_error('name', t('Error: <strong> %name </strong> - Domain Name can only contain lowercase letters, numbers and dots.', array('%name' => $form_state['values']['name'])));
 
     $query = db_query("
       SELECT name
       FROM {guifi_dns_domains}
       WHERE lcase(name)=lcase('%s')
-       AND id <> %d AND scope = '%s'",
+      AND id <> %d AND scope = '%s'",
       strtolower($form_state['values']['name']),
       $form_state['values']['id'],$form_state['values']['scope']);
 
@@ -359,6 +360,39 @@ function guifi_domain_form_validate($form,&$form_state) {
     $device = db_fetch_object($devqry);
       form_set_error('ipv4', t('Server <strong> %nick </strong> does not have an IP address. Please, check it.', array('%nick' => $device->nick)));
   }
+
+  $hostquery = db_query("
+      SELECT host
+      FROM {guifi_dns_hosts}
+      WHERE id = %s ", 
+      $form_state['values']['id']); 
+
+  $hostname = array();
+  do {
+    $hostname[] = $host['host'];
+  } while ($host = db_fetch_array($hostquery));
+  if (count(array_unique($hostname)) < count($hostname)) {
+ 
+    $hosts_array = array();
+    foreach ($form_state['values']['hosts'] as $id=>$host) {
+      if (array_key_exists($host['host'], $hosts_array)) {
+        $form_state['values']['hosts'][$id]['duplicate'] = 1;
+        $form_state['values']['hosts'][$hosts_array[$host['host']]]['duplicate'] = 1;
+      }
+      $hosts_array[$host['host']] = $id;
+    }
+    foreach($form_state['values']['hosts'] as $id=>$host) {
+      if (!empty($host['duplicate'])) {
+        form_set_error('hosts]['.$id.'][host', t('Error! Hostname: <strong> %host </strong> duplicated!', array('%host' => $host['host'], '%id' => $id)));  
+      }
+    }
+    unset($host['duplicate']);
+  }
+  foreach($form_state['values']['hosts'] as $id=>$host) {
+    if (ereg('[^a-z0-9.]', $host['host']))
+      form_set_error('hosts]['.$id.'][host', t('Error! Hostname: <strong> %hostname </strong> can only contain lowercase letters, numbers and dots.', array('%hostname' => $host['host'])));
+  }
+
 }
 
 /* guifi_domain_edit_save(): Save changes/insert domains */
