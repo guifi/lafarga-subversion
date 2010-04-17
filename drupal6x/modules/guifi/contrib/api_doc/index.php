@@ -6,20 +6,29 @@
 // 		http://www.affero.org/oagpl.html
 // AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE.txt".
 
-putenv('LC_ALL=ca_ES.UTF-8');
-setlocale(LC_ALL, 'ca_ES.UTF-8');
-bindtextdomain("api_doc", "./locale");
+$locale = "en_EN.UTF-8";
 
-textdomain("api_doc");
+if (!empty($_GET['lang'])) {
+//  $locale = $_GET['lang'];
+}
+
+//putenv("LC_ALL=$locale");
+setlocale(LC_ALL, $locale);
+setlocale( LC_NUMERIC, 'en_EN' );
+setlocale( LC_CTYPE, $locale );
+setlocale( LC_MESSAGES, $locale );
+
+bindtextdomain("en", "locale");
+textdomain("en");
 
 function _e() {
   $numargs = func_num_args();
   if( $numargs == 1 ) {
-    echo _(func_get_arg(0));
+    echo gettext(func_get_arg(0));
   } else {
     $args = func_get_args();
     $str = array_shift( $args );
-    array_unshift($args, _($str));
+    array_unshift($args, gettext($str));
     echo call_user_func_array( 'sprintf', $args );
   }
 }

@@ -27,10 +27,15 @@ function guifi_api() {
 function guifi_api_auth_login(&$gapi, $parameters) {
   global $user;
   
-  if (!guifi_api_check_fields($gapi, array('method' ), $parameters)) {
-    return false;
+//  if (!guifi_api_check_fields($gapi, array('method' ), $parameters)) {
+//    return false;
+//  }
+
+  if (!empty( $parameters['method'])) {
+  	$method = $parameters['method'];
+  } else {
+  	$method = 'password';
   }
-  $method = $parameters['method'];
   
   switch ($method) {
     case 'password':
