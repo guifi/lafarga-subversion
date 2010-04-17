@@ -1003,7 +1003,7 @@ function guifi_radio_add_link2ap_submit(&$form,&$form_state) {
   // initialize the filters
   $form_state['filters'] = array(
     'dmin'   => 0,
-    'dmax'   => 5,
+    'dmax'   => 10,
     'search' => null,
     'type'   => 'ap/client',
     'mode'   => $form_state['values']['radios'][$radio_id]['mode'],
