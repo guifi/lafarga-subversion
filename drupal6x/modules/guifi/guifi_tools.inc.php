@@ -645,5 +645,117 @@ function guifi_tools_datareview() {
   //$output .= theme_pager(null, 50);
   return $output;
 }
+/*
+ * look if two devices are connected
+ * return 1 is connected   0 not is connected
+ */
+function guifi_tools_isdevconnect($fromdev, $todev) {
+
+  $from = $fromdev; //device
+  $to[] = $todev; //device
+
+  $routes = array();
+  guifi_tools_isdevconnect_search(array($from=>array()),$to,$routes);
+  return count($routes);
+}
+
+function guifi_tools_isdevconnect_search($path, $to, &$routes, $maxhops = 50, $alinks = array()) {
+  static $a=0;
+  $a++;
+  $btime = microtime(true);
+
+  $hop = count($path);
+  $kpath = array_keys($path);
+  end($path);
+  $parent = key($path);
+
+  // if links array not loaded, fill the array
+  if (!count($alinks)) {
+    $lbegin = microtime(true);
+    $qry = db_query('SELECT * FROM {guifi_links} WHERE flag = "Working"');
+    while ($link = db_fetch_array($qry)) {
+      // alinks[devices] will contain all the links for every device
+      $alinks['devices'][$link['device_id']][] = $link['id'];
+
+      if (isset($alinks['links'][$link['id']])) {
+        // link data is alredy filled just adding a peer
+        // the other peer is the other key
+
+        end($alinks['links'][$link['id']]);
+        $peer = key($alinks['links'][$link['id']]);
+
+        // fill counterpart at previous peer
+        $alinks['links'][$link['id']][$peer][0] = $link['device_id'];
+
+        // fill the data of this peer
+        $alinks['links'][$link['id']][$link['device_id']] = array(
+          $peer,
+          $link['nid'],
+          $link['interface_id'],
+          $link['ipv4_id']
+        );
+      } else
+        // first peer of the link, the other peer is still unknown
+        $alinks['links'][$link['id']] = array(
+          0=>array($link['link_type'],$link['flag']),
+          $link['device_id']=>array(
+            0,  // peer still unknown
+            $link['nid'],
+            $link['interface_id'],
+            $link['ipv4_id']
+          ),
+        );
+    }
+  }
+
+  $c = 0;
+  $links = array();
+
+  foreach ($alinks['devices'][$parent] as $lid) {
+    $link = $alinks['links'][$lid];
+    if (!(count($link) == 3))
+      // link ins incomplete, ignore
+      continue;
+
+    $dest = $link[$parent][0];
+
+    // if loopback, ignore this link
+    if (in_array($link[$parent][0],$kpath))
+      continue;
+
+    $c++;
+
+//    print "Linked $parent to $dest \n<br />";
+
+    $npath = $path;
+    $npath[$parent]['from'] = array(
+      $lid,              // 0 link id
+      $link[0][0],       // 1 type
+      $link[0][1],       // 2 flag
+      $link[$parent][2], // 3 interface_id
+      $link[$parent][3], // 4 ipv4_id
+      $link[$parent][1]  // 5 node id
+
+    );
+    $npath[$dest]['to'] = array(
+      $link[$dest][1],   // 0 dest nid
+      $link[$dest][2],   // 1 dest interface_id
+      $link[$dest][3]    // 2 dest ipv4 id
+    );
+
+    // if linked device in target destinations, add to routes
+    if (in_array($dest,$to)) {
+      $routes[] = array($ncost,$npath);
+    }
+
+    // if #hops < #maxhops and cost < 200, next hop
+    if ((count($npath) < $maxhops) and (!count($routes))) {
+      $c += guifi_tools_isdevconnect_search($npath,$to,$routes,$maxhops,$alinks);
+    }
+  }
+  return $c;
+
+}
+
 
 ?>
