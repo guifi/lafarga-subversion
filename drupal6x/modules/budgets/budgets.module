@@ -80,6 +80,14 @@ function budgets_menu() {
     'access arguments' => array('access content'),
     'weight' => 3,
     'type' => MENU_LOCAL_TASK);
+  $items['budgets/%guifi_zone/list/Expired'] = array(
+    'title' => 'expired',
+    'page callback' => 'budgets_page',
+    'page arguments' => array(1,3),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'weight' => 4,
+    'type' => MENU_LOCAL_TASK);
 
 
   // CNML exports
@@ -568,18 +576,22 @@ function budgets_block($op = "list", $delta = 0, $edit = array()) {
 }
 
 function budgets_display_block_1() {
-    $content .= t("Help raising the green bars with your donations!") ."<br />";
+    $content .= '<div style="text-align: center; background-color: #ffaaaa;">' .l(t('view all open projects'), 'budgets/'.guifi_zone_root().'/list/Open') .'</div>';
+    $today=getdate();
     $qbudgets = db_query(
-      "SELECT b.id " .
+      "SELECT b.id, b.expires " .
       "FROM {budgets} b " .
-      "WHERE b.budget_status = 'Open' " .
+      "WHERE b.budget_status = 'Open' and b.zone_id = 3671 and b.expires >= " . $today[0] . " " . 
       "ORDER BY b.id DESC");
+    $content2="";
     while ($budget = db_fetch_object($qbudgets)) {
       $b = node_load(array('nid'=>$budget->id));
-      $content .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->id .'">' .$b->title .'</a></div>';
-      $content .= budgets_bar($b->total,$b->covered,$b->currency_symbol);
+      $content2 .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->id .'">' .$b->title .'</a></div>';
+      $content2 .= budgets_bar($b->total,$b->covered,$b->currency_symbol);
     }
-    $content .= '<div style="text-align: right;">' .l(t('view all open projects'), 'budgets/'.guifi_zone_root().'/list/Open') .'</div>';
+    if ($content2!="")
+      $content .= t("Help raising the green bars with your donations!") ."<br />" . $content2;
+
     return $content;
 }
 
@@ -1629,8 +1641,13 @@ function budgets_page($zone = NULL,$status = NULL) {
     $zone = guifi_zone_load($zone);
   guifi_log(GUIFILOG_TRACE,sprintf('function budgets_page(%d)',$zone->id),
     $zone);
-
-  if ($status!=null)
+  
+  $today=getdate();
+  if ($status=='Expired')
+    $status_str = "  AND (budget_status='Open' or budget_status='Preparation') and b.expires < " . $today[0] . " " ;
+  else if ($status=='Open' or $status=='Preparation')
+    $status_str = "  AND budget_status='".$status."' and b.expires >= " . $today[0] . " " ;
+  else if ($status!=null)
     $status_str = "  AND budget_status='".$status."' ";
   else
     $status_str = '';
