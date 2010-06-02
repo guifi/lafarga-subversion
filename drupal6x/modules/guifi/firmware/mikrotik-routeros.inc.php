@@ -60,8 +60,11 @@ function unsolclic_routeros($dev) {
   if ($dev->variable[firmware] == 'RouterOSv3.x') {
     _outln_comment(t('Configuration for RouterOS 3.30'));
   }
-  if ($dev->variable[firmware] == 'RouterOSv4.x') {
-    _outln_comment(t('Configuration for RouterOS 4.4'));
+  if ($dev->variable[firmware] == 'RouterOSv4.0+') {
+    _outln_comment(t('Configuration for RouterOS 4.6'));
+  }
+  if ($dev->variable[firmware] == 'RouterOSv4.7+') {
+    _outln_comment(t('Configuration for RouterOS 4.7 and newer'));
   }
   _outln_comment(t('Device').': '.$dev->id.'-'.$dev->nick);
   _outln_comment();
@@ -112,11 +115,18 @@ function unsolclic_routeros($dev) {
   list($primary_dns,$secondary_dns) = explode(' ',guifi_get_dns($zone,2));
   $dns[] .=$primary_dns;
   $dns[] .=$secondary_dns;
-  if ($secondary_dns != null)
-    _outln(sprintf('/ip dns set primary-dns=%s secondary-dns=%s allow-remote-requests=yes',$primary_dns,$secondary_dns));
-  else if ($primary_dns != null)
-    _outln(sprintf('/ip dns set primary-dns=%s allow-remote-requests=yes',$primary_dns));
-
+  if ($secondary_dns != null) {
+    if ($dev->variable[firmware] == 'RouterOSv4.7+')
+      _outln(sprintf('/ip dns set servers=%s,%s allow-remote-requests=yes',$primary_dns,$secondary_dns));
+    else
+      _outln(sprintf('/ip dns set primary-dns=%s secondary-dns=%s allow-remote-requests=yes',$primary_dns,$secondary_dns));
+  }
+  else if ($primary_dns != null) {
+    if ($dev->variable[firmware] == 'RouterOSv4.7+')
+      _outln(sprintf('/ip dns set servers=%s allow-remote-requests=yes',$primary_dns));
+    else
+      _outln(sprintf('/ip dns set primary-dns=%s allow-remote-requests=yes',$primary_dns));
+  }
   _outln(':delay 1');
 
   // NTP
@@ -513,7 +523,7 @@ function unsolclic_routeros($dev) {
   _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
   _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s to-ports=0-65535 comment="" disabled=no',$ospf_routerid));
   }
-  if (($dev->variable[firmware] == 'RouterOSv3.x') or ($dev->variable['firmware'] == 'RouterOSv4.x')) {
+  if (($dev->variable[firmware] == 'RouterOSv3.x') or ($dev->variable['firmware'] == 'RouterOSv4.0+') or ($dev->variable['firmware'] == 'RouterOSv4.7+')) {
   _outln(sprintf('add chain=srcnat src-address="192.168.0.0/16" dst-address=!192.168.0.0/16 action=src-nat to-addresses=%s comment="" disabled=no',$ospf_routerid));
   _outln(sprintf('add chain=srcnat src-address="172.25.0.0/16" dst-address=!172.25.0.0/16 protocol=!ospf action=src-nat to-addresses=%s comment="" disabled=no',$ospf_routerid));
   }
@@ -545,7 +555,7 @@ function unsolclic_routeros($dev) {
        _outln(sprintf('/routing ospf set router-id=%s distribute-default=never redistribute-connected=no 
      redistribute-static=no redistribute-rip=no redistribute-bgp=as-type-1',$ospf_routerid));
   }
-  if ($dev->variable[firmware] == 'RouterOSv4.x') {
+  if (($dev->variable[firmware] == 'RouterOSv4.0+') or ($dev->variable['firmware'] == 'RouterOSv4.7+')) {
        _outln(sprintf('/routing ospf instance set default name=default router-id=%s comment="" disabled=no distribute-default=never 
      redistribute-bgp=as-type-1 redistribute-connected=no redistribute-other-ospf=no redistribute-rip=no redistribute-static=no in-filter=ospf-in out-filter=ospf-out',$ospf_routerid));
   }

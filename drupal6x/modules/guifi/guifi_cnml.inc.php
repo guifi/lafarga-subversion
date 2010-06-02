@@ -306,7 +306,8 @@ function guifi_cnml($cnmlid,$action = 'help') {
                    $radioXML->addAttribute('snmp_name','ath0');
                  case 'RouterOSv2.9':
                  case 'RouterOSv3.x':
-		 case 'RouterOSv4.x':
+		 case 'RouterOSv4.0+':
+                 case 'RouterOSv4.7+':
                    $radioXML->addAttribute('snmp_name','wlan'.(string) ($id + 1));
                  break;
                    }
@@ -334,6 +335,18 @@ function guifi_cnml($cnmlid,$action = 'help') {
                  break;
                    }
               }
+                else if  (in_array($model_name,
+                   array('AirMaxM2 Rocket/Nano/Loco',
+                            'AirMaxM5 Rocket/Nano/Loco',
+                            'AirMaxM2 Bullet/PwBrg/AirGrd/NanoBr',
+                            'AirMaxM5 Bullet/PwBrg/AirGrd/NanoBr'
+                            ))) {
+                   switch ($device->variable['firmware']) {
+                     case 'AirOsv52':
+                       $radioXML->addAttribute('snmp_name','ath0');
+                   break;
+                   }
+               }
             }
             switch ($radio->mode) {
               case 'ap': $nodesummary->ap++; break;
