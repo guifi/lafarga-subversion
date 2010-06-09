@@ -4,8 +4,8 @@ Plugin Name: WP-Guifi
 Plugin URI: http://blog.albertsarle.com/wp-guifi
 Description: Visualitza una llista de nodes operatius i la seva disponibilitat
 en una zona de guifi (http://guifi.net, la xarxa lliure oberta, alternativa i neutra)
-Author: Albert Sarlé
-Version: 0.1
+Author: Albert Sarle 
+Version: 0.4
 Author URI: http://blog.albertsarle.com
 */
 /*  Copyright 2009  ALBERT SARLÉ  (email : albertsarle@gmail.com)
@@ -27,6 +27,10 @@ Author URI: http://blog.albertsarle.com
 /*
  *
  * Changelist :
+ *
+ * v 0.4 - 9/6/2010
+ * Corretgit identificador de zona per defecte (88022->8802 Terrassa)
+ * Eliminar cestrencades del codi $enllaços -> $enllacos
  *
  * v 0.3 - 27/8/2009
  * Afegida opcio per ordenar descendent els nodes (per id, alfabetic, per # de aps , per # de devices)
@@ -138,8 +142,8 @@ function widget_wp_guifi_init () {
 
       // definicio de valors per defecte
       $options = array(
-       'nodeid' => '88022', // identificador de la zona de Terrassa
-       'title' => 'Guifi.net',
+       'nodeid' => '8802', // identificador de la zona de Terrassa
+       'title' => 'Guifi.net ',
        'status' => 0,
        'orderby' =>1,
        'typeinfo' => 1,
@@ -339,7 +343,7 @@ function widget_wp_guifi_init () {
 
             // inicialitzacio de variables del trasto
             $imgPercent = null;
-            $enllaços = null;
+            $enllacos = null;
             $nodeId = $element->getAttribute('id');
             $nodeName = $element->getAttribute('title');
             $status = $element->getAttribute('status');
@@ -375,7 +379,7 @@ function widget_wp_guifi_init () {
                 //$deviceId = $deviceServerNode->item(0)->nodeValue;
                 foreach ($deviceServerNode as $element) {
                   if ($element->getAttribute('id')) $imgPercent[] = $graphServerURL . "device=". $element->getAttribute('id') ."&format=short&type=availability";
-                  if ($element->getAttribute('title')) $enllaços[] = $element->getAttribute('title');
+                  if ($element->getAttribute('title')) $enllacos[] = $element->getAttribute('title');
                 }
               }
               $urlNodeGuifi .= "<tr>";
@@ -390,8 +394,8 @@ function widget_wp_guifi_init () {
                 $urlNodeGuifi .= "<td style='width:80px;background-image:none;background-color:". getStatusColor($status) .";text-align:center;margin:0;padding:0'>&nbsp;";
                 $urlNodeGuifi .= $status;
                 $urlNodeGuifi .= "&nbsp;</td>\n";
-                if ($enllaços) {
-                  foreach ($enllaços as $key=>$status) {
+                if ($enllacos) {
+                  foreach ($enllacos as $key=>$status) {
                     $urlNodeGuifi .= "</tr><tr>\n";
                     $urlNodeGuifi .= "<td style='font-size:x-small;background:none;margin:0;padding:0;text-align:left;'>";
                     $urlNodeGuifi .= $status;
