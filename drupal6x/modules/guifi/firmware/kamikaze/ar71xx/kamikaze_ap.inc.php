@@ -223,7 +223,7 @@ uci delete network.wan
       if ($interface[interface_type] != 'wds/p2p') {
         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
           if ($interface[interface_type] == 'wLan/Lan') {
-            $iface = '"ath0 eth0"';
+            $iface = '"wifi0 eth0"';
             $network = 'wlanLan';
           } else {
             $iface = 'wifi'.($radio_id);
@@ -274,10 +274,10 @@ uci set firewall.@defaults[0].forward=ACCEPT
 ';
   print 'COUNTER=0
 while [  $COUNTER -lt 64 ]; do
-  `uci delete firewall.@zone[0] 2>/dev/null`
+  uci delete firewall.@zone[0] > /dev/null 2>&1
   let COUNTER=COUNTER+1 
 done
-uci delete firewall.forwarding[0]
+uci delete firewall.@forwarding[0]
 ';
   $icount = '0';
   foreach ($dev->radios as $radio_id=>$radio) 
@@ -389,7 +389,7 @@ uci set firewall.@zone['.$icount.'].forward=ACCEPT
   $counter = '0';
   print 'COUNTER=0
 while [  $COUNTER -lt 64 ]; do
-  `uci delete luci_ethers.@static_lease[0] 2>/dev/null`
+  uci delete luci_ethers.@static_lease[0] > /dev/null 2>&1
   let COUNTER=COUNTER+1 
 done
 ';
@@ -499,7 +499,9 @@ uci set dhcp.'.$network.'.netmask='.$ipv4[netmask].'
   _outln_comment();
   _outln_comment();
   _outln_comment(t('File /etc/quagga/zebra.conf')); 
-  _out_file($file_zebra,'/etc/quagga/zebra.conf');
+  print '<pre>';
+  print 'true > /etc/quagga/zebra.conf';
+  print '</pre>';
 
 // FILE OSPFD
   if (($wds_ospfd == '1') || ($cable_ospfd == '1')){
@@ -507,7 +509,7 @@ uci set dhcp.'.$network.'.netmask='.$ipv4[netmask].'
     _outln_comment();
     _outln_comment(t('File /etc/quagga/ospfd.conf')); 
     print '<pre>';
-    print 'echo "
+    print 'cat > /etc/quagga/ospfd.conf << EOF
 !
 interface br-lan
 !
@@ -543,7 +545,8 @@ router ospf
         }
     print 'default-information originate
 !
-" > /etc/quagga/ospfd.conf
+EOF
+
 ';
 print 'sleep 1</pre>';
   }
@@ -554,7 +557,7 @@ print 'sleep 1</pre>';
     _outln_comment();
     _outln_comment(t('File /etc/quagga/bgpd.conf'));
      print '<pre>';
-     print 'echo "
+     print 'cat > /etc/quagga/bgpd.conf << EOF
 !
 interface br-lan
 !
@@ -606,7 +609,8 @@ bgp router-id '.$lan->ipv4.'
                 print ' neighbor '.$link['interface']['ipv4']['ipv4'].' remote-as '.$link['device_id'].'
 ';
             }
-    print '" > /etc/quagga/bgpd.conf
+    print 'EOF
+
 ';
     print 'sleep 1</pre>';
   }
@@ -622,7 +626,7 @@ option overlay_root /jffs
   _outln_comment();
   _outln_comment();
   _outln_comment(t('File /etc/opkg.conf'));
-  _out_file($opkg_conf,'/etc/opkg.conf');
+  openwrt_out_file($opkg_conf,'/etc/opkg.conf');
 
   }
   

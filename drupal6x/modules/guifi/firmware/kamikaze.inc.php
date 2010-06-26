@@ -45,6 +45,18 @@ function unsolclic_kamikaze($dev) {
     }
   }
 
+function openwrt_out_file($txt,$file) {
+  global $otype;
+
+  if ($otype == 'html') {
+    print '<pre>cat > '.$file.' << EOF '.$txt;
+    print 'EOF</pre>';
+  }
+  else {
+    print 'echo "'.$txt.'" > '.$file;
+}
+}
+
 function guifi_kamikaze_common_files($dev,$zone) {
   list($ntp1,$ntp2) = explode(' ',guifi_get_ntp($zone,2));
     $ntp[] .= $ntp1;
@@ -57,7 +69,7 @@ function guifi_kamikaze_common_files($dev,$zone) {
   print '<pre>';
   print 'COUNTER=0
 while [  $COUNTER -lt 4 ]; do
-  `uci delete ntpclient.@ntpserver[0] 2>/dev/null`
+ uci delete ntpclient.@ntpserver[0] > /dev/null 2>&1
   let COUNTER=COUNTER+1 
 done
 ';
@@ -146,7 +158,7 @@ quagga:x:51:51:quagga:/tmp/.quagga:/bin/false
   _outln_comment();
   _outln_comment();
   _outln_comment(t('File /etc/passwd'));
-  _out_file($file_pass,'/etc/passwd');
+  openwrt_out_file($file_pass,'/etc/passwd');
  print '<pre>sleep 1</pre>
 ';
 
