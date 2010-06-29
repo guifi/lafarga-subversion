@@ -223,7 +223,6 @@ function guifi_ipv4_form_validate($form,$form_state) {
   }
 
   $zone = guifi_zone_load($form_state['values']['zone']);
-  print $zone->zone_mode;
 
   if (($zone->master != 0) and
       ($zone->zone_mode != 'ad-hoc')) {
