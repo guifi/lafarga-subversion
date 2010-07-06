@@ -8,11 +8,11 @@ function guifi_kamikaze_files($dev,$zone) {
   $lan_network = _ipcalc($lan->ipv4,$lan->netmask);
 
   switch ($dev->variable['model_id']) {
-    case "38":	
+    case "38":
     // RouterStation
       $wireless_model='atheros';
-      $lan_iface='eth0';    
-      $lan2_iface='eth1';     
+      $lan_iface='eth0';
+      $lan2_iface='eth1';
 
       $packages='ar71xx/packages';
       break;
@@ -27,13 +27,13 @@ function guifi_kamikaze_files($dev,$zone) {
   _outln_comment();
   _outln_comment(t('Wireless Settings'));
   print '<pre>';
- 
+
   function wds_add($dev,$radio, $radio_id) {
     $wds_links = array();
     foreach ($radio[interfaces] as $interface_id=>$interface) {
       if ($interface[interface_type] == 'wds/p2p') {
         foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-          foreach ($ipv4[links] as $link_id=>$link) 
+          foreach ($ipv4[links] as $link_id=>$link)
             if ($link['link_type'] == 'wds')
               $wds_links[] = $link;
               $ifcount = 0;
@@ -59,7 +59,7 @@ function guifi_kamikaze_files($dev,$zone) {
       foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
         foreach ($ipv4[links] as $link_id=>$link)
           if ($link['link_type'] == 'wds') {
-            $wds_links = array();  
+            $wds_links = array();
             $wds_links[] = $link;
             foreach ($wds_links as $key => $wds) {
               $hostname = guifi_get_hostname($wds['device_id']);
@@ -82,7 +82,7 @@ uci set network.wds_'.$hostname.'.proto=static
 # uci set network.wds_'.$hostname.'.ifname=ath'.$radio[radiodev_counter].'.wdsX
 # uci set network.wds_'.$hostname.'.proto=none
 ';
-              } 
+              }
             }
           if ($status == 'active') {
             print 'uci set network.wds_'.$hostname.'.ipaddr='.$ipv4[ipv4].'
@@ -114,7 +114,7 @@ uci set network.wds_'.$hostname.'.netmask='.$ipv4['netmask'].'
       else
         $radio[antenna_mode]= '1';
     }
-    
+
     if ($radio_id == '0') {
       $wireless_iface = 'wifi0';
       $network = 'wlanLan';
@@ -126,7 +126,7 @@ uci set network.wds_'.$hostname.'.netmask='.$ipv4['netmask'].'
   $wireless_model = 'atheros';
     $txant=$radio[antenna_mode];
     $rxant=$radio[antenna_mode];
-     
+
   print '
 ## Radio: '.$radio[ssid].'
 uci delete wireless.'.$wireless_iface.'
@@ -223,7 +223,7 @@ uci delete network.wan
       if ($interface[interface_type] != 'wds/p2p') {
         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
           if ($interface[interface_type] == 'wLan/Lan') {
-            $iface = '"wifi0 eth0"';
+            $iface = '"ath0 eth0"';
             $network = 'wlanLan';
           } else {
             $iface = 'wifi'.($radio_id);
@@ -236,7 +236,7 @@ uci delete network.wan
 uci delete network.'.$network.'
 uci set network.'.$network.'=interface
 ';
-          if ($interface[interface_type] == 'wLan/Lan') 
+          if ($interface[interface_type] == 'wLan/Lan')
             print 'uci set network.'.$network.'.type=bridge
 ';
             print 'uci set network.'.$network.'.ifname='.$iface.'
