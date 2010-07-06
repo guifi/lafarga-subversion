@@ -236,7 +236,7 @@ function guifi_node_form(&$node, $form_state) {
     $form['license'] = array(
       '#type' => 'item',
       '#title' => t('License and usage agreement'),
-      '#value' => variable_get('guifi_license',null),
+      '#value' => t(variable_get('guifi_license',null)),
       '#description' => t('You must accept this agreement to be authorized to create new nodes.'),
       '#weight' => 1,
     );
