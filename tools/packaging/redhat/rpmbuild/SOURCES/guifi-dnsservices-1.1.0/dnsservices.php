@@ -12,6 +12,7 @@ function check_cnml($cnml) {
 }
 
   function check_updated($url) {
+    global $DNSGraphServerId;
 
     $now = time();
     $mlast= @fopen("/tmp/last_dns", "r");
@@ -19,9 +20,12 @@ function check_cnml($cnml) {
         $last = fgets($mlast);
      else
         $last = 0;
+     $mins = $DNSGraphServerId % 30;
+     $fresh = $last +  ((60 + $mins) * 60);
      print "Last time updated: ".date('Y/m/d H:i:s',(int)$last)."\n";
+     print "Fresh until:       ".date('Y/m/d H:i:s',(int)$fresh)."\n";
 
-     if (($last) and ($now < ($last +  (60 * 60)))) {
+     if (($last) and ($now < $fresh)) {
        fclose($mlast);
        echo "Still fresh.\n";
        exit();
@@ -52,7 +56,7 @@ function check_cnml($cnml) {
 
 class BIND {
   var $PROGRAM = "dnsservices";
-  var $VERSION = "1.0.40";
+  var $VERSION = "1.1.0-02";
   var $DATE;
   var $h_named;
   var $h_db;
@@ -243,6 +247,7 @@ EOF;
 	zone "0.in-addr.arpa" IN { type master; file "$this->master_dir/named.0"; };
 	zone "255.in-addr.arpa" IN { type master; file "$this->master_dir/named.255"; };
 
+	zone "ip.guifi.net" IN { type master; file "$this->master_dir/ip.guifi.net"; allow-update { none; }; };
 	zone "10.in-addr.arpa" IN { type master; file "$this->master_dir/10.ip.guifi.net.rrz"; allow-update { none; }; };
 	zone "172.in-addr.arpa" IN { type master; file "$this->master_dir/172.ip.guifi.net.rrz"; allow-update { none; }; };
 
@@ -271,7 +276,7 @@ EOF;
     $contact = $user.".".$domain;
     
     //fwrite($this->h_db,"\$TTL 38400\n");
-    fwrite($this->h_db,/*"\$ORIGIN $dtail.\n"*/ "@\tIN\tSOA\t$nameserver. $contact. (\n");
+    fwrite($this->h_db,/*"\$ORIGIN $dtail.\n"*/ "@\tIN\tSOA\t$nameserver.$domain. $contact. (\n");
 
     $refresh = 10800;
     $retry = 3600;
@@ -370,8 +375,10 @@ class DNSservices {
 
           $dns->db_ini($n, $Domain['nameserver'], $Domain['contact']);
 
-          if ($Domain['domain_ip'] != "")
+          if ($Domain['domain_ip'] != "") {
+            $dns->add_A("*", $Domain['domain_ip']);
             $dns->add_A("@", $Domain['domain_ip']);
+          }
           $priority=10;
           foreach ($Domain->host as $host) {
             if ($host['NS'] == "y") {
@@ -400,11 +407,18 @@ class DNSservices {
 
       }
       foreach ($domains->slave as $Domain) {
-        $dns->zone((string)$_name,$Domain['zone'], "slave", $Domain['master'], "");
-
+        // check connectivity
+        if ($this->checkNameserver($Domain['master'], $Domain['zone'])) {
+          //add server
+          $dns->zone((string)$_name,$Domain['zone'], "slave", $Domain['master'], "");
+        }
       }
       foreach ($domains->forward as $Domain) {
-        $dns->zone((string)$_name,$Domain['zone'], "forward", $Domain['forwarder'], "");
+        // check connectivity
+        if ($this->checkNameserver($Domain['forwarder'], $Domain['zone'])) {
+          //add server
+          $dns->zone((string)$_name,$Domain['zone'], "forward", $Domain['forwarder'], "");
+        }
 
       }
     $dns->view_end();
@@ -449,15 +463,15 @@ class DNSservices {
     $rrz172 = <<<EOF
 \$TTL 86400
 \$ORIGIN 172.in-addr.arpa.
-@               IN     SOA    ns1.guifi.net.   nobody.guifi.net. (
-                   $timestamp     ; Serial no., based on date
-                        21600     ; Refresh after 6 hours
-                         3600     ; Retry after 1 hour
-                       604800     ; Expire after 7 days
-                         3600     ; Minimum TTL of 1 hour
-                      )
+@		IN	SOA	ns1.guifi.net.	nobody.guifi.net. (
+				$timestamp; Serial no., based on date
+				21600; Refresh after 6 hours
+				3600; Retry after 1 hour
+				604800; Expire after 7 days
+				3600; Minimum TTL of 1 hour
+		)
+@		IN	NS	ns1.guifi.net.
 
-@               IN      NS      ns1.guifi.net.
 
 EOF;
 
@@ -465,15 +479,29 @@ EOF;
     $rrz10 = <<<EOF
 \$TTL 86400
 \$ORIGIN 10.in-addr.arpa.
-@               IN     SOA    ns1.guifi.net.   nobody.guifi.net. (
-                   $timestamp     ; Serial no., based on date
-                        21600     ; Refresh after 6 hours
-                         3600     ; Retry after 1 hour
-                       604800     ; Expire after 7 days
-                         3600     ; Minimum TTL of 1 hour
-                      )
+@		IN	SOA	ns1.guifi.net.	nobody.guifi.net. (
+				$timestamp; Serial no., based on date
+				21600; Refresh after 6 hours
+				3600; Retry after 1 hour
+				604800; Expire after 7 days
+				3600; Minimum TTL of 1 hour
+		)
+@		IN	NS	ns1.guifi.net.
 
-@               IN      NS      ns1.guifi.net.
+
+EOF;
+
+    # ip.guifi.net header
+    $ipguifi = <<<EOF
+@		IN	SOA	ns1.guifi.net.	nobody.guifi.net. (
+				$timestamp; Serial no., based on date
+				21600; Refresh after 6 hours
+				3600; Retry after 1 hour
+				604800; Expire after 7 days
+				3600; Minimum TTL of 1 hour
+		)
+@		IN	NS	ns1.guifi.net.
+
 
 EOF;
 
@@ -492,7 +520,11 @@ EOF;
             list( $ip1, $ip2, $ip3, $ip4 ) = split( "\.", $ip['address'], 4 );
             # Only "A-Z", "a-z", "-" and "0-9" are allowed
             $nick = preg_replace( '/[^A-Za-z-0-9]/i', '', $ip['nick']  );
-
+            switch ($subnet['range'] ) {
+              case '10':
+                $ipguifi .= "$nick--{$ip['device_id']}.ip.guifi.net.\tIN\tA\t$ip1.$ip2.$ip3.$ip4\n";
+                break;
+            }
             # Nice looking TABs
             if( strlen( "$ip4$ip3$ip2" ) < 6 ) { $ip2.="\t"; }
             $tmp .= "$ip4.$ip3.$ip2\tIN\tPTR\t$nick--{$ip['device_id']}.ip.guifi.net.\n";
@@ -517,14 +549,39 @@ EOF;
     $h = fopen($fn, 'w') or die(date("YmdHi")." Unable to create file ($fn), check filesystem permissions.\n");
     fwrite( $h, $rrz10 ) or die(date("YmdHi")." Unable to write to file ($fn).\n");
     fclose($h);
-  }
 
+    $fn=$this->chroot.$this->master_dir."/ip.guifi.net";
+    $h = fopen($fn, 'w') or die(date("YmdHi")." Unable to create file ($fn), check filesystem permissions.\n");
+    fwrite( $h, $ipguifi ) or die(date("YmdHi")." Unable to write to file ($fn).\n");
+    fclose($h);
+  }
+ 
+/*
+ * Check the connectivity with the server name
+ */
+  function checkNameserver($server, $zone){
+    // attempt to connect
+    if ($x = @fsockopen($server, 53)) {
+      //close connection
+      if ($x) @fclose($x);
+      return true;
+    }
+    else {
+      echo "\nServer ". $server ." for ". $zone ." is down.";
+      return false;
+    }
+  }
 } // end DNSservices
 
   require_once("/etc/dnsservices/config.php");
 
   $updated = check_updated($DNSDataServer_url);
   if ($updated = true) {
+    if (count($argv) == 1) {
+       $secs = $DNSGraphServerId % 285;
+       print "Sleeping for ".$secs." seconds to avoid server peaks.";
+       sleep($secs);
+    }
     $gdns = new DNSservices($DNSDataServer_url, $DNSGraphServerId, $master_dir, $slave_dir, $chroot);
     $gdns->named();
     $gdns->rrz(); 

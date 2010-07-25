@@ -15,10 +15,10 @@ function getInput($length=255) {
 
 
 $DNSDataServerurl = "http://guifi.net";
-$DNSGraphServerId = 2627;
+$DNSGraphServerId = 0;
 
-$questionurl = "without ending backslash, the url where the data is. [".$DNSDataServerurl."]";
-$questionid = "DNS Server Id. [".$DNSGraphServerId."]";
+$questionurl = "DNSDataServer_url: without ending backslash, Usually always is [".$DNSDataServerurl."]";
+$questionid = "Select your DNS Server Id to share your domains.[".$DNSGraphServerId."]";
 $questionfetch = "Force to fetch DNS configuration now (CAUTION: This remove your actual configuration) [y]";
 
 
