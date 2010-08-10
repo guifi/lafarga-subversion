@@ -1,0 +1,73 @@
+[define dirs]
+  [sdefine root]
+    interface={"title":"Interfaces", "description":"Interfaces management"}
+    ip={}
+    ppp={}
+    queue={}
+    routing={}
+    snmp={}
+    system={}
+    tool={}
+    user={}
+  [/sdefine root]
+    [sdefine interface]
+      bonding={}
+      bridge={}
+      ethernet={}
+      ipip={}
+      vlan={}
+      wireless={}
+    [/sdefine interface]
+      [sdefine bridge]
+        filter={}
+        host={}
+        nat={}
+        port={}
+        setting={}
+      [/sdefine bridge]
+[/define dirs]
+
+[define commands]
+  [sdefine interface]
+    disable={"command":"", "description":"Disable interface" 
+            "exec":["uci ....","uci ....", "uci ..."]}
+    edit={"command":"", "description":"Edit interface" 
+            "exec":["uci ....","uci ....", "uci ..."]}
+    enable={"command":"", "description":"Enabled interface" 
+            "exec":["uci ....","uci ....", "uci ..."]}
+    get={"command":"", "description":"Get value of item property" 
+            "exec":["uci ....","uci ....", "uci ..."]}
+    set={"command":"", "description":"Set value item property" 
+            "exec":["uci ....","uci ....", "uci ..."]}
+  [/sdefine interface]
+    [sdefine bonding]
+      add={}
+      disable={}
+      edit={}
+      enable={}
+      get={}
+      print={}
+      remove={}
+      set={}
+    [/sdefine bonding]
+    [sdefine bridge]
+      add={}
+      disable={}
+      edit={}
+      enable={}
+      get={}
+      print={}
+      remove={}
+      set={}
+    [/sdefine bridge]  
+      [sdefine filter]
+        add={}
+        disable={}
+        edit={}
+        enable={}
+        get={}
+        print={}
+        remove={}
+        set={}
+      [/sdefine filter]  
+[/define commands]
