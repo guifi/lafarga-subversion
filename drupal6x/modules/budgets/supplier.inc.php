@@ -49,7 +49,7 @@ function budgets_supplier_access($op, $node, $account = null) {
     $k = $node->id;
   $node = node_load(array('nid'=>$k));
 
-  switch($op) {
+  switch ($op) {
     case 'create':
       return user_access('create suppliers',$account);
     case 'update':

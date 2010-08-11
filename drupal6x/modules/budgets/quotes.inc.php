@@ -194,7 +194,7 @@ function budgets_quote_access($op, $node, $account = null) {
   global $user;
 
   $node = node_load(array('nid'=>$node->id));
-  switch($op) {
+  switch ($op) {
     case 'create':
       return user_access('create suppliers',$account);
     case 'update':

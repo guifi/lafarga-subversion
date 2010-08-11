@@ -43,15 +43,15 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list'] = array(
     'title' => 'list',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,null),
+    'page arguments' => array(1, null),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'weight'=>0,
+    'weight' => 0,
     'type' => MENU_LOCAL_TASK);
   $items['budgets/%guifi_zone/list/All'] = array(
     'title' => 'all status',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,null),
+    'page arguments' => array(1, null),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 0,
@@ -59,7 +59,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Open'] = array(
     'title' => 'open',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,3),
+    'page arguments' => array(1, 3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 1,
@@ -67,7 +67,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Preparation'] = array(
     'title' => 'preparation',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,3),
+    'page arguments' => array(1, 3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 2,
@@ -75,7 +75,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Closed'] = array(
     'title' => 'closed',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,3),
+    'page arguments' => array(1, 3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 3,
@@ -83,7 +83,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/Expired'] = array(
     'title' => 'expired',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1,3),
+    'page arguments' => array(1, 3),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 4,
@@ -97,15 +97,15 @@ function budgets_menu() {
     'page arguments' => array(1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'weight'=>1,
+    'weight' => 1,
     'type' => MENU_LOCAL_TASK);
   $items['budgets/%guifi_zone/cnml/%/%'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,3,4),
+    'page arguments' => array(1, 3, 4),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
-    'weight'=>1,
+    'weight' => 1,
     'type' => MENU_LOCAL_TASK);
 
 //  $items['budgets/%guifi_zone/cnml/short'] = array(
@@ -126,7 +126,7 @@ function budgets_menu() {
   $items['node/%budgets/cnml/short'] = array(
     'title' => 'cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,'short'),
+    'page arguments' => array(1, 'short'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -134,7 +134,7 @@ function budgets_menu() {
   $items['node/%budgets/cnml/long'] = array(
     'title' => 'detailed cnml',
     'page callback' => 'budgets_cnml',
-    'page arguments' => array(1,'long'),
+    'page arguments' => array(1, 'long'),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -151,7 +151,7 @@ function budgets_menu() {
   $items['node/%budgets/view/items'] = array(
     'title' => 'budget details',
     'page callback' => 'theme_budgets_items',
-    'page arguments' => array(1,true),
+    'page arguments' => array(1, TRUE),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -8,
@@ -160,7 +160,7 @@ function budgets_menu() {
   $items['node/%budgets/view/funds'] = array(
     'title' => 'funds report',
     'page callback' => 'theme_budgets_funds',
-    'page arguments' => array(1,true),
+    'page arguments' => array(1, TRUE),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -7,
@@ -169,7 +169,7 @@ function budgets_menu() {
   $items['node/%budgets/view/contribute'] = array(
     'title' => 'donate/fund this budget',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgets_fund_form',1),
+    'page arguments' => array('budgets_fund_form', 1),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => -6,
@@ -198,7 +198,7 @@ function budgets_menu() {
   $items['budgets/%budgets/edit/%'] = array(
     'title' => 'Edit funding',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgets_fund_form',1,3),
+    'page arguments' => array('budgets_fund_form', 1, 3),
     'access callback' => 'budgets_access',
     'access arguments' => array('update',1),
     'type' => MENU_CALLBACK,
@@ -206,17 +206,17 @@ function budgets_menu() {
   $items['budgets/%budgets/delete/%'] = array(
     'title' => 'Delete funding',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('budgets_fund_delete_confirm',1,3),
+    'page arguments' => array('budgets_fund_delete_confirm', 1, 3),
     'access callback' => 'budgets_access',
-    'access arguments' => array('update',1),
+    'access arguments' => array('update', 1),
     'type' => MENU_CALLBACK,
   );
   $items['budgets/%budgets/fund/%/%'] = array(
     'title' => 'Set a funding status',
     'page callback' => 'budgets_fund_set_status',
-    'page arguments' => array(1,3,4),
+    'page arguments' => array(1, 3, 4),
     'access callback' => 'budgets_access',
-    'access arguments' => array('update',1),
+    'access arguments' => array('update', 1),
     'type' => MENU_CALLBACK,
   );
   $items['budgets/js/select-quote/%'] = array(
@@ -250,25 +250,25 @@ function budgets_menu() {
     'page callback' => 'budgets_quote_add',
     'page arguments' => array(1),
     'access callback' => 'budgets_supplier_access',
-    'access arguments' => array('create',arg(1)),
+    'access arguments' => array('create', arg(1)),
     'file' => 'node.pages.inc',
-    'file path' => drupal_get_path('module','node'),
+    'file path' => drupal_get_path('module', 'node'),
     'type' => MENU_LOCAL_TASK);
 
   $items['guifi/menu/main/browse_suppliers'] = array(
     'title' => 'Service providers & Commercial suppliers',
     'description' => 'Find out shops where you can buy equipment and can understand what do you require or hire professional services to help you in building infrastructure',
     'page callback' => 'drupal_goto',
-    'page arguments' => array('node/'.guifi_zone_root().'/view/suppliers'),
-    'weight'=>100,
+    'page arguments' => array('node/' . guifi_zone_root() . '/view/suppliers'),
+    'weight' => 100,
     'access arguments' => array('access content'),
   );
   $items['guifi/menu/main/browse_budgets'] = array(
     'title' => 'Proposals, Budgets & Fundings',
     'description' => 'Browse the proposals/budgets, find out the costs and help by funding them',
     'page callback' => 'drupal_goto',
-    'page arguments' => array('budgets/'.guifi_zone_root().'/list'),
-    'weight'=>101,
+    'page arguments' => array('budgets/' . guifi_zone_root() . '/list'),
+    'weight' => 101,
     'access arguments' => array('access content'),
   );
 
@@ -300,9 +300,9 @@ function budgets_node_info() {
     'budgets' => array(
       'name' => t('guifi.net Proposal/Budget'),
       'module' => 'budgets',
-      'has_title' => true,
+      'has_title' => TRUE,
       'title_label' => t('Proposal/Budget title'),
-      'has_body' => true,
+      'has_body' => TRUE,
       'body_label' => t('Proposal description'),
       'description' => t('Create a proposal/budget. ' .
           'A proposal is an itemized project description with allocated due costs. ' .
@@ -312,9 +312,9 @@ function budgets_node_info() {
     'supplier' => array(
       'name' => t('guifi.net Provider/Supplier'),
       'module' => 'budgets_supplier',
-      'has_title' => true,
+      'has_title' => TRUE,
       'title_label' => t('Supplier name'),
-      'has_body' => true,
+      'has_body' => TRUE,
       'body_label' => t('Supplier information page'),
       'description' => t("A provider is a commercial supplier. Once you become a " .
           "supplier, you will be able to quote services " .
@@ -324,9 +324,9 @@ function budgets_node_info() {
     'supplier_quote' => array(
       'name' => t('guifi.net quote provided by supplier'),
       'module' => 'budgets_quote',
-      'has_title' => true,
+      'has_title' => TRUE,
       'title_label' => t('Quote item title'),
-      'has_body' => true,
+      'has_body' => TRUE,
       'body_label' => t('Description of the quoted item'),
       'description' => t("A supply quote is a priced item given by a supplier which " .
           "can be used as a guidance while filling proposals/budgets."),
@@ -356,8 +356,8 @@ function budgets_perm() {
 function budgets_access($op, $node) {
   global $user;
 
-  $node = node_load(array('nid'=>$node->id));
-  switch($op) {
+  $node = node_load(array('nid' => $node->id));
+  switch ($op) {
     case 'create':
       return user_access('create budgets');
     case 'update':
@@ -399,21 +399,21 @@ function budgets_link($type, $node = 0, $main) {
     $links[] =
       array(
         'title' => t('donate/fund this budget'),
-        'href'=> 'node/'. $node->nid.'/view/contribute',
-        'attributes'=>array(
+        'href'=> 'node/' . $node->nid . '/view/contribute',
+        'attributes' => array(
           'title' => t('donate/fund this budget or proposal for this project')
         ));
   }
   $links[] = array(
     'title' => t('cnml'),
-    'href'=> 'node/'. $node->nid.'/cnml/short',
-    'attributes'=>array(
+    'href' => 'node/' . $node->nid . '/cnml/short',
+    'attributes' => array(
     'title' => t('Obtain a CNML export for this budget in abbreviated format'))
   );
   $links[] = array(
     'title' => t('detailed cnml'),
-    'href'=> 'node/'. $node->nid.'/cnml/long',
-    'attributes'=>array(
+    'href' => 'node/' . $node->nid . '/cnml/long',
+    'attributes' => array(
     'title' => t('Obtain a CNML export for this budget in detailed format'))
   );
 
@@ -565,7 +565,7 @@ function budgets_block($op = "list", $delta = 0, $edit = array()) {
     variable_set('budgets_block_items', $edit['items']);
 
   case 'view':
-    switch($delta) {
+    switch ($delta) {
       case 0:
     $block['subject'] = t(variable_get('budget_block_title', t("proposals")));
     $block['content'] = budgets_display_block_1($content);
@@ -706,9 +706,9 @@ function budgets_form(&$node, &$param) {
   budgets_items_clean($node->items);
 
   if (isset($node->nid))
-    $form['id'] = array('#type'=>'#hidden','#value'=>$node->nid);
+    $form['id'] = array('#type' => '#hidden','#value' => $node->nid);
   else
-    $form['new'] = array('#type'=>'#hidden','#value'=>true);
+    $form['new'] = array('#type' => '#hidden','#value' => TRUE);
 
   $type = node_get_types('type',$node);
 
@@ -716,7 +716,7 @@ function budgets_form(&$node, &$param) {
     $form['title'] = array(
       '#type' => 'textfield',
       '#title' => check_plain($type->title_label),
-      '#required' => true,
+      '#required' => TRUE,
       '#default_value' => $node->title,
     );
   }
@@ -724,8 +724,8 @@ function budgets_form(&$node, &$param) {
   $form['budgets_general'] = array(
     '#type' => 'fieldset',
     '#title' => t('General'),
-//    '#collapsible' => true,
-//    '#collapsed' => true,
+//    '#collapsible' => TRUE,
+//    '#collapsed' => TRUE,
   );
   $form['budgets_general']['budget_status'] = array(
     '#type' => 'select',
@@ -744,7 +744,7 @@ function budgets_form(&$node, &$param) {
     '#title' => t('Expiration'),
     '#default_value' => $node->arrexpires,
     '#description' => t("Date when this proposal/budget will expire"),
-    '#required' => true,
+    '#required' => TRUE,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>'
   );
@@ -763,8 +763,8 @@ function budgets_form(&$node, &$param) {
   $form['budgets_currency'] = array(
     '#type' => 'fieldset',
     '#title' => t('Currency'),
-    '#collapsible' => true,
-    '#collapsed' => true,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
 
   $form['budgets_currency']['currency_txt'] = array(
@@ -790,8 +790,8 @@ function budgets_form(&$node, &$param) {
   $form['budgets_contribution'] = array(
     '#type' => 'fieldset',
     '#title' => t('Contribution limits'),
-    '#collapsible' => true,
-    '#collapsed' => true,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
 
   $form['budgets_contribution']['min_contribution'] = array(
@@ -886,8 +886,8 @@ function budgets_form(&$node, &$param) {
     $form['others'] = array(
       '#type'=>'fieldset',
       '#title'=>t('Promoter, payment instructions, terms & conditions'),
-      '#collapsible'=>true,
-      '#collapsed'=>true
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE
     );
     $form['others']['promoter'] = array(
         '#title' => t("Promoter(s)"),
@@ -925,7 +925,7 @@ function budgets_item_form($item,$ki) {
   unset($it['weight'],$it['new']);
   if (empty($it)) {
     $title = t('New item (unfold to fill a new item)');
-    $folded = true;
+    $folded = TRUE;
   } else {
     if (empty($item['title']))
       $title = t('item');
@@ -939,15 +939,15 @@ function budgets_item_form($item,$ki) {
       number_format($item['quantity'] * $item['cost'],2,',','.');
   }
 
-  $folded = true;
+  $folded = TRUE;
   if ($item['deleted'])
     $folded = false;
 
   $f = array (
     '#type' => 'fieldset',
     '#title' => $title,
-    '#tree' => true,
-    '#collapsible' => true,
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
     '#collapsed' => $folded
   );
 
@@ -957,7 +957,7 @@ function budgets_item_form($item,$ki) {
   $f = array_merge($f,$f2);
 
   if ($item['deleted']) {
-    $f['deleted'] = array('#type'=>'hidden','#value'=>true);
+    $f['deleted'] = array('#type' => 'hidden','#value' => TRUE);
     $f['deletedHelp'] = array(
       '#type' => 'item',
       '#title' => t('Deleted').': '.$item['title'],
@@ -1046,7 +1046,7 @@ function budgets_item_form($item,$ki) {
     '#submit' => array('budgets_form_item_delete'),
     '#value' => t('Delete item'),
     '#name' => 'delete-'.$ki,
-    '#executes_submit_callback' => true,
+    '#executes_submit_callback' => TRUE,
     '#prefix' => '<td>',
     '#suffix' => '</td></tr></table>',
   );
@@ -1073,8 +1073,8 @@ function budgets_items_form($items) {
   $f = array(
     '#type' => 'fieldset',
     '#title' => t('Budget items'),
-    '#tree' => true,
-    '#collapsible' => true,
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
     '#collapsed' => false,
 //    '#description' => $txtmore
   );
@@ -1099,7 +1099,7 @@ function budgets_items_form($items) {
 
   for ($c = $ki + 1; $c < ($ki + 4); $c++) {
     $cw++;
-    $f[$c] = budgets_item_form(array('weight'=>$cw,'new'=>true),$c);
+    $f[$c] = budgets_item_form(array('weight' => $cw, 'new' => TRUE),$c);
   }
 
   $f['items_help'] = array(
@@ -1121,9 +1121,9 @@ function budgets_form_item_delete($form,&$form_state) {
   guifi_log(GUIFILOG_TRACE,'function budgets_form_item_delete()',$params);
 
   if ($params[0]=='delete') {
-    $form_state['values']['items'][$params[1]]['deleted']=true;
+    $form_state['values']['items'][$params[1]]['deleted']=TRUE;
   }
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 }
 
 function budgets_form_load_budget($form,&$form_state) {
@@ -1154,21 +1154,21 @@ function budgets_form_load_budget($form,&$form_state) {
   // load items found into current budget
   while ($newI = db_fetch_array($qry)) {
     $newI['weight'] = $cw;
-    $newI['new'] = true;
+    $newI['new'] = TRUE;
     $node['items'][] = $newI;
     $cw++;
   }
   guifi_log(GUIFILOG_TRACE,'function budgets_form_load_budget(OUT)',$node);
 
   $form_state['#redirect'] = FALSE;
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 }
 
 function budgets_form_load_quote($form,&$form_state) {
   $node = &$form_state['values'];
   guifi_log(GUIFILOG_TRACE,'function budgets_form_load_quote()',$node['loadquote']);
   $form_state['#redirect'] = FALSE;
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 
   $toLoad = explode('-',$node['loadquote']);
   if ((empty($toLoad[0])) or
@@ -1190,7 +1190,7 @@ function budgets_form_load_quote($form,&$form_state) {
 
   $newI = array();
   $newI['weight'] = $cw;
-  $newI['new'] = true;
+  $newI['new'] = TRUE;
   $newI['title'] = $quote->title;
   $newI['quantity'] = 0;
   $newI['cost'] = $quote->cost;
@@ -1272,7 +1272,7 @@ function budgets_fund_form($form_state, $params = array()) {
   if (empty($form_state['values'])) {
     if ($fid == 'contribute') {
       unset($fid);
-      $f['new'] = array('#type' => 'hidden','#value' => true);
+      $f['new'] = array('#type' => 'hidden','#value' => TRUE);
     } else {
       $fund = $params->funds[$fid];
       $f['id'] = array('#type' => 'hidden','#value' => $fund['id']);
@@ -1298,7 +1298,7 @@ function budgets_fund_form($form_state, $params = array()) {
   $f['contributor_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $fund['contributor_name'],
     '#description' => t('Your full name, ' .
         'or if your contribution wants to be anonyomous, ' .
@@ -1308,7 +1308,7 @@ function budgets_fund_form($form_state, $params = array()) {
   $f['contributor_email'] = array(
     '#type' => 'textfield',
     '#title' => t('e-mail'),
-    '#required' => true,
+    '#required' => TRUE,
     '#attributes' => array(
       'class'=>'email required'),
     '#default_value' => $fund['contributor_email'],
@@ -1326,7 +1326,7 @@ function budgets_fund_form($form_state, $params = array()) {
     '#type' => 'textfield',
     '#title' => t('Amount'),
     '#size' => 12,
-    '#required' => true,
+    '#required' => TRUE,
     '#max-length' => 15,
     '#attributes' => array(
       'class'=>'number required',
@@ -1350,7 +1350,7 @@ function budgets_fund_form($form_state, $params = array()) {
   if (isset($f['new']))
     $f['terms'] = array(
       '#type' => 'checkbox',
-      '#required' => true,
+      '#required' => TRUE,
       '#title'=>t('Do you accept the Terms & Conditions described below?'),
       '#attributes'=>array('class'=>'required'),
       '#description' => $budget->terms,
@@ -1608,7 +1608,7 @@ function budgets_save(&$node) {
 }
 
 function budgets_insert($node) {
-  $node->new = true;
+  $node->new = TRUE;
   $node->id = $node->nid;
   budgets_save($node);
 }
@@ -1676,7 +1676,7 @@ function budgets_page($zone = NULL,$status = NULL) {
 
   $output = '';
   while ($node = db_fetch_object($result)) {
-      $output .= node_view(node_load(array('nid'=>$node->nid)), true);
+      $output .= node_view(node_load(array('nid'=>$node->nid)), TRUE);
   }
 
   if (empty($output))
@@ -1877,27 +1877,27 @@ function theme_budgets_funds($node,$links = false) {
         $b = '<pre>';
         if ($fund['fund_status'] == 'Submitted')
           $b .= l(guifi_img_icon('ok.png'),
-               'budgets/'.$node->id.'/fund/'.$fund['id'].'/Accepted',
+               'budgets/' . $node->id . '/fund/' . $fund['id'] . '/Accepted',
                array(
-                 'attributes'=>array('title'=>t('Accept this funding')),
-                 'html'=>true));
+                 'attributes' => array('title' => t('Accept this funding')),
+                 'html' => TRUE));
         $b .= l(guifi_img_icon('edit.png'),
-               'budgets/'.$node->id.'/edit/'.$fund['id'],
+               'budgets/'.$node->id . '/edit/' . $fund['id'],
                array(
-                 'attributes'=>array('title'=>t('Edit this funding')),
-                 'html'=>true));
-        if (!array_search($fund['fund_status'],array('dummy','Declined','Paid')))
+                 'attributes' => array('title' => t('Edit this funding')),
+                 'html' => TRUE));
+        if (!array_search($fund['fund_status'], array('dummy', 'Declined', 'Paid')))
           $b .= l(guifi_img_icon('money.png'),
-               'budgets/'.$node->id.'/fund/'.$fund['id'].'/Paid',
+               'budgets/' . $node->id . '/fund/' . $fund['id'] . '/Paid',
                array(
-                 'attributes'=>array('title'=>t('Mark the payment as done for this funding')),
-                 'html'=>true));
-        if (!array_search($fund['fund_status'],array('dummy','Declined','Paid')))
+                 'attributes' => array('title' => t('Mark the payment as done for this funding')),
+                 'html' => TRUE));
+        if (!array_search($fund['fund_status'], array('dummy', 'Declined', 'Paid')))
           $b .= l(guifi_img_icon('drop.png'),
-               'budgets/'.$node->id.'/fund/'.$fund['id'].'/Declined',
+               'budgets/' . $node->id . '/fund/' . $fund['id'] . '/Declined',
                array(
-                 'attributes'=>array('title'=>t('Decline this funding')),
-                 'html'=>true));
+                 'attributes' => array('title' => t('Decline this funding')),
+                 'html' => TRUE));
         $b .= '</pre>';
 
 
