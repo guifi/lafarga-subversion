@@ -53,7 +53,7 @@ function guifi_radio_form(&$edit,$form_weight) {
   $form['radio_settings']['mac'] = array(
     '#type' => 'textfield',
     '#title' => t('Device MAC Address'),
-    '#required' => true,
+    '#required' => TRUE,
     '#size' => 17,
     '#maxlength' => 17,
     '#default_value' => $edit['mac'],
@@ -64,7 +64,7 @@ function guifi_radio_form(&$edit,$form_weight) {
     '#weight' => 4
   );
 
-  $collapse = true;
+  $collapse = TRUE;
 
   $msg = (count($edit['radios'])) ?
     format_plural(count($edit['radios']),'1 radio','@count radios') :
@@ -73,7 +73,7 @@ function guifi_radio_form(&$edit,$form_weight) {
   if (count($edit['radios']))
     foreach ($edit['radios'] as $value)
     if ($value['unfold'])
-      $collapse = false;
+      $collapse = FALSE;
 
   $form['r'] = array(
     '#type' => 'fieldset',
@@ -94,12 +94,12 @@ function guifi_radio_form(&$edit,$form_weight) {
 //    '#suffix'=>'</div>'
 //  );
   $rc = 0;
-  $bridge = false;
+  $bridge = FALSE;
   $cinterfaces = 0;
   $cipv4 = 0;
   $clinks = 0;
   if (!empty($edit['radios'])) foreach ($edit['radios'] as $key => $radio) {
-    $hotspot = false;
+    $hotspot = FALSE;
 
 //    if ($radio['deleted']) continue;
 
@@ -145,7 +145,7 @@ function guifi_radio_form(&$edit,$form_weight) {
       }
 
       // Only allow delete and move functions if the radio has been saved
-      if ($radio['new']==false)  {
+      if ($radio['new']==FALSE)  {
         // Only allow delete radio if several when is not the first
         if ((count($edit['radios'])==1) or ($key))
           $form['r']['radios'][$key]['delete'] = array(
@@ -233,7 +233,7 @@ function guifi_radio_form(&$edit,$form_weight) {
 function guifi_radio_add_radio_form($edit) {
 
   // Edit radio form or add new radio
-  $cr = 0; $tr = 0; $firewall=false;
+  $cr = 0; $tr = 0; $firewall=FALSE;
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d',$edit[variable][model_id]));
 
   if (isset($edit[radios]))
@@ -242,7 +242,7 @@ function guifi_radio_add_radio_form($edit) {
     if (!$radio['deleted'])
       $cr++;
     if ($radio['mode'] == 'client')
-      $firewall = true;
+      $firewall = TRUE;
   } // foreach $radio
 
   if ($edit['zone_mode']=='ad-hoc')
@@ -273,7 +273,7 @@ function guifi_radio_add_radio_form($edit) {
     '#type' => 'button',
     '#parents' => array('AddRadio'),
     '#default_value' => t('Add new radio'),
-    '#executes_submit_callback' => true,
+    '#executes_submit_callback' => TRUE,
     '#submit' => array(guifi_radio_add_radio_submit),
     '#prefix' => '<td style="width: 10em" align="left">',
     '#suffix' => '</td><td style="width: 100%" align="right">&nbsp</td></tr>',
@@ -303,7 +303,7 @@ function guifi_radio_firmware_field($fid,$mid) {
     '#default_value' => $fid,
     '#prefix' => '<td><div id="select-firmware">',
     '#suffix' => '</div></td>',
-    '#options' => guifi_types('firmware',null,null,$model->name),
+    '#options' => guifi_types('firmware', NULL, NULL,$model->name),
     '#description' => t('Used for automatic configuration.'),
     '#weight' => 2,
 //    '#description'=>$edit['variable']['model_id'],
@@ -316,7 +316,7 @@ function guifi_radio_channel_field($rid, $channel, $protocol) {
     '#title' => t("Channel"),
     '#parents' => array('radios',$rid,'channel'),
     '#default_value' =>  $channel,
-    '#options' => guifi_types('channel',null,null,$protocol),
+    '#options' => guifi_types('channel', NULL, NULL,$protocol),
     '#description' => t('Select the channel where this radio will operate.'),
     '#prefix'=>'<div id="select-channel-'.$rid.'">',
     '#suffix'=>'</div>',
@@ -336,7 +336,7 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
       '#type' => 'fieldset',
       '#title' => t('Radio #').$key.' - '.$radio['mode'].' - '.$radio['ssid'].
         ' - '.count($radio['interfaces']).' '.t('interface(s)'),
-      '#collapsible' => true,
+      '#collapsible' => TRUE,
       '#collapsed' => !(isset($radio['unfold'])),
       '#tree'=> TRUE,
       '#weight' => $form_weight++,
@@ -351,13 +351,13 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
         '#weight' => $form_weight++);
       $f['deleted'] = array(
         '#type' => 'hidden',
-        '#value' => true);
+        '#value' => TRUE);
     }
     if ($radio['new']) {
       $f['new'] = array(
         '#type' => 'hidden',
         '#parents' => array('radios',$key,'new'),
-        '#value' => true);
+        '#value' => TRUE);
     }
     $f['mode'] = array(
         '#type' => 'hidden',
@@ -367,16 +367,16 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
     $f['s'] = array(
       '#type' => 'fieldset',
       '#title' => t('Radio main settings (SSID, MAC, Channel...)'),
-      '#collapsible' => true,
+      '#collapsible' => TRUE,
       '#collapsed' => !(isset($radio['unfold_main'])),
-      '#tree'=>false,
+      '#tree'=>FALSE,
 //      '#weight' => $fw2++,
     );
     $f['s']['mac'] = array(
       '#type' => 'textfield',
 //      '#parents' => array('radios',$key,'mac'),
       '#title' => t('MAC'),
-      '#required' => true,
+      '#required' => TRUE,
       '#parents' => array('radios',$key,'mac'),
       '#size' => 17,
       '#maxlength' => 17,
@@ -468,7 +468,7 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
 					'#title' => t("Channel"),
 					'#parents' => array('radios',$key,'channel'),
 					'#default_value' =>  $radio["channel"],
-					'#options' => guifi_types('channel',null,null,$radio['protocol']),
+					'#options' => guifi_types('channel', NULL, NULL,$radio['protocol']),
 					'#description' => $inherit_msg,
 					'#prefix'=>'<td>',
 					'#suffix'=>'</td>',
@@ -487,9 +487,9 @@ function guifi_radio_radio_form($radio, $key, &$form_weight = -200) {
     $f['antenna'] = array(
       '#type' => 'fieldset',
       '#title' => t('Antenna settings'),
-      '#collapsible' => true,
+      '#collapsible' => TRUE,
       '#collapsed' => !(isset($radio['unfold_antenna'])),
-      '#tree'=>false,
+      '#tree'=>FALSE,
 //      '#weight' => $fw2++,
     );
     $fw2 = 0;
@@ -578,7 +578,7 @@ function guifi_radio_radio_interfaces_form($radio, $rk, &$counters, &$weight) {
 
   foreach ($radio['interfaces'] as $ki => $interface) {
 //    guifi_log(GUIFILOG_FULL,'interface',$interface);
-    if ($interface['interface_type'] == null)
+    if ($interface['interface_type'] == NULL)
       continue;
     if ($interface['deleted'])
       continue;
@@ -592,7 +592,7 @@ function guifi_radio_radio_interfaces_form($radio, $rk, &$counters, &$weight) {
       $f[$it][$ki]['new'] = array(
         '#type' => 'hidden',
         '#parents'=>array('radios',$rk,'interfaces',$ki,'new'),
-        '#value' => true);
+        '#value' => TRUE);
 
     $f[$it][$ki]['id'] = array(
         '#type'=>'hidden',
@@ -614,7 +614,7 @@ function guifi_radio_radio_interfaces_form($radio, $rk, &$counters, &$weight) {
         $f[$it][$ki]['ipv4'][$ka]['new'] = array(
           '#type' => 'hidden',
           '#parents'=>array('radios',$rk,'interfaces',$ki,'ipv4',$ka,'new'),
-          '#value' => true);
+          '#value' => TRUE);
 
       $links_count[$it] += guifi_ipv4_link_form(
         $f[$it][$ki]['ipv4'][$ka],
@@ -633,7 +633,7 @@ function guifi_radio_radio_interfaces_form($radio, $rk, &$counters, &$weight) {
         '#attributes'=>array('title'=>t('Delete Hotspot')),
         '#submit' => array('guifi_interface_delete_submit'),
         '#weight'=>$weight++);
-      $hotspot = true;
+      $hotspot = TRUE;
       break;
     case 'wds/p2p':
       $f[$it][$ki]['ipv4'][$ka]['local']['AddWDS'] = array(
@@ -718,7 +718,7 @@ function guifi_radio_validate($edit,$form) {
   }
 */
   if (($edit['variable']['firmware'] != 'n/a') and
-    ($edit['variable']['firmware'] != null)) {
+    ($edit['variable']['firmware'] != NULL)) {
     $radio = db_fetch_object(db_query("
       SELECT model
       FROM {guifi_model}
@@ -747,7 +747,7 @@ function guifi_radio_swap_submit($form, &$form_state) {
   }
   $form_state['swapRadios']=$old.','.$new;
   $form_state['action']='guifi_radio_swap';
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   return;
 }
 
@@ -762,24 +762,24 @@ function guifi_radio_swap($form, &$form_state) {
   ksort($form_state['values']['radios']);
   drupal_set_message(t('Radio #%old moved to #%new.',
     array('%old'=>$old,'%new'=>$new)));
-  return true;
+  return TRUE;
 }
 
-function _guifi_radio_add_wlan($radio, $nid, $edit = null) {
+function _guifi_radio_add_wlan($radio, $nid, $edit = NULL) {
   $interface = array();
-  $interface['new'] = true;
-  $interface['unfold'] = true;
+  $interface['new'] = TRUE;
+  $interface['unfold'] = TRUE;
   $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0', $edit, 1);
-  $net = guifi_ipcalc_get_subnet_by_nid($nid,'255.255.255.224', 'public', $ips_allocated, 'Yes', true);
+  $net = guifi_ipcalc_get_subnet_by_nid($nid,'255.255.255.224', 'public', $ips_allocated, 'Yes', TRUE);
 
   if (!$net) {
     drupal_set_message(t('Unable to allocate new range, no networks available'),'warning');
-    return false;
+    return FALSE;
   }
   guifi_log(GUIFILOG_FULL, "IPs allocated: " . count($ips_allocated) . " Obtained new net: " . $net . "/27");
   $interface['ipv4'][$radio] = array();
-  $interface['ipv4'][$radio]['new'] = true;
-  $interface['ipv4'][$radio]['unfold'] = true;
+  $interface['ipv4'][$radio]['new'] = TRUE;
+  $interface['ipv4'][$radio]['unfold'] = TRUE;
   $interface['ipv4'][$radio]['ipv4_type'] = 1;
   $interface['ipv4'][$radio]['ipv4'] = long2ip(ip2long($net) + 1);
   $interface['ipv4'][$radio]['netmask'] = '255.255.255.224';
@@ -796,9 +796,9 @@ function guifi_radio_add_wlan_submit($form, &$form_state) {
 
   $interface = _guifi_radio_add_wlan($radio, $form_state['values']['nid'], $form_state['values']);
   
-  $form_state['values']['radios'][$radio]['unfold'] = true;
+  $form_state['values']['radios'][$radio]['unfold'] = TRUE;
   $form_state['values']['radios'][$radio]['interfaces'][]=$interface;
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   drupal_set_message(t('wLan with %net/%mask added at radio#%radio',
     array('%net'=>$net,'%mask'=>'255.255.255.224','%radio'=>$radio)));
 
@@ -811,12 +811,12 @@ function guifi_radio_add_hotspot_submit($form, &$form_state) {
 
     // filling variables
   $interface=array();
-  $interface['new']=true;
+  $interface['new']=TRUE;
   $interface['interface_type']='HotSpot';
-  $interface['unfold']=true;
-  $form_state['values']['radios'][$radio]['unfold']=true;
+  $interface['unfold']=TRUE;
+  $form_state['values']['radios'][$radio]['unfold']=TRUE;
   $form_state['values']['radios'][$radio]['interfaces'][] = $interface;
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   drupal_set_message(t('Hotspot added at radio#%radio',
     array('%radio'=>$radio)));
 
@@ -825,7 +825,7 @@ function guifi_radio_add_hotspot_submit($form, &$form_state) {
 
 function _guifi_radio_get_default() {
   $radio = array();
-  $radio['new'] = true;
+  $radio['new'] = TRUE;
   $radio['model_id'] = 16;
   $radio['protocol'] = '802.11b';
   $radio['channel'] = 0;
@@ -834,7 +834,7 @@ function _guifi_radio_get_default() {
   $radio['antenna_mode'] = 'Main';
   $radio['interfaces'] = array();
   $radio['interfaces'][0] = array();
-  $radio['interfaces'][0]['new'] = true;
+  $radio['interfaces'][0]['new'] = TRUE;
   $radio['interfaces'][0]['id'] = 0;
   return $radio;
 }
@@ -858,7 +858,7 @@ function _guifi_radio_prepare_add_radio($edit) {
 
   $node = node_load(array('nid'=>$edit['nid']));
   $zone = node_load(array('nid'=>$node->zone_id));
-  if (($zone->nick == '') or ($zone->nick == null)) {
+  if (($zone->nick == '') or ($zone->nick == NULL)) {
     $zone->nick = guifi_abbreviate($zone->nick);
   }
    
@@ -883,14 +883,14 @@ function _guifi_radio_prepare_add_radio($edit) {
 	  // first radio, force wlan/Lan bridge and get an IP
 	  if ($tc == 0) {
         $radio['interfaces'][1] = array();
-        $radio['interfaces'][1]['new'] = true;
+        $radio['interfaces'][1]['new'] = TRUE;
         $radio['interfaces'][1]['interface_type']='wLan/Lan';
         $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0', '0.0.0.0', $edit, 1);
-        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'], '255.255.255.224', 'public', $ips_allocated, 'Yes', true);
+        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'], '255.255.255.224', 'public', $ips_allocated, 'Yes', TRUE);
           
         guifi_log(GUIFILOG_BASIC,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/27');
         $radio['interfaces'][1]['ipv4'][$rc] = array();
-        $radio['interfaces'][1]['ipv4'][$rc]['new'] = true;
+        $radio['interfaces'][1]['ipv4'][$rc]['new'] = TRUE;
         $radio['interfaces'][1]['ipv4'][$rc]['ipv4_type'] = 1;
         $radio['interfaces'][1]['ipv4'][$rc]['ipv4'] = long2ip(ip2long($net)+1);
         guifi_log(GUIFILOG_BASIC, "Assigned IP: " . $radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
@@ -907,7 +907,7 @@ function _guifi_radio_prepare_add_radio($edit) {
       $radio['antenna_angle'] = 30;
       $radio['clients_accepted'] = "No";
       $radio['ssid'] = $ssid . 'CPE' . $rc;
-      $radio['interfaces'][0]['new'] = true;
+      $radio['interfaces'][0]['new'] = TRUE;
       $radio['interfaces'][0]['interface_type'] = 'Wan';
 	  if ($rc == 0) {
 	    $radio['mac'] = _guifi_mac_sum($edit['mac'],1);
@@ -922,16 +922,16 @@ function _guifi_radio_prepare_add_radio($edit) {
       // first radio, force wlan/Lan bridge and get an IP
       if ($tc == 0) {
         $radio['interfaces'][1] = array();
-        $radio['interfaces'][1]['new'] = true;
+        $radio['interfaces'][1]['new'] = TRUE;
         $radio['interfaces'][1]['interface_type'] = 'wLan/Lan';
         $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
         // $net = guifi_ipcalc_get_meship($edit['nid'],$ips_allocated);
-        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.255','public',$ips_allocated,'No',true);
+        $net = guifi_ipcalc_get_subnet_by_nid($edit['nid'],'255.255.255.255','public',$ips_allocated,'No', TRUE);
         $i = _ipcalc($net,'255.255.255.255');
         guifi_log(GUIFILOG_TRACE,"IPS allocated: " . count($ips_allocated)." got net: ".$net.'/32',$i);
         
         $radio['interfaces'][1]['ipv4'][$rc] = array();
-        $radio['interfaces'][1]['ipv4'][$rc]['new'] = true;
+        $radio['interfaces'][1]['ipv4'][$rc]['new'] = TRUE;
         $radio['interfaces'][1]['ipv4'][$rc]['ipv4_type'] = 1;
         $radio['interfaces'][1]['ipv4'][$rc]['ipv4'] = $net;
         guifi_log(GUIFILOG_TRACE,"Assigned IP: " . $radio['interfaces'][1]['ipv4'][$rc]['ipv4']);
@@ -955,7 +955,7 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
   guifi_log(GUIFILOG_TRACE, "function guifi_radio_add_radio_submit()",$form_state['values']);
 
   // wrong form navigation, can't do anything
-  if ($form_state['values']['newradio_mode'] == null) {
+  if ($form_state['values']['newradio_mode'] == NULL) {
     return TRUE;
   }
 
@@ -963,11 +963,11 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
 
   $radio = _guifi_radio_prepare_add_radio($edit);
 
-  $radio['unfold'] = true;
-  $radio['unfold_main'] = true;
-  $radio['unfold_antenna'] = true;
+  $radio['unfold'] = TRUE;
+  $radio['unfold_main'] = TRUE;
+  $radio['unfold_antenna'] = TRUE;
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   $form_state['values']['radios'][] = $radio;
 
   drupal_set_message(t('Radio %ssid added in mode %mode.',
@@ -980,11 +980,11 @@ function guifi_radio_add_radio_submit(&$form, &$form_state) {
 function guifi_radio_delete_submit($form, &$form_state) {
   guifi_log(GUIFILOG_TRACE,"function guifi_radio_delete_submit()",$form_state['clicked_button]']);
   $radio_id = $form_state['clicked_button']['#parents'][1];
-  $form_state['values']['radios'][$radio_id]['deleted'] = true;
-  $form_state['values']['radios'][$radio_id]['unfold'] = true;
+  $form_state['values']['radios'][$radio_id]['deleted'] = TRUE;
+  $form_state['values']['radios'][$radio_id]['unfold'] = TRUE;
   drupal_set_message(t('Radio#%num has been deleted.',
     array('%num'=>$radio_id)));
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   return;
 }
 
@@ -997,14 +997,14 @@ function guifi_radio_add_link2ap_submit(&$form,&$form_state) {
       $radio_id, $interface_id),
     $form_state['clicked_button']['#parents']);
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   $form_state['action'] = 'guifi_radio_add_link2ap_form';
 
   // initialize the filters
   $form_state['filters'] = array(
     'dmin'   => 0,
     'dmax'   => 10,
-    'search' => null,
+    'search' => NULL,
     'type'   => 'ap/client',
     'mode'   => $form_state['values']['radios'][$radio_id]['mode'],
     'from_node' => $form_state['values']['nid'],
@@ -1056,7 +1056,7 @@ function guifi_radio_add_link2ap_form(&$form,&$form_state) {
   return FALSE;
 }
 
-function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = null, $link_id = 0, $edit = array()) {
+function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = NULL, $link_id = 0, $edit = array()) {
   // get list of the current used ips
   $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0', '0.0.0.0', $edit, 1);
 
@@ -1075,7 +1075,7 @@ function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = n
     $item = _ipcalc($ipAP['ipv4'], $ipAP['netmask']);
     
     if( $ipv4 ) {
-      $link['ipv4'] = null;
+      $link['ipv4'] = NULL;
       if( !isset($ips_allocated[ip2long($ipv4)])) {
         $ip_dec = ip2long($ipv4);
         $begin_dec = ip2long($item['netid']);
@@ -1089,7 +1089,7 @@ function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = n
       $link['ipv4'] = guifi_ipcalc_find_ip($item['netid'], $ipAP['netmask'], $ips_allocated);
     }
     
-    if ($link['ipv4'] != null) {
+    if ($link['ipv4'] != NULL) {
       break;
     }
 
@@ -1097,7 +1097,7 @@ function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = n
   }
 
   // if network was full, delete link
-  if ($link['ipv4'] == null) {
+  if ($link['ipv4'] == NULL) {
     return -1;
     $form_state['action'] = 'guifi_radio_add_link2ap_form';
     drupal_set_message(
@@ -1122,15 +1122,15 @@ function _guifi_radio_add_link2ap($nid, $device_id, $radiodev_counter, $ipv4 = n
   );
 
   // local ipv4 information
-  $lipv4['new'] = true;
+  $lipv4['new'] = TRUE;
   $lipv4['ipv4'] = $link['ipv4'];
   $lipv4['ipv4_type'] = 1;
   $lipv4['netmask'] = $ipAP['netmask'];
 
   // link
   $lipv4['links'][$link_id]['id'] = $link_id;
-  $lipv4['links'][$link_id]['new'] = true;
-  $lipv4['links'][$link_id]['unfold'] = true;
+  $lipv4['links'][$link_id]['new'] = TRUE;
+  $lipv4['links'][$link_id]['unfold'] = TRUE;
   $lipv4['links'][$link_id]['interface_id'] = $ipAP['id'];
   $lipv4['links'][$link_id]['device_id'] = $device_id;
   $lipv4['links'][$link_id]['nid'] = $nid;
@@ -1156,7 +1156,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
   //    $form_state['link2apInterface']);
     $form_state['values']['filters']);
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 
   $interface_id = $form_state['values']['link2apInterface'];
   $local_ipv4 = &$form_state['values']['radios']
@@ -1186,7 +1186,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
   while ($ipAP = db_fetch_array($qAP)) {
     $item = _ipcalc($ipAP['ipv4'],$ipAP['netmask']);
     $link['ipv4'] = guifi_ipcalc_find_ip($item['netid'],$ipAP['netmask'],$ips_allocated);
-    if ($link['ipv4'] != null)
+    if ($link['ipv4'] != NULL)
       break;
 
     drupal_set_message(
@@ -1194,7 +1194,7 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
   }
 
   // if network was full, delete link
-  if ($link['ipv4'] == null) {
+  if ($link['ipv4'] == NULL) {
     $form_state['action'] = 'guifi_radio_add_link2ap_form';
     drupal_set_message(
       t('The Link was not created: ' .
@@ -1218,14 +1218,14 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
   );
 
   // local ipv4 information
-  $lipv4['new'] = true;
+  $lipv4['new'] = TRUE;
   $lipv4['ipv4'] = $link['ipv4'];
   $lipv4['ipv4_type'] = 1;
   $lipv4['netmask'] = $ipAP['netmask'];
 
   // link
-  $lipv4['links'][0]['new'] = true;
-  $lipv4['links'][0]['unfold'] = true;
+  $lipv4['links'][0]['new'] = TRUE;
+  $lipv4['links'][0]['unfold'] = TRUE;
   $lipv4['links'][0]['interface_id'] = $ipAP['id'];
   $lipv4['links'][0]['device_id'] = $device_id;
   $lipv4['links'][0]['nid'] = $nid;
@@ -1248,8 +1248,8 @@ function guifi_radio_add_link2ap_confirm_submit(&$form,&$form_state) {
 
   // unfold return
   $form_state['values']['radios']
-    [$form_state['values']['filters']['from_radio']]['unfold'] = true;
-  $lipv4['unfold'] = true;
+    [$form_state['values']['filters']['from_radio']]['unfold'] = TRUE;
+  $lipv4['unfold'] = TRUE;
 
   $local_ipv4[] = $lipv4;
 
@@ -1270,13 +1270,13 @@ function guifi_radio_add_wds_confirm(&$form,&$form_state) {
 
 
   foreach ( $form_state['values']['newInterface'][$interface_id]['ipv4'] as $newInterface) {
-    $newInterface['links'][0]['unfold'] = true;
+    $newInterface['links'][0]['unfold'] = TRUE;
     $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['ipv4'][] = $newInterface;
     guifi_log(GUIFILOG_TRACE,"new Interface added: ",$newInterface);
   }
 
-  $form_state['values']['radios'][$radio_id]['unfold'] = true;
-  $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['unfold'] = true;
+  $form_state['values']['radios'][$radio_id]['unfold'] = TRUE;
+  $form_state['values']['radios'][$radio_id]['interfaces'][$interface_id]['unfold'] = TRUE;
 
   guifi_log(GUIFILOG_TRACE,
     sprintf("function guifi_radio_add_wds_confirm POST (radio: %d, interface: %d)",
@@ -1326,11 +1326,11 @@ function guifi_radio_add_wds_confirm_submit(&$form,&$form_state) {
     $form_state['values']['newInterface']
   );
 
-  $form_state['values']['newInterface']['unfold'] = true;
+  $form_state['values']['newInterface']['unfold'] = TRUE;
 
   guifi_log(GUIFILOG_FULL,"finished link: ", $form_state['values']['radios'][$radio_id]['interfaces']);
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   $form_state['newinterface'] = $form_state['values']['newInterface'];
   $form_state['action'] = 'guifi_radio_add_wds_confirm';
 
@@ -1403,7 +1403,7 @@ function _guifi_radio_add_wds_get_new_interface($nid, $ips_allocated = array()) 
   //
   $newlk = array();
 
-  $newlk['new'] = true;
+  $newlk['new'] = TRUE;
   $newlk['interface'] = array();
 
   $newlk['link_type'] = 'wds';
@@ -1430,14 +1430,14 @@ function _guifi_radio_add_wds_get_new_interface($nid, $ips_allocated = array()) 
 
   // remote ipv4
   $newlk['interface']['ipv4'] = array();
-  $newlk['interface']['ipv4']['new'] = true;
+  $newlk['interface']['ipv4']['new'] = TRUE;
   $newlk['interface']['ipv4']['ipv4_type'] = 2;
   $newlk['interface']['ipv4']['ipv4'] = $ip2;
   $newlk['interface']['ipv4']['netmask'] = '255.255.255.252';
 
   // initializing local interface
   $newif = array();
-  $newif['new'] = true;
+  $newif['new'] = TRUE;
   $newif['ipv4_type'] = 2;
   $newif['ipv4'] = $ip1;
   $newif['netmask'] = '255.255.255.252';
@@ -1455,7 +1455,7 @@ function guifi_radio_add_wds_submit(&$form, &$form_state) {
   guifi_log(GUIFILOG_TRACE,sprintf("function guifi_radio_add_wds(Radio: %d, Interface: %d)",$radio_id,$interface_id),
     $form_state['clicked_button']['#parents']);
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
   $form_state['action'] = 'guifi_radio_add_wds_form';
 
   // get list of the current used ips
@@ -1464,14 +1464,14 @@ function guifi_radio_add_wds_submit(&$form, &$form_state) {
   $newif = _guifi_radio_add_wds_get_new_interface($form_state['values']['nid'], $ips_allocated);
   if( $newif == -1 ) {
     drupal_set_message(t('Unable to create link, no networks available'),'warning');
-    return false;
+    return FALSE;
   }
 
   // Initialize filters
   $form_state['filters'] = array(
     'dmin'   => 0,
     'dmax'   => 15,
-    'search' => null,
+    'search' => NULL,
 //    'max' => 25,
     'type'   => 'wds',
     'mode'   => $form_state['values']['radios'][$radio_id]['mode'],
@@ -1483,7 +1483,7 @@ function guifi_radio_add_wds_submit(&$form, &$form_state) {
   
   $form_state['newInterface'][$interface_id]['ipv4'][] = $newif;
   
-  return true;
+  return TRUE;
 }
 
 ?>

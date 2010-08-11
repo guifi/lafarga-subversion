@@ -7,7 +7,7 @@
 
 /** guifi_notify_send(): Delivers all the waiting messages and empties the queue
 */
-function guifi_notify_send($send = true) {
+function guifi_notify_send($send = TRUE) {
   global $user;
 
   $destinations = array();
@@ -23,7 +23,7 @@ function guifi_notify_send($send = true) {
   }
 
   // For every destination, construct a single mail with all messages
-  $errors = false;
+  $errors = FALSE;
   $output = '';
   foreach ($destinations as $to=>$msgs) {
     $body = str_repeat('-',72)."\n\n".
@@ -50,7 +50,7 @@ function guifi_notify_send($send = true) {
     $params['mail']['subject']= $subject;
     $params['mail']['body']=$subjects.$body;
 
-    $return = false;
+    $return = FALSE;
     if ($send) {
       $return = drupal_mail('guifi_notify','notify',
         $to,
@@ -68,7 +68,7 @@ function guifi_notify_send($send = true) {
       watchdog('guifi',
         'Unable to notify %name',
         array('%name'=>$to));
-      $errors = true;
+      $errors = TRUE;
     }
 
   }
@@ -82,11 +82,11 @@ function guifi_notify_send($send = true) {
 
 function to_date($str) {
   if ($str == 'n/a')
-    return null;
+    return NULL;
 
   $datestr = str_replace(array(" ",":","/"),"",$str);
   if (strlen($datestr) != 12)
-    return null;
+    return NULL;
 
   return mktime(
     (int)substr($datestr,8,2),
@@ -97,7 +97,7 @@ function to_date($str) {
     (int)substr($datestr,0,4));
 }
 
-function guifi_cron_loadCNMLstats($graph_server,$verbose=false) {
+function guifi_cron_loadCNMLstats($graph_server,$verbose=FALSE) {
   if (is_null($gs))
     $gs = guifi_service_load($graph_server);
 

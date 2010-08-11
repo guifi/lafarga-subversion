@@ -22,7 +22,7 @@ function budgets_supplier_form(&$node) {
     $form['title'] = array(
       '#type' => 'textfield',
       '#title' => check_plain($type->title_label),
-      '#required' => true,
+      '#required' => TRUE,
       '#default_value' => $node->title,
     );
   }
@@ -40,7 +40,7 @@ function budgets_supplier_form(&$node) {
   return $form;
 }
 
-function budgets_supplier_access($op, $node, $account = null) {
+function budgets_supplier_access($op, $node, $account = NULL) {
   global $user;
 
   if (is_numeric($node))
@@ -101,13 +101,13 @@ function budgets_supplier_save($node) {
 }
 
 function budgets_supplier_insert($node) {
-  $node->new = true;
+  $node->new = TRUE;
   $node->id = $node->nid;
   budgets_supplier_save($node);
 }
 
 function budgets_supplier_delete($node) {
-  $node->delete = true;
+  $node->delete = TRUE;
   budgets_supplier_save($node);
 }
 
@@ -125,7 +125,7 @@ function budgets_supplier_load($node) {
     db_query("SELECT * FROM {supplier} WHERE id = '%d'", $k));
 
   if (is_null($node->id))
-    return false;
+    return FALSE;
 
   return $node;
 }
@@ -142,15 +142,15 @@ function budgets_supplier_list_by_zone($zone) {
   $output = '';
   while ($s = db_fetch_object($pager)) {
     $supplier = node_load(array('nid'=>$s->id));
-    $output .= node_view($supplier,true,false,true);
+    $output .= node_view($supplier, TRUE, FALSE, TRUE);
   }
   $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/suppliers'));
-  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+  $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
   $node = node_load(array('nid'=>$zone->id));
-  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
-  print theme('page',$output,false);
+  $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
+  print theme('page',$output, FALSE);
   return;
 }
 
@@ -169,7 +169,7 @@ function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
   if (!$teaser) {
     $output = '<h2>'.t('Quotes').'</h2>';
     while ($quote = db_fetch_object($qquotes)) {;
-      $output .= node_view(node_load(array('nid'=>$quote->id)),true,false);
+      $output .= node_view(node_load(array('nid'=>$quote->id)), TRUE, FALSE);
     }
 
     $node->content['quotes'] = array(

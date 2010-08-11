@@ -175,7 +175,7 @@ function guifi_graphs_get_server($id, $type='device') {
       else
         return guifi_graphs_get_server($d->nid,'node');
 	}
-  return false;
+  return FALSE;
 }
 
 /**
@@ -318,21 +318,21 @@ function guifi_graphs_get_pings($hostname, $start = NULL, $end = NULL) {
 function _guifi_script_calendar() {
   return "<script type='text/javascript'>
   // Initialize the calendar
-  calendar=null;
+  calendar=NULL;
 
   // This function displays the calendar associated to the input field 'id'
   function showCalendar(id) {
     var el = document.getElementById(id);
-    if (calendar != null) {
+    if (calendar != NULL) {
       // we already have some calendar created
       calendar.hide();  // so we hide it first.
     } else {
       // first-time call, create the calendar.
-      var cal = new Calendar(true, null, selected, closeHandler);
-      cal.weekNumbers = false;  // Do not display the week number
-      cal.showsTime = true;     // Display the time
-      cal.time24 = true;        // Hours have a 24 hours format
-      cal.showsOtherMonths = false;    // Just the current month is displayed
+      var cal = new Calendar(TRUE, NULL, selected, closeHandler);
+      cal.weekNumbers = FALSE;  // Do not display the week number
+      cal.showsTime = TRUE;     // Display the time
+      cal.time24 = TRUE;        // Hours have a 24 hours format
+      cal.showsOtherMonths = FALSE;    // Just the current month is displayed
       calendar = cal;                  // remember it in the global var
       cal.setRange(1900, 2070);        // min/max year allowed.
       cal.create();
@@ -345,7 +345,7 @@ function _guifi_script_calendar() {
     // Display the calendar below the input field
     calendar.showAtElement(el, \"Br\");        // show the calendar
 
-    return false;
+    return FALSE;
   }
 
   // This function update the date in the input field when selected
@@ -357,7 +357,7 @@ function _guifi_script_calendar() {
   // It just hides the calendar without destroying it.
   function closeHandler(cal) {
     cal.hide();                        // hide the calendar
-    calendar = null;
+    calendar = NULL;
   }
         </script>";
 }

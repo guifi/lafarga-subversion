@@ -12,7 +12,7 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
   if (count($tree)>4)
     $rk = $tree[1];
   else
-    $rk = null;
+    $rk = NULL;
 
   // creating hidden form elements for non-edited fields
   if ($link['new'])
@@ -173,7 +173,7 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
     $f['deleted_link'] = array(
       '#type'=> 'hidden',
       '#parents'=> array_merge($tree,array('deleted_link')),
-      '#value'=> true,
+      '#value'=> TRUE,
     );
   else
     $f['l']['delete_link'] = array(
@@ -189,7 +189,7 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
         'title'=>t('Delete link with').': '.
             guifi_get_interface_descr($link['interface_id'])
         ),
-      '#executes_submit_callback'=>true,
+      '#executes_submit_callback'=>TRUE,
       '#submit' => array('guifi_links_delete_submit'),
       '#prefix'=> '<td>',
      );
@@ -215,7 +215,7 @@ function guifi_links_delete_submit(&$form,&$form_state) {
   if ($values['0']=='radios') {
     $radio_id = array_pop($values);
     $fbase = &$form_state['values']['radios'][$radio_id];
-    $fbase['unfold'] = true;
+    $fbase['unfold'] = TRUE;
   } else
     $fbase = &$form_state['values'];
 
@@ -227,15 +227,15 @@ function guifi_links_delete_submit(&$form,&$form_state) {
       $ipv4_id,$link_id,$remote_nid,$remote_did),
     $values);
 
-  $fbase['interfaces'][$interface_id]['unfold'] = true;
+  $fbase['interfaces'][$interface_id]['unfold'] = TRUE;
   $fipv4 = &$fbase['interfaces'][$interface_id]['ipv4'][$ipv4_id];
-  $fipv4['unfold'] = true;
+  $fipv4['unfold'] = TRUE;
 
   $flink = &$fipv4['links'][$link_id];
-  $flink['unfold'] = true;
-  $flink['deleted'] = true;
+  $flink['unfold'] = TRUE;
+  $flink['deleted'] = TRUE;
 
-  $flink['ipv4']['unfold'] = true;
+  $flink['ipv4']['unfold'] = TRUE;
 
   // if P2P link or AP/Client link and radio is the client
   // delete also the local IP
@@ -243,10 +243,10 @@ function guifi_links_delete_submit(&$form,&$form_state) {
        ($flink['ipv4']['netmask'] == '255.255.255.252') or
        ($form_state['values']['radios'][$radio_id]['mode']=='client')
      ) {
-    $fipv4['deleted'] = true;
+    $fipv4['deleted'] = TRUE;
   }
 
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 
   drupal_set_message(t('%type link with %node/%device deleted.',
     array(
@@ -256,7 +256,7 @@ function guifi_links_delete_submit(&$form,&$form_state) {
     )
   ));
 
-  return true;
+  return TRUE;
 }
 
 function guifi_links_validate_subnet($remoteIp,&$form_state) {
@@ -298,7 +298,7 @@ function guifi_links_validate_subnet($remoteIp,&$form_state) {
   return;
 //  $longIp = ip2long($ip['#value']);
 //
-//  if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
+//  if (($longIp==FALSE) or (count(explode('.',$ip['#value']))!=4))
 //    form_error($ip,
 //      t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
 //        array('%addr'=>$ip['#value'])),'error');

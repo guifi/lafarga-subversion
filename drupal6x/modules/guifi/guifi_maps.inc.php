@@ -174,7 +174,7 @@ function guifi_WG842ED50 ( $lon, $lat, $datum ) {
 /*
  * Convert coordinates from Longitude and Latitude to UTM.
  */
-function guifi_Lonlat2UTM ( $lon, $lat, $datum, $zone, $nord=true ) {
+function guifi_Lonlat2UTM ( $lon, $lat, $datum, $zone, $nord=TRUE ) {
     // Tranformar a radians
     $lat = $lat * M_PI / 180;
     
@@ -229,7 +229,7 @@ function guifi_Lonlat2UTM ( $lon, $lat, $datum, $zone, $nord=true ) {
 /*
  * Convert coordinates from UTM to Longitude and Latitude WG84.
  */
-function guifi_UTM2WG84 ( $eastUTM, $nordUTM, $datum, $zone, $nord=true ) {
+function guifi_UTM2WG84 ( $eastUTM, $nordUTM, $datum, $zone, $nord=TRUE ) {
   $lonLat_ED50 = guifi_UTM2LonLat( $eastUTM, $nordUTM, $datum, $zone, $nord );
   return guifi_ED502WG84( $lonLat_ED50[0], $lonLat_ED50[1], $datum );
 }
@@ -249,7 +249,7 @@ function guifi_ED502WG84 ( $lon, $lat, $datum ) {
 /*
  * Convert coordinates from UTM to Longitude and Latitude WG84.
  */
-function guifi_UTM2LonLat ( $eastUTM, $nordUTM, $datum, $zone, $nord=true ) {
+function guifi_UTM2LonLat ( $eastUTM, $nordUTM, $datum, $zone, $nord=TRUE ) {
     // Zona
     if ( $zone > 0 )  $zoneCM = 6 * $zone - 183;
     else        $zoneCM = 3;
@@ -468,9 +468,9 @@ function guifi_isPointInsideTriangle ( $p, $t1, $t2, $t3, $type = 0 ) {
   
   if ( ( $normal1 >= 0 && $normal2 >= 0 && $normal3 >= 0 ) ||
        ( $normal1 <= 0 && $normal2 <= 0 && $normal3 <= 0 ) )
-    return true;
+    return TRUE;
   
-  return false;
+  return FALSE;
 }
 
 
@@ -482,39 +482,39 @@ function guifi_isPointInsideTriangle ( $p, $t1, $t2, $t3, $type = 0 ) {
 function guifi_validate3Points ( $p1, $p2, $p3 ) {
   /*		No cal, amb la distància mínima ja n'hi ha suficient.
 		// Valors iguals tant en pixels com en coordenades
-		if ( $p1[0] == $p2[0] && $p1[1] == $p2[1] )	return false;
-		if ( $p1[0] == $p3[0] && $p1[1] == $p3[1] )	return false;
-		if ( $p2[0] == $p3[0] && $p2[1] == $p3[1] )	return false;
+		if ( $p1[0] == $p2[0] && $p1[1] == $p2[1] )	return FALSE;
+		if ( $p1[0] == $p3[0] && $p1[1] == $p3[1] )	return FALSE;
+		if ( $p2[0] == $p3[0] && $p2[1] == $p3[1] )	return FALSE;
 		
-		if ( $p1[2] == $p2[2] && $p1[3] == $p2[3] )	return false;
-		if ( $p1[2] == $p3[2] && $p1[3] == $p3[3] )	return false;
-		if ( $p2[2] == $p3[2] && $p2[3] == $p3[3] )	return false;
+		if ( $p1[2] == $p2[2] && $p1[3] == $p2[3] )	return FALSE;
+		if ( $p1[2] == $p3[2] && $p1[3] == $p3[3] )	return FALSE;
+		if ( $p2[2] == $p3[2] && $p2[3] == $p3[3] )	return FALSE;
   */		
 		// Comprovem les distàncies màximes
 		$distP12 = sqrt( (($p2[0] - $p1[0]) * ($p2[0] - $p1[0])) + (($p2[1] - $p1[1]) * ($p2[1] - $p1[1])) );
 		$distP13 = sqrt( (($p3[0] - $p1[0]) * ($p3[0] - $p1[0])) + (($p3[1] - $p1[1]) * ($p3[1] - $p1[1])) );
 		$distP23 = sqrt( (($p3[0] - $p2[0]) * ($p3[0] - $p2[0])) + (($p3[1] - $p2[1]) * ($p3[1] - $p2[1])) );
 		$limitPixels = 100;		// Distància mínima per poder interpolar
-		if ( $distP12 < $limitPixels || $distP13 < $limitPixels || $distP23 < $limitPixels) return false;
+		if ( $distP12 < $limitPixels || $distP13 < $limitPixels || $distP23 < $limitPixels) return FALSE;
 		$distC12 = sqrt( (($p2[2] - $p1[2]) * ($p2[2] - $p1[2])) + (($p2[3] - $p1[3]) * ($p2[3] - $p1[3])) );
 		$distC13 = sqrt( (($p3[2] - $p1[2]) * ($p3[2] - $p1[2])) + (($p3[3] - $p1[3]) * ($p3[3] - $p1[3])) );
 		$distC23 = sqrt( (($p3[2] - $p2[2]) * ($p3[2] - $p2[2])) + (($p3[3] - $p2[3]) * ($p3[3] - $p2[3])) );
 		$limitCoord = 0.001;	// Distància mínima per poder interpolar
-		if ( $distC12 < $limitCoord || $distC13 < $limitCoord || $distC23 < $limitCoord) return false;
+		if ( $distC12 < $limitCoord || $distC13 < $limitCoord || $distC23 < $limitCoord) return FALSE;
 		
 		// Comprovem els angles en píxels i coordenades
 		$angleP12 = atan2( $p2[1] - $p1[1], $p2[0] - $p1[0]);
 		$angleP13 = atan2( $p3[1] - $p1[1], $p3[0] - $p1[0]);
 		$angleP23 = atan2( $p3[1] - $p2[1], $p3[0] - $p2[0]);
 		$limit = sin(deg2rad(10.0));	// 10º d'angle límit per donar per vàlid algun punt
-		if ( abs( sin( $angleP13 - $angleP12 )) < $limit )	return false;
+		if ( abs( sin( $angleP13 - $angleP12 )) < $limit )	return FALSE;
 		
 		$angleC12 = atan2( $p2[3] - $p1[3], $p2[2] - $p1[2]);
 		$angleC13 = atan2( $p3[3] - $p1[3], $p3[2] - $p1[2]);
 		$angleC23 = atan2( $p3[3] - $p2[3], $p3[2] - $p2[2]);
-		if ( abs( sin( $angleC13 - $angleC12 )) < $limit )	return false;
+		if ( abs( sin( $angleC13 - $angleC12 )) < $limit )	return FALSE;
 		
-		return true;
+		return TRUE;
 }
 
 

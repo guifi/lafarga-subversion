@@ -16,7 +16,7 @@ function _guifi_mac_sum($mac, $op) {
     $dec_mac = base_convert($mac_last,16,10) + $op;
     return $mac_first .strtoupper(substr(chunk_split(sprintf("%08x",$dec_mac),2,':'),0,11));
   } else
-    return false;
+    return FALSE;
 }
 
 /**
@@ -24,19 +24,19 @@ function _guifi_mac_sum($mac, $op) {
  *
 */
 function _guifi_validate_mac($mac) {
-//  if (($mac == '00:00:00:00:00:00') || ($mac == false) || ($mac == NULL))
-  if (($mac == false) || ($mac == NULL))
-    return false;
+//  if (($mac == '00:00:00:00:00:00') || ($mac == FALSE) || ($mac == NULL))
+  if (($mac == FALSE) || ($mac == NULL))
+    return FALSE;
   $mac = str_replace(":","",$mac);
   $mac = str_replace("-","",$mac);
   $mac = str_replace("/","",$mac);
   $mac = str_replace(" ","",$mac);
   $mac = str_replace(".","",$mac);
   if (strlen($mac) != 12)
-    return false;
+    return FALSE;
   foreach (explode(':',substr(chunk_split($mac,2,':'),0,17)) as $item) {
     if (($item != '00') && (hexdec($item) == 0))
-      return false;
+      return FALSE;
   }
   return strtoupper(substr(chunk_split($mac,2,':'),0,17));
 }
@@ -79,11 +79,11 @@ function _guifi_tostrunits($num) {
   }
 }
 
-function guifi_main_interface($mode = null) {
+function guifi_main_interface($mode = NULL) {
   switch ($mode) {
     case 'ap': return 'wLan/Lan';
     case 'client': return 'Wan';
-    case null: return 'Lan';
+    case NULL: return 'Lan';
     default: return 'Lan';
   }
 }
@@ -92,7 +92,7 @@ function guifi_main_ip($device_id) {
   $qips = db_query('SELECT a.ipv4,a.netmask,a.id, i.interface_type FROM {guifi_interfaces} i LEFT JOIN {guifi_ipv4} a ON a.interface_id=i.id WHERE i.device_id=%d ORDER BY a.id',$device_id);
   $ip_array=array();
   while ($ip = db_fetch_object($qips)) {
-    if ($ip->ipv4 != null) {
+    if ($ip->ipv4 != NULL) {
       $item = _ipcalc($ip->ipv4,$ip->netmask);
       switch ($ip->interface_type) {
       case 'wLan/Lan':
@@ -114,7 +114,7 @@ function guifi_main_ip($device_id) {
   return current($ip_array);
 }
 
-function guifi_types($type,$start = 24,$end = 0,$relations = null) {
+function guifi_types($type,$start = 24,$end = 0,$relations = NULL) {
   if ($type == 'netmask') {
     for ($n = $start; $n > $end; $n--) {
       $item = _ipcalc_by_netbits('0.0.0.0',$n);
@@ -126,7 +126,7 @@ function guifi_types($type,$start = 24,$end = 0,$relations = null) {
   }
 
   $values = array();
-  if ($relations == null) $query = db_query("SELECT text, description FROM {guifi_types} WHERE type='%s' ORDER BY id",$type);
+  if ($relations == NULL) $query = db_query("SELECT text, description FROM {guifi_types} WHERE type='%s' ORDER BY id",$type);
   else
     $query = db_query("SELECT text, description FROM {guifi_types} WHERE type='%s' AND RELATIONS LIKE '%s' ORDER BY id",$type,'%'.$relations.'%');
   while ($type = db_fetch_object($query)) {
@@ -135,8 +135,8 @@ function guifi_types($type,$start = 24,$end = 0,$relations = null) {
   return $values;
 }
 
-function guifi_validate_types($type, $text, $relations = null) {
-  if ($relations == null) {
+function guifi_validate_types($type, $text, $relations = NULL) {
+  if ($relations == NULL) {
     $query = db_query("SELECT COUNT(*) AS count FROM {guifi_types} WHERE type='%s' AND text = '%s' ORDER BY id", $type, $text);
   }
   else {
@@ -157,7 +157,7 @@ function guifi_get_mac($id,$itype) {
   if (!empty($dev->mac))
     return _guifi_mac_sum($dev->mac,$mac->relations);
   else
-    return null;
+    return NULL;
 }
 
 /*
@@ -168,7 +168,7 @@ function guifi_get_mac($id,$itype) {
  * @subject type code of the subject to check
  * @related type code of the relationship to be checked
  *
- * @return true if relation is valid,m false if is invalid
+ * @return TRUE if relation is valid,m FALSE if is invalid
 */
 function guifi_type_relation($type,$subject,$related) {
   $relations = db_fetch_object(db_query("SELECT text, relations FROM {guifi_types} WHERE type='%s' AND text='%s'",$type,$subject));
@@ -186,8 +186,8 @@ function guifi_form_column_group($title,$form,$help) {
   return form_group($title,"\n<table>\r  <tr>\r  ".$form."  </tr>\r</table>\n",$help);
 }
 
-function guifi_url($url,$text = null) {
-  if ($text == null)
+function guifi_url($url,$text = NULL) {
+  if ($text == NULL)
    $text = $url;
   if (!preg_match("/^http:\/\//",$url))
     $url = 'http://'.$url;
@@ -242,7 +242,7 @@ function _set_value($device,$node,&$var,$id,$rid,$search) {
   } else
     $value= $zone->title.', '.$device->ssid;
 
-  if (($search != null) and
+  if (($search != NULL) and
      (!stristr($value,$search)))
     return;
 
@@ -263,7 +263,7 @@ function guifi_devices_select($filters, $action = '') {
   guifi_log(GUIFILOG_TRACE,'function guifi_devices_select()',$filters);
 
   $var = array();
-  $found = false;
+  $found = FALSE;
 
   if ($filters['type'] == 'cable') {
     if ($filters['mode'] != 'cable-router') {
@@ -305,7 +305,7 @@ function guifi_devices_select($filters, $action = '') {
 
   while ($device = db_fetch_object($devsq)) {
     $k++;
-    $l = false;
+    $l = FALSE;
     if ($filters['type']!='cable') {
       $oGC = new GeoCalc();
       $node = db_fetch_object(db_query('
@@ -322,11 +322,11 @@ function guifi_devices_select($filters, $action = '') {
           list($min, $max) = explode(',', $minmax);
           $Az = round($oGC->GCAzimuth($device->lat, $device->lon, $node->lat, $node->lon));
           if (($Az <= $max) and ($Az >= $min)) {
-            $l = true;
+            $l = TRUE;
           }
         }
       } else {
-        $l = true;
+        $l = TRUE;
       }
     }
     if ($l) {
@@ -374,8 +374,8 @@ function guifi_devices_select($filters, $action = '') {
     '#type' => 'fieldset',
  //   '#title' => t('filters'),
  //   '#weight' => 0,
-    '#collapsible' => false,
-    '#collapsed' => false,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
  //   '#weight' => $fweight++,
     '#prefix' => '<div id="list-devices">',
     '#suffix' => '</div>',
@@ -392,7 +392,7 @@ function guifi_devices_select($filters, $action = '') {
 //      '#prefix'=>'<div id="list-devices">',
 //      '#suffix'=>'</div>',
     );
-    $form['dbuttons'] = guifi_device_buttons(true, $action, 0);
+    $form['dbuttons'] = guifi_device_buttons(TRUE, $action, 0);
     return $form;
   }
 
@@ -409,13 +409,13 @@ function guifi_devices_select($filters, $action = '') {
 //    '#suffix'=>'</div>',
   );
 
-  $form['dbuttons'] = guifi_device_buttons(true,$action,1);
+  $form['dbuttons'] = guifi_device_buttons(TRUE,$action,1);
 
   return $form;
 
 }
 
-function guifi_get_all_interfaces($id,$type = 'radio', $db = true) {
+function guifi_get_all_interfaces($id,$type = 'radio', $db = TRUE) {
   if (($db) and ($type == 'radio'))
     $model = db_fetch_array(db_query('SELECT m.interfaces FROM {guifi_radios} r LEFT JOIN {guifi_model} m ON m.mid=r.model_id WHERE r.id=%d',$id));
   else
@@ -454,7 +454,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
   while ($i = db_fetch_object($qi)) {
     $used[] = $i->interface_type;
   }
-  if ($edit != null)
+  if ($edit != NULL)
   if (count($edit['interfaces']) > 0)
     foreach ($edit['interfaces'] as $k=>$value) {
       if ($value['deleted']) continue;
@@ -485,8 +485,8 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#type' => 'fieldset',
     '#title' => t('Filters'),
     '#weight' => 0,
-    '#collapsible' => true,
-    '#collapsed' => false,
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
     '#weight' => $fweight++,
   );
   $form['f']['dmin'] = array(
@@ -660,7 +660,7 @@ function _guifi_set_namelocation($location) {
 
 function guifi_services_select($stype) {
   $var = array();
-  $found = false;
+  $found = FALSE;
 
   $query = db_query(sprintf(
     'SELECT s.id, n.title nick, z.id zone_id ' .
@@ -700,7 +700,7 @@ function guifi_validate_ip($ip,&$form_state) {
 
   $longIp = ip2long($ip['#value']);
 
-  if (($longIp==false) or (count(explode('.',$ip['#value']))!=4))
+  if (($longIp==FALSE) or (count(explode('.',$ip['#value']))!=4))
     form_error($ip,
       t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
         array('%addr'=>$ip['#value'])),'error');
@@ -794,7 +794,7 @@ function guifi_get_zone_name($id) {
 
 function guifi_get_interface_descr($iid) {
   $interface = db_fetch_object(db_query("SELECT device_id, interface_type, radiodev_counter  FROM {guifi_interfaces} WHERE id=%d",$iid));
-  if ($interface->radiodev_counter != null) {
+  if ($interface->radiodev_counter != NULL) {
     $ssid = guifi_get_ap_ssid($interface->device_id,$interface->radiodev_counter);
     return $ssid.' '.$interface->interface_type;
   } else
@@ -844,13 +844,13 @@ function guifi_ipcalc_get_maskbits($mask) {
 function guifi_ipcalc_get_ips(
   $start = '0.0.0.0',   // start address to look for
   $mask = '0.0.0.0',    // range, 0.0.0.0 means all
-  $edit = null,         // array which can contain ipv4 values to be added,
+  $edit = NULL,         // array which can contain ipv4 values to be added,
                         //   must be labeled "ipv4"
-  $ntype = null,        // ipv4 type
+  $ntype = NULL,        // ipv4 type
                         //   1: public
                         //   2: backbone
                         //   3: protocol specific (ad-hoc/mesh)
-  $zid = null)          // zone id, to be used in the future
+  $zid = NULL)          // zone id, to be used in the future
                         //   to improve performance
 {
 
@@ -884,7 +884,7 @@ function guifi_ipcalc_get_ips(
     if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
       $ip_dec = ip2long($ip['ipv4']);
 //      print "ip: $ip[ipv4] $ip_dec - ";
-      $min = false; $max = false;
+      $min = FALSE; $max = FALSE;
       if (!isset($ips[$ip_dec]))
         if (($start == '0.0.0.0') and ($mask == '0.0.0.0'))
           $ips[$ip_dec] = guifi_ipcalc_get_maskbits($ip['netmask']);
@@ -898,7 +898,7 @@ function guifi_ipcalc_get_ips(
   }
 
   // going to get current device ips, if given
-  if ($edit != null)
+  if ($edit != NULL)
     guifi_ipcalc_get_ips_recurse($edit,$ips) ;
   ksort($ips);
   return $ips;
@@ -921,11 +921,11 @@ function guifi_ipcalc_get_subnet_by_nid(
   $nid,                                 // node id
   $mask_allocate = '255.255.255.224',   // mask size to look for & allocate
   $network_type = 'public',             // public or backbone
-  $ips_allocated = null,                // sorted array containing current used ips
+  $ips_allocated = NULL,                // sorted array containing current used ips
   $allocate = 'No',                     // if 'Yes' and network_type is public,
                                         //   allocate the obtained range at the
                                         //   guifi_networks table
-  $verbose=false)                       // create time&trace output
+  $verbose=FALSE)                       // create time&trace output
 {
 
   if (empty($nid)) {
@@ -945,7 +945,7 @@ function guifi_ipcalc_get_subnet_by_nid(
 
   global $user;
 
-  $tbegin = microtime(true);
+  $tbegin = microtime(TRUE);
 
   $zone = node_load(array('nid'=>$nid));
 
@@ -957,7 +957,7 @@ function guifi_ipcalc_get_subnet_by_nid(
   $depth = 0;
   $root_zone = $zone->id;
 
-  $lbegin = microtime(true);
+  $lbegin = microtime(TRUE);
 
   $search_mask = $mask_allocate;
 
@@ -975,7 +975,7 @@ function guifi_ipcalc_get_subnet_by_nid(
         'Finding if %mask is available at %zone, elapsed: %secs',
          array('%mask'=>$mask_allocate,
            '%zone'=>$zone->title,
-           '%secs'=>round(microtime(true)-$lbegin,4))));
+           '%secs'=>round(microtime(TRUE)-$lbegin,4))));
 
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
@@ -1002,7 +1002,7 @@ function guifi_ipcalc_get_subnet_by_nid(
                 '%ip'=>$ip,
                 '%rmask'=>$net->mask,
                 '%zone'=>$zone->title,
-                '%secs'=>round(microtime(true)-$lbegin,4))));
+                '%secs'=>round(microtime(TRUE)-$lbegin,4))));
 
         // reserve the available range fount into databaseto database?
         if ( ($depth) and
@@ -1020,7 +1020,7 @@ function guifi_ipcalc_get_subnet_by_nid(
           $to_mail[] = explode(',',$zone->notification);
 
           $nnet = array(
-            'new'=>true,
+            'new'=>TRUE,
             'base'=>$ip,
             'mask'=>$mask_allocate,
             'zone'=>$root_zone,
@@ -1028,7 +1028,7 @@ function guifi_ipcalc_get_subnet_by_nid(
           );
           $nnet = _guifi_db_sql(
             'guifi_networks',
-            null,
+            NULL,
             $nnet,
             $log,
             $to_mail);
@@ -1048,7 +1048,7 @@ function guifi_ipcalc_get_subnet_by_nid(
     if ($verbose)
       drupal_set_message(t('Unable to find space at %zone, will look at parents, elapsed: %secs',
         array('%zone'=>$zone->title,
-          '%secs'=>round(microtime(true)-$lbegin,4))));
+          '%secs'=>round(microtime(TRUE)-$lbegin,4))));
 
     // Need for an unused range,
     // already allocated networks from others than parents should be considered
@@ -1102,14 +1102,14 @@ function guifi_ipcalc_get_subnet_by_nid(
 
   } while ( $master  > 0);
 
-  return false;
+  return FALSE;
 }
 
 function guifi_ipcalc_find_subnet(
   $base_ip,              // base addres to start from
   $mask_range,           // range too look (up to/total size)
   $mask_allocated,       // size of free space to look for within the total range
-  $ips_allocated = null) // sorted array with the currently used ips
+  $ips_allocated = NULL) // sorted array with the currently used ips
 {
 
   // if current allocated addresses are not given,take it from the database
@@ -1133,7 +1133,7 @@ function guifi_ipcalc_find_subnet(
 
   if ($end_dec < ($net_dec + $increment))
     // space to look for is greater than the range to look at, no need to search
-    return false;
+    return FALSE;
 
   while (($net_dec) <= ($end_dec)) {
 
@@ -1172,13 +1172,13 @@ function guifi_ipcalc_find_subnet(
   } // end while
 
   // no space available
-  return false;
+  return FALSE;
 }
 
 function guifi_ipcalc_find_ip($base_ip = '0.0.0.0',
-  $mask_range = '0.0.0.0', $ips_allocated = null) {
+  $mask_range = '0.0.0.0', $ips_allocated = NULL) {
 
-  if ($ips_allocated == null) {
+  if ($ips_allocated == NULL) {
     $ips_allocated = guifi_ipcalc_get_ips($base_ip,$mask_range);
   }
 
@@ -1197,7 +1197,7 @@ function guifi_ipcalc_find_ip($base_ip = '0.0.0.0',
   drupal_set_message(t('Network %net/%mask is full',
     array('%net' => $base_ip, '%mask' => $mask_range)),
     'warning');
-  return false;
+  return FALSE;
 }
 
 // EOF ipcalc funtions
@@ -1241,7 +1241,7 @@ function guifi_ip_type($itype1, $itype2) {
      ); // eof variable_get
 
   if ((empty($itype1)) or (empty($itype2)))
-   return false;
+   return FALSE;
 
   // if found, return network type for this interface configuration
   if (preg_match($guifi_ipconf[$itype1]['preg'],$itype2))
@@ -1250,7 +1250,7 @@ function guifi_ip_type($itype1, $itype2) {
     return $guifi_ipconf[$itype2]['ntype'];
 
   // not supported configuration, don't know how to assign ip address
-  return false;
+  return FALSE;
 
 }
 
@@ -1276,16 +1276,16 @@ define('GUIFILOG_BASIC',1);
 define('GUIFILOG_TRACE',2);
 define('GUIFILOG_FULL',3);
 
-function guifi_log($level, $var, $var2 = null) {
+function guifi_log($level, $var, $var2 = NULL) {
   global $user;
 
   if ($level > variable_get('guifi_loglevel',GUIFILOG_NONE))
     return;
 
   $output = $var;
-  if ($var2 != null)
+  if ($var2 != NULL)
   if (gettype($var2) != 'string') {
-    $output .= ': '.var_export($var2,true);
+    $output .= ': '.var_export($var2, TRUE);
   } else {
     $output .= ": ".$var2;
   }
@@ -1310,7 +1310,7 @@ function guifi_to_7bits($str) {
  return $str_new;
 }
 
-function guifi_cnml_call_service($target,$service,$params=array(),$extra=null) {
+function guifi_cnml_call_service($target,$service,$params=array(),$extra=NULL) {
 //  guifi_log(GUIFILOG_BASIC,'call CNML service target',$target);
 
   // processing graphserver
@@ -1355,7 +1355,7 @@ function guifi_cnml_call_service($target,$service,$params=array(),$extra=null) {
     return $url.'/index.php?call='.$service.'&'.guifi_cnml_args($params,$extra);
 }
 
-function guifi_cnml_args($args,$extra=null) {
+function guifi_cnml_args($args,$extra=NULL) {
   $params = array();
 
   // Temprary, for backward compatibility, to take out later
@@ -1371,7 +1371,7 @@ function guifi_cnml_args($args,$extra=null) {
   return $str;
 }
 
-function guifi_cnml_availability($args,$gs = null) {
+function guifi_cnml_availability($args,$gs = NULL) {
   if (is_null($gs))
     $gs = guifi_service_load(guifi_graphs_get_server($args['device'],'device'));
 
@@ -1381,7 +1381,7 @@ function guifi_cnml_availability($args,$gs = null) {
   if ($gs->var['version'] >= 2.0)
     return l($img_url,'guifi/menu/ip/liveping/'.$args['device'],
             array(
-              'html'=>true,
+              'html'=>TRUE,
               'attributes'=>array(
                 'title' => t('live ping/traceroute to %device',
                   array('%device'=>guifi_get_hostname($args['device']))),
@@ -1403,11 +1403,11 @@ function guifi_clean_ssid($str) {
  return $str;
 }
 
-function guifi_clear_cache($num = null) {
-	cache_clear_all('guifi','cache_block',true);
-  cache_clear_all('%/cnml/%','cache_page',true);
+function guifi_clear_cache($num = NULL) {
+	cache_clear_all('guifi','cache_block', TRUE);
+  cache_clear_all('%/cnml/%','cache_page', TRUE);
   if ($num)
-    cache_clear_all('%/'.$num.'/','cache_page',true);
+    cache_clear_all('%/'.$num.'/','cache_page', TRUE);
 }
 
 function guifi_zone_childs_recurse($id, $childs, $children) {
@@ -1557,7 +1557,7 @@ function guifi_count_radio_links($radio) {
   return $ret;
 }
 
-function guifi_next_interface($edit = null) {
+function guifi_next_interface($edit = NULL) {
    $next = 0;
    $int = db_fetch_object(db_query('
     SELECT max(id)+1 id
@@ -1631,7 +1631,7 @@ function guifi_refresh($parameter) {
 
 /** guifi_notify(): Post a message to the notification queue
 */
-function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = true) {
+function guifi_notify(&$to_mail, $subject, &$message,$verbose = TRUE, $notify = TRUE) {
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_notify()');
@@ -1655,7 +1655,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
   drupal_set_message($subject);
 
   if ($notify) {
-    if ($to_mail != null) {
+    if ($to_mail != NULL) {
       $next_id = db_fetch_array(db_query('SELECT max(id)+1 id FROM {guifi_notify}'));
       if (is_null($next_id['id']))
         $next_id['id'] = 1;
@@ -1677,7 +1677,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = true, $notify = 
     }
 
   }
-  watchdog('guifi',$msubject,null,WATCHDOG_NOTICE);
+  watchdog('guifi',$msubject, NULL,WATCHDOG_NOTICE);
   return $msubject;
 }
 

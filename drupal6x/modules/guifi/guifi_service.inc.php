@@ -32,7 +32,7 @@ function guifi_service_access($op, $node) {
 
 function guifi_service_load($node) {
   if (!$node)
-    return false;
+    return FALSE;
 
   if (is_object($node))
     $k = $node->nid;
@@ -43,10 +43,10 @@ function guifi_service_load($node) {
   $node->var = unserialize($node->extra);
   $node->l = 'node/'.$node->id;
 
-  if (!$node->id == null)
+  if (!$node->id == NULL)
     return $node;
 
-  return false;
+  return FALSE;
 }
 
 /**
@@ -68,7 +68,7 @@ function guifi_service_form($node, $param) {
     $node->zone_id = $node->title;
     $node->contact = $user->mail;
     $default = t('<service>');
-    $node->title = null;
+    $node->title = NULL;
     $node->nick = $zone->nick.$default;
     $node->status_flag = 'Planned';
   }
@@ -94,7 +94,7 @@ function guifi_service_form($node, $param) {
     $f['title'] = array(
       '#type' => 'textfield',
       '#title' => check_plain($type->title_label),
-      '#required' => true,
+      '#required' => TRUE,
       '#default_value' => $node->title,
     );
   }
@@ -102,22 +102,22 @@ function guifi_service_form($node, $param) {
   $f['nick'] = array(
     '#type' => 'textfield',
     '#title' => t('Nick'),
-    '#required' => false,
+    '#required' => FALSE,
     '#size' => 20,
     '#maxlength' => 20,
     '#default_value' => $node->nick,
     '#element_validate' => array('guifi_service_nick_validate'),
-    '#collapsible' => false,
-    '#tree'=> true,
+    '#collapsible' => FALSE,
+    '#tree'=> TRUE,
     '#description' => t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only."),
     );
 
-  //$output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), null, true);
+  //$output .= form_textfield(t("Nick"), "nick", $node->nick, 20, 20, t("Unique identifier for this service. Avoid generic names such 'Disk Server', use something that really describes what is doing and how can be distinguished from the other similar services.<br />Short name, single word with no spaces, 7-bit chars only.") . ($error['nick'] ? $error["nick"] : ''), NULL, TRUE);
 
   $f['notification'] = array(
     '#type' => 'textfield',
     '#title' => t('Contact'),
-    '#required' => false,
+    '#required' => FALSE,
     '#size' => 60,
     '#maxlength' => 128,
     '#default_value' => $node->notification,
@@ -166,16 +166,16 @@ function guifi_service_form($node, $param) {
       '#description' => t('Current status'),
     );
   //$params .= guifi_form_column(form_select(t('Status'), 'status_flag', $node->status_flag, guifi_types('status'), t('Current status')));
-  //$output .= guifi_form_column_group(t('General parameters'),$params,null);
+  //$output .= guifi_form_column_group(t('General parameters'),$params, NULL);
   // $node->var = unserialize($node->extra);
 
   if ($node->nid > 0)
   $f['var'] = array(
       '#type' => 'fieldset',
       '#title' => $node->service_type.' '.t("settings"),
-      '#tree'=>true,
-      '#collapsible'=>true,
-      '#collapsed'=>false
+      '#tree'=>TRUE,
+      '#collapsible'=>TRUE,
+      '#collapsed'=>FALSE
     );
 
   if ($node->nid > 0)
@@ -184,18 +184,18 @@ function guifi_service_form($node, $param) {
       $f['var']['in'] = array(
         '#type' => 'textfield',
         '#title' => t('Inbound mail server'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['in'],
-        //'#collapsible' => false,
-        //'#tree'=> true,
+        //'#collapsible' => FALSE,
+        //'#tree'=> TRUE,
         '#description' => t('Where email clients have to be configured for getting email messages')
       );
       $f['var']['out'] = array(
         '#type' => 'textfield',
         '#title' => t('Outbound mail server'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['out'],
@@ -204,7 +204,7 @@ function guifi_service_form($node, $param) {
       $f['var']['webmail'] = array(
         '#type' => 'textfield',
         '#title' => t('Webmail url'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['webmail'],
@@ -213,7 +213,7 @@ function guifi_service_form($node, $param) {
       $f['var']['admin'] = array(
         '#type' => 'textfield',
         '#title' => t('Admin web interface'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['admin'],
@@ -224,7 +224,7 @@ function guifi_service_form($node, $param) {
       $f['var']['prefix'] = array(
         '#type' => 'textfield',
         '#title' => t('Dial prefix'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['prefix'],
@@ -233,7 +233,7 @@ function guifi_service_form($node, $param) {
       $f['var']['incoming'] = array(
         '#type' => 'textfield',
         '#title' => t('Incoming calls'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['incoming'],
@@ -242,7 +242,7 @@ function guifi_service_form($node, $param) {
       $f['var']['protocols'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Protocols'),
-        '#required' => true,
+        '#required' => TRUE,
         '#default_value' => $node->var['protocols'],
         '#options' => array('IAX'=>'IAX','SIP'=>'SIP')
       );
@@ -251,7 +251,7 @@ function guifi_service_form($node, $param) {
       $f['var']['ntp'] = array(
         '#type' => 'textfield',
         '#title' => t('IP address or hostname'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['ntp']
@@ -261,7 +261,7 @@ function guifi_service_form($node, $param) {
       $f['var']['ftphost'] = array(
         '#type' => 'textfield',
         '#title' => t('IP address or hostname'),
-        '#required' => true,
+        '#required' => TRUE,
         '#size' => 60,
         '#maxlength' => 60,
         '#default_value' => $node->var['ftphost']
@@ -269,7 +269,7 @@ function guifi_service_form($node, $param) {
       $f['var']['protocols'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Protocols'),
-        '#required' => true,
+        '#required' => TRUE,
         '#default_value' => $node->var['protocols'],
         '#options' => array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS')
       );
@@ -382,8 +382,8 @@ function guifi_service_form($node, $param) {
 function guifi_service_multiplefield($field, $fname, $descr) {
   $f = array(
     '#type' => 'fieldset',
-    '#tree' => true,
-    '#collapsible' => false,
+    '#tree' => TRUE,
+    '#collapsible' => FALSE,
     '#title' => $descr,
 //    '#prefix' => '<div id="mfield-'.$fname.'">',
 //    '#suffix' => '</div>',
@@ -492,7 +492,7 @@ function guifi_service_insert($node) {
 
   guifi_log(GUIFILOG_TRACE,'function guifi_service_insert()',$node);
 
-  $node->new = true;
+  $node->new = TRUE;
   $node->id   = $node->nid;
   $nnode = _guifi_db_sql(
     'guifi_services',
@@ -513,13 +513,13 @@ function guifi_service_delete(&$node) {
   global $user;
   $log = '';
 
-  $delete = true;
+  $delete = TRUE;
 
   $to = explode(',',$node->notification);
   $to[] = variable_get('guifi_contact','webmestre@guifi.net');
 
   // perform deletion
-  $node->deleted = true;
+  $node->deleted = TRUE;
   $nzone = _guifi_db_sql(
     'guifi_services',
     array('id'=>$node->id),
@@ -568,7 +568,7 @@ function guifi_service_update($node) {
 /**
  * outputs the zone information data
 **/
-function theme_guifi_service_data($node, $links = true) {
+function theme_guifi_service_data($node, $links = TRUE) {
   if (!isset($node->nid))
     $node = node_load(array('nid'=>$node->id));
   guifi_log(GUIFILOG_TRACE,'guifi_service_print_data()',$node);
@@ -594,21 +594,21 @@ function theme_guifi_service_data($node, $links = true) {
     case 'Proxy': case 'ADSL':
       $rows[] = array(t('bandwidth (Down/Up)'),$node->var['down'],$node->var['up']);
       $rows[] = array(t('proxy name &#038; port'),$node->var['proxy'],$node->var['port']);
-      $rows[] = array(t('type'),$node->var['type'],null);
-      if (is_array($node->var['fed'])) $rows[] = array(t('federation'),implode(", ",$node->var['fed']),null);
-      else $rows[] = array(t('federation'),t('This proxy is not federated yet'),null);
+      $rows[] = array(t('type'),$node->var['type'], NULL);
+      if (is_array($node->var['fed'])) $rows[] = array(t('federation'),implode(", ",$node->var['fed']), NULL);
+      else $rows[] = array(t('federation'),t('This proxy is not federated yet'), NULL);
       break;
     case 'ftp':
-      $rows[] = array(t('ftphost'),$node->var['ftphost'],null);
-      $rows[] = array(t('supported protocols'),implode(", ",$node->var['protocols']),null);
+      $rows[] = array(t('ftphost'),$node->var['ftphost'], NULL);
+      $rows[] = array(t('supported protocols'),implode(", ",$node->var['protocols']), NULL);
       break;
     case 'ntp':
-      $rows[] = array(t('IP address or hostname'),$node->var['ntp'],null);
+      $rows[] = array(t('IP address or hostname'),$node->var['ntp'], NULL);
       break;
     case 'asterisk':
       $rows[] = array(t('dial prefix and incoming calls'),$node->var['prefix'],$node->var['incoming']);
       if (isset($node->var['protocols']))
-        $rows[] = array(t('supported protocols'),implode(", ",$node->var['protocols']),null);
+        $rows[] = array(t('supported protocols'),implode(", ",$node->var['protocols']), NULL);
       break;
     default:
       if (!empty($node->var['url'])) {
@@ -616,44 +616,44 @@ function theme_guifi_service_data($node, $links = true) {
           $url = $node->var[url];
         else
           $url = 'http://'.$node->var[url];
-        $rows[] = array(t('url'),'<a href="'.$url.'">'.$node->var['url'].'</a>',null);
+        $rows[] = array(t('url'),'<a href="'.$url.'">'.$node->var['url'].'</a>', NULL);
       }
       break;
   }
 
   if (isset($node->var['homepages']))
   if (count($node->var['homepages'] > 0)) {
-    $rows[] = array(t('homepages'),null,null);
+    $rows[] = array(t('homepages'), NULL, NULL);
     foreach ($node->var['homepages'] as $homepage) {
       if (preg_match('/^http:\/\//',$homepage))
         $url = $homepage;
       else
         $url = 'http://'.$homepage;
-      $rows[] = array(null,'<a href='.$url.'>'.$homepage.'</a>',null);
+      $rows[] = array(NULL,'<a href='.$url.'>'.$homepage.'</a>', NULL);
     }
   }
 
   if (isset($node->var['ircs']))
   if (count($node->var['ircs'] > 0)) {
-    $rows[] = array(t('ircs'),null,null);
+    $rows[] = array(t('ircs'), NULL, NULL);
     foreach ($node->var['ircs'] as $irc)
-      $rows[] = array(null,$irc,null);
+      $rows[] = array(NULL,$irc, NULL);
   }
 
   if (isset($node->var['domains']))
   if (count($node->var['domains'] > 0)) {
-    $rows[] = array(t('domains'),null,null);
+    $rows[] = array(t('domains'), NULL, NULL);
     foreach ($node->var['domains'] as $domain)
-      $rows[] = array(null,$domain,null);
+      $rows[] = array(NULL,$domain, NULL);
   }
 
-  $output = theme('table',null,$rows);
+  $output = theme('table', NULL,$rows);
   $output .= theme_guifi_contacts($node);
 
   if ($links) {
     drupal_set_breadcrumb(guifi_node_ariadna($node));
-    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
-    print theme('page',$output,false);
+    $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
+    print theme('page',$output, FALSE);
     return;
   }
 
@@ -689,7 +689,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
     $node = node_load(array('nid'=>$service->id));
     if ($current_service != $service->service_type) {
       $typedescr = db_fetch_object(db_query("SELECT * FROM {guifi_types} WHERE type='service' AND text = '%s'",$service->service_type));
-      $rows[] = array('<strong>'.t($typedescr->description).'</strong>',null,null,null);
+      $rows[] = array('<strong>'.t($typedescr->description).'</strong>', NULL, NULL, NULL);
       $current_service = $service->service_type;
     }
 
@@ -734,11 +734,11 @@ function theme_guifi_services_list($node,$service = '%') {
     case t('by node'):
       drupal_set_title(t('services @ %node',array('%node'=>$node->title)));
       drupal_set_breadcrumb(guifi_node_ariadna($node,'node/%d/view/services'));
-      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
       break;
     case t('by zone'):
       drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/services'));
-      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
       break;
     case t('by device'):
       $device = guifi_device_load($node);
@@ -747,11 +747,11 @@ function theme_guifi_services_list($node,$service = '%') {
               '%nid'=>$device['nid'])));
       $node = node_load(array('nid'=>$device['nid']));
       drupal_set_breadcrumb(guifi_node_ariadna($node));
-      $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+      $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
       break;
   }
-  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
-  print theme('page',$output,false);
+  $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
+  print theme('page',$output, FALSE);
   return;
 }
 /**
@@ -772,7 +772,7 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
     $service_data = 
         array(
           '#value' => theme('box', t('service information'),
-             theme_guifi_service_data($node, false)),
+             theme_guifi_service_data($node, FALSE)),
           '#weight' => -0,
         );
 
@@ -787,12 +787,12 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
           if (guifi_domain_access('update',$domain['id'])) {
             $edit_domain = l(guifi_img_icon('edit.png'),'guifi/domain/'.$domain['id'].'/edit',
             array(
-              'html'=>true,
+              'html'=>TRUE,
               'title' => t('edit domain'),
               'attributes'=>array('target'=>'_blank'))).'</td><td>'.
                  l(guifi_img_icon('drop.png'),'guifi/domain/'.$domain['id'].'/delete',
             array(
-              'html'=>true,
+              'html'=>TRUE,
               'title' => t('delete domain'),
               'attributes'=>array('target'=>'_blank')));
           }
@@ -817,7 +817,7 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
           $node->content['data'] = array(
             array(
               '#value' => theme('box', t('service information'),
-                 theme_guifi_service_data($node, false)).$form,
+                 theme_guifi_service_data($node, FALSE)).$form,
               '#weight' => -0,
              )
           );
@@ -827,7 +827,7 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
       $node->content['data'] = array(
         array(
          '#value' => theme('box', t('service information'),
-                 theme_guifi_service_data($node, false)).$form,
+                 theme_guifi_service_data($node, FALSE)).$form,
          '#weight' => -0,
         )
       );

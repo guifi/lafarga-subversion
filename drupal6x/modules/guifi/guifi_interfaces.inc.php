@@ -2,19 +2,19 @@
 
 function guifi_interfaces_form(&$interface,$ptree) {
   global $hotspot;
-  $cable = false;
+  $cable = FALSE;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_interfaces_form()',$interface);
 
   $key = $ptree[count($ptree)-1];
 
-  // Interface type shoudn't be null
-  if ($interface['interface_type'] == null)
+  // Interface type shoudn't be NULL
+  if ($interface['interface_type'] == NULL)
     return;
 
   $it = $interface['interface_type'];
   if ($it == 'Wan') {
-    $interface['unfold'] = true;
+    $interface['unfold'] = TRUE;
     $msg = t('Connection to AP');
   } else
     $msg = $it;
@@ -22,7 +22,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
   $f = array(
     '#type' => 'fieldset',
     '#title' => $msg,
-    '#collapsible' => true,
+    '#collapsible' => TRUE,
     '#collapsed' => !isset($interface['unfold'])
   );
 
@@ -36,7 +36,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
   if (($ptree[0]=='interfaces')
        and (!$interface['deleted'])
      ) {
-    $cable = true;
+    $cable = TRUE;
     if ($interface['interface_type']!='wLan/Lan')
     $f['interface']['interface_type'] = array(
       '#type'=>'textfield',
@@ -153,7 +153,7 @@ function guifi_interfaces_form(&$interface,$ptree) {
     $f['#title'] .= ' - '.$ipv4Count.' '.
       t('address(es)');
   else
-    $hotspot = true;
+    $hotspot = TRUE;
 
   return $f;
 }
@@ -170,7 +170,7 @@ function guifi_interfaces_cable_form(&$edit) {
 
   guifi_log(GUIFILOG_TRACE,sprintf('function guifi_interfaces_form()'));
 
-  $collapse = true;
+  $collapse = TRUE;
   switch (count($edit['interfaces'])) {
   case 0:
      $msg .= t('No interfaces');
@@ -183,13 +183,13 @@ function guifi_interfaces_cable_form(&$edit) {
   }
   foreach ($edit['interfaces'] as $value)
     if ($value['unfold'])
-      $collapse = false;
+      $collapse = FALSE;
 
   $form['interfaces']['#type'] = 'fieldset';
   $form['interfaces']['#title'] = $msg;
-  $form['interfaces']['#collapsible'] = true;
+  $form['interfaces']['#collapsible'] = TRUE;
   $form['interfaces']['#collapsed'] = $collapse;
-  $form['interfaces']['#tree'] = true;
+  $form['interfaces']['#tree'] = TRUE;
   $form['interfaces']['#prefix'] = '<img src="/'.
     drupal_get_path('module', 'guifi').
 //    '/modules/guifi'.
@@ -237,7 +237,7 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   drupal_set_message(t('New subnetwork %net/%mask will be allocated.',
     array('%net'=>$net,
       '%mask'=>$mask)));
-  $ipv4['new']=true;
+  $ipv4['new']=TRUE;
   $ipv4['ipv4_type']=1;
   $ipv4['ipv4']=long2ip(ip2long($net) + 1);
   guifi_log(GUIFILOG_TRACE,"assigned IPv4: ".$ipv4['ipv4']);
@@ -248,8 +248,8 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   end($fipv4);
   $delta=key($fipv4);
   $fipv4[$delta]['id']=$delta;
-  $form_state['values']['interfaces'][$iid]['unfold']=true;
-  $form_state['rebuild'] = true;
+  $form_state['values']['interfaces'][$iid]['unfold']=TRUE;
+  $form_state['rebuild'] = TRUE;
 
   return TRUE;
 }
@@ -282,14 +282,14 @@ function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
 
   if (!$net) {
     drupal_set_message(t('Unable to create link, no networks available'),'warning');
-    return false;
+    return FALSE;
   }
 
   $dnet = ip2long($net);
   $ip1 = long2ip($dnet + 1);
   $ip2 = long2ip($dnet + 2);
 
-  $newlk['new']=true;
+  $newlk['new']=TRUE;
   $newlk['interface']=array();
   $newlk['link_type']='cable';
   $newlk['flag']='Planned';
@@ -300,18 +300,18 @@ function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
   else
     $newlk['routing'] = 'Gateway';
 
-  $newlk['interface']['new'] = true;
+  $newlk['interface']['new'] = TRUE;
   $newlk['interface']['device_id'] = $to_did;
   $free = guifi_get_free_interfaces($to_did,$rdevice);
   $newlk['interface']['interface_type']= array_shift($free);
 //  $newlk['interface']['interface_type']= 'ether3';
-  $newlk['interface']['ipv4']['new'] = true;
+  $newlk['interface']['ipv4']['new'] = TRUE;
   $newlk['interface']['ipv4']['ipv4_type'] = 2;
   $newlk['interface']['ipv4']['ipv4'] = $ip2;
   $newlk['interface']['ipv4']['netmask'] = $mask;
 
 
-  $ipv4['new']=true;
+  $ipv4['new']=TRUE;
   $ipv4['ipv4']=$ip1;
   $ipv4['ipv4_type']=2;
   $ipv4['netmask']=$mask;
@@ -319,8 +319,8 @@ function guifi_interfaces_add_cable_p2p_link_submit(&$form,&$form_state) {
   $ipv4['links'][]=$newlk;
 
   $form_state['values']['interfaces'][$iid]['ipv4'][]=$ipv4;
-  $form_state['values']['interfaces'][$iid]['unfold']=true;
-  $form_state['rebuild'] = true;
+  $form_state['values']['interfaces'][$iid]['unfold']=TRUE;
+  $form_state['rebuild'] = TRUE;
 
   return TRUE;
 }
@@ -352,7 +352,7 @@ function guifi_interfaces_add_cable_public_link_submit(&$form,&$form_state) {
     return;
   }
 
-  $newlk['new']=true;
+  $newlk['new']=TRUE;
   $newlk['interface']=array();
   $newlk['link_type']='cable';
   $newlk['flag']='Planned';
@@ -363,19 +363,19 @@ function guifi_interfaces_add_cable_public_link_submit(&$form,&$form_state) {
   else
     $newlk['routing'] = 'Gateway';
 
-  $newlk['interface']['new'] = true;
+  $newlk['interface']['new'] = TRUE;
   $newlk['interface']['device_id'] = $to_did;
   $free = guifi_get_free_interfaces($to_did,$rdevice);
   $newlk['interface']['interface_type']= array_shift($free);
-  $newlk['interface']['ipv4']['new'] = true;
+  $newlk['interface']['ipv4']['new'] = TRUE;
   $newlk['interface']['ipv4']['ipv4_type'] = 1;
   $newlk['interface']['ipv4']['ipv4'] = $ip;
   $newlk['interface']['ipv4']['netmask'] = $base_ip['netmask'];
 
   $form_state['values']['interfaces'][$iid]['ipv4'][$ipv4_id]['links'][]=$newlk;
-  $form_state['values']['interfaces'][$iid]['unfold']=true;
+  $form_state['values']['interfaces'][$iid]['unfold']=TRUE;
 //  print_r($form_state['values']);
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 
   return TRUE;
 }
@@ -390,13 +390,13 @@ function guifi_interfaces_delete_submit(&$form,&$form_state) {
   if ($values[0]=='interfaces') {
     $interface = &$form_state['values']['interfaces'][$interface_id];
   } else {
-    $form_state['values']['radios'][$radio_id]['unfold'] = true;
+    $form_state['values']['radios'][$radio_id]['unfold'] = TRUE;
     $interface = &$form_state['values']['radios'][$radio_id]['interfaces'][$interface_id];
   }
-  $interface['unfold'] = true;
-  $interface['deleted'] = true;
+  $interface['unfold'] = TRUE;
+  $interface['deleted'] = TRUE;
 //  $form_state['deleteInterface']=($radio_id).','.($interface_id);
-  $form_state['rebuild'] = true;
+  $form_state['rebuild'] = TRUE;
 //  $form_state['action'] = 'guifi_interface_delete';
   return TRUE;
 }

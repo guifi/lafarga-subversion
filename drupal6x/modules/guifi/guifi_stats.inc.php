@@ -303,20 +303,20 @@ function guifi_stats_chart01(){ //growth_chart
     $items=($ano-$items+1)*12;
     $shapes = array( 'none');
     $plot = new PHPlot($gwidth,$gheight);
-    $plot->SetPlotAreaWorld(0, 0,$items,NULL);
+    $plot->SetPlotAreaWorld(0, 0,$items, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("linepoints");
     $plot->SetYTickIncrement($inc);
     $plot->SetXTickIncrement(12);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetXAxisPosition(0);
     $plot->SetPointShapes($shapes); 
     $plot->SetPointSizes(10);
     $plot->SetTickLength(3);
-    $plot->SetDrawXGrid(true);
+    $plot->SetDrawXGrid(TRUE);
     $plot->SetTickColor('grey');
     $plot->SetTTFPath($gDirTTFfonts);
     $plot->SetFontTTF('title', 'Vera.ttf', 12);
@@ -331,7 +331,7 @@ function guifi_stats_chart01(){ //growth_chart
     }
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
-    $plot->SetDrawXDataLabelLines(false);
+    $plot->SetDrawXDataLabelLines(FALSE);
     $plot->SetXLabelAngle(0);
     $plot->SetXLabelType('custom', 'guifi_stats_chart01_LabelFormat');
     $plot->SetGridColor('red');
@@ -344,7 +344,7 @@ function guifi_stats_chart01(){ //growth_chart
     $plot->SetTransparentColor('white');
     $plot->SetXTickLabelPos('none');
     $plot->SetXDataLabelPos('plotdown');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 function guifi_stats_chart01_LabelFormat($value){
@@ -407,14 +407,14 @@ function guifi_stats_chart02(){
     }
     $shapes = array( 'none');
     $plot = new PHPlot($gwidth,$gheight);
-    $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
+    $plot->SetPlotAreaWorld(0, 0, NULL, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("bars"); 
     $plot->SetYTickIncrement($inc);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetTickLength(0);
     $plot->SetXTickPos('none');
     $plot->SetYDataLabelPos('plotin');
@@ -441,7 +441,7 @@ function guifi_stats_chart02(){
     $plot->SetLightGridColor('grey');
     $plot->SetBackgroundColor('white');
     $plot->SetTransparentColor('white');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 
@@ -494,18 +494,18 @@ function guifi_stats_chart03(){
 	};
     $shapes = array( 'none');
     $plot = new PHPlot($gwidth,$gheight);
-    $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
+    $plot->SetPlotAreaWorld(0, 0, NULL, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("bars"); 
     //$plot->SetYTickIncrement(10);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetTickLength(0);
     $plot->SetXTickPos('none');
     $plot->SetYTickPos('none');
-    $plot->SetDrawYGrid(false);
+    $plot->SetDrawYGrid(FALSE);
     $plot->SetYTickLabelPos('none');
     $plot->SetYDataLabelPos('plotin');
     $plot->SetTickColor('grey');
@@ -532,7 +532,7 @@ function guifi_stats_chart03(){
     $plot->SetLightGridColor('grey');
     $plot->SetBackgroundColor('white');
     $plot->SetTransparentColor('white');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 
@@ -599,14 +599,14 @@ function guifi_stats_chart04(){
     }
     $shapes = array( 'none');
     $plot = new PHPlot($gwidth,$gheight);
-    $plot->SetPlotAreaWorld(0, 0,NULL,NULL);
+    $plot->SetPlotAreaWorld(0, 0, NULL, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("text-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("bars"); 
     $plot->SetYTickIncrement($tot);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetTickLength(0);
     //$plot->SetXTickPos('none');
     $plot->SetYDataLabelPos('plotin');
@@ -634,7 +634,7 @@ function guifi_stats_chart04(){
     $plot->SetLightGridColor('grey');
     $plot->SetBackgroundColor('white');
     $plot->SetTransparentColor('white');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 //Nodes per month, average of 6 months
@@ -766,20 +766,20 @@ function guifi_stats_chart05($nmonths){
     $items=($ano-$items+1)*12;
     $shapes = array( 'none');
     $plot = new PHPlot($gwidth,$gheight);
-    $plot->SetPlotAreaWorld(0, 0,$items,NULL);
+    $plot->SetPlotAreaWorld(0, 0,$items, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("linepoints"); 
     $plot->SetYTickIncrement($inc);
     $plot->SetXTickIncrement(12);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetXAxisPosition(0);
     $plot->SetPointShapes($shapes); 
     $plot->SetPointSizes(10);
     $plot->SetTickLength(3);
-    $plot->SetDrawXGrid(true);
+    $plot->SetDrawXGrid(TRUE);
     $plot->SetTickColor('grey');
     $plot->SetTTFPath($gDirTTFfonts);
     $plot->SetFontTTF('title', 'Vera.ttf', 12);
@@ -793,7 +793,7 @@ function guifi_stats_chart05($nmonths){
     }
     $plot->SetXTitle(t('Years'));
     $plot->SetYTitle(t('Working nodes'));
-    $plot->SetDrawXDataLabelLines(false);
+    $plot->SetDrawXDataLabelLines(FALSE);
     $plot->SetXLabelAngle(0);
     $plot->SetXLabelType('custom', 'guifi_stats_chart05_LabelFormat');
     $plot->SetGridColor('red');
@@ -806,7 +806,7 @@ function guifi_stats_chart05($nmonths){
     $plot->SetTransparentColor('white');
     $plot->SetXTickLabelPos('none');
     $plot->SetXDataLabelPos('plotdown');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 function guifi_stats_chart05_LabelFormat($value){
@@ -850,7 +850,7 @@ function guifi_stats_feeds($pnum){
     $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
     if ($record=db_fetch_object($result)){
       $output .= '<item>';
-      $output .= '<guid isPermaLink="false">http://guifi.net/guifi/menu/stats/nodes?dat='.date("d/m/Y",time()).'</guid>';
+      $output .= '<guid isPermaLink="FALSE">http://guifi.net/guifi/menu/stats/nodes?dat='.date("d/m/Y",time()).'</guid>';
       $output .= '<description>';
       $vt = str_replace("%d%", date("d/m/Y",time()), $vt);
       $vt = str_replace("%n%", $record->num, $vt);

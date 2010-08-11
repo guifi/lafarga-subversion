@@ -35,7 +35,7 @@ function guifi_device_load($id,$ret = 'array') {
       ORDER BY id, radiodev_counter',
       $id);
 
-    $device['firewall'] = false; // Default: No firewall
+    $device['firewall'] = FALSE; // Default: No firewall
 
     $rc = 0;
 
@@ -44,7 +44,7 @@ function guifi_device_load($id,$ret = 'array') {
       $rc++;
       if (!$device['firewall'])
         if ($radio['mode'] == 'client')
-           $device['firewall'] = true;
+           $device['firewall'] = TRUE;
 
       $device['radios'][$radio['radiodev_counter']] = $radio;
 
@@ -344,9 +344,9 @@ function guifi_device_form($form_state, $params = array()) {
   $form_state['#redirect'] = FALSE;
 
   // if new device, initializing variables
-  if (($form_state['values']['nid'] == null) && ($params['add'] != null)) {
+  if (($form_state['values']['nid'] == NULL) && ($params['add'] != NULL)) {
     $form_state['values']['nid'] = $params['add'];
-    $form_state['values']['new'] = true;
+    $form_state['values']['new'] = TRUE;
     $form_state['values']['type'] = $params['type'];
     $form_state['values']['links'] = array();
     $form_state['values']['netmask'] = '255.255.255.224';
@@ -373,7 +373,7 @@ function guifi_device_form($form_state, $params = array()) {
   // Setting the breadcrumb
   drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['nid']));
 
-  // if contact is null, then get it from the node or the user logged in drupal
+  // if contact is NULL, then get it from the node or the user logged in drupal
   if (is_null($form_state['values']['notification']))
     if (guifi_notification_validate($node->notification)) {
       $form_state['values']['notification'] = $node->notification;
@@ -382,16 +382,16 @@ function guifi_device_form($form_state, $params = array()) {
       $form_state['values']['notification'] = $user->mail;
     }
 
-  // if nick is null, get a default name
+  // if nick is NULL, get a default name
   if ($form_state['values']['nick'] == "") {
     $form_state['values']['nick'] = guifi_device_get_default_nick($node, $form_state['values']['type'], $form_state['values']['nid'] );
   }
 
-  // if device zone_mode was null, get the zone mode (ad-hoc or infrastructure)
+  // if device zone_mode was NULL, get the zone mode (ad-hoc or infrastructure)
   if (is_null($form_state['values']['zone_mode'])) {
     $form_state['values']['zone_mode'] = $zone->zone_mode;
 
-    // That's a new device, because zone_mode was null, otherwise would have a value
+    // That's a new device, because zone_mode was NULL, otherwise would have a value
     // If ad-hoc, add a radio & a public IP (/32)
     if ($zone->zone_mode == 'ad-hoc') {
       if ($form_state['values']['type'] == 'radio') {
@@ -399,14 +399,14 @@ function guifi_device_form($form_state, $params = array()) {
         guifi_radio_add_radio_submit($form,$form_state);
       } else {
       	$intf=array();
-        $intf['new']=true;
+        $intf['new']=TRUE;
         $intf['interface_type']='wLan/Lan';
         $ips_allocated=guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0',$edit,1);
-        $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],'255.255.255.255','public',$ips_allocated,'Yes',true);
+        $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],'255.255.255.255','public',$ips_allocated,'Yes', TRUE);
         $i = _ipcalc($net,'255.255.255.255');
         guifi_log(GUIFILOG_TRACE,"IPS allocated: ".count($ips_allocated)." got net: ".$net.'/32',$i);
         $intf['ipv4'][0]=array();
-        $intf['ipv4'][0]['new']=true;
+        $intf['ipv4'][0]['new']=TRUE;
         $intf['ipv4'][0]['ipv4_type']=1;
         $intf['ipv4'][0]['ipv4']=$net;
         guifi_log(GUIFILOG_TRACE,"Assigned IP: ".$intf['ipv4'][0]['ipv4']);
@@ -455,7 +455,7 @@ function guifi_device_form($form_state, $params = array()) {
 
 //  guifi_form_hidden($form,$form_state['values']);
 
-  if ($params['add'] != null){
+  if ($params['add'] != NULL){
     drupal_set_title(t('adding a new %device at %node',
       array('%node' => $node->nick,
             '%device' => $form_state['values']['type']
@@ -567,7 +567,7 @@ function guifi_device_form($form_state, $params = array()) {
   );
 
   //  save/validate/reset buttons
-  $form['dbuttons'] = guifi_device_buttons(false,'',$form_weight);
+  $form['dbuttons'] = guifi_device_buttons(FALSE,'',$form_weight);
 
   return $form;
 }
@@ -635,11 +635,11 @@ function guifi_device_form_validate($form,&$form_state) {
 }
 
 /* guifi_device_edit_save(): Save changes/insert devices */
-function guifi_device_save($edit, $verbose = true, $notify = true) {
+function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
   global $user;
   global $bridge;
 
-  $bridge = false;
+  $bridge = FALSE;
   $to_mail = array();
   $tomail[] = $user->mail;
   $log = "";
@@ -673,7 +673,7 @@ function guifi_device_save($edit, $verbose = true, $notify = true) {
     guifi_log(GUIFILOG_TRACE,
       sprintf('Checking radio (from:%d, to: %d): ',
         $radio['id'],$radio['to_id']),
-      null);
+      NULL);
     if (isset($radio['to_did']))
 
     // if radio has moved to another device:
@@ -787,7 +787,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
     guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)', $ipv4_id, $ipv4['interface_id']), $ipv4);
 
     if (($ipv4['netmask']=='255.255.255.252') and (!count($ipv4['links'])))
-      $ipv4['deleted'] = true;
+      $ipv4['deleted'] = TRUE;
 
     $nipv4 = _guifi_db_sql(
       'guifi_ipv4',
@@ -862,10 +862,10 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
   return $log;
 }
 
-function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form_weight = 1000) {
+function guifi_device_buttons($continue = FALSE,$action = '', $nopts = 0, &$form_weight = 1000) {
   $form['reset'] = array(
     '#type' => 'button',
-    '#executes_submit_callback' => true,
+    '#executes_submit_callback' => TRUE,
     '#value' => t('Reset'),
     '#weight' => $form_weight++,
   );
@@ -873,7 +873,7 @@ function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form
   if ($continue) {
     $form['ignore_continue'] = array(
       '#type' => 'button',
-      '#executes_submit_callback' => true,
+      '#executes_submit_callback' => TRUE,
       '#value' => t('Ignore & back to main form'),
       '#weight' => $form_weight++,
     );
@@ -881,7 +881,7 @@ function guifi_device_buttons($continue = false,$action = '', $nopts = 0, &$form
       $form['confirm_continue'] = array(
         '#type' => 'button',
         '#submit' => array($action),
-        '#executes_submit_callback' => true,
+        '#executes_submit_callback' => TRUE,
         '#value' => t('Select device & back to main form'),
         '#weight' => $form_weight++,
       );
@@ -927,7 +927,7 @@ function guifi_device_delete_confirm($form_state,$params) {
   return $form;
 }
 
-function guifi_device_delete($device, $notify = true, $verbose = true) {
+function guifi_device_delete($device, $notify = TRUE, $verbose = TRUE) {
   global $user;
 
   guifi_log(GUIFILOG_TRACE,'function guifi_device_delete()');
@@ -959,7 +959,7 @@ function guifi_device_delete($device, $notify = true, $verbose = true) {
 
   $output = drupal_get_form('guifi_device_delete_confirm',
     array('name'=>$device['nick'],'id'=>$device['id']));
-  print theme('page',$output,false);
+  print theme('page',$output, FALSE);
   return;
 }
 
@@ -1043,9 +1043,9 @@ function guifi_ADSL_form($edit) {
   $form['variable'] = array(
     '#type' => 'fieldset',
     '#title' => t('DSL information & MRTG parameters'),
-    '#collapsible'=>true,
-    '#collapsed'=>false,
-    '#tree'=>true
+    '#collapsible'=>TRUE,
+    '#collapsed'=>FALSE,
+    '#tree'=>TRUE
   );
   $form['variable']['download'] = array(
     '#type' => 'select',
@@ -1071,9 +1071,9 @@ function guifi_generic_form($edit) {
   $form['variable'] = array(
     '#type' => 'fieldset',
     '#title' => t('DSL information & MRTG parameters'),
-    '#collapsible'=>true,
-    '#collapsed'=>false,
-    '#tree'=>true
+    '#collapsible'=>TRUE,
+    '#collapsed'=>FALSE,
+    '#tree'=>TRUE
   );
   if (!isset($edit['variable']['mrtg_index']))
     $edit['variable']['mrtg_index'] = 4;
@@ -1222,7 +1222,7 @@ function guifi_device_interfaces_print_data($id) {
 /* guifi_device_print(): main print function, outputs the device information and call the others */
 function guifi_device_print($device = NULL) {
   if ($device == NULL) {
-    print theme('page',t('Not found'),false);
+    print theme('page',t('Not found'), FALSE);
     return;
   }
 
@@ -1261,8 +1261,8 @@ function guifi_device_print($device = NULL) {
   $output .= '</div>';
 
   drupal_set_title(t('View device %dname',array('%dname'=>$device['nick'])));
-  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
-  print theme('page',$output,false);
+  $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
+  print theme('page',$output, FALSE);
   return;
 }
 
@@ -1486,13 +1486,13 @@ function guifi_device_edit($device) {
   print theme('page', $output, FALSE);
 }
 
-function guifi_device_get_service($id, $type ,$path = false) {
+function guifi_device_get_service($id, $type ,$path = FALSE) {
   if (is_numeric($id))
     $z = guifi_device_load($id);
   else
     $z = $id;
 
-  $ret = null;
+  $ret = NULL;
   if (!empty($z->$type))
     $ret = $z->$type;
   else

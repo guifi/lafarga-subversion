@@ -119,7 +119,7 @@ function _outln_nvram($parameter, $value) {
   if ($otype == 'html') print "\n<br />"; else print "\n";
 }
 
-function _out_nvram($parameter,$value = null) {
+function _out_nvram($parameter,$value = NULL) {
   global $otype;
   print "nvram set ".$parameter.'="';
   if (!empty($value))

@@ -40,7 +40,7 @@ function budgets_quote_form(&$node) {
     $form['title'] = array(
       '#type' => 'textfield',
       '#title' => check_plain($type->title_label),
-      '#required' => true,
+      '#required' => TRUE,
       '#default_value' => $node->title,
     );
   }
@@ -48,7 +48,7 @@ function budgets_quote_form(&$node) {
   if (isset($node->supplier))
     $form['supplier'] = array(
       '#type' => 'textfield',
-      '#required' => true,
+      '#required' => TRUE,
       '#title' => t('Supplier'),
       '#description' => t('Supplier for this quote.'),
       '#default_value' => $node->supplier,
@@ -70,7 +70,7 @@ function budgets_quote_form(&$node) {
 
     $form['supplier_id'] = array(
       '#type' => 'select',
-      '#required' => true,
+      '#required' => TRUE,
       '#title' => t('Supplier'),
       '#description' => t('Supplier for this quote.'),
       '#default_value' => $node->supplier_id,
@@ -81,7 +81,7 @@ function budgets_quote_form(&$node) {
 
   $form['partno'] = array(
     '#type' => 'textfield',
-    '#required' => true,
+    '#required' => TRUE,
     '#size' => 60,
     '#maxlength' => 60,
     '#title' => t('Part number'),
@@ -93,7 +93,7 @@ function budgets_quote_form(&$node) {
     '#type' => 'textfield',
     '#title' => t('Cost'),
     '#size' => 12,
-    '#required' => true,
+    '#required' => TRUE,
     '#maxlength' => 15,
     '#attributes' => array('' .
         'class'=>'number required',
@@ -106,7 +106,7 @@ function budgets_quote_form(&$node) {
     '#title' => t('Expiration'),
     '#default_value' => $node->arrexpires,
     '#description' => t("Date when this quote will expire"),
-    '#required' => true,
+    '#required' => TRUE,
   );
 
   if (($type->has_body)) {
@@ -190,7 +190,7 @@ function budgets_quote_validate($node, &$form) {
 
 }
 
-function budgets_quote_access($op, $node, $account = null) {
+function budgets_quote_access($op, $node, $account = NULL) {
   global $user;
 
   $node = node_load(array('nid'=>$node->id));
@@ -285,13 +285,13 @@ function budgets_quote_save($node) {
 }
 
 function budgets_quote_insert($node) {
-  $node->new = true;
+  $node->new = TRUE;
   $node->id = $node->nid;
   budgets_quote_save($node);
 }
 
 function budgets_quote_delete($node) {
-  $node->delete = true;
+  $node->delete = TRUE;
   budgets_quote_save($node);
 }
 
@@ -309,7 +309,7 @@ function budgets_quote_load($node) {
     db_query("SELECT * FROM {supplier_quote} WHERE id = '%d'", $k));
 
   if (is_null($node->id))
-    return false;
+    return FALSE;
 
   return $node;
 }

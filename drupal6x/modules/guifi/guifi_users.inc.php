@@ -127,7 +127,7 @@ function guifi_user_edit($id = 0) {
 
   $output = drupal_get_form('guifi_user_form',$id);
 
-  print theme('page',$output,false);
+  print theme('page',$output, FALSE);
   return;
 }
 
@@ -234,7 +234,7 @@ function guifi_user_form($form_state, $params = array()) {
     $f['id'] = array('#type'=>'hidden','#value'=>$form_state['values']['id']);
     drupal_set_title(t('edit user').' '.$form_state['values']['username']);
   } else {
-    $f['new'] = array('#type'=>'hidden','#value'=>true);
+    $f['new'] = array('#type'=>'hidden','#value'=>TRUE);
     drupal_set_title(t('add user').' @ '.guifi_get_nodename($form_state['values']['nid']));
   }
 
@@ -351,9 +351,9 @@ function guifi_user_form($form_state, $params = array()) {
   $f['services'] = array(
    '#type'=>'fieldset',
    '#title'=>t('services'),
-   '#collapsible'=>true,
-   '#collapsed'=>false,
-   '#tree'=>true,
+   '#collapsible'=>TRUE,
+   '#collapsed'=>FALSE,
+   '#tree'=>TRUE,
   );
 
   if ((user_access('administer guifi users'))
@@ -387,7 +387,7 @@ function guifi_user_form($form_state, $params = array()) {
     '#parents'=>array('content_filters'),
     '#title'=>t('content filters'),
     '#options'=> guifi_types('filter'),
-    '#multiple'=>true,
+    '#multiple'=>TRUE,
 //    '#default_value'=> $form_state['values']['content_filters'],
     '#description'=>t('Content to be filtered.<br />Check the type of content ' .
         'which will be filtered to this user. ' .
@@ -483,7 +483,7 @@ function guifi_user_form_validate($form, &$form_state) {
   $edit = &$form_state['values'];
 
   if (isset($edit['username_created'])) {
-    if (user_load(array('name'=>$edit['username_created']))==false)
+    if (user_load(array('name'=>$edit['username_created']))==FALSE)
         form_set_error('username_created',t('Invalid user name.'));
   }
 
@@ -679,9 +679,9 @@ function guifi_users_queue($zone) {
      if (guifi_device_access('update',$d['id'])) {
        $edit_device_icon =
          l(guifi_img_icon('edit.png'),'guifi/device/'.$d['id'].'/edit',
-           array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+           array('html'=>TRUE,'attributes'=>array('target'=>'_blank'))).
          l(guifi_img_icon('drop.png'),'guifi/device/'.$d['id'].'/delete',
-           array('html'=>true,'attributes'=>array('target'=>'_blank')));
+           array('html'=>TRUE,'attributes'=>array('target'=>'_blank')));
      } else
        $edit_device_icon = '';
 
@@ -745,9 +745,9 @@ function guifi_users_queue($zone) {
   if ((user_access('administer guifi networks')) ||
     (user_access('administer guifi zones')) ||
     (user_access('administer guifi users')))
-      $administer = true;
+      $administer = TRUE;
     else
-      $administer = false;
+      $administer = FALSE;
 
   while ($u = db_fetch_array($query)) {
     $pUser = (object) guifi_user_load($u['id']);
@@ -764,10 +764,10 @@ function guifi_users_queue($zone) {
       $edit_node_icon =
         l(guifi_img_icon('edit.png'),
           'node/'.$u['nid'].'/edit',
-          array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+          array('html'=>TRUE,'attributes'=>array('target'=>'_blank'))).
         l(guifi_img_icon('drop.png'),
           'node/'.$u['nid'].'/delete',
-          array('html'=>true,'attributes'=>array('target'=>'_blank')));
+          array('html'=>TRUE,'attributes'=>array('target'=>'_blank')));
     } else {
       $edit_node_icon = '';
     }
@@ -776,10 +776,10 @@ function guifi_users_queue($zone) {
       $edit_user_icon =
         l(guifi_img_icon('edit.png'),
           'guifi/user/'.$u['id'].'/edit',
-           array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+           array('html'=>TRUE,'attributes'=>array('target'=>'_blank'))).
         l(guifi_img_icon('drop.png'),
           'guifi/user/'.$u['id'].'/delete',
-           array('html'=>true,'attributes'=>array('target'=>'_blank')));
+           array('html'=>TRUE,'attributes'=>array('target'=>'_blank')));
     } else {
       $edit_user_icon = '';
     }
@@ -811,11 +811,11 @@ function guifi_users_queue($zone) {
            guifi_get_zone_nick($u['zone_id'])."<br /><strong>".
            $edit_node_icon.
            l($u['nnick'],'node/'.$u['nid'],
-             array('html'=>true,'attributes'=>array('target'=>'_blank'))).
+             array('html'=>TRUE,'attributes'=>array('target'=>'_blank'))).
            '</strong><br /><small>'.
            l(t('add a comment'),'comment/reply/'.$u['nid'],
              array('fragment'=>'comment-form',
-               'html'=>true,
+               'html'=>TRUE,
                'attributes'=>array('title'=>t('Add a comment to the page of this node'),
                  'target'=>'_blank'))).'</small>',
         'class'=>$u['nflag'],
@@ -850,7 +850,7 @@ function guifi_users_queue($zone) {
   );
 
   $output .= theme('table', $header, $rows);
-  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+  $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
 
   // Full screen (no lateral bars, etc...)
   print theme('page', $output, FALSE);
@@ -864,7 +864,7 @@ function guifi_users_node_list($node) {
 
   $node = node_load(array('nid'=>$node->id));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
-  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+  $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   // To gain space, save bandwith and CPU, omit blocks
   print theme('page', $output, FALSE);
 }
@@ -917,7 +917,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
 
   $f = array(
     '#type'=> 'fieldset',
-    '#collapsible' => false,
+    '#collapsible' => FALSE,
     '#title' => t('Users')
   );
 
@@ -940,7 +940,7 @@ function guifi_users_node_list_form($form_state, $params = array()) {
     $options[$guser->id] = $realname.' ('.$guser->username.')'.' - '.
       l($service->nick,'node/'.$service->id,array('attributes'=>array('title'=>$service->title))).' - '.
       $guser->status.'<br />'.
-      theme_guifi_contacts($guser,false);
+      theme_guifi_contacts($guser, FALSE);
     if (!isset($default_user))
       $default_user = $guser->id;
   }
@@ -1051,7 +1051,7 @@ function guifi_users_dump_passwd($node) {
   exit;
 }
 
-function guifi_users_dump_return($node,$federated = false,$ldif = false) {
+function guifi_users_dump_return($node,$federated = FALSE,$ldif = FALSE) {
 
   /* Aquesta funcio retorna en una variable la llista d'usuaris i passwd dun proxy */
 
@@ -1073,7 +1073,7 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
   $query = db_query("SELECT * FROM {guifi_users} WHERE status='Approved'");
   $users = array();
   while ($item = db_fetch_object($query)) {
-    $user = (object)null;
+    $user = (object)NULL;
     $user->username = $item->username;
     $user->password = $item->password;
     $user->nid = $item->nid;
@@ -1136,7 +1136,7 @@ function guifi_users_dump_return($node,$federated = false,$ldif = false) {
   return $dump;
 }
 
-function _guifi_users_dump_federated($node,$ldif = false) {
+function _guifi_users_dump_federated($node,$ldif = FALSE) {
 
 // Listing all the federated proxys
   if (is_array($node->var[fed]))
@@ -1183,7 +1183,7 @@ function guifi_users_dump_federated_md5($node) {
 
 function guifi_users_dump_ldif($service) {
   drupal_set_header('Content-Type: text/plain; charset=utf-8');
-  print _guifi_users_dump_federated($service,true);
+  print _guifi_users_dump_federated($service, TRUE);
   exit;
 }
 

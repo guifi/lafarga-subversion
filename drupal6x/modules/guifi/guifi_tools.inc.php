@@ -5,7 +5,7 @@
  * functions for various tools
  */
 
-function guifi_tools_ip_search($ipv4 = null) {
+function guifi_tools_ip_search($ipv4 = NULL) {
 
   $output = drupal_get_form('guifi_tools_ip_search_form',$ipv4);
 
@@ -68,7 +68,7 @@ function guifi_tools_ip_search($ipv4 = null) {
   }
 
   $output .= theme('table',$headers,$rows);
-  $output .= theme_pager(null, 50);
+  $output .= theme_pager(NULL, 50);
   return $output;
 }
 
@@ -78,7 +78,7 @@ function guifi_tools_ip_search_form($form_state, $params = array()) {
   $form['ipv4'] = array(
     '#type' => 'textfield',
     '#title' => t('Network IPv4 address'),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $params,
     '#size' => 16,
     '#maxlength' => 16,
@@ -99,7 +99,7 @@ function guifi_tools_ip_search_form_submit($form, &$form_state) {
 }
 
 // MAC Search
-function guifi_tools_mac_search($mac = null) {
+function guifi_tools_mac_search($mac = NULL) {
   $output = drupal_get_form('guifi_tools_mac_search_form',$mac);
 
   if (is_null($mac))
@@ -145,7 +145,7 @@ function guifi_tools_mac_search($mac = null) {
   }
 
   $output .= theme('table',$headers,$rows);
-  $output .= theme_pager(null, 50);
+  $output .= theme_pager(NULL, 50);
   return $output;
 }
 
@@ -154,7 +154,7 @@ function guifi_tools_mac_search_form($form_state, $params = array()) {
   $form['mac'] = array(
     '#type' => 'textfield',
     '#title' => t('MAC address'),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $params,
     '#size' => 20,
     '#maxlength' => 20,
@@ -184,11 +184,11 @@ function guifi_tools_ip_rangesearch($params) {
   // for testing, load a device with quite a few ip's'
   // $device = guifi_device_load(115);
 
-  $tgetipsbegin = microtime(true);
+  $tgetipsbegin = microtime(TRUE);
 
   $ips_allocated = guifi_ipcalc_get_ips('0.0.0.0','0.0.0.0');
 
-  $tgetipsend = microtime(true);
+  $tgetipsend = microtime(TRUE);
 
   $toutput = t('Got & sorted %num ips in %secs seconds',
     array('%num'=>number_format(count($ips_allocated)),
@@ -205,9 +205,9 @@ function guifi_tools_ip_rangesearch($params) {
             $network_type,
             $ips_allocated,
             $allocate,   // never allocate the obatined range at guifi_networks
-            true);   // verbose output
+            TRUE);   // verbose output
 
-  $tgetsubnetbynid = microtime(true);
+  $tgetsubnetbynid = microtime(TRUE);
 
   $toutput .= t('Got %base/%net in %secs seconds',
     array('%base'=>$net,
@@ -251,7 +251,7 @@ function guifi_tools_ip_rangesearch_form($form_state, $params = array()) {
   $form['mask'] = array(
     '#type' => 'select',
     '#title' => t("Mask"),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $mask,
     '#options' => guifi_types('netmask',30,0),
     '#description' => t('The mask of the network to search for. The number of the available hosts of each masks is displayed in the list box.'),
@@ -259,7 +259,7 @@ function guifi_tools_ip_rangesearch_form($form_state, $params = array()) {
   $form['network_type'] = array(
     '#type' => 'select',
     '#title' => t("Type"),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $network_type,
     '#options' => drupal_map_assoc(array('public','backbone')),
     '#description' => t('The type of network addresses you are looking for. <ul><li><em>public:</em> is for addresses which will allow the users connect to the services, therefore must be unique across all the network and assigned with care for not being wasted.</li><li><em>backbone:</em> internal addresses for network operation, could be shared across distinct network segments, do not neet to be known as a service address to the users</li></ul>'),
@@ -268,7 +268,7 @@ function guifi_tools_ip_rangesearch_form($form_state, $params = array()) {
   $form['allocate'] = array(
     '#type' => 'select',
     '#title' => t("Allocate"),
-    '#required' => true,
+    '#required' => TRUE,
     '#access' => user_access('administer guifi networks'),
     '#default_value' => 'No',
     '#options' => drupal_map_assoc(array('Yes','No')),
@@ -292,7 +292,7 @@ function guifi_tools_ip_rangesearch_form_submit($form, $form_state) {
 
 
 // Mail search & massive update
-function guifi_tools_mail_search($mail = null) {
+function guifi_tools_mail_search($mail = NULL) {
 
   $output = drupal_get_form('guifi_tools_mail_search_form',$mail);
 
@@ -321,31 +321,31 @@ function guifi_tools_mail_search($mail = null) {
       $row[] = $amails->notification;
 
       // Check that the user has update access and creates the link
-      $continue = false;
+      $continue = FALSE;
       if (!user_access('administer guifi networks'))
         switch ($table) {
           case 'guifi_users':
             if (guifi_user_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_devices':
             if (guifi_device_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_zone':
             if (guifi_zone_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_location':
             if (guifi_node_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_service':
             if (guifi_service_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
         } else
-        $continue = true;
+        $continue = TRUE;
 
       if (!$continue)
         continue;
@@ -382,7 +382,7 @@ function guifi_tools_mail_search_form($form_state, $params = array()) {
   $form['mail'] = array(
     '#type' => 'textfield',
     '#title' => t('e-mail address'),
-    '#required' => true,
+    '#required' => TRUE,
     '#default_value' => $params,
     '#size' => 50,
     '#maxlength' => 50,
@@ -420,7 +420,7 @@ function guifi_tools_mail_update_form($form_state, $params = array()) {
   $form['mail_replacewith'] = array(
     '#type' => 'textfield',
     '#title' => t('New e-mail address'),
-    '#required' => false,
+    '#required' => FALSE,
     '#default_value' => $params,
     '#size' => 50,
     '#maxlength' => 50,
@@ -474,41 +474,41 @@ function guifi_tools_mail_update_form_submit($form, &$form_state) {
 
     while ($amails = db_fetch_object($sqlm)) {
       // Check that the user has update access and creates the link
-      $continue = false;
+      $continue = FALSE;
       if (!user_access('administer guifi networks'))
         switch ($table) {
           case 'guifi_users':
             $title = $amails->username;
             $type = t('User');
             if (guifi_user_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_devices':
             $title = $amails->nick;
             $type = t('Device');
             if (guifi_device_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_zone':
             $title = $amails->nick;
             $type = t('Zone');
             if (guifi_zone_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_location':
             $title = $amails->nick;
             $type = t('Node');
             if (guifi_node_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
           case 'guifi_service':
             $title = $amails->nick;
             $type = t('Service');
             if (guifi_service_access('update',$amails->id))
-              $continue = true;
+              $continue = TRUE;
             break;
         } else
-        $continue = true;
+        $continue = TRUE;
 
       if (!$continue)
         continue;
@@ -552,11 +552,11 @@ function guifi_tools_mail_update_form_submit($form, &$form_state) {
 }
 
 // Administrative tools
-function guifi_admin_notify($view = 'false') {
-  if ($view == 'false')
-    $send = true;
+function guifi_admin_notify($view = 'FALSE') {
+  if ($view == 'FALSE')
+    $send = TRUE;
   else
-    $send = false;
+    $send = FALSE;
 
   include_once('guifi_cron.inc.php');
   $output = guifi_notify_send($send);
@@ -584,7 +584,7 @@ function guifi_admin_loadstats($server_id) {
 
   include_once('guifi_cron.inc.php');
 
-  $output .= guifi_cron_loadCNMLstats($server_id,true);
+  $output .= guifi_cron_loadCNMLstats($server_id, TRUE);
 
   return $output;
 }
@@ -642,7 +642,7 @@ function guifi_tools_datareview() {
   $rows[] = array(t('nodes with work radio devices'),$data['nodes_radiowork'],$data['nodes_deviceswork']-$data['nodes_radiowork'],t('nodes without radio devices'));
   
   $output .= theme('table',$headers,$rows);
-  //$output .= theme_pager(null, 50);
+  //$output .= theme_pager(NULL, 50);
   return $output;
 }
 /*
@@ -662,7 +662,7 @@ function guifi_tools_isdevconnect($fromdev, $todev) {
 function guifi_tools_isdevconnect_search($path, $to, &$routes, $maxhops = 50, $alinks = array()) {
   static $a=0;
   $a++;
-  $btime = microtime(true);
+  $btime = microtime(TRUE);
 
   $hop = count($path);
   $kpath = array_keys($path);
@@ -671,7 +671,7 @@ function guifi_tools_isdevconnect_search($path, $to, &$routes, $maxhops = 50, $a
 
   // if links array not loaded, fill the array
   if (!count($alinks)) {
-    $lbegin = microtime(true);
+    $lbegin = microtime(TRUE);
     $qry = db_query('SELECT * FROM {guifi_links} WHERE flag = "Working"');
     while ($link = db_fetch_array($qry)) {
       // alinks[devices] will contain all the links for every device

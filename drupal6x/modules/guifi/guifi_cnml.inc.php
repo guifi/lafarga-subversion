@@ -820,7 +820,7 @@ function ospf_net($cnmlid){
   $n=0;
   $CNML = new SimpleXMLElement('<cnml></cnml>');
   
-  $tbegin = microtime(true);
+  $tbegin = microtime(TRUE);
   
   $CNML->addAttribute('version','0.1');
   $CNML->addAttribute('server_id','1');
@@ -880,7 +880,7 @@ function ospf_net($cnmlid){
    while ($ip=db_fetch_array($result)){
       if ( ($ip['ipv4'] != 'dhcp') and (!empty($ip['ipv4'])) )  {
         $ip_dec = ip2long($ip['ipv4']);
-        $min = false; $max = false;
+        $min = FALSE; $max = FALSE;
         if (!isset($ips[$ip_dec]))
           // save memory by storing just the maskbits
           // by now, 1MB array contains 7,750 ips
@@ -965,7 +965,7 @@ function ospf_net($cnmlid){
    }
    $classXML3->addAttribute('total_zone_networks',$nreg);
    
-   $CNML->addAttribute('elapsed',round(microtime(true)-$tbegin,4)); 
+   $CNML->addAttribute('elapsed',round(microtime(TRUE)-$tbegin,4)); 
    return $CNML;
 }
 
@@ -1203,23 +1203,23 @@ function plot_guifi($cnmlid){
     }
     $shapes = array( 'none', 'circle');
     $plot = new PHPlot(200,150);
-    $plot->SetPlotAreaWorld(0, 0,$items,NULL);
+    $plot->SetPlotAreaWorld(0, 0,$items, NULL);
     $plot->SetFileFormat('png');
     $plot->SetDataType("data-data");
     $plot->SetDataValues($data);
     $plot->SetPlotType("linepoints"); 
     $plot->SetYTickIncrement(2000);
     $plot->SetXTickIncrement(12);
-    $plot->SetSkipBottomTick(true);
-    $plot->SetSkipLeftTick(true);
+    $plot->SetSkipBottomTick(TRUE);
+    $plot->SetSkipLeftTick(TRUE);
     $plot->SetXAxisPosition(0);
     $plot->SetPointShapes($shapes); 
     $plot->SetPointSizes(10);
     $plot->SetTickLength(3);
-    $plot->SetDrawXGrid(true);
+    $plot->SetDrawXGrid(TRUE);
     $plot->SetTickColor('grey');
     $plot->SetTitle($vtitle);
-    $plot->SetDrawXDataLabelLines(false);
+    $plot->SetDrawXDataLabelLines(FALSE);
     $plot->SetXLabelAngle(0);
     $plot->SetXLabelType('custom', 'Plot1_LabelFormat');
     $plot->SetGridColor('red');
@@ -1232,7 +1232,7 @@ function plot_guifi($cnmlid){
     $plot->SetTransparentColor('white');
     $plot->SetXTickLabelPos('none');
     $plot->SetXDataLabelPos('plotdown');
-    $plot->SetIsInline(true);
+    $plot->SetIsInline(TRUE);
     $plot->DrawGraph();
 }
 function Plot1_LabelFormat($value){

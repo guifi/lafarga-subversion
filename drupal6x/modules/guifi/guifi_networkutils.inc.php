@@ -59,7 +59,7 @@ function _ipcalc($ip,$mask) {
       if ($val >= 0 && $val <= 255) {
         $octets[$obj]['binary'] .= str_repeat("0",8-strlen(decbin($val))).decbin($val);
       } else {
-        guifi_log(GUIFILOG_NONE,'_ipcalc '.$ip. ' mask '.$mask.' invalid('.$obj.')',null);
+        guifi_log(GUIFILOG_NONE,'_ipcalc '.$ip. ' mask '.$mask.' invalid('.$obj.')', NULL);
         print "Error: Item '$obj' invàlid";
         return -1;
       }

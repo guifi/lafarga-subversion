@@ -28,7 +28,7 @@
 //      return str_repeat(' ',2*$ident)."<".$tag.">".htmlspecialchars($content,ENT_QUOTES)."</".$tag.">".$nl;
 //  }
 //
-//  function xmlsummary($ident = 0, $summary = null, $nl = "\r\n") {
+//  function xmlsummary($ident = 0, $summary = NULL, $nl = "\r\n") {
 //    $output = $nl.str_repeat(' ',$ident*2).'<!-- ';
 //    if (!empty($summary)) {
 //      foreach ($summary as $key => $num) 
@@ -37,7 +37,7 @@
 //    return $output.' -->'.$nl;
 //  }
 //
-//  function xmlopentag($ident = 0, $tag, $attributes = null, $nl = "\r\n") {
+//  function xmlopentag($ident = 0, $tag, $attributes = NULL, $nl = "\r\n") {
 //    $output = $nl.str_repeat(' ',$ident*2).'<'.$tag;
 //    if (!empty($attributes)) {
 //      foreach ($attributes as $key => $attr) 
@@ -107,8 +107,8 @@
 //
 //    $interfaces->count = 0;
 //    $interfaces->xml = "";
-//    if ($rcounter == null)
-//      $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter is null",$did);
+//    if ($rcounter == NULL)
+//      $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter is NULL",$did);
 //    else
 //      $qinterfaces = db_query("SELECT i.id,a.id ipv4_id,a.ipv4,a.netmask FROM {guifi_interfaces} i, {guifi_ipv4} a WHERE i.id=a.interface_id AND i.device_id=%d AND i.radiodev_counter = %d",$did,$rcounter);
 //    while ($i = db_fetch_object($qinterfaces)) {
@@ -304,10 +304,10 @@
 //
 //     $query = db_query("SELECT * FROM {guifi_zone} z WHERE z.id=%d",$zoneid);
 //     $zone = db_fetch_object($query);
-//     if (($zone->minx != null) && ($zone->minx != 0)) $zones->minx = $zone->minx;
-//     if (($zone->maxx != null) && ($zone->maxx != 0)) $zones->maxx = $zone->maxx;
-//     if (($zone->miny != null) && ($zone->miny != 0)) $zones->miny = $zone->miny;
-//     if (($zone->maxy != null) && ($zone->maxy != 0)) $zones->maxy = $zone->maxy;
+//     if (($zone->minx != NULL) && ($zone->minx != 0)) $zones->minx = $zone->minx;
+//     if (($zone->maxx != NULL) && ($zone->maxx != 0)) $zones->maxx = $zone->maxx;
+//     if (($zone->miny != NULL) && ($zone->miny != 0)) $zones->miny = $zone->miny;
+//     if (($zone->maxy != NULL) && ($zone->maxy != 0)) $zones->maxy = $zone->maxy;
 //
 //     $zones->xml = xmlopentag($ident,'zone',array('id'=>$zoneid,
 //                                                  'title'=>$zone->title,

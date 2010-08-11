@@ -27,7 +27,7 @@ function budgets_menu() {
   $items['budgets'] = array(
     'title' => 'Proposals, budgets and fundings',
     'page callback' => 'budgets_page',
-//    'page arguments' => array('0',null),
+//    'page arguments' => array('0', NULL),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK);
@@ -43,7 +43,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list'] = array(
     'title' => 'list',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1, null),
+    'page arguments' => array(1, NULL),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 0,
@@ -51,7 +51,7 @@ function budgets_menu() {
   $items['budgets/%guifi_zone/list/All'] = array(
     'title' => 'all status',
     'page callback' => 'budgets_page',
-    'page arguments' => array(1, null),
+    'page arguments' => array(1, NULL),
     'access callback' => 'user_access',
     'access arguments' => array('access content'),
     'weight' => 0,
@@ -608,7 +608,7 @@ function budgets_load($node) {
     db_query("SELECT * FROM {budgets} WHERE id = '%d'", $k));
 
   if (is_null($node->id))
-    return false;
+    return FALSE;
 
   $items = array();
   $total = 0;
@@ -823,8 +823,8 @@ function budgets_form(&$node, &$param) {
   $form['batch'] = array(
     '#type'=>'fieldset',
     '#title'=>t('Add items from previous proposals or quotes provided by suppliers'),
-    '#collapsible'=>false,
-    '#collapsed'=>false
+    '#collapsible'=>FALSE,
+    '#collapsed'=>FALSE
   );
   $form['batch']['loadbudget'] = array(
     '#type'=>'textfield',
@@ -941,7 +941,7 @@ function budgets_item_form($item,$ki) {
 
   $folded = TRUE;
   if ($item['deleted'])
-    $folded = false;
+    $folded = FALSE;
 
   $f = array (
     '#type' => 'fieldset',
@@ -1002,7 +1002,7 @@ function budgets_item_form($item,$ki) {
     '#type' => 'textfield',
     '#title' => t('Title'),
     '#maxlength' => 1024,
-    '#required' => false,
+    '#required' => FALSE,
     '#default_value' => !empty($item['title']) ? $item['title'] : NULL,
     '#prefix' => '<table><tr><td>',
     '#suffix' => '</td>',
@@ -1075,7 +1075,7 @@ function budgets_items_form($items) {
     '#title' => t('Budget items'),
     '#tree' => TRUE,
     '#collapsible' => TRUE,
-    '#collapsed' => false,
+    '#collapsed' => FALSE,
 //    '#description' => $txtmore
   );
 
@@ -1647,7 +1647,7 @@ function budgets_page($zone = NULL,$status = NULL) {
     $status_str = "  AND (budget_status='Open' or budget_status='Preparation') and b.expires < " . $today[0] . " " ;
   else if ($status=='Open' or $status=='Preparation')
     $status_str = "  AND budget_status='".$status."' and b.expires >= " . $today[0] . " " ;
-  else if ($status!=null)
+  else if ($status!=NULL)
     $status_str = "  AND budget_status='".$status."' ";
   else
     $status_str = '';
@@ -1691,10 +1691,10 @@ function budgets_page($zone = NULL,$status = NULL) {
       theme('pager', NULL, variable_get('default_nodes_main', 10));
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'budgets/%d/list'));
-//  $output .= theme_pager(null, variable_get("guifi_pagelimit", 50));
+//  $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
   $node = node_load(array('nid'=>$node->id));
-  $output .= theme_links(module_invoke_all('link', 'node', $node, false));
-  print theme('page',$output,false);
+  $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
+  print theme('page',$output, FALSE);
   return;
 }
 
@@ -1748,7 +1748,7 @@ function budgets_bar($total,$subtotal,$currency = '€') {
   return $output;
 }
 
-function theme_budgets_items($node,$links = false) {
+function theme_budgets_items($node,$links = FALSE) {
 
   if (!isset($node->nid))
     $node = node_load(array('nid'=>$node->id));
@@ -1786,7 +1786,7 @@ function theme_budgets_items($node,$links = false) {
   $output .=theme('table', $header, $rows);
 
   if ($links)
-    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
 
   return $output;
 }
@@ -1827,7 +1827,7 @@ function theme_budgets_cnml($node) {
   return $output;
 }
 
-function theme_budgets_funds($node,$links = false) {
+function theme_budgets_funds($node,$links = FALSE) {
 
   guifi_log(GUIFILOG_TRACE,'function theme_budgets_funds()',$node);
 
@@ -1906,7 +1906,7 @@ function theme_budgets_funds($node,$links = false) {
         $rows[] = $row;
 
       if (!empty($fund['comments']))
-        $rows[] = array(null,
+        $rows[] = array(NULL,
           array('data'=>$fund['comments'],'colspan'=>0));
 
     } // foreach fund
@@ -1920,7 +1920,7 @@ function theme_budgets_funds($node,$links = false) {
                    'colspan'=>0),
                  );
   foreach ($totals as $k=>$v) {
-    $rows[] = array(null,
+    $rows[] = array(NULL,
                 $k,array('data'=>
                   number_format($v,2,',','.').$budget->currency_symbol,
                   'align'=>'right',
@@ -1931,7 +1931,7 @@ function theme_budgets_funds($node,$links = false) {
   $output .= theme('table', $header, $rows);
 
   if ($links)
-    $output .= theme_links(module_invoke_all('link', 'node', $node, false));
+    $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
 
   return $output;
 
@@ -1943,12 +1943,12 @@ function budgets_validate_fund(&$fund) {
   if (($fund['amount'] > $fund['max_contribution']) or (empty($fund['amount'])) )
     form_set_error('amount',t('Maximum donation is').'&nbsp;'.$fund['max_contribution']);
   $fund['amount'] = str_replace(',','.',$fund['amount']);
-  $fund['amount'] = str_replace('€',null,$fund['amount']);
-  $fund['amount'] = str_replace('$',null,$fund['amount']);
-  $fund['amount'] = str_replace('EUR',null,$fund['amount']);
-  $fund['amount'] = str_replace('euros',null,$fund['amount']);
-  $fund['amount'] = str_replace('USD',null,$fund['amount']);
-  $fund['amount'] = str_replace('dollars',null,$fund['amount']);
+  $fund['amount'] = str_replace('€', NULL,$fund['amount']);
+  $fund['amount'] = str_replace('$', NULL,$fund['amount']);
+  $fund['amount'] = str_replace('EUR', NULL,$fund['amount']);
+  $fund['amount'] = str_replace('euros', NULL,$fund['amount']);
+  $fund['amount'] = str_replace('USD', NULL,$fund['amount']);
+  $fund['amount'] = str_replace('dollars', NULL,$fund['amount']);
   if (!is_numeric($fund['amount']))
   form_set_error('amount',t('Amount must be numeric'));
   if ( (empty($fund['contributor_telf'])) and (empty($fund['contributor_email'])) )
@@ -2016,14 +2016,14 @@ function budgets_ahah_select_quote($string){
   exit();
 }
 
-function budgets_cnml($node = null, $format = null, $status = null) {
+function budgets_cnml($node = NULL, $format = NULL, $status = NULL) {
 
   $node = node_load(array('nid'=>$node->id));
   guifi_log(GUIFILOG_TRACE,
     sprintf('function budgets_cnml(%s %s)',$format,$status),
     $node);
 
-  if ($format == null)
+  if ($format == NULL)
     return theme_budgets_cnml($node);
 
   // Filter by status
@@ -2130,7 +2130,7 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
   return;
 }
 
-function theme_refquote($quote,$supplier,$teaser = false) {
+function theme_refquote($quote,$supplier,$teaser = FALSE) {
   if ($teaser)
     return t('Ref.').': '.l($quote->partno,'node/'.$quote->nid).'-'.
       l($supplier->title,'node/'.$supplier->nid).', '.

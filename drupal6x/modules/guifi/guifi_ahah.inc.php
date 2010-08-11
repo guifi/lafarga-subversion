@@ -304,7 +304,7 @@ function guifi_ahah_add_cable_link() {
         '#default_value' => 'Create',
         '#parents'=>$tree,
         '#submit' => $submit,
-        '#executes_submit_callback' => true,
+        '#executes_submit_callback' => TRUE,
         '#prefix' => '<td align="left">',
         '#suffix' => '</td></table>'
       );
@@ -356,7 +356,7 @@ function guifi_ahah_add_subnet_mask() {
       '#default_value' => 'Create',
       '#parents'=>array('interface',$interface_id,'addNetmask'),
       '#submit' => array('guifi_interfaces_add_subnet_submit'),
-      '#executes_submit_callback' => true,
+      '#executes_submit_callback' => TRUE,
       '#prefix' => '<td align="left">',
       '#suffix' => '</td></table>'
     );
@@ -403,7 +403,7 @@ function guifi_ahah_move_device() {
 
     $form['r'][$radio_id]['moveradio'] = array (
       '#type' => 'fieldset',
-      '#collapsible' => false
+      '#collapsible' => FALSE
     );
     if ($node[0] != $_POST['nid']) {
       $form['r'][$radio_id]['moveradio']['msg'] = array(
@@ -465,8 +465,8 @@ function guifi_ahah_add_interface() {
   $free = guifi_get_free_interfaces($_POST['id'],$_POST);
 
   $newI['interface_type'] = array_shift($free);
-  $newI['new'] = true;
-  $newI['unfold'] = true;
+  $newI['new'] = TRUE;
+  $newI['unfold'] = TRUE;
 
   $interfaces[] = $newI;
   end($interfaces);

@@ -8,14 +8,14 @@
 /** _guifi_db_sql(): UPSERT (SQL insert or update) on
  * node, device, radios, interfaces, ipv4, links...
  **/
-function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) {
+function _guifi_db_sql($table, $key, $idata, &$log = NULL, &$to_mail = array()) {
   global $user;
 
 //  print_r($key);
 //  print_r($data);
 //  exit(0);
 
-  $insert = false;
+  $insert = FALSE;
 
   guifi_log(GUIFILOG_TRACE,
     sprintf('guifi_sql(table: %s, keys='.implode(',',$key).')',
@@ -39,7 +39,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 
   // insert?
   if ($data['new'])
-    $insert = true;
+    $insert = TRUE;
 
   $qc = db_query('SHOW COLUMNS FROM ' . $table);
   while ($column = db_fetch_object($qc))
@@ -251,13 +251,13 @@ function _guifi_db_sql($table, $key, $idata, &$log = null, &$to_mail = array()) 
 
 /** _guifi_db_delete(): Delete SQL statements for node, devices, radios, users, services, interfaces, ipv4, links, zones...
 ***/
-function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = true) {
+function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = TRUE) {
   global $user;
 
   $log = str_repeat('- ',$depth);
   $depth++;
 
-  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_db_delete(%s,%s)',$table,var_export($key,true)));
+  guifi_log(GUIFILOG_TRACE,sprintf('function _guifi_db_delete(%s,%s)',$table,var_export($key, TRUE)));
   if (!in_array($user->mail,$to_mail))
     $to_mail[] = $user->mail;
 
@@ -400,7 +400,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         $key['id'],$key['device_id']);
 
     while ($link = db_fetch_array($qc)) {
-      $log .= '<br />'._guifi_db_delete('guifi_links',$link,$to_mail,$depth,false);
+      $log .= '<br />'._guifi_db_delete('guifi_links',$link,$to_mail,$depth, FALSE);
 
       // cleanup of remote ipv4 addresses when appropriate
       $qar = db_query('SELECT * ' .
@@ -420,7 +420,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
               'interface_id'=>$link['interface_id']),
             $to_mail,
             $depth,
-            false);
+            FALSE);
 
           if ($ripv4['netmask'] == '255.255.255.252')
            // cascade to local ipv4
@@ -430,7 +430,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
                 'interface_id'=>$item->interface_id),
               $to_mail,
               $depth,
-              false);
+              FALSE);
 
         }
 //        guifi_log(GUIFILOG_BASIC,'function delete cascade remote address()',$link);
@@ -461,7 +461,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
             array('id'=>$na['id']),
             $to_mail,
             $depth,
-            false);
+            FALSE);
         }
       }
     }

@@ -14,7 +14,7 @@ function guifi_api() {
     $gapi->executeRequest();
     $gapi->printResponse();
   }
-  return null;
+  return NULL;
 }
 
 /**
@@ -28,7 +28,7 @@ function guifi_api_auth_login(&$gapi, $parameters) {
   global $user;
   
 //  if (!guifi_api_check_fields($gapi, array('method' ), $parameters)) {
-//    return false;
+//    return FALSE;
 //  }
 
   if (!empty( $parameters['method'])) {
@@ -40,7 +40,7 @@ function guifi_api_auth_login(&$gapi, $parameters) {
   switch ($method) {
     case 'password':
       if (!guifi_api_check_fields($gapi, array('username', 'password' ), $parameters)) {
-        return false;
+        return FALSE;
       }
       
       $account = user_load(array('name' => $parameters['username'], 'pass' => trim($parameters['password']), 'status' => 1 ));
@@ -53,15 +53,15 @@ function guifi_api_auth_login(&$gapi, $parameters) {
         db_query("DELETE FROM {guifi_api_tokens} WHERE uid = %d", $user->uid);
         db_query("INSERT INTO {guifi_api_tokens} (uid, token, created, rand_key) VALUES (%d, '%s', FROM_UNIXTIME(%d), %d)", $user->uid, $token, $time, $rand_key);
         $gapi->addResponseField('authToken', $token);
-        return true;
+        return TRUE;
       } else {
         $gapi->addError(403, "Either the supplied username or password are not correct");
-        return false;
+        return FALSE;
       }
       
       break;
   }
-  return false;
+  return FALSE;
 }
 
 function _guifi_api_prepare_node($type, $title) {
@@ -76,7 +76,7 @@ function _guifi_api_prepare_node($type, $title) {
   $edit['title'] = $title;
   
   if (!node_access('create', $edit['type'])) {
-    return false;
+    return FALSE;
   }
   
   $node = node_submit($edit);
@@ -111,14 +111,14 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
   if (isset($ospf_zone)) {
     if (($ospf_zone != htmlentities($ospf_zone)) || str_word_count($ospf_zone) > 1) {
       $gapi->addError(403, "ospf_zone: $ospf_zone");
-      return false;
+      return FALSE;
     }
   }
   
   if (isset($notification)) {
     if (!guifi_notification_validate($notification)) {
       $gapi->addError(403, "notification: $notification");
-      return false;
+      return FALSE;
     }
   }
   
@@ -126,7 +126,7 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'SNPgraphs'", $graph_server));
     if (!$server->id) {
       $gapi->addError(403, "graph_server: $graph_server");
-      return false;
+      return FALSE;
     }
   }
   
@@ -134,7 +134,7 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'Proxy'", $proxy_server));
     if (!empty($proxy_server) && !$server->id) {
       $gapi->addError(403, "proxy_server: $proxy_server");
-      return false;
+      return FALSE;
     } else {
       $parameters['proxy_id'] = $proxy_server;
     }
@@ -144,11 +144,11 @@ function _guifi_api_zone_check_parameters(&$gapi, &$parameters) {
     $zone_modes = array('infrastructure', 'ad-hoc' );
     if (!in_array($zone_mode, $zone_modes)) {
       $gapi->addError(403, "zone_mode: $zone_mode");
-      return false;
+      return FALSE;
     }
   }
   
-  return true;
+  return TRUE;
 }
 
 /**
@@ -161,7 +161,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
   global $user;
   
   if (!guifi_api_check_fields($gapi, array('title', 'master', 'minx', 'miny', 'maxx', 'maxy' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   extract($parameters);
@@ -179,7 +179,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
   $node->ospf_zone = '';
   
   if (!_guifi_api_zone_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
@@ -188,7 +188,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
   
   if (!guifi_zone_access('create', $node)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   node_validate($node);
@@ -201,7 +201,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
   node_save($node);
   
   $gapi->addResponseField('zone_id', $node->id);
-  return true;
+  return TRUE;
 }
 
 /**
@@ -212,7 +212,7 @@ function guifi_api_zone_add(&$gapi, $parameters) {
  */
 function guifi_api_zone_update(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('zone_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   extract($parameters);
@@ -220,7 +220,7 @@ function guifi_api_zone_update(&$gapi, $parameters) {
   $node = node_load($zone_id);
   
   if (!_guifi_api_zone_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
@@ -229,12 +229,12 @@ function guifi_api_zone_update(&$gapi, $parameters) {
   
   if (!guifi_zone_access('update', $node)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if ($node->type != 'guifi_zone') {
     $gapi->addError(500, "zone_id = $node->id is not a zone");
-    return false;
+    return FALSE;
   }
   
   node_validate($node);
@@ -246,39 +246,39 @@ function guifi_api_zone_update(&$gapi, $parameters) {
   
   node_save($node);
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_zone_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('zone_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $node = node_load($parameters['zone_id']);
   
   if (!$node->id) {
     $gapi->addError(500, "zone_id = {$parameters['zone_id']}");
-    return false;
+    return FALSE;
   }
   
   if ($node->type != 'guifi_zone') {
     $gapi->addError(500, "zone_id = $node->id is not a zone");
-    return false;
+    return FALSE;
   }
   
   if (node_access('delete', $node) && guifi_zone_access('update', $node)) {
     node_delete($node->id);
   } else {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_zone_nearest(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('lat', 'lon' ), $parameters)) {
-    return false;
+    return FALSE;
   }
 
   $candidates = guifi_zone_get_nearest_candidates($parameters['lat'], $parameters['lon']);
@@ -290,7 +290,7 @@ function guifi_api_zone_nearest(&$gapi, $parameters) {
   unset( $nearest['d'] );
   $gapi->addResponseField('candidates', $candidates);
   $gapi->addResponseField('nearest', $nearest);
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
@@ -302,7 +302,7 @@ function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
       unset($parameters['status']);
     } else {
       $gapi->addError(403, "status: $status");
-      return false;
+      return FALSE;
     }
   }
   
@@ -322,7 +322,7 @@ function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
   if (isset($notification)) {
     if (!guifi_notification_validate($notification)) {
       $gapi->addError(403, "notification: $notification");
-      return false;
+      return FALSE;
     }
   }
   
@@ -330,18 +330,18 @@ function _guifi_api_node_check_parameters(&$gapi, &$parameters) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'SNPgraphs'", $graph_server));
     if (!$server->id) {
       $gapi->addError(403, "graph_server: $graph_server");
-      return false;
+      return FALSE;
     }
   }
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_node_add(&$gapi, $parameters) {
   global $user;
   
   if (!guifi_api_check_fields($gapi, array('title', 'zone_id', 'lat', 'lon' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   extract($parameters);
@@ -359,7 +359,7 @@ function guifi_api_node_add(&$gapi, $parameters) {
   $node->stable = 'Yes';
   
   if (!_guifi_api_node_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
@@ -368,7 +368,7 @@ function guifi_api_node_add(&$gapi, $parameters) {
   
   if (!guifi_node_access('create', $node)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   node_validate($node);
@@ -381,7 +381,7 @@ function guifi_api_node_add(&$gapi, $parameters) {
   node_save($node);
   
   $gapi->addResponseField('node_id', $node->id);
-  return true;
+  return TRUE;
 }
 
 /**
@@ -392,7 +392,7 @@ function guifi_api_node_add(&$gapi, $parameters) {
  */
 function guifi_api_node_update(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   extract($parameters);
@@ -400,7 +400,7 @@ function guifi_api_node_update(&$gapi, $parameters) {
   $node = node_load($node_id);
   
   if (!_guifi_api_node_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
@@ -409,12 +409,12 @@ function guifi_api_node_update(&$gapi, $parameters) {
   $gapi->addResponseField('node', $node);
   if (!guifi_node_access('update', $node)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if ($node->type != 'guifi_node') {
     $gapi->addError(500, "zone_id = $node->id is not a guifi node");
-    return false;
+    return FALSE;
   }
   
   node_validate($node);
@@ -425,7 +425,7 @@ function guifi_api_node_update(&$gapi, $parameters) {
   }
   node_save($node);
   
-  return true;
+  return TRUE;
 }
 
 /**
@@ -436,29 +436,29 @@ function guifi_api_node_update(&$gapi, $parameters) {
  */
 function guifi_api_node_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $node = node_load($parameters['node_id']);
   
   if (!$node->id) {
     $gapi->addError(500, "node_id = {$parameters['node_id']}");
-    return false;
+    return FALSE;
   }
   
   if ($node->type != 'guifi_node') {
     $gapi->addError(500, "node_id = $node->id is not a guifi node");
-    return false;
+    return FALSE;
   }
   
   if (node_access('delete', $node) && guifi_node_access('update', $node)) {
     node_delete($node->id);
   } else {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
@@ -469,14 +469,14 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
       $parameters['flag'] = $status;
     } else {
       $gapi->addError(403, "status: $status");
-      return false;
+      return FALSE;
     }
   }
   
   if (isset($mac)) {
     if (!_guifi_validate_mac($mac)) {
       $gapi->addError(403, "mac: $mac");
-      return false;
+      return FALSE;
     }
   }
   
@@ -486,26 +486,26 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
       foreach ($errors as $err) {
         $gapi->addError(403, $err);
       }
-      return false;
+      return FALSE;
     }
     
     $query = db_query("SELECT nick FROM {guifi_devices} WHERE lcase(nick) = lcase('%s') AND id != %d", strtolower($nick), intval($parameters['device_id']));
     
     while (db_fetch_object($query)) {
       $gapi->addError(403, 'nick already in use');
-      return false;
+      return FALSE;
     }
   }
   
   switch ($type) {
     case 'radio':
       if (!guifi_api_check_fields($gapi, array('mac', 'model_id', 'firmware' ), $parameters)) {
-        return false;
+        return FALSE;
       }
       $model = db_fetch_object(db_query("SELECT model name FROM {guifi_model} WHERE mid = '%d' LIMIT 1", $model_id));
       if (!guifi_validate_types('firmware', $firmware, $model->name)) {
         $gapi->addError(403, "firmware is not supported: $firmware");
-        return false;
+        return FALSE;
       }
       break;
     case 'mobile':
@@ -518,7 +518,7 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
       break;
     case 'adsl':
       if (!guifi_api_check_fields($gapi, array('download', 'upload', 'mrtg_index' ), $parameters)) {
-        return false;
+        return FALSE;
       }
       break;
     case 'cam':
@@ -527,7 +527,7 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
       break;
   }
   
-  return true;
+  return TRUE;
 }
 
 /**
@@ -539,7 +539,7 @@ function _guifi_api_device_check_parameters(&$gapi, &$parameters) {
 function guifi_api_device_add(&$gapi, $parameters) {
   global $user;
   if (!guifi_api_check_fields($gapi, array('node_id', 'type' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   // default values
@@ -552,25 +552,25 @@ function guifi_api_device_add(&$gapi, $parameters) {
   
   if (!$node['id']) {
     $gapi->addError(500, "node_id = {$parameters['node_id']}");
-    return false;
+    return FALSE;
   }
   
   $device['nick'] = guifi_device_get_default_nick((object)$node, $device['type'], $device['nid']);
   
   if (!_guifi_api_device_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
     $device[$key] = $value;
   }
   
-  $device['new'] = true;
+  $device['new'] = TRUE;
   $device['variable'] = array('model_id' => $device['model_id'], 'firmware' => $device['firmware'] );
   
   if (!guifi_device_access('create', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   $device_id = guifi_device_save($device);
@@ -578,28 +578,28 @@ function guifi_api_device_add(&$gapi, $parameters) {
   //  $data = _guifi_db_sql('guifi_devices', array('id' => $device->id ), $device, $log, $to_mail);
   //  $device->id = $data['id'];
   $gapi->addResponseField('device_id', $device_id);
-  return true;
+  return TRUE;
 }
 
 function guifi_api_device_update(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('device_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($parameters['device_id']);
   
   if (!$device['id']) {
     $gapi->addError(500, "device_id = {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if (!_guifi_api_device_check_parameters($gapi, &$parameters)) {
-    return false;
+    return FALSE;
   }
   
   foreach ($parameters as $key => $value) {
@@ -620,7 +620,7 @@ function guifi_api_device_update(&$gapi, $parameters) {
  */
 function guifi_api_device_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('device_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   global $user;
@@ -628,7 +628,7 @@ function guifi_api_device_remove(&$gapi, $parameters) {
   $device = guifi_device_load($parameters['device_id']);
   if (!$device['id']) {
     $gapi->addError(500, "device_id = {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   guifi_log(GUIFILOG_TRACE, 'function guifi_device_delete()');
@@ -642,7 +642,7 @@ function guifi_api_device_remove(&$gapi, $parameters) {
   guifi_notify($to_mail, $subject, $log, $verbose, $notify);
   guifi_node_set_flag($device['nid']);
   
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
@@ -651,7 +651,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
   if (!empty($mac)) {
     if (!_guifi_validate_mac($mac)) {
       $gapi->addError(403, "mac: $mac");
-      return false;
+      return FALSE;
     }
   }
   
@@ -659,7 +659,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
     $antenna_angles = array(0, 6, 60, 90, 120, 360 );
     if (!in_array($anntena_angle, $antenna_angles)) {
       $gapi->addError(403, "antenna_angle: $antenna_angle");
-      return false;
+      return FALSE;
     }
   }
   
@@ -670,7 +670,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
     $antenna_gains = array(2, 8, 12, 14, 18, 21, 24, 'more' );
     if (!in_array($antenna_gain, $antenna_gains)) {
       $gapi->addError(403, "antenna_gain: $antenna_gain");
-      return false;
+      return FALSE;
     }
   }
   
@@ -678,7 +678,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
     $antenna_azimuth = (int) $antenna_azimuth;
     if (!is_numeric($antenna_azimuth) || $antenna_azimuth > 360 || $antenna_azimuth < 0) {
       $gapi->addError(403, "antenna_azimuth: $antenna_azimuth");
-      return false;
+      return FALSE;
     }
   }
   
@@ -686,7 +686,7 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
     $antenna_modes = array('Main', 'Aux' );
     if (!in_array($anntena_mode, $antenna_modes)) {
       $gapi->addError(403, "antenna_mode: $antenna_mode");
-      return false;
+      return FALSE;
     }
   }
   
@@ -696,20 +696,20 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
         $clients_accepted_modes = array('Yes', 'No' );
         if (!in_array($clients_accepted, $clients_accepted_modes)) {
           $gapi->addError(403, "clients_accepted: $clients_accepted");
-          return false;
+          return FALSE;
         }
       }
     case 'ad-hoc':
       if (isset($protocol)) {
         if (!guifi_validate_types('protocol', $protocol)) {
           $gapi->addError(403, "protocol is not supported: $protocol");
-          return false;
+          return FALSE;
         }
       }
       if (isset($channel)) {
         if (!guifi_validate_types('channel', $channel, $protocol)) {
           $gapi->addError(403, "channel is not supported: $channel");
-          return false;
+          return FALSE;
         }
       }
       break;
@@ -719,11 +719,11 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
     $server = db_fetch_object(db_query("SELECT id FROM {guifi_services} WHERE id = '%d' AND service_type = 'SNPgraphs'", $graph_server));
     if (!$server->id) {
       $gapi->addError(403, "graph_server: $graph_server");
-      return false;
+      return FALSE;
     }
   }
   
-  return true;
+  return TRUE;
 }
 
 /**
@@ -734,14 +734,14 @@ function _guifi_api_radio_check_parameters(&$gapi, $parameters) {
  */
 function guifi_api_radio_add(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('mode', 'device_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($parameters['device_id']);
   
   if (!$device['id']) {
     $gapi->addError(500, "device not found: {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   $maxradios = db_fetch_object(db_query('SELECT radiodev_max FROM {guifi_model} WHERE mid=%d', $device['variable']['model_id']));
@@ -749,12 +749,12 @@ function guifi_api_radio_add(&$gapi, $parameters) {
   
   if (count($device['radios']) >= $maxradios) {
     $gapi->addError(404, "This device already has the maximum number of radios allowed: $maxradios");
-    return false;
+    return FALSE;
   }
   
   if (count($device['radios']) > 0) {
     if (!guifi_api_check_fields($gapi, array('mac' ), $parameters)) {
-      return false;
+      return FALSE;
     }
   }
   
@@ -770,12 +770,12 @@ function guifi_api_radio_add(&$gapi, $parameters) {
   }
   
   if (!_guifi_api_radio_check_parameters($gapi, $parameters)) {
-    return false;
+    return FALSE;
   }
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   foreach ($fields as $field) {
@@ -813,12 +813,12 @@ function guifi_api_radio_add(&$gapi, $parameters) {
   if (!empty($interfaces)) {
     $gapi->addResponseField('interfaces', $interfaces);
   }
-  return true;
+  return TRUE;
 }
 
 function guifi_api_radio_update(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($parameters['device_id']);
@@ -827,12 +827,12 @@ function guifi_api_radio_update(&$gapi, $parameters) {
   
   if (!$device['id']) {
     $gapi->addError(500, "device not found: {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   if (!isset($device['radios'][$radiodev_counter])) {
     $gapi->addError(500, "radio not found: $radiodev_counter");
-    return false;
+    return FALSE;
   }
   
   $radio = $device['radios'][$radiodev_counter];
@@ -845,12 +845,12 @@ function guifi_api_radio_update(&$gapi, $parameters) {
   }
   
   if (!_guifi_api_radio_check_parameters($gapi, $parameters)) {
-    return false;
+    return FALSE;
   }
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   foreach ($fields as $field) {
@@ -863,54 +863,54 @@ function guifi_api_radio_update(&$gapi, $parameters) {
   
   guifi_device_save($device);
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_radio_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($parameters['device_id']);
   
   if (!$device['id']) {
     $gapi->addError(500, "device not found: {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   $radiodev_counter = intval($parameters['radiodev_counter']);
   
   if (isset($device['radios'][$radiodev_counter])) {
-    $device['radios'][$radiodev_counter]['deleted'] = true;
+    $device['radios'][$radiodev_counter]['deleted'] = TRUE;
   } else {
     $gapi->addError(500, "radio not found: $radiodev_counter");
-    return false;
+    return FALSE;
   }
   
   guifi_device_save($device);
-  return true;
+  return TRUE;
 }
 
 function guifi_api_radio_nearest(&$gapi, $parameters) {
    if (!guifi_api_check_fields($gapi, array('node_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $node = node_load($parameters['node_id']);
   
   if (!$node->id) {
     $gapi->addError(500, "node not found: {$parameters['node_id']}");
-    return false;
+    return FALSE;
   }
   
   if ($node->type != 'guifi_node') {
     $gapi->addError(500, "zone_id = $node->id is not a node");
-    return false;
+    return FALSE;
   }
   
   if( empty( $parameters['dmax'] ) ) {
@@ -938,7 +938,7 @@ function guifi_api_radio_nearest(&$gapi, $parameters) {
   
   while ($device = db_fetch_object($devsq)) {
     $k++;
-    $l = false;
+    $l = FALSE;
     
     $oGC = new GeoCalc();
     $distance = round( $oGC->EllipsoidDistance($device->lat, $device->lon, $node->lat, $node->lon), 3);
@@ -947,7 +947,7 @@ function guifi_api_radio_nearest(&$gapi, $parameters) {
       continue;
     }
 
-    $l = true;
+    $l = TRUE;
     
     if ($l) {
       $devdist[$k] = $distance;
@@ -975,26 +975,26 @@ function guifi_api_radio_nearest(&$gapi, $parameters) {
 
 function guifi_api_interface_add(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('device_id', 'radiodev_counter' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($parameters['device_id']);
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if (!$device['id']) {
     $gapi->addError(500, "device not found: {$parameters['device_id']}");
-    return false;
+    return FALSE;
   }
   
   $radiodev_counter = intval($parameters['radiodev_counter']);
   
   if (!isset($device['radios'][$radiodev_counter])) {
     $gapi->addError(500, "radio not found: $radiodev_counter");
-    return false;
+    return FALSE;
   }
   
   $interface = _guifi_radio_add_wlan($radiodev_counter, $device['nid']);
@@ -1027,12 +1027,12 @@ function guifi_api_interface_add(&$gapi, $parameters) {
   
   $gapi->addResponseField('interface_id', $interface_id);
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_interface_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('interface_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $interface_id = $parameters['interface_id'];
@@ -1043,14 +1043,14 @@ function guifi_api_interface_remove(&$gapi, $parameters) {
   
   if (!$device_id) {
     $gapi->addError(500, "interface not found: {$interface_id}");
-    return false;
+    return FALSE;
   }
   
   $device = guifi_device_load($device_id);
   
   if (!guifi_device_access('update', $device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if (isset($device['radios'][$radiodev_counter]['interfaces'][$interface_id])) {
@@ -1058,17 +1058,17 @@ function guifi_api_interface_remove(&$gapi, $parameters) {
     
     if ($interface['interface_type'] != 'wLan') {
       $gapi->addError(404, "only extra wLan can be removed");
-      return false;
+      return FALSE;
     } else {
-      $device['radios'][$radiodev_counter]['interfaces'][$interface_id]['deleted'] = true;
+      $device['radios'][$radiodev_counter]['interfaces'][$interface_id]['deleted'] = TRUE;
     }
   } else {
     $gapi->addError(500, "interface not found: $interface_id");
-    return false;
+    return FALSE;
   }
   
   guifi_device_save($device);
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_link_check_parameters(&$gapi, &$parameters) {
@@ -1079,7 +1079,7 @@ function _guifi_api_link_check_parameters(&$gapi, &$parameters) {
       $parameters['flag'] = $status;
     } else {
       $gapi->addError(403, "status: $status");
-      return false;
+      return FALSE;
     }
   } else {
     $parameters['flag'] = 'Planned';
@@ -1091,7 +1091,7 @@ function _guifi_api_link_check_parameters(&$gapi, &$parameters) {
     }
   }
   
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_link_validate_local_ipv4($l_ipv4, $r_ipv4) {
@@ -1099,15 +1099,15 @@ function _guifi_api_link_validate_local_ipv4($l_ipv4, $r_ipv4) {
   $item2 = _ipcalc($r_ipv4['ipv4'], $r_ipv4['netmask']);
   
   if (($item1['netstart'] != $item2['netstart']) or ($item1['netend'] != $item2['netend'])) {
-    return false;
+    return FALSE;
   } else {
-    return true;
+    return TRUE;
   }
 }
 
 function guifi_api_link_add(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('from_device_id', 'from_radiodev_counter' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $from_device_id = $parameters['from_device_id'];
@@ -1117,16 +1117,16 @@ function guifi_api_link_add(&$gapi, $parameters) {
   
   if (!$from_device['id']) {
     $gapi->addError(500, "from_device not found: $from_device_id");
-    return false;
+    return FALSE;
   }
   
   if (!guifi_device_access('update', $from_device)) {
     $gapi->addError(501);
-    return false;
+    return FALSE;
   }
   
   if (!guifi_api_check_fields($gapi, array('to_device_id', 'to_radiodev_counter' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   $to_device_id = $parameters['to_device_id'];
   $to_radiodev_counter = $parameters['to_radiodev_counter'];
@@ -1135,7 +1135,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
   
   if (!$to_device['id']) {
     $gapi->addError(500, "to_device not found: $to_device_id");
-    return false;
+    return FALSE;
   }
   
   $from_radio = &$from_device['radios'][$from_radiodev_counter];
@@ -1153,7 +1153,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
   }
   
   if (!_guifi_api_link_check_parameters($gapi, $parameters)) {
-    return false;
+    return FALSE;
   }
   
   // Check if the link is allowed
@@ -1162,7 +1162,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
     /* client2ap link */
     if (!empty($from_interface['ipv4'])) {
       $gapi->addError(404, "radio already has a link: $from_radiodev_counter");
-      return false;
+      return FALSE;
     }
     
     $ipv4 = _guifi_radio_add_link2ap($to_device['nid'], $to_device_id, $to_radiodev_counter, $parameters['ipv4'], -1);
@@ -1174,7 +1174,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
         $str .= " (ipv4: {$parameters['ipv4']})";
       }
       $gapi->addError(404, $str);
-      return false;
+      return FALSE;
     }
     
     $ipv4['links'][-1]['flag'] = $parameters['flag'];
@@ -1195,7 +1195,7 @@ function guifi_api_link_add(&$gapi, $parameters) {
     $gapi->addResponseField('link_id', $link_id);
     $gapi->addResponseField('ipv4', $ipv4_return);
     
-    return true;
+    return TRUE;
   } else if ($from_interface['interface_type'] == 'wds/p2p') {
     /* WDS link */
     $new_interface = array();
@@ -1234,20 +1234,20 @@ function guifi_api_link_add(&$gapi, $parameters) {
     
     $gapi->addResponseField('link_id', $link_id);
     $gapi->addResponseField('ipv4', $ipv4_return);
-    return true;
+    return TRUE;
   } else {
     $gapi->addError(404, "interface doesn't allow to create the link. from_interface_type = {$from_interface['interface_type']}");
-    return false;
+    return FALSE;
   }
 }
 
 function guifi_api_link_update(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('link_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   if (!_guifi_api_link_check_parameters($gapi, $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $link_id = $parameters['link_id'];
@@ -1258,12 +1258,12 @@ function guifi_api_link_update(&$gapi, $parameters) {
     do {
       if (!$link->device_id) {
         $gapi->addError(500, "link not found: $link_id");
-        return false;
+        return FALSE;
       }
       $device = guifi_device_load($link->device_id);
       if (!guifi_device_access('update', $device)) {
         $gapi->addError(501);
-        return false;
+        return FALSE;
       }
       
       $interface = db_fetch_object(db_query('SELECT * FROM {guifi_interfaces} WHERE id = %d LIMIT 1', $link->interface_id));
@@ -1288,7 +1288,7 @@ function guifi_api_link_update(&$gapi, $parameters) {
           if ($ipv4_check == -1) {
             $str = "IPv4 parameters are wrong (ipv4: $ipv4)";
             $gapi->addError(404, $str);
-            return false;
+            return FALSE;
           } else {
             $lipv4['ipv4'] = $ipv4;
           }
@@ -1303,15 +1303,15 @@ function guifi_api_link_update(&$gapi, $parameters) {
     } while ($link = db_fetch_object($link_query));
   } else {
     $gapi->addError(500, "link not found: $link_id");
-    return false;
+    return FALSE;
   }
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_link_remove(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('link_id' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $link_id = $parameters['link_id'];
@@ -1322,31 +1322,31 @@ function guifi_api_link_remove(&$gapi, $parameters) {
     do {
       if (!$link->device_id) {
         $gapi->addError(500, "link not found: $link_id");
-        return false;
+        return FALSE;
       }
       $device = guifi_device_load($link->device_id);
       if (!guifi_device_access('update', $device)) {
         $gapi->addError(501);
-        return false;
+        return FALSE;
       }
       
       $interface = db_fetch_object(db_query('SELECT * FROM {guifi_interfaces} WHERE id = %d LIMIT 1', $link->interface_id));
       
       if ($interface->interface_type == 'Wan' || $interface->interface_type == 'wds/p2p') {
-        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['deleted'] = true;
-        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['links'][$link->id]['deleted'] = true;
+        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['deleted'] = TRUE;
+        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['links'][$link->id]['deleted'] = TRUE;
       } else {
-        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['links'][$link->id]['deleted'] = true;
+        $device['radios'][$interface->radiodev_counter]['interfaces'][$link->interface_id]['ipv4'][$link->ipv4_id]['links'][$link->id]['deleted'] = TRUE;
       }
       
       guifi_device_save($device);
     } while ($link = db_fetch_object($link_query));
   } else {
     $gapi->addError(500, "link not found: $link_id");
-    return false;
+    return FALSE;
   }
   
-  return true;
+  return TRUE;
 }
 
 function _guifi_api_misc_model_check_parameters(&$gapi, &$parameters) {
@@ -1354,7 +1354,7 @@ function _guifi_api_misc_model_check_parameters(&$gapi, &$parameters) {
     $types = array('Extern', 'PCMCIA', 'PCI' );
     if (!in_array($parameters['type'], $types)) {
       $gapi->addError(403, "type invalid: {$parameters['type']}");
-      return false;
+      return FALSE;
     }
   }
   
@@ -1363,7 +1363,7 @@ function _guifi_api_misc_model_check_parameters(&$gapi, &$parameters) {
     $fid = db_fetch_object($fid_query);
     if (!$fid->fid) {
       $gapi->addError(403, "fid invalid: {$parameters['fid']}");
-      return false;
+      return FALSE;
     }
   }
   
@@ -1371,18 +1371,18 @@ function _guifi_api_misc_model_check_parameters(&$gapi, &$parameters) {
     $values = array('Yes', 'Deprecated' );
     if (!in_array($parameters['supported'], $values)) {
       $gapi->addError(403, "supported invalid: {$parameters['supported']}");
-      return false;
+      return FALSE;
     }
   }
   
-  return true;
+  return TRUE;
 }
 
 function guifi_api_misc_model(&$gapi, $parameters) {
   $sql = "SELECT mid, fid, model, tipus AS type, supported FROM {guifi_model}";
   
   if (!_guifi_api_misc_model_check_parameters($gapi, $parameters)) {
-    return false;
+    return FALSE;
   }
   
   $params = array();
@@ -1411,7 +1411,7 @@ function guifi_api_misc_model(&$gapi, $parameters) {
     $models[] = $model;
   }
   $gapi->addResponseField('models', $models);
-  return true;
+  return TRUE;
 }
 
 function guifi_api_misc_manufacturer(&$gapi, $parameters) {
@@ -1423,7 +1423,7 @@ function guifi_api_misc_manufacturer(&$gapi, $parameters) {
     $manufacturers[] = $manufacturer;
   }
   $gapi->addResponseField('manufacturers', $manufacturers);
-  return true;
+  return TRUE;
 }
 
 
@@ -1436,11 +1436,11 @@ function guifi_api_misc_firmware(&$gapi, $parameters) {
       $relation = $model->model;
     } else {
       $gapi->addError(403, "model not found: {$parameters['model_id']}");
-      return false;
+      return FALSE;
     }
   }
   
-  $types = guifi_types('firmware', null, null, $relation);
+  $types = guifi_types('firmware', NULL, NULL, $relation);
   
   $firmwares = array();
   
@@ -1449,7 +1449,7 @@ function guifi_api_misc_firmware(&$gapi, $parameters) {
   }
   
   $gapi->addResponseField('firmwares', $firmwares);
-  return true;
+  return TRUE;
 }
 
 
@@ -1463,19 +1463,19 @@ function guifi_api_misc_protocol(&$gapi, $parameters) {
   }
   
   $gapi->addResponseField('protocols', $protocols);
-  return true;
+  return TRUE;
 }
 
 function guifi_api_misc_channel(&$gapi, $parameters) {
   if (!guifi_api_check_fields($gapi, array('protocol' ), $parameters)) {
-    return false;
+    return FALSE;
   }
   if( !guifi_validate_types('protocol', $parameters['protocol'])) {
     $gapi->addError(403, "protocol not found: {$parameters['protocol']}");
-    return false;
+    return FALSE;
   }
   
-  $types = guifi_types('channel', null, null, $parameters['protocol']);
+  $types = guifi_types('channel', NULL, NULL, $parameters['protocol']);
   
   $channels = array();
   
@@ -1484,7 +1484,7 @@ function guifi_api_misc_channel(&$gapi, $parameters) {
   }
   
   $gapi->addResponseField('channels', $channels);
-  return true;
+  return TRUE;
 }
 
 /**
@@ -1495,11 +1495,11 @@ function guifi_api_misc_channel(&$gapi, $parameters) {
  * @param mixed[] $parameters
  */
 function guifi_api_check_fields(&$gapi, $required, $parameters) {
-  $success = true;
+  $success = TRUE;
   foreach ($required as $req) {
     if (!isset($parameters[$req])) {
       $gapi->addError(402, $req);
-      $success = false;
+      $success = FALSE;
     }
   }
   return $success;
