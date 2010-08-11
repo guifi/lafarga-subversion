@@ -13,7 +13,7 @@ function guifi_service_access($op, $node) {
   global $user;
 
   if (is_numeric($node))
-    $node = node_load(array('nid'=>$node));
+    $node = node_load(array('nid' => $node));
 
   if ($op == 'create') {
     return user_access('create guifi nodes');
@@ -75,8 +75,8 @@ function guifi_service_form($node, $param) {
 
   if (isset($node->id))
   $f['id'] = array(
-    '#type'=>'hidden',
-    '#value'=>$node->id
+    '#type' => 'hidden',
+    '#value' => $node->id
   );
   $type = db_fetch_object(db_query("SELECT description FROM {guifi_types} WHERE type='service' AND text='%s'",$node->service_type));
   if ($node->nid > 0)
@@ -173,9 +173,9 @@ function guifi_service_form($node, $param) {
   $f['var'] = array(
       '#type' => 'fieldset',
       '#title' => $node->service_type.' '.t("settings"),
-      '#tree'=>TRUE,
-      '#collapsible'=>TRUE,
-      '#collapsed'=>FALSE
+      '#tree' => TRUE,
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE
     );
 
   if ($node->nid > 0)
@@ -244,7 +244,7 @@ function guifi_service_form($node, $param) {
         '#title' => t('Protocols'),
         '#required' => TRUE,
         '#default_value' => $node->var['protocols'],
-        '#options' => array('IAX'=>'IAX','SIP'=>'SIP')
+        '#options' => array('IAX' => 'IAX','SIP' => 'SIP')
       );
       break;
     case 'NTP':
@@ -271,7 +271,7 @@ function guifi_service_form($node, $param) {
         '#title' => t('Protocols'),
         '#required' => TRUE,
         '#default_value' => $node->var['protocols'],
-        '#options' => array('SMB'=>'SMB (Samba)','ftp'=>'FTP','nfs'=>'NFS')
+        '#options' => array('SMB' => 'SMB (Samba)','ftp' => 'FTP','nfs' => 'NFS')
       );
       break;
     case 'Proxy': case 'ADSL':
@@ -279,13 +279,13 @@ function guifi_service_form($node, $param) {
         '#type' => 'select',
         '#title' => t('Download'),
         '#default_value' => $node->var['down'],
-        '#options'=>guifi_bandwidth_types(),
+        '#options' => guifi_bandwidth_types(),
         '#description' => t('Download bandwidth')
       );
       $f['var']['up'] = array(
         '#type' => 'select',
         '#title' => t('Upload'),
-        '#options'=>guifi_bandwidth_types(),
+        '#options' => guifi_bandwidth_types(),
         '#default_value' => $node->var['up'],
         '#description' => t('Upload bandwidth')
       );
@@ -295,7 +295,7 @@ function guifi_service_form($node, $param) {
         '#type' => 'checkboxes',
         '#title' => t('Proxy federation'),
         '#default_value' => $node->var['fed'],
-        '#options' => array('IN'=>t('Allow login of users from OUT federated proxys'),'OUT'=>t('Allow proxy users to use other IN federated proxys'))
+        '#options' => array('IN' => t('Allow login of users from OUT federated proxys'),'OUT' => t('Allow proxy users to use other IN federated proxys'))
       );
       $f['var']['proxy'] = array(
         '#type' => 'textfield',
@@ -315,7 +315,7 @@ function guifi_service_form($node, $param) {
         '#type' => 'select',
         '#title' => t("Type"),
         '#default_value' => $node->var['type'],
-        '#options' => array('HTTP'=>'HTTP','Socks4'=>'SOCKS4','Socks5'=>'SOCKS5','arp'=>'ARP','ftp'=>'FTP')
+        '#options' => array('HTTP' => 'HTTP','Socks4' => 'SOCKS4','Socks5' => 'SOCKS5','arp' => 'ARP','ftp' => 'FTP')
       );
       break;
     case 'SNPgraphs':
@@ -323,7 +323,7 @@ function guifi_service_form($node, $param) {
         '#type' => 'select',
         '#title' => t('version'),
         '#default_value'=> $node->var['version'],
-        '#options'=>drupal_map_assoc(array('1.0','2.0')),
+        '#options' => drupal_map_assoc(array('1.0','2.0')),
         '#description' => t('version of the CNML services'),
       );
       $f['var']['url'] = array(
@@ -405,10 +405,10 @@ function guifi_service_multiplefield($field, $fname, $descr) {
       '#maxlength' => 60,
     );
 //  $f[99] = array(
-//    '#type'=>'image_button',
-//    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
-//    '#attributes'=>array('title'=>t('Add more choices')),
-//    '#prefix'=>'</div>',
+//    '#type' => 'image_button',
+//    '#src' => drupal_get_path('module', 'guifi').'/icons/add.png',
+//    '#attributes' => array('title' => t('Add more choices')),
+//    '#prefix' => '</div>',
 //    '#ahah' => array(
 //      'path' => 'guifi/js/mfield/'.$fname,
 //      'wrapper' => 'mfield-'.$fname,
@@ -474,7 +474,7 @@ function guifi_service_name_validate($nodestr,&$form_state) {
     return $nodestr;
 
   form_error($nodestr,
-    t('Service %name not valid.',array('%name'=>$nodestr['#value'])),'error');
+    t('Service %name not valid.',array('%name' => $nodestr['#value'])),'error');
 
   return $nodestr;
 }
@@ -496,7 +496,7 @@ function guifi_service_insert($node) {
   $node->id   = $node->nid;
   $nnode = _guifi_db_sql(
     'guifi_services',
-    array('id'=>$node->id),
+    array('id' => $node->id),
     (array)$node,
     $log,$to_mail);
   guifi_notify(
@@ -522,21 +522,21 @@ function guifi_service_delete(&$node) {
   $node->deleted = TRUE;
   $nzone = _guifi_db_sql(
     'guifi_services',
-    array('id'=>$node->id),
+    array('id' => $node->id),
     (array)$node,
     $log,
     $to);
   guifi_notify(
     $to,
     t('Service %nick has been deleted by %user',
-      array('%nick'=>$node->nick,'%user'=>$user->name)),
+      array('%nick' => $node->nick,'%user' => $user->name)),
     $log);
   return;
 }
 
 function guifi_service_multiplefield_clean(&$mfield) {
   if (!empty($mfield))
-    foreach($mfield as $k=>$value)
+    foreach($mfield as $k => $value)
       if (empty($value))
         unset($mfield[$k]);
 }
@@ -556,7 +556,7 @@ function guifi_service_update($node) {
 
   $nnode = _guifi_db_sql(
     'guifi_services',
-    array('id'=>$node->id),
+    array('id' => $node->id),
     (array)$node,
     $log,$to_mail);
   guifi_notify(
@@ -570,7 +570,7 @@ function guifi_service_update($node) {
 **/
 function theme_guifi_service_data($node, $links = TRUE) {
   if (!isset($node->nid))
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
   guifi_log(GUIFILOG_TRACE,'guifi_service_print_data()',$node);
 
   $zone         = db_fetch_object(db_query('SELECT title FROM {guifi_zone} WHERE id = %d', $node->zone_id));
@@ -686,7 +686,7 @@ function guifi_list_services_query($param, $typestr = 'by zone', $service = '%')
 
   $current_service = '';
   while ($service = db_fetch_object($query)) {
-    $node = node_load(array('nid'=>$service->id));
+    $node = node_load(array('nid' => $service->id));
     if ($current_service != $service->service_type) {
       $typedescr = db_fetch_object(db_query("SELECT * FROM {guifi_types} WHERE type='service' AND text = '%s'",$service->service_type));
       $rows[] = array('<strong>'.t($typedescr->description).'</strong>', NULL, NULL, NULL);
@@ -710,7 +710,7 @@ function theme_guifi_services_list($node,$service = '%') {
   if (is_numeric($node)) {
     $typestr = t('by device');
   } else {
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
     if ($node->type == 'guifi_node')
       $typestr = t('by node');
     else
@@ -723,16 +723,16 @@ function theme_guifi_services_list($node,$service = '%') {
      $box .= theme('table',
        array(t('service'),t('zone'),t('device'),t('status')),
        array_merge($rows),
-       array('width'=>'100%'))
+       array('width' => '100%'))
      : $box .= t('There are no services defined at the database');
 
   $output = theme('box',
-    t('Services of %node (%by)',array('%node'=>$node->title,'%by'=>$typestr)),
+    t('Services of %node (%by)',array('%node' => $node->title,'%by' => $typestr)),
     $box);
 
   switch ($typestr) {
     case t('by node'):
-      drupal_set_title(t('services @ %node',array('%node'=>$node->title)));
+      drupal_set_title(t('services @ %node',array('%node' => $node->title)));
       drupal_set_breadcrumb(guifi_node_ariadna($node,'node/%d/view/services'));
       $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
       break;
@@ -743,9 +743,9 @@ function theme_guifi_services_list($node,$service = '%') {
     case t('by device'):
       $device = guifi_device_load($node);
       drupal_set_title(t('View device %dname',
-        array('%dname'=>$device['nick'],
-              '%nid'=>$device['nid'])));
-      $node = node_load(array('nid'=>$device['nid']));
+        array('%dname' => $device['nick'],
+              '%nid' => $device['nid'])));
+      $node = node_load(array('nid' => $device['nid']));
       drupal_set_breadcrumb(guifi_node_ariadna($node));
       $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
       break;
@@ -780,26 +780,26 @@ function guifi_service_view($node, $teaser = FALSE, $page = FALSE, $block = FALS
       $form = drupal_get_form('guifi_domain_create_form',$node);
       $id = $node->id;
       $rows = array();
-      $header = array( '<h2>'.t('Domain').'</h2>', array('data'=>t('type'),'style'=>'text-align: left;'),array('data'=>t('Scope')),array('data'=>t('Edit')),array('data'=>t('Delete')));
+      $header = array( '<h2>'.t('Domain').'</h2>', array('data' => t('type'),'style' => 'text-align: left;'),array('data' => t('Scope')),array('data' => t('Edit')),array('data' => t('Delete')));
       $query = db_query("SELECT d.id FROM {guifi_dns_domains} d WHERE sid=%d",$id);
         while ($d = db_fetch_object($query)) {
           $domain = guifi_domain_load($d->id);
           if (guifi_domain_access('update',$domain['id'])) {
             $edit_domain = l(guifi_img_icon('edit.png'),'guifi/domain/'.$domain['id'].'/edit',
             array(
-              'html'=>TRUE,
+              'html' => TRUE,
               'title' => t('edit domain'),
-              'attributes'=>array('target'=>'_blank'))).'</td><td>'.
+              'attributes' => array('target' => '_blank'))).'</td><td>'.
                  l(guifi_img_icon('drop.png'),'guifi/domain/'.$domain['id'].'/delete',
             array(
-              'html'=>TRUE,
+              'html' => TRUE,
               'title' => t('delete domain'),
-              'attributes'=>array('target'=>'_blank')));
+              'attributes' => array('target' => '_blank')));
           }
 
           $rows[] = array(
             '<a href="'.url('guifi/domain/'.$domain[id]).'">'.$domain['name'].'</a>',
-            array('data' => $domain['type'],'style'=>'text-align: left;'),
+            array('data' => $domain['type'],'style' => 'text-align: left;'),
             array('data' => $domain['scope']),
             $edit_domain,
           ); 

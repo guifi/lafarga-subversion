@@ -30,25 +30,25 @@ function guifi_graph_detail() {
       return array_merge($rows);
     }
     if (!empty($node->graph_server))
-      $gs = node_load(array('nid'=>$node->graph_server));
+      $gs = node_load(array('nid' => $node->graph_server));
     else
-      $gs = node_load(array('nid'=>guifi_graphs_get_server($node->id,'node')));
+      $gs = node_load(array('nid' => guifi_graphs_get_server($node->id,'node')));
   } else {
     if ($radio->graph_server == -1) {
       $rows[] = array(t('This device has the graphs disabled.'));
       return array_merge($rows);
     }
     if (!empty($radio->graph_server))
-      $gs = node_load(array('nid'=>$radio->graph_server));
+      $gs = node_load(array('nid' => $radio->graph_server));
     else
-      $gs = node_load(array('nid'=>guifi_graphs_get_server($radio->id,'device')));
+      $gs = node_load(array('nid' => guifi_graphs_get_server($radio->id,'device')));
   }
 
   $help = t('Here you have a detailed view of the available information for several periods of time (daily, weekly, monthly and yearly). You can obtain a detailed graph for a given period of time by entering the period in the boxes below.');
 
-  $args = array('type'=>$type,
-    'node'=>$_GET['node'],
-    'device'=>$device_id
+  $args = array('type' => $type,
+    'node' => $_GET['node'],
+    'device' => $device_id
     );
   if (isset($_GET['direction']))
     $args['direction']=$_GET['direction'];
@@ -131,13 +131,13 @@ function get_SSID_radio($radio) {
 function guifi_graphs_get_server($id, $type='device') {
 	switch ($type) {
     case 'node':
-      $n = node_load(array('nid'=>$id));
+      $n = node_load(array('nid' => $id));
       if ($n->graph_server)
         return $n->graph_server;
       else
         return guifi_graphs_get_server($n->zone_id,'zone');
     case 'zone':
-      $z = node_load(array('nid'=>$id));
+      $z = node_load(array('nid' => $id));
       if ($z->graph_server)
         return $z->graph_server;
       else
@@ -217,9 +217,9 @@ function guifi_device_graph_overview($radio) {
         "WHERE c.device_id=%d " .
         "  AND c.link_type IN ('wds','ap/client','bridge')",
         $radio['id']));
-      $args = array('type'=>'clients',
-          'node'=>$radio['nid'],
-          'device'=>$radio['id']);
+      $args = array('type' => 'clients',
+          'node' => $radio['nid'],
+          'device' => $radio['id']);
 
       if ($clients->count > 1)  // several clients, Totals In & Out
       {
@@ -229,14 +229,14 @@ function guifi_device_graph_overview($radio) {
                    '><img src="'.
                    guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in').
                    '"></a>',
-          'align'=>'center'));
+          'align' => 'center'));
         $rows[] = array(array(
           'data'=> '<a href='.base_path().'guifi/graph_detail?'.
                    guifi_cnml_args($args,'direction=out').
                    '><img src="'.
                    guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out').
                    '"></a>',
-          'align'=>'center'));
+          'align' => 'center'));
       } else if (($radio['type']=='radio') or
         ($radio['variable']['mrtg_index']!='')) {
         $args['type'] = 'device';
@@ -246,7 +246,7 @@ function guifi_device_graph_overview($radio) {
                    '><img src="'.
                    guifi_cnml_call_service($gs->var['url'],'graph',$args).
                    '"></a>',
-          'align'=>'center'));
+          'align' => 'center'));
       }
       $args['type'] = 'pings';
       $rows[] = array(array(
@@ -255,7 +255,7 @@ function guifi_device_graph_overview($radio) {
                    '><img src="'.
                    guifi_cnml_call_service($gs->var['url'],'graph',$args).
                    '"></a>',
-        'align'=>'center'));
+        'align' => 'center'));
       return array_merge($rows);
     }
 }

@@ -31,7 +31,7 @@ function guifi_host_form(&$edit,$form_weight) {
     '#weight' => $form_weight++,
   );
 
-  $form['r']['hosts'] = array('#tree'=>TRUE);
+  $form['r']['hosts'] = array('#tree' => TRUE);
 
   $rc = 0;
   print_r($domain);
@@ -62,7 +62,7 @@ function guifi_host_form(&$edit,$form_weight) {
             '#type' => 'textfield',
             '#title' => t('CNAME'),
             '#size' => 48,
-            '#maxlength' =>48,
+            '#maxlength' => 48,
             '#description' => $cname_description,
             '#default_value' => $value,
           );     
@@ -96,7 +96,7 @@ function guifi_host_form(&$edit,$form_weight) {
       '#type' => 'checkboxes',
       '#title' => t('Options'),
       '#default_value' => $nsoptions,
-      '#options' => array('NS'=>'NS','MX'=>'MX')
+      '#options' => array('NS' => 'NS','MX' => 'MX')
     );
     //
 
@@ -106,12 +106,12 @@ function guifi_host_form(&$edit,$form_weight) {
       // Only allow delete and move functions if the host has been saved
       if ($host['new']==FALSE)  {
         $form['r']['hosts'][$key]['delete'] = array(
-          '#type'=>'image_button',
-          '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
-          '#parents'=>array('hosts',$key,'delete'),
-          '#attributes'=>array('title'=>t('Delete host')),
+          '#type' => 'image_button',
+          '#src' => drupal_get_path('module', 'guifi').'/icons/drop.png',
+          '#parents' => array('hosts',$key,'delete'),
+          '#attributes' => array('title' => t('Delete host')),
           '#submit' => array('guifi_host_delete_submit'),
-          '#weight'=>$bw++
+          '#weight' => $bw++
     );
       }
       $rc++;
@@ -125,9 +125,9 @@ function guifi_host_form(&$edit,$form_weight) {
     '#default_value' =>  'hostnameNOU',
   );
   $form['r']['hosts']['AddHost'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
-    '#attributes'=>array('title'=>t('Add New Host')),
+    '#type' => 'image_button',
+    '#src' => drupal_get_path('module', 'guifi').'/icons/add.png',
+    '#attributes' => array('title' => t('Add New Host')),
     '#parents' => array('AddHost'),
     '#executes_submit_callback' => TRUE,
     '#submit' => array(guifi_host_add_host_submit),
@@ -157,7 +157,7 @@ function guifi_host_host_form($host, $key, &$form_weight = -200) {
     );
 
     $f[] = array(
-      '#type'=>'textfield',
+      '#type' => 'textfield',
       '#title' => t('Default Host Name'),
       '#parents' => array('hosts',$key,'host'),
       '#default_value' => $host['host'],
@@ -166,7 +166,7 @@ function guifi_host_host_form($host, $key, &$form_weight = -200) {
     );
               
     $f[] = array(
-      '#type'=>'textfield',
+      '#type' => 'textfield',
       '#title' => t("IP Address"),
       '#parents' => array('hosts',$key,'ipv4'),
       '#default_value' => $host['ipv4'],
@@ -278,13 +278,13 @@ function guifi_host_add_host_submit(&$form, &$form_state) {
   $tc = 0; // Total active hosts
 
   // fills $rc & $tc proper values
-  if (isset($edit['hosts'])) foreach ($edit['hosts'] as $k=>$r)
+  if (isset($edit['hosts'])) foreach ($edit['hosts'] as $k => $r)
     if ($k+1 > $rc)  {
       $rc = $k+1;
       if (!$edit['hosts'][$k][delete])
         $tc++;
     }
-    $node=node_load(array('nid'=>$edit['sid']));
+    $node=node_load(array('nid' => $edit['sid']));
     $host=array();
     $host['new']=TRUE;
     $host['host']=$edit['newhost_name'];
@@ -294,7 +294,7 @@ function guifi_host_add_host_submit(&$form, &$form_state) {
     $form_state['values']['hosts'][] = $host;
 
     drupal_set_message(t(' %host added',
-       array('%host'=>$host['host'])));
+       array('%host' => $host['host'])));
 
     return;
 }
@@ -305,7 +305,7 @@ function guifi_host_delete_submit($form, &$form_state) {
   $form_state['values']['hosts'][$host_id]['deleted'] = TRUE;
   $form_state['values']['hosts'][$host_id]['unfold'] = TRUE;
   drupal_set_message(t('Hostname %hostname has been deleted.',
-    array('%hostname'=>$host_id)));
+    array('%hostname' => $host_id)));
   $form_state['rebuild'] = TRUE;
   return;
 }

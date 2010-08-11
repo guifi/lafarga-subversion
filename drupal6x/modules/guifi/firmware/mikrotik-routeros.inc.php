@@ -50,8 +50,8 @@ function unsolclic_routeros($dev) {
 
     }
 
-  $node = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$node->zone_id));
+  $node = node_load(array('nid' => $dev->nid));
+  $zone = node_load(array('nid' => $node->zone_id));
   _outln(sprintf(':log info "Unsolclic for %d-%s going to be executed."',$dev->id,$dev->nick));
   _outln_comment();
   if ($dev->variable[firmware] == 'RouterOSv2.9') {
@@ -188,7 +188,7 @@ function unsolclic_routeros($dev) {
 
   $firewall = false;
   // Going to setup wireless interfaces
-  if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {
+  if (isset($dev->radios)) foreach ($dev->radios as $radio_id => $radio) {
 
     switch ($radio[mode]) {
     case 'ap':
@@ -256,7 +256,7 @@ function unsolclic_routeros($dev) {
     }
     _outln('    wds-cost-range=50-150 wds-ignore-ssid=yes hide-ssid=no');
 
-    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {
+    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id => $interface) {
        _outln(':delay 1');
        _outln_comment('Type: '.$interface[interface_type]);
        if ($interface[interface_type] == 'wds/p2p') {
@@ -266,8 +266,8 @@ function unsolclic_routeros($dev) {
          _outln('do={:foreach inum in [/ip address find interface=$n] \ ');
          _outln('do={/ip address remove $inum;};}; \ ');
          _outln('/interface wireless wds remove $i;}');
-         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-         if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
+         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+         if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id => $link) {
            if (preg_match("/(Working|Testing|Building)/",$link['flag']))
              $disabled='no';
            else
@@ -293,7 +293,7 @@ function unsolclic_routeros($dev) {
          // wLan, wLan/Lan, Hotspot or client
 
          // Defining all networks and IP addresses at the interface
-         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+         if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
            if ($interface[interface_type] == 'wLan/Lan') {
              $iname = $interface[interface_type];
              $ospf_routerid=$ipv4[ipv4];
@@ -373,7 +373,7 @@ function unsolclic_routeros($dev) {
              $dhcp[] = '/ip dhcp-server lease';
              $dhcp[] = ':foreach i in [find comment=""] do={remove $i;}';
              $dhcp[] = ':delay 1';
-             if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id=>$link) {
+             if (isset($ipv4[links])) foreach ($ipv4[links] as $link_id => $link) {
                if (isset($link['interface'][ipv4][ipv4]))
                if (ip2long($link['interface'][ipv4][ipv4]) >= $maxip)
                  $maxip = ip2long($link['interface'][ipv4][ipv4]) + 1;
@@ -470,7 +470,7 @@ function unsolclic_routeros($dev) {
   // Now, defining other interfaces (if they aren't yet)
   _outln_comment();
   _outln_comment(t('Other cable connections'));
-  if (isset($dev->interfaces)) foreach ($dev->interfaces as $interface_id=>$interface) {
+  if (isset($dev->interfaces)) foreach ($dev->interfaces as $interface_id => $interface) {
     switch ($interface[interface_type]) {
     case 'vlan':  $iname = 'wLan/Lan'; break;
     case 'vlan2': $iname = 'ether2'; break;
@@ -482,12 +482,12 @@ function unsolclic_routeros($dev) {
       break;
     }
     $ospf_intrefaces[] = $iname;
-    if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+    if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
       if (!isset($defined_ips[$ipv4[ipv4]])) {
         $disabled='yes';
         if (isset($ipv4[links])) {
           unset($comments);
-          foreach ($ipv4[links] as $link_id=>$link) {
+          foreach ($ipv4[links] as $link_id => $link) {
             if (($disabled='yes') and (preg_match("/(Working|Testing|Building)/",$link['flag'])))
               $disabled='no';
             $comments[] = guifi_get_hostname($link[device_id]);

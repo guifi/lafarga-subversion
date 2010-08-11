@@ -165,7 +165,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = NULL, &$to_mail = array()) 
 
    // constructing where with primary keys
    $where_data = array();
-   foreach ($key as $k=>$value)
+   foreach ($key as $k => $value)
      if (is_null($value))
        $where_data[$k] = $k.' is NULL';
      else
@@ -193,10 +193,10 @@ function _guifi_db_sql($table, $key, $idata, &$log = NULL, &$to_mail = array()) 
        t('Can\'t update %table while primary key (%where) doesn\'t give 1 row' .
           '<br />%sql gives %rows rows.',
        array(
-         '%table'=>$table,
-         '%sql'=>$sqlqc,
-         '%rows'=>$ck,
-         '%where'=>implode(' AND ',$where_data))),
+         '%table' => $table,
+         '%sql' => $sqlqc,
+         '%rows' => $ck,
+         '%where' => implode(' AND ',$where_data))),
        'error'
      );
 
@@ -204,7 +204,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = NULL, &$to_mail = array()) 
    }
    //$orig_data = db_fetch_array($qc);
    // cast floats to compare
-   foreach ($data as $k=>$value)
+   foreach ($data as $k => $value)
      if (is_float($value)) {
        $orig_data[$k] = (float) $orig_data[$k];
      }
@@ -230,7 +230,7 @@ function _guifi_db_sql($table, $key, $idata, &$log = NULL, &$to_mail = array()) 
 
    // constructing update
    $log .= $table.' '.t('UPDATED').":<br />";
-   foreach ($new_data as $k=>$value) {
+   foreach ($new_data as $k => $value) {
      $log .= "\t - ".$k.': '.$orig_data[$k].' -> '.$value.'<br />';
      if (is_float($value))
        $values_data[$k] = $k.'=%f';
@@ -287,7 +287,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
        FROM {guifi_dns_domains} d LEFT JOIN {guifi_services} l ON d.sid=l.id
        WHERE d.id = %d',
        $key['id']));
-    $log .= t('Domain %id-%name at node %nname deleted.',array('%id'=>$key['id'],'%name'=>$item->dname,'%nname'=>$item->nname));
+    $log .= t('Domain %id-%name at node %nname deleted.',array('%id' => $key['id'],'%name' => $item->dname,'%nname' => $item->nname));
     // cascade to dns_hosts
     $qc = db_query('SELECT id FROM {guifi_dns_hosts} WHERE id=%s',$key['id']);
     while ($host = db_fetch_array($qc))
@@ -301,7 +301,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
        FROM {guifi_devices} d LEFT JOIN {guifi_location} l ON d.nid=l.id
        WHERE d.id = %d',
        $key['id']));
-    $log .= t('Device (%type) %id-%name at node %nname deleted.',array('%type'=>$item->type,'%id'=>$key['id'],'%name'=>$item->dname,'%nname'=>$item->nname));
+    $log .= t('Device (%type) %id-%name at node %nname deleted.',array('%type' => $item->type,'%id' => $key['id'],'%name' => $item->dname,'%nname' => $item->nname));
 
     // cascade to device radios
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_radios} WHERE id=%d',$key['id']);
@@ -325,7 +325,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         WHERE  r.id = %d AND r.radiodev_counter = %d AND
           r.id=d.id AND d.nid=l.id',
         $key['id']), $key['radiodev_counter']);
-    $log .= t('Radio (%mode-%protocol) %id-%rc %ssid at device %dname deleted.',array('%mode'=>$item->mode,'%protocol'=>$item->protocol,'%id'=>$key['id'],'%rc'=>$key['radiodev_counter'],'%ssid'=>$item->sid,'%dname'=>$item->dname));
+    $log .= t('Radio (%mode-%protocol) %id-%rc %ssid at device %dname deleted.',array('%mode' => $item->mode,'%protocol' => $item->protocol,'%id' => $key['id'],'%rc' => $key['radiodev_counter'],'%ssid' => $item->sid,'%dname' => $item->dname));
 
     // cascade to radio interfaces
     $qc = db_query('SELECT id, radiodev_counter FROM {guifi_interfaces} WHERE device_id=%d AND radiodev_counter=%d',$key['id'],$key['radiodev_counter']);
@@ -344,7 +344,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
              LEFT JOIN {guifi_location} l ON d.nid=l.id
         WHERE i.id = %d',
         $key['id']));
-    $log .= t('interface (%type) %id - %rc at device %dname deleted.',array('%type'=>$item->interface_type,'%id'=>$key['id'],'%rc'=>$item->radiodev_counter,'%dname'=>$item->dname));
+    $log .= t('interface (%type) %id - %rc at device %dname deleted.',array('%type' => $item->interface_type,'%id' => $key['id'],'%rc' => $item->radiodev_counter,'%dname' => $item->dname));
 
 
     // cascade ipv4
@@ -360,7 +360,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         FROM {guifi_ipv4} a LEFT JOIN {guifi_interfaces} i ON a.interface_id=i.id LEFT JOIN {guifi_devices} d ON i.device_id=d.id LEFT JOIN {guifi_location} l ON d.nid=l.id
         WHERE a.id = %d AND a.interface_id=%d',
         $key['id'],$key['interface_id']));
-    $log .= t('address (%addr) at device %dname deleted.',array('%addr'=>$item->ipv4,'%dname'=>$item->dname));
+    $log .= t('address (%addr) at device %dname deleted.',array('%addr' => $item->ipv4,'%dname' => $item->dname));
 
     if (!$cascade)
       break;
@@ -383,11 +383,11 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
         '    AND l.device_id=%d',
         $key['id'],$key['device_id']));
     $log .= t('link %id-%did (%type) at %nname-%dname deleted.',
-        array('%id'=>$key['id'],
-            '%did'=>$key['device_id'],
-            '%type'=>$item->link_type,
-            '%nname'=>$item->nname,
-            '%dname'=>$item->dname));
+        array('%id' => $key['id'],
+            '%did' => $key['device_id'],
+            '%type' => $item->link_type,
+            '%nname' => $item->nname,
+            '%dname' => $item->dname));
 
     if (!$cascade)
       break;
@@ -416,8 +416,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
            ) {
           $log .= '<br />'._guifi_db_delete(
             'guifi_ipv4',
-            array('id'=>$link['ipv4_id'],
-              'interface_id'=>$link['interface_id']),
+            array('id' => $link['ipv4_id'],
+              'interface_id' => $link['interface_id']),
             $to_mail,
             $depth,
             FALSE);
@@ -426,8 +426,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
            // cascade to local ipv4
             $log .= '<br />'._guifi_db_delete(
               'guifi_ipv4',
-              array('id'=>$item->ipv4_id,
-                'interface_id'=>$item->interface_id),
+              array('id' => $item->ipv4_id,
+                'interface_id' => $item->interface_id),
               $to_mail,
               $depth,
               FALSE);
@@ -458,7 +458,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
           $log .= '<br />'._guifi_db_delete(
             'guifi_interfaces',
-            array('id'=>$na['id']),
+            array('id' => $na['id']),
             $to_mail,
             $depth,
             FALSE);
@@ -479,8 +479,8 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
      'WHERE id = %d',
       $key['id']));
     $log .= t('User %id-%name deleted.',
-        array('%id'=>$key['id'],
-            '%name'=>$item->username));
+        array('%id' => $key['id'],
+            '%name' => $item->username));
     break;
   case 'guifi_zone':
     break;
@@ -511,7 +511,7 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
 
   $where_str = '';
 
-  foreach ($key as $k=>$value) {
+  foreach ($key as $k => $value) {
     if ($where_str != '')
       $where_str .= ' AND ';
     $where_str .= $k.' = '.$value;
@@ -521,14 +521,14 @@ function _guifi_db_delete($table,$key,&$to_mail = array(),$depth = 0,$cascade = 
     FROM {".$table."}
     WHERE ".$where_str));
   if ($count['c'] != 1)
-    return $log.'<br />'.t('There was nothing to delete at %table with (%where)',array('%table'=>$table,'%where'=>$where_str));
+    return $log.'<br />'.t('There was nothing to delete at %table with (%where)',array('%table' => $table,'%where' => $where_str));
   if (!in_array($item->notification,$to_mail))
     $to_mail[] = $item->notification;
   if (!in_array($item->ncontact,$to_mail))
     $to_mail[] = $item->ncontact;
 
   $where_str = '';
-  foreach ($key as $k=>$value) {
+  foreach ($key as $k => $value) {
     if ($where_str != '')
       $where_str .= ' AND ';
     $where_str .= $k.' = '.$value;

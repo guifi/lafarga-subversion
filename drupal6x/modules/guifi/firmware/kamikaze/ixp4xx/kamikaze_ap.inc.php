@@ -29,10 +29,10 @@ function guifi_kamikaze_files($dev,$zone) {
   
   function wds_add($dev,$radio) {
     $wds_links = array();
-    foreach ($radio[interfaces] as $interface_id=>$interface) {
+    foreach ($radio[interfaces] as $interface_id => $interface) {
       if ($interface[interface_type] == 'wds/p2p') {
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-          foreach ($ipv4[links] as $link_id=>$link) 
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+          foreach ($ipv4[links] as $link_id => $link) 
             if ($link['link_type'] == 'wds')
               $wds_links[] = $link;
               $ifcount = 0;
@@ -53,9 +53,9 @@ function guifi_kamikaze_files($dev,$zone) {
 
   function wds_network($dev,$radio) {
     $ifcount = '0';
-    foreach ($radio[interfaces] as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link)
+    foreach ($radio[interfaces] as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link)
           if ($link['link_type'] == 'wds') {
             $wds_links = array();  
             $wds_links[] = $link;
@@ -95,7 +95,7 @@ config \'interface\' \'wds_'.$hostname.'\'
   }
 
   function cable_network($dev) {
-    foreach ($dev->interfaces as $interface_id=>$interface) {
+    foreach ($dev->interfaces as $interface_id => $interface) {
       switch ($interface[interface_type]) {
         case 'vlan1': $iname = 'eth0:1'; break;
         case 'vlan2': $iname = 'eth1'; break;
@@ -105,8 +105,8 @@ config \'interface\' \'wds_'.$hostname.'\'
         break;
       }
 
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link) {
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link) {
           $network = guifi_get_hostname($link[device_id]);
           if (preg_match("/(Working|Testing|Building)/",$link['flag'])) {
             $status = 'active';
@@ -145,7 +145,7 @@ config \'interface\' \''.$network.'\'
 echo "
 ';
 
-  if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {
+  if (isset($dev->radios)) foreach ($dev->radios as $radio_id => $radio) {
     $mode = 'ap';
     $ssid = $radio[ssid];
     $channel = atheros_channel($radio);
@@ -212,10 +212,10 @@ config interface loopback
         option \'netmask\'  \'255.0.0.0\'
 
 ';
-  if (isset($dev->radios)) foreach ($dev->radios as $radio_id=>$radio) {
-    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id=>$interface) {
+  if (isset($dev->radios)) foreach ($dev->radios as $radio_id => $radio) {
+    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $interface_id => $interface) {
       if ($interface[interface_type] != 'wds/p2p') {
-        if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+        if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
           if ($interface[interface_type] == 'wLan/Lan') {
             $iface = 'ath0 eth0';
             $network = 'lan';
@@ -253,11 +253,11 @@ print '
 
 
   $wds_links = array();
-  foreach ($dev->radios as $radio_id=>$radio)
-    foreach ($radio[interfaces] as $interface_id=>$interface)
+  foreach ($dev->radios as $radio_id => $radio)
+    foreach ($radio[interfaces] as $interface_id => $interface)
       if ($interface[interface_type] == 'wds/p2p')
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-          foreach ($ipv4[links] as $link_id=>$link) 
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+          foreach ($ipv4[links] as $link_id => $link) 
             if ($link['link_type'] == 'wds')
               $wds_links[] = $link;
               foreach ($wds_links as $key => $wds) {
@@ -268,9 +268,9 @@ print '
               }
 
   $cable_links = array();
-    foreach ($dev->interfaces as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link)
+    foreach ($dev->interfaces as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link)
           if ($link['link_type'] == 'cable')
             $cable_links[] = $link;
             foreach ($cable_links as $key => $cable) {
@@ -301,10 +301,10 @@ router ospf
  ospf router-id '.$lan->ipv4.'
  redistribute bgp
 ';
-    foreach ($dev->radios as $radio_id=>$radio)
-      foreach ($radio[interfaces] as $interface_id=>$interface)
+    foreach ($dev->radios as $radio_id => $radio)
+      foreach ($radio[interfaces] as $interface_id => $interface)
         if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
-          foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
+          foreach ($interface[ipv4] as $ipv4_id => $ipv4)
             $network = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
               if (preg_match("/(Working|Testing|Building)/",$link['flag']))
                 print ' network '.$network[netid].'/'.$network[maskbits].' area 0<br />';
@@ -318,9 +318,9 @@ router ospf
             print ' network '.$wds_network[netid].'/'.$wds_network[maskbits].' area 0<br />';
       }
     }
-    foreach ($dev->interfaces as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link) {
+    foreach ($dev->interfaces as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link) {
           $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
             if ($link['routing'] == 'OSPF') {
               if (preg_match("/(Working|Testing|Building)/",$link['flag']))
@@ -345,10 +345,10 @@ interface br-lan
 router bgp '.$dev->id.'
 bgp router-id '.$lan->ipv4.'
 ';
-    foreach ($dev->radios as $radio_id=>$radio)
-      foreach ($radio[interfaces] as $interface_id=>$interface)
+    foreach ($dev->radios as $radio_id => $radio)
+      foreach ($radio[interfaces] as $interface_id => $interface)
       if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4)
         $network = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
         print ' network '.$network[netid].'/'.$network[maskbits].'<br />';
 
@@ -363,9 +363,9 @@ bgp router-id '.$lan->ipv4.'
             print ' network '.$wds_network[netid].'/'.$wds_network[maskbits].'<br />';
       }
     }
-    foreach ($dev->interfaces as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link) {
+    foreach ($dev->interfaces as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link) {
           $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
             if ($link['routing'] == 'BGP') {
               if (preg_match("/(Working|Testing|Building)/",$link['flag']))
@@ -375,16 +375,16 @@ bgp router-id '.$lan->ipv4.'
 
   foreach ($dev->radios as $radio_id => $radio) 
     foreach ($radio[interfaces] as $interface_id => $interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link)
           if ($link['routing'] == 'BGP') {
             if (preg_match("/(Working|Testing|Building)/",$link['flag']))
               print ' neighbor '.$link['interface']['ipv4']['ipv4'].' remote-as '.$link['device_id'].'
 ';
          }
-    foreach ($dev->interfaces as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link)
+    foreach ($dev->interfaces as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link)
             if ($link['routing'] == 'BGP') {
               if (preg_match("/(Working|Testing|Building)/",$link['flag']))
                 print ' neighbor '.$link['interface']['ipv4']['ipv4'].' remote-as '.$link['device_id'].'
@@ -405,10 +405,10 @@ config defaults
         option \'output\' \'ACCEPT\'
         option \'forward\' \'ACCEPT\'
 ';
-    foreach ($dev->radios as $radio_id=>$radio)
-      foreach ($radio[interfaces] as $interface_id=>$interface)
+    foreach ($dev->radios as $radio_id => $radio)
+      foreach ($radio[interfaces] as $interface_id => $interface)
       if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
           if ($interface[interface_type] == 'wLan/Lan') {
             $network = 'lan';
           } else {
@@ -425,8 +425,8 @@ config zone
       }
     }
       if ($interface[interface_type] == 'wds/p2p')
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-          foreach ($ipv4[links] as $link_id=>$link) 
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+          foreach ($ipv4[links] as $link_id => $link) 
             if ($link['link_type'] == 'wds')
               $ifcount = 0;
               foreach ($wds_links as $key => $wds) {
@@ -442,9 +442,9 @@ config zone
 ';
                 
       }
-    foreach ($dev->interfaces as $interface_id=>$interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link) {
+    foreach ($dev->interfaces as $interface_id => $interface)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link) {
                 $hostname = guifi_get_hostname($link['device_id']);
                 if (preg_match("/(Working|Testing|Building)/",$link['flag'])) {
                   print'        
@@ -545,10 +545,10 @@ config \'dnsmasq\'
         option \'leasefile\' \'/tmp/dhcp.leases\'
         option \'resolvfile\' \'/tmp/resolv.conf.auto\'
 ';
-    foreach ($dev->radios as $radio_id=>$radio)
-      foreach ($radio[interfaces] as $interface_id=>$interface)
+    foreach ($dev->radios as $radio_id => $radio)
+      foreach ($radio[interfaces] as $interface_id => $interface)
       if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
-        foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+        foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
           if ($interface[interface_type] == 'wLan/Lan') {
             $iface = 'lan';
             $network = 'lan';

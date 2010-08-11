@@ -13,7 +13,7 @@ function guifi_zone_access($op, $node) {
   global $user;
 
   if (is_numeric($node))
-    $node = node_load(array('nid'=>$node));
+    $node = node_load(array('nid' => $node));
 
   if ($op == 'create') {
     return user_access('create guifi zones');
@@ -140,7 +140,7 @@ function guifi_zone_select_field($zid,$fname) {
 
   $lzones['0'] = t('(root zone)');
   $ident = $c;
-  foreach ($parents as $k=>$value) {
+  foreach ($parents as $k => $value) {
     $lzones[$k] = str_repeat('-',($c+1)-$ident).$value;
     $ident--;
   }
@@ -212,9 +212,9 @@ function guifi_zone_select_field($zid,$fname) {
     '#default_value' => $zid,
     '#options' => $lzones,
     '#description' => $msg,
-    '#prefix'=>'<div id="select-zone">',
-    '#suffix'=>'</div>',
-    '#ahah'=>array(
+    '#prefix' => '<div id="select-zone">',
+    '#suffix' => '</div>',
+    '#ahah' => array(
       'path' => 'guifi/js/select-zone/'.$fname,
       'wrapper' => 'select-zone',
       'method' => 'replace',
@@ -248,7 +248,7 @@ function guifi_zone_form(&$node, &$param) {
   }
 
   $form['jspath'] = array(
-   '#type'=>'hidden',
+   '#type' => 'hidden',
    '#value'=> base_path().drupal_get_path('module','guifi').'/js/'
   );
 
@@ -284,7 +284,7 @@ function guifi_zone_form(&$node, &$param) {
     '#title' => t('Zone dynamic mesh mode'),
     '#required' => TRUE,
     '#default_value' => $node->zone_mode,
-    '#options' => array('infrastructure'=>t('infrastructure'),'ad-hoc'=>t('ad-hoc')),
+    '#options' => array('infrastructure' => t('infrastructure'),'ad-hoc' => t('ad-hoc')),
     '#description' => t('<ul><li>Select <strong>Infrastructure</strong> ' .
         'for traditional dynamic protocols in infrastructure mode ' .
         'like OSPF, BGP, etc. This mode is very much used on static nodes ' .
@@ -345,21 +345,21 @@ function guifi_zone_form(&$node, &$param) {
         'zone name or proxy name. A list with all matching values ' .
         'with a maximum of 50 values will be created.<br />' .
         'You can refine the text to find your choice.',
-        array('%type'=>$type));
+        array('%type' => $type));
   }
 
   $form['zone_services']['proxystr'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('default proxy'),
-    '#maxlength'=>80,
+    '#type' => 'textfield',
+    '#title' => t('default proxy'),
+    '#maxlength' => 80,
     '#default_value'=> $proxystr,
     '#autocomplete_path'=> 'guifi/js/select-service/proxy',
     '#element_validate' => array('guifi_service_name_validate',
       'guifi_zone_service_validate'),
-    '#description'=>_service_descr('proxy')
+    '#description' => _service_descr('proxy')
   );
   $form['zone_services']['proxy_id'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $node->proxy_id,
   );
 
@@ -368,16 +368,16 @@ function guifi_zone_form(&$node, &$param) {
   $form['zone_services']['graph_serverstr'] = array(
     '#type' => 'textfield',
     '#title' => t('default graphs server'),
-    '#maxlength'=>80,
+    '#maxlength' => 80,
     '#required' => FALSE,
     '#default_value' => $graphstr,
     '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
     '#element_validate' => array('guifi_service_name_validate',
       'guifi_zone_service_validate'),
-    '#description'=>_service_descr('graph server')
+    '#description' => _service_descr('graph server')
   );
   $form['zone_services']['graph_server'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $node->graph_server,
   );
 
@@ -679,7 +679,7 @@ function guifi_zone_validate($node) {
         if ($node->nid != $rootZone->id)
           form_set_error('master',
             t('The root zone is already set to "%s". Only one root zone can be present at the database. Delete/change the actual root zone before assigning a new one or choose another partent.',
-              array('%s'=>$rootZone->title)));
+              array('%s' => $rootZone->title)));
      }
   }
 
@@ -712,12 +712,12 @@ function guifi_zone_insert($node) {
   $to_mail = explode(',',$node->notification);
   $nzone = _guifi_db_sql(
     'guifi_zone',
-    array('id'=>$node->id),(array)$node,$log,$to_mail);
+    array('id' => $node->id),(array)$node,$log,$to_mail);
 
   guifi_notify(
     explode(',',$node->notification),
     t('A new zone %nick-%name has been created',
-      array('%nick'=>$node->nick,'%name'=>$node->title)),
+      array('%nick' => $node->nick,'%name' => $node->title)),
     $log);
 
 
@@ -755,14 +755,14 @@ function guifi_zone_update($node) {
   $to_mail = explode(',',$node->notification);
   $nzone = _guifi_db_sql(
     'guifi_zone',
-    array('id'=>$node->nid),
+    array('id' => $node->nid),
     (array)$node,
     $log,
     $to_mail);
   guifi_notify(
     explode(',',$node->notification),
     t('Zone %nick-%name has been updated',
-      array('%nick'=>$node->nick,'%name'=>$node->title)),
+      array('%nick' => $node->nick,'%name' => $node->title)),
     $log);
 
    guifi_clear_cache($node->nid);
@@ -801,7 +801,7 @@ function guifi_zone_delete(&$node) {
     guifi_notify(
     $to,
     t('ALERT: Zone %nick-%name has been deleted, but have errors:',
-      array('%nick'=>$node->nick,'%name'=>$node->title)),
+      array('%nick' => $node->nick,'%name' => $node->title)),
     implode("\n",$messages['error']));
     return;
   }
@@ -810,14 +810,14 @@ function guifi_zone_delete(&$node) {
   $node->deleted = TRUE;
   $nzone = _guifi_db_sql(
     'guifi_zone',
-    array('id'=>$node->id),
+    array('id' => $node->id),
     (array)$node,
     $log,
     $to);
   guifi_notify(
     $to,
     t('Zone %nick-%name has been deleted',
-      array('%nick'=>$node->nick,'%name'=>$node->title)),
+      array('%nick' => $node->nick,'%name' => $node->title)),
     $log);
   cache_clear_all();
   variable_set('guifi_refresh_cnml',time());
@@ -871,7 +871,7 @@ function guifi_zone_ariadna($id = 0, $link = 'node/%d') {
   while ($zoneChild = db_fetch_array($query)) {
     $child[] = l($zoneChild['nick'],sprintf($link,$zoneChild['id']),
       array(
-        'attributes'=>array('title'=>$zoneChild['title'])
+        'attributes' => array('title' => $zoneChild['title'])
       ));
   }
   if (count($child)) {
@@ -895,14 +895,14 @@ function guifi_zone_data($zone) {
               );
 
   if ($zone->graph_server > 0)
-    $gs = node_load(array('nid'=>$zone->graph_server));
+    $gs = node_load(array('nid' => $zone->graph_server));
   else
-    $gs = node_load(array('nid'=>guifi_graphs_get_server($zone->id,'zone')));
+    $gs = node_load(array('nid' => guifi_graphs_get_server($zone->id,'zone')));
 
   $rows[] = array(t('default graph server'),array(
-    'data'=>l(guifi_service_str($zone->graph_server),
-              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
-    'colspan'=>2));
+    'data' => l(guifi_service_str($zone->graph_server),
+              $gs->l, array('attributes' => array('title' => $gs->nick.' - '.$gs->title))),
+    'colspan' => 2));
 
   $rows[] = array(t('network global information').':', NULL);
   $rows[] = array(t('Mode'),t($zone->zone_mode));
@@ -966,12 +966,12 @@ function guifi_zone_childs($zid) {
 function guifi_zone_childs_tree($parents, $maxdepth = 1, &$depth = 0) {
 
   if (is_numeric($parents))
-    $parents = array($parents=>array('depth'=>0,'master'=>0));
+    $parents = array($parents => array('depth' => 0,'master' => 0));
   guifi_log(GUIFILOG_TRACE,'function guifi_zone_childs_tree(childs)',$parents);
 
   // check only current depth
   $current_depth = array();
-  foreach ($parents as $k=>$v) {
+  foreach ($parents as $k => $v) {
     if ($v['depth'] == $depth)
       $current_depth[] = $k;
   }
@@ -984,7 +984,7 @@ function guifi_zone_childs_tree($parents, $maxdepth = 1, &$depth = 0) {
   $childs = $parents;
   $found = FALSE;
   while ($child = db_fetch_object($result)) {
-    $childs[$child->id] = array('depth'=>$depth,'master'=>$child->master);
+    $childs[$child->id] = array('depth' => $depth,'master' => $child->master);
     $found = TRUE;
   }
 
@@ -997,12 +997,12 @@ function guifi_zone_childs_tree($parents, $maxdepth = 1, &$depth = 0) {
 function guifi_zone_childs_tree_depth($parents, $maxdepth = 1, &$depth = 0) {
 
   if (is_numeric($parents))
-    $parents = array($parents=>array('depth'=>0,'master'=>0));
+    $parents = array($parents => array('depth' => 0,'master' => 0));
   guifi_log(GUIFILOG_TRACE,'function guifi_zone_childs_tree_depth(childs)',$parents);
 
   // check only current depth
   $current_depth = array();
-  foreach ($parents as $k=>$v) {
+  foreach ($parents as $k => $v) {
     if ($v['depth'] == $depth)
       $current_depth[] = $k;
   }
@@ -1015,7 +1015,7 @@ function guifi_zone_childs_tree_depth($parents, $maxdepth = 1, &$depth = 0) {
   $childs = $parents;
   $found = FALSE;
   while ($child = db_fetch_object($result)) {
-    $childs[$child->id] = array('depth'=>$depth,'master'=>$child->master);
+    $childs[$child->id] = array('depth' => $depth,'master' => $child->master);
     $found = TRUE;
   }
 
@@ -1047,36 +1047,36 @@ function guifi_zone_availability($zone,$desc = "all") {
         $edit =
           l(guifi_img_icon('edit.png'),'guifi/device/'.$d['did'].'/edit',
             array(
-              'html'=>TRUE,
-              'attributes'=>array(
+              'html' => TRUE,
+              'attributes' => array(
                 'title' => t('edit device'),
-                'target'=>'_blank'))).
+                'target' => '_blank'))).
           l(guifi_img_icon('drop.png'),'guifi/device/'.$d['did'].'/delete',
             array(
-              'html'=>TRUE,
-              'attributes'=>array(
+              'html' => TRUE,
+              'attributes' => array(
                 'title' => t('delete device'),
-                'target'=>'_blank')));
+                'target' => '_blank')));
       else
         $edit = NULL;
 
       $ip = guifi_main_ip($d['did']);
 
       $status_url = guifi_cnml_availability(
-         array('device'=>$d['did'],'format'=>'long'));
+         array('device' => $d['did'],'format' => 'long'));
 
       $rows[] = array(
         array('data'=>
           $edit.l($d['dnick'],'guifi/device/'.$d['did'])
              ),
         array(
-          'data'=>l($ip['ipv4'].'/'.$ip['maskbits'],
+          'data' => l($ip['ipv4'].'/'.$ip['maskbits'],
           guifi_device_admin_url($d['did'],$ip['ipv4']),
-          array('attributes'=>array('title'=>t('Connect to the device on a new window'),
-            'target'=>'_blank'))),
-          'align'=>'right'
+          array('attributes' => array('title' => t('Connect to the device on a new window'),
+            'target' => '_blank'))),
+          'align' => 'right'
         ),
-        array('data'=>$d['dflag'].$status_url,'class'=>$d['dflag'])
+        array('data' => $d['dflag'].$status_url,'class' => $d['dflag'])
       );
     }
     guifi_log(GUIFILOG_TRACE,'function guifi_zone_availability_device()',$rows);
@@ -1123,7 +1123,7 @@ function guifi_zone_availability($zone,$desc = "all") {
         l($d['znick'],'node/'.$d['zid']
           ).' <strong>'.
         $d['ztitle'].'</strong>',
-        'colspan'=>0
+        'colspan' => 0
       ));
       $currZ = $d['zid'];
     }
@@ -1136,23 +1136,23 @@ function guifi_zone_availability($zone,$desc = "all") {
     if (guifi_node_access('update',$d['nid']))
       $edit =
         l(guifi_img_icon('edit.png'),'node/'.$d['nid'].'/edit',
-          array('html'=>TRUE,'attributes'=>array('target'=>'_blank'))).
+          array('html' => TRUE,'attributes' => array('target' => '_blank'))).
         l(guifi_img_icon('drop.png'),'node/'.$d['nid'].'/delete',
-          array('html'=>TRUE,'attributes'=>array('target'=>'_blank')));
+          array('html' => TRUE,'attributes' => array('target' => '_blank')));
     else
       $edit = NULL;
 
     $rows[] = array(
-      array('data'=>$d['nid'],
-       'align'=>'right',
-       'rowspan'=>$nsr),
+      array('data' => $d['nid'],
+       'align' => 'right',
+       'rowspan' => $nsr),
       array('data'=> $edit.
         l($d['nnick'],'node/'.$d['nid'],
-          array('attributes'=>array('target'=>'_blank'))),
-       'rowspan'=>$nsr),
-      array('data'=>$d['nstatus'],
-       'class'=>$d['nstatus'],
-       'rowspan'=>$nsr)
+          array('attributes' => array('target' => '_blank'))),
+       'rowspan' => $nsr),
+      array('data' => $d['nstatus'],
+       'class' => $d['nstatus'],
+       'rowspan' => $nsr)
     );
     end($rows);
     $krow = key($rows);
@@ -1166,9 +1166,9 @@ function guifi_zone_availability($zone,$desc = "all") {
 
   }
 
-  $output .= theme('table', NULL, $rows,array('width'=>'100%'));
+  $output .= theme('table', NULL, $rows,array('width' => '100%'));
   $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
-  $node = node_load(array('nid'=>$zone->id));
+  $node = node_load(array('nid' => $zone->id));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
   return;
@@ -1190,17 +1190,17 @@ function guifi_zone_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       array(
         array(
           array(
-            'data'=>'<small>'.theme_guifi_zone_data($node, FALSE).'</small>'.
+            'data' => '<small>'.theme_guifi_zone_data($node, FALSE).'</small>'.
               theme_guifi_contacts($node),
-            'width'=>'50%'
+            'width' => '50%'
           ),
           array(
-            'data'=>guifi_zone_simple_map($node),
-            'width'=>'50%'
+            'data' => guifi_zone_simple_map($node),
+            'width' => '50%'
           )
         )
       ),
-      array('width'=>'100%')
+      array('width' => '100%')
     ),
     '#weight' => 1);
   $node->content['graph']=array(
@@ -1356,20 +1356,20 @@ function theme_guifi_zone_nodes($node,$links = TRUE) {
 
   $header = array(
       array('data' => t('Zone name')),
-      array('data' => t('Online'), NULL, NULL,'style'=>'text-align: right'),
-      array('data' => t('Planned'), NULL, NULL,'style'=>'text-align: right'),
-      array('data' => t('Building'), NULL, NULL,'style'=>'text-align: right'),
-      array('data' => t('Testing'), NULL, NULL,'style'=>'text-align: right'),
-      array('data' => t('Total'), NULL, NULL,'style'=>'text-align: right'));
+      array('data' => t('Online'), NULL, NULL,'style' => 'text-align: right'),
+      array('data' => t('Planned'), NULL, NULL,'style' => 'text-align: right'),
+      array('data' => t('Building'), NULL, NULL,'style' => 'text-align: right'),
+      array('data' => t('Testing'), NULL, NULL,'style' => 'text-align: right'),
+      array('data' => t('Total'), NULL, NULL,'style' => 'text-align: right'));
   while ($zone = db_fetch_object($result)) {
     $summary = guifi_zone_totals(guifi_zone_childs($zone->id));
     $rows[] = array(
       array('data' => guifi_zone_l($zone->id,$zone->title,'node/'),'class' => 'zonename'),
-      array('data' => number_format($summary['Working'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Working','align'=>'right'),
-      array('data' => number_format($summary['Planned'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Planned','align'=>'right'),
-      array('data' => number_format($summary['Building'],0, NULL,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
-      array('data' => number_format($summary['Testing'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Testing','align'=>'right'),
-      array('data' => number_format($summary['Total']   ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
+      array('data' => number_format($summary['Working'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Working','align' => 'right'),
+      array('data' => number_format($summary['Planned'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Planned','align' => 'right'),
+      array('data' => number_format($summary['Building'],0, NULL,variable_get('guifi_thousand','.')),'class' => 'Building','align' => 'right'),
+      array('data' => number_format($summary['Testing'] ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Testing','align' => 'right'),
+      array('data' => number_format($summary['Total']   ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Total','align' => 'right'));
     if (!empty($summary))
       foreach ($summary as $key => $sum)
         $totals[$key] = $totals[$key] + $sum;
@@ -1378,11 +1378,11 @@ function theme_guifi_zone_nodes($node,$links = TRUE) {
     array(
       'data' => NULL,
       'class' => 'zonename'),
-    array('data' => number_format($totals['Working'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Online','align'=>'right'),
-    array('data' => number_format($totals['Planned'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Planned','align'=>'right'),
-    array('data' => number_format($totals['Building'],0, NULL,variable_get('guifi_thousand','.')),'class' => 'Building','align'=>'right'),
-    array('data' => number_format($totals['Testing'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Testing','align'=>'right'),
-    array('data' => number_format($totals['Total']   ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Total','align'=>'right'));
+    array('data' => number_format($totals['Working'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Online','align' => 'right'),
+    array('data' => number_format($totals['Planned'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Planned','align' => 'right'),
+    array('data' => number_format($totals['Building'],0, NULL,variable_get('guifi_thousand','.')),'class' => 'Building','align' => 'right'),
+    array('data' => number_format($totals['Testing'] ,0, NULL,variable_get('guifi_thousand','.')), 'class' => 'Testing','align' => 'right'),
+    array('data' => number_format($totals['Total']   ,0, NULL,variable_get('guifi_thousand','.')),'class' => 'Total','align' => 'right'));
 
    if (count($rows)>1)
      $output .= theme('table', $header, $rows);
@@ -1422,7 +1422,7 @@ function theme_guifi_zone_nodes($node,$links = TRUE) {
 
   if ($links) {
     drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/nodes'));
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
     return;
@@ -1437,7 +1437,7 @@ function theme_guifi_zone_nodes($node,$links = TRUE) {
 function theme_guifi_zone_map($node) {
 
   drupal_set_breadcrumb(guifi_zone_ariadna($node->id,'node/%d/view/map'));
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
 
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_zone.js','module');
@@ -1461,7 +1461,7 @@ function theme_guifi_zone_map($node) {
 function theme_guifi_zone_networks($zone) {
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/ipv4'));
-  $zone = node_load(array('nid'=>$zone->id));
+  $zone = node_load(array('nid' => $zone->id));
 
   $ips_allocated = guifi_ipcalc_get_ips();
 
@@ -1487,16 +1487,16 @@ function theme_guifi_zone_networks($zone) {
 **/
 function theme_guifi_zone_data($zone,$links = TRUE) {
 
-  $zone = node_load(array('nid'=>$zone->id));
+  $zone = node_load(array('nid' => $zone->id));
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id));
 
-  $table = theme('table', NULL, guifi_zone_data($zone),array('width'=>'100%'));
+  $table = theme('table', NULL, guifi_zone_data($zone),array('width' => '100%'));
   $output .= theme('box', t('zone information'), $table);
 
   if ($links) {
     drupal_set_breadcrumb(guifi_zone_ariadna($node->id));
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
     return;
@@ -1511,7 +1511,7 @@ function theme_guifi_zone_stats($zone,$links = TRUE) {
   $output = '<script type="text/javascript" src="/misc/collapse.js"></script>';
   $output .= '<fieldset class="collapsible collapsed">';
   $output .= '<legend>'.t('zone statistics').'</legend>';
-  $output .= '<div>'.theme('table', NULL, guifi_zone_stats_data($zone->id),array('width'=>'100%')).'</div>';
+  $output .= '<div>'.theme('table', NULL, guifi_zone_stats_data($zone->id),array('width' => '100%')).'</div>';
   $output .= '</fieldset><br>';
   return $output;
 }

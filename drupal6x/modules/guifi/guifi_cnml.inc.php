@@ -18,11 +18,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
      drupal_set_breadcrumb(guifi_zone_ariadna($cnmlid));
 
      $output = '<div id="guifi">';
-     $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
+     $output .= '<h2>'.t('Zone %zname%',array('%zname%' => $zone->title)).'</h2>';
      $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
-     $output .= '<ol><li>'. l(t('Zones'), "guifi/cnml/".$cnmlid."/zones", array('title'=>t('export zone and zone childs in CNML format')) ).'</li>';
-     $output .= '<li>'. l(t('Zones and nodes'), "guifi/cnml/".$cnmlid."/nodes", array('title'=>t('export zones and nodes in CNML format (short)')) ).'</li>';
-     $output .= '<li>'. l(t('Detailed'), "guifi/cnml/".$cnmlid."/detail", array('title'=>t('export zones, nodes  and devices in CNML format (long)')) ).'</li></ol>';
+     $output .= '<ol><li>'. l(t('Zones'), "guifi/cnml/".$cnmlid."/zones", array('title' => t('export zone and zone childs in CNML format')) ).'</li>';
+     $output .= '<li>'. l(t('Zones and nodes'), "guifi/cnml/".$cnmlid."/nodes", array('title' => t('export zones and nodes in CNML format (short)')) ).'</li>';
+     $output .= '<li>'. l(t('Detailed'), "guifi/cnml/".$cnmlid."/detail", array('title' => t('export zones, nodes  and devices in CNML format (long)')) ).'</li></ol>';
      $output .= '<p>'.t('The <b>C</b>ommunity <b>N</b>etwork <b>M</b>arkup <b>L</b>anguage (<a href="'.base_path().'node/3521">CNML</a>) is a XML format to interchange network information between services or servers.').'</p>';
      $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
      $output .= "</div>";
@@ -38,12 +38,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      while ($l = db_fetch_object($qlinks)) {
       $links->count++;
       $links->xml .= xmlopentag($ident,'link',array(
-        'id'=>$l->id,
-        'linked_device_id'=>$l->device_id,
-        'linked_node_id'=>$l->nid,
-        'linked_interface_id'=>$l->interface_id,
-        'link_type'=>$l->link_type,
-        'link_status'=>$l->flag));
+        'id' => $l->id,
+        'linked_device_id' => $l->device_id,
+        'linked_node_id' => $l->nid,
+        'linked_interface_id' => $l->interface_id,
+        'link_type' => $l->link_type,
+        'link_status' => $l->flag));
       $links->xml .= xmlclosetag($ident,'link',$nl);
 
     }
@@ -188,7 +188,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
     if ($action != 'zones') {
       $nodeXML = $CNML->addChild('node',htmlspecialchars($node->body,ENT_QUOTES));
-      foreach ($node as $key=>$value) {
+      foreach ($node as $key => $value) {
        if ($value) switch ($key) {
          case 'body': break;
          case 'id': $nodeXML->addAttribute('id',$value); break;
@@ -212,10 +212,10 @@ function guifi_cnml($cnmlid,$action = 'help') {
     // if report type = 'detail', going to list all node content
     // devices
     if (is_array($devices[$node->id])) if (count($devices[$node->id])) {
-      foreach ($devices[$node->id] as $id=>$device) {
+      foreach ($devices[$node->id] as $id => $device) {
         if ($action == 'detail') {
           $deviceXML = $nodeXML->addChild('device',htmlspecialchars($device->comment,ENT_QUOTES));
-         foreach ($device as $key=>$value) {
+         foreach ($device as $key => $value) {
           if ($value) switch ($key) {
             case 'body': comment;
             case 'id': $deviceXML->addAttribute('id',$value); break;
@@ -244,12 +244,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
         // device radios
         if (is_array($radios[$node->id][$device->id])) if (count($radios[$node->id][$device->id])) {
-          foreach ($radios[$node->id][$device->id] as $id=>$radio) {
+          foreach ($radios[$node->id][$device->id] as $id => $radio) {
             if ($action == 'detail') {
               $radioXML = $deviceXML->addChild('radio',htmlspecialchars($radio->comment,ENT_QUOTES));
               $radioXML->addAttribute('id',$radio->radiodev_counter);
               $radioXML->addAttribute('device_id',$device->id);
-              foreach ($radio as $key=>$value) {
+              foreach ($radio as $key => $value) {
                if ($value) switch ($key) {
                  case 'radiodev_counter':
                  case 'comment': break;
@@ -357,12 +357,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
             if (is_array($interfaces[$device->id][$radio->radiodev_counter])) if (count($interfaces[$device->id][$radio->radiodev_counter])) {
               foreach ($interfaces[$device->id][$radio->radiodev_counter] as $radio_interfaces)
               foreach ($radio_interfaces as $interface) {
-                if (!array_search($interface->interface_type,array('a'=>'wds/p2p','b'=>'wLan','c'=>'wLan/Lan','d'=>'Wan')))
+                if (!array_search($interface->interface_type,array('a' => 'wds/p2p','b' => 'wLan','c' => 'wLan/Lan','d' => 'Wan')))
                   continue;
                 if ($interface->interface_type == 'Wan' and $radio->mode != 'client') continue;
                 if ($action == 'detail') {
                   $interfaceXML = $radioXML->addChild('interface');
-                  foreach ($interface as $key=>$value) {
+                  foreach ($interface as $key => $value) {
                     if ($value) switch ($key) {
                       case 'id': $interfaceXML->addAttribute('id',$interface->id); break;
                       case 'mac': $interfaceXML->addAttribute('mac',$interface->mac); break;
@@ -375,14 +375,14 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
                 // linked interfaces
                 if (is_array($links[$device->id][$interface->id])) if (count($links[$device->id][$interface->id])) {
-                  foreach ($links[$device->id][$interface->id] as $id=>$link) {
-                    if (!array_search($link->link_type,array('a'=>'ap/client','b'=>'wds')))
+                  foreach ($links[$device->id][$interface->id] as $id => $link) {
+                    if (!array_search($link->link_type,array('a' => 'ap/client','b' => 'wds')))
                       continue;
                     if ($link->ipv4_id != $interface->ipv4_id) continue;
                     $nodesummary->links++;
                     if ($action == 'detail') {
                       $linkXML = $interfaceXML->addChild('link');
-                      foreach ($link as $key=>$value) {
+                      foreach ($link as $key => $value) {
                         if ($value) switch ($key) {
                           case 'id': $linkXML->addAttribute('id',$link->id); break;
                           case 'linked_node_id': $linkXML->addAttribute('linked_node_id',$link->linked_node_id); break;
@@ -408,11 +408,11 @@ function guifi_cnml($cnmlid,$action = 'help') {
           foreach ($interfaces[$device->id] as $device_interfaces)
           foreach ($device_interfaces as $counter_interfaces)
           foreach ($counter_interfaces as $interface) {
-            if (array_search($interface->interface_type,array('a'=>'wds/p2p','b'=>'wLan','c'=>'wlan/Lan')))
+            if (array_search($interface->interface_type,array('a' => 'wds/p2p','b' => 'wLan','c' => 'wlan/Lan')))
               continue;
             if ($action == 'detail') {
               $interfaceXML = $deviceXML->addChild('interface');
-              foreach ($interface as $key=>$value) {
+              foreach ($interface as $key => $value) {
                 if ($value) switch ($key) {
                   case 'id': $interfaceXML->addAttribute('id',$interface->id); break;
                   case 'mac': $interfaceXML->addAttribute('mac',$interface->mac); break;
@@ -425,13 +425,13 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
             // linked interfaces
             if (is_array($links[$device->id][$interface->id])) if (count($links[$device->id][$interface->id])) {
-              foreach ($links[$device->id][$interface->id] as $id=>$link) {
-                if (array_search($link->link_type,array('a'=>'ap/client','b'=>'wds')))
+              foreach ($links[$device->id][$interface->id] as $id => $link) {
+                if (array_search($link->link_type,array('a' => 'ap/client','b' => 'wds')))
                   continue;
                 if ($link->ipv4_id != $interface->ipv4_id) continue;
                 if ($action == 'detail') {
                   $linkXML = $interfaceXML->addChild('link');
-                  foreach ($link as $key=>$value) {
+                  foreach ($link as $key => $value) {
                     if ($value) switch ($key) {
                       case 'id': $linkXML->addAttribute('id',$link->id); break;
                       case 'linked_node_id': $linkXML->addAttribute('linked_node_id',$link->linked_node_id); break;
@@ -449,10 +449,10 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
         // services
         if (is_array($services[$device->id])) if (count($services[$device->id])) {
-          foreach ($services[$device->id] as $id=>$service) {
+          foreach ($services[$device->id] as $id => $service) {
             if ($action == 'detail') {
               $serviceXML = $deviceXML->addChild('service',htmlspecialchars($service->body,ENT_QUOTES));
-              foreach ($service as $key=>$value) {
+              foreach ($service as $key => $value) {
                 if ($value) switch ($key) {
                   case 'body':              break;
                   case 'id':                $serviceXML->addAttribute('id',$value); break;
@@ -501,7 +501,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
 
     $zoneXML = $CNML->addChild('zone',htmlspecialchars($zone->body,ENT_QUOTES));
     reset($zone);
-    foreach ($zone as $key=>$value) {
+    foreach ($zone as $key => $value) {
      if ($value) switch ($key) {
        case 'body': break;
        case 'childs':
@@ -576,7 +576,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
     $networkXML = $CNML->addChild('network');
 
     if (count($tree))
-    foreach ($tree as $zone_id=>$zone) {
+    foreach ($tree as $zone_id => $zone) {
       $summary2 = _add_cnml_zone($networkXML,$zone,$action);
       $summary->nodes   += $summary2->nodes;
       $summary->devices += $summary2->devices;
@@ -605,7 +605,7 @@ function guifi_cnml($cnmlid,$action = 'help') {
     $summary->links = 0;
 
     // print_r($tree);
-    foreach ($tree as $nodeid=>$node) {
+    foreach ($tree as $nodeid => $node) {
       $summary = _add_cnml_node($CNML,$node,$summary,'detail');
     }
   }
@@ -719,7 +719,7 @@ function fnodecount($cnmlid){
     }
     $classXML = $CNML->addChild('linksxtype');
     $nreg=0;
-    if (count($dTotals)) foreach ($dTotals as $key=>$dTotal){
+    if (count($dTotals)) foreach ($dTotals as $key => $dTotal){
         if ($dTotal['dTotal']) {
           $nreg++;
           $reg = $classXML->addChild('rec');
@@ -849,7 +849,7 @@ function ospf_net($cnmlid){
                join guifi_zone as t2 on t1.zone_id = t2.id 
                where t1.id = (%s)",$nodes[$n]));
       if ($record=db_fetch_object($result)){
-         $nodesid["$nodes[$n]"]=Array("nnick"=>$record->nnick,"zid"=>$record->zid);
+         $nodesid["$nodes[$n]"]=Array("nnick" => $record->nnick,"zid" => $record->zid);
          if (!isset($azones[$record->zid])){
             $azones[$record->zid]=$record->znick;
          }
@@ -859,7 +859,7 @@ function ospf_net($cnmlid){
    
    ksort($networks);
    //busqueda de xarxes de la zona
-   if (count($azones)) foreach ($azones as $key=>$azone){
+   if (count($azones)) foreach ($azones as $key => $azone){
       $result=db_query(sprintf("SELECT t1.base as netid, t1.mask as mask
                FROM guifi_networks as t1
                where t1.zone = (%s)",$key));
@@ -868,9 +868,9 @@ function ospf_net($cnmlid){
          $splitip=explode(".",$a["netid"]);
          $c=$splitip[0]*pow(256,3)+$splitip[1]*pow(256,2)+$splitip[2]*256+$splitip[3];
          if (!isset($aznets[$c])){
-            $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0);
+            $aznets[$c]=Array("netid" => $a["netid"],"maskbits" => $a["maskbits"],"broadcast" => $a["broadcast"],"zid" => $key,"swagr" => 0);
          }elseif ($aznets[$c]["maskbits"]>$a["maskbits"]){
-            $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0);
+            $aznets[$c]=Array("netid" => $a["netid"],"maskbits" => $a["maskbits"],"broadcast" => $a["broadcast"],"zid" => $key,"swagr" => 0);
          }
       }
    }
@@ -894,7 +894,7 @@ function ospf_net($cnmlid){
       $net1="";
       $knet1=0;
       $nreg=0;
-      if (count($subnets)) foreach ($subnets as $key=>$subnet){
+      if (count($subnets)) foreach ($subnets as $key => $subnet){
          if ($subnet["maskbits"]==$nmaskbits){
             $nreg++;
             $a = _ipcalc_by_netbits($subnet["netid"],$nmaskbits-1);
@@ -916,11 +916,11 @@ function ospf_net($cnmlid){
       //   break;
       //}
    }
-//   $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+//   $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
    //generació cnml
    $classXML0 = $CNML->addChild('aggregate_networks');
    $nreg=0;
-   if (count($subnets)) foreach ($subnets as $key=>$subnet){
+   if (count($subnets)) foreach ($subnets as $key => $subnet){
       $nreg++;
       $reg = $classXML0->addChild('subnet');
       $reg->addAttribute('address',$subnet["netid"]);
@@ -930,7 +930,7 @@ function ospf_net($cnmlid){
 
    $classXML = $CNML->addChild('networks');
    $nreg=0;
-   if (count($networks)) foreach ($networks as $key=>$network){
+   if (count($networks)) foreach ($networks as $key => $network){
       $nreg++;
       $reg = $classXML->addChild('subnet');
       $reg->addAttribute('num',$key);
@@ -943,7 +943,7 @@ function ospf_net($cnmlid){
   
    $classXML2 = $CNML->addChild('area_nodes');
    $nreg=0;
-   if (count($nodesid)) foreach ($nodesid as $key=>$nodeid){
+   if (count($nodesid)) foreach ($nodesid as $key => $nodeid){
       $nreg++;
       $reg = $classXML2->addChild('node');
       $reg->addAttribute('node',$key);
@@ -954,7 +954,7 @@ function ospf_net($cnmlid){
 
    $classXML3 = $CNML->addChild('zone_networks');
    $nreg=0;
-   if (count($aznets)) foreach ($aznets as $key=>$aznet){
+   if (count($aznets)) foreach ($aznets as $key => $aznet){
       $nreg++;
       $reg = $classXML3->addChild('subnet');
       //$reg->addAttribute('num',$key);
@@ -996,9 +996,9 @@ function ospf_net_add_node_networks(&$networks,$nid){
       $a = _ipcalc($record->ipv4,$record->netmask);
       $c=ip2long($a["netid"]);
       if (!isset($networks[$c])){
-         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+         $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
       }elseif ($networks[$c]["maskbits"]>$a["maskbits"]){
-         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+         $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
       }
    };
    return 0;
@@ -1050,7 +1050,7 @@ function dump_guifi_domains($cnmlid, $action){
               $hostname->addAttribute('name',strtolower($host->host));
               $hostname->addAttribute('IPv4',$host->ipv4);
               $alias = unserialize($host->aliases);
-                foreach ($alias as $id=>$name) {
+                foreach ($alias as $id => $name) {
                   if ($name) {
                     $cnames = implode(",", $alias);
                     $hostname->addAttribute('CNAME',$cnames);
@@ -1108,7 +1108,7 @@ function dump_guifi_domains($cnmlid, $action){
               $hostname->addAttribute('name',strtolower($host->host));
               $hostname->addAttribute('IPv4',$host->ipv4);
               $alias = unserialize($host->aliases);
-                foreach ($alias as $id=>$name) {
+                foreach ($alias as $id => $name) {
                   if ($name) {
                     $cnames = implode(",", $alias);
                     $hostname->addAttribute('CNAME',$cnames);
@@ -1275,7 +1275,7 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
       if ($link==$record->lid){
          if (!isset($nodes["$record->nid"])){
             $numnodes++;
-            $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
+            $nodes["$record->nid"]=array("lat" => $record->lat,"lon" => $record->lon,"type" => $v);
             $vkey="n_".$record->nid;
             $objects["$vkey"]=$record->ldate;
          }else{
@@ -1296,7 +1296,7 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
             
             if($v>0){
                $numlinks++;
-               $links["$record->lid"]=array("nid1"=>$lnode,"nid2"=>$record->nid,"type"=>$v);
+               $links["$record->lid"]=array("nid1" => $lnode,"nid2" => $record->nid,"type" => $v);
                $vkey="l_".$record->lid;
                $objects["$vkey"]=$ldate;
             }
@@ -1307,7 +1307,7 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
          $lnode=$record->nid;
          if (!isset($nodes["$record->nid"])){
             $numnodes++;
-            $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"type"=>$v);
+            $nodes["$record->nid"]=array("lat" => $record->lat,"lon" => $record->lon,"type" => $v);
             $vkey="n_".$record->nid;
             $objects["$vkey"]=$record->ldate;
          }else{

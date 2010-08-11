@@ -2,8 +2,8 @@
 
 function unsolclic_airos($dev) {
   $version = "1.1";
-  $loc = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$loc->zone_id));
+  $loc = node_load(array('nid' => $dev->nid));
+  $zone = node_load(array('nid' => $loc->zone_id));
   $wan = guifi_unsolclic_if($dev->id,'Wan');
   
   list($primary_dns,$secondary_dns) = explode(' ',guifi_get_dns($zone,2));

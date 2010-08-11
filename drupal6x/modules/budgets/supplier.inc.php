@@ -47,7 +47,7 @@ function budgets_supplier_access($op, $node, $account = NULL) {
     $k = $node;
   else
     $k = $node->id;
-  $node = node_load(array('nid'=>$k));
+  $node = node_load(array('nid' => $k));
 
   switch ($op) {
     case 'create':
@@ -76,7 +76,7 @@ function budgets_supplier_save($node) {
 
   $sid = _guifi_db_sql(
     'supplier',
-    array('id'=>$node->nid),
+    array('id' => $node->nid),
     (array)$node,
     $log,$to_mail);
 
@@ -88,9 +88,9 @@ function budgets_supplier_save($node) {
     $action = t('UPDATED');
 
   $subject = t('The supplier %title has been %action by %user.',
-    array('%title'=>$node->title,
-      '%action'=>$action,
-      '%user'=>$user->name));
+    array('%title' => $node->title,
+      '%action' => $action,
+      '%user' => $user->name));
 
   drupal_set_message($subject);
 
@@ -141,14 +141,14 @@ function budgets_supplier_list_by_zone($zone) {
   );
   $output = '';
   while ($s = db_fetch_object($pager)) {
-    $supplier = node_load(array('nid'=>$s->id));
+    $supplier = node_load(array('nid' => $s->id));
     $output .= node_view($supplier, TRUE, FALSE, TRUE);
   }
   $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'node/%d/view/suppliers'));
   $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
-  $node = node_load(array('nid'=>$zone->id));
+  $node = node_load(array('nid' => $zone->id));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
   return;
@@ -169,7 +169,7 @@ function budgets_supplier_view($node, $teaser = FALSE, $page = FALSE) {
   if (!$teaser) {
     $output = '<h2>'.t('Quotes').'</h2>';
     while ($quote = db_fetch_object($qquotes)) {;
-      $output .= node_view(node_load(array('nid'=>$quote->id)), TRUE, FALSE);
+      $output .= node_view(node_load(array('nid' => $quote->id)), TRUE, FALSE);
     }
 
     $node->content['quotes'] = array(

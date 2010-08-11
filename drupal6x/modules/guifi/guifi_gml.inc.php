@@ -6,10 +6,10 @@ function guifi_gml($zid,$action = "help",$type = 'gml') {
      $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zid));
      drupal_set_breadcrumb(guifi_zone_ariadna($zid));
      $output = '<div id="guifi">';
-     $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
+     $output .= '<h2>'.t('Zone %zname%',array('%zname%' => $zone->title)).'</h2>';
      $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
-     $output .= '<ol><li>'. l(t('Nodes'), "guifi/gml/".$zid."/nodes", array('title'=>t('export zone nodes in gml format')) ).'</li>';
-     $output .= '<li>'. l(t('Links'), "guifi/gml/".$zid."/links", array('title'=>t('export zone links in gml format')) ).'</li></ol>';
+     $output .= '<ol><li>'. l(t('Nodes'), "guifi/gml/".$zid."/nodes", array('title' => t('export zone nodes in gml format')) ).'</li>';
+     $output .= '<li>'. l(t('Links'), "guifi/gml/".$zid."/links", array('title' => t('export zone links in gml format')) ).'</li></ol>';
      $output .= '<p>'.t('The <a href="http://opengis.net/gml/">GML</a> is a Markup Language XML for Geography described at the <a href="http://www.opengeospatial.org/">Open Geospatial Consortium</a>').'</p>';
      $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
      $output .= "</div>";

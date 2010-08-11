@@ -13,10 +13,10 @@ function guifi_tools_ip_search($ipv4 = NULL) {
     return $output;
 
   $output .= '<h2>'.t('Query result for "ipv4 LIKE %ipv4"',
-    array('%ipv4'=>"'".$ipv4."'")).'</h2>';
+    array('%ipv4' => "'".$ipv4."'")).'</h2>';
 
   $headers = array(t('id'),
-    array('data'=>t('nipv4')),
+    array('data' => t('nipv4')),
     t('mask'),t('interface'),t('device'),t('node'));
   $sql = 'SELECT *,inet_aton(ipv4) AS nipv4 FROM {guifi_ipv4} WHERE ipv4 LIKE "'.$ipv4.'" ORDER BY inet_aton(ipv4)';
 //  $sql .= tablesort_sql($header);
@@ -55,7 +55,7 @@ function guifi_tools_ip_search($ipv4 = NULL) {
     if ($node = db_fetch_object(db_query(
          'SELECT id from {guifi_location} WHERE id=%d',
          $device->nid))) {
-      $node = node_load(array('nid'=>$node->id));
+      $node = node_load(array('nid' => $node->id));
       $row[] = $node->id.'-'.
         l($node->title,'node/'.$node->id);
     } else {
@@ -88,7 +88,7 @@ function guifi_tools_ip_search_form($form_state, $params = array()) {
         'addresses begining with "10.138.0" you can use "10.138.0%"...'),
     '#weight' => 0,
   );
-  $form['submit'] = array('#type' => 'submit','#value'=>t('Get information'));
+  $form['submit'] = array('#type' => 'submit','#value' => t('Get information'));
 
   return $form;
 }
@@ -106,7 +106,7 @@ function guifi_tools_mac_search($mac = NULL) {
     return $output;
 
   $output .= '<h2>'.t('Query result for "mac LIKE %mac"',
-    array('%ipv4'=>"'".$mac."'")).'</h2>';
+    array('%ipv4' => "'".$mac."'")).'</h2>';
 
   $headers = array(t('mac'),t('interface'),t('device'),t('node'));
   $sqlm = pager_query('SELECT * FROM {guifi_interfaces} WHERE mac LIKE "'.$mac.'"',50);
@@ -132,7 +132,7 @@ function guifi_tools_mac_search($mac = NULL) {
     if ($node = db_fetch_object(db_query(
          'SELECT id from {guifi_location} WHERE id=%d',
          $device->nid))) {
-      $node = node_load(array('nid'=>$node->id));
+      $node = node_load(array('nid' => $node->id));
       $row[] = $node->id.'-'.
         l($node->title,'node/'.$node->id);
     } else {
@@ -164,7 +164,7 @@ function guifi_tools_mac_search_form($form_state, $params = array()) {
         'addresses begining with "00:0B" you can use "00:0B%"...'),
     '#weight' => 0,
   );
-  $form['submit'] = array('#type' => 'submit','#value'=>t('Get information'));
+  $form['submit'] = array('#type' => 'submit','#value' => t('Get information'));
 
   return $form;
 }
@@ -191,8 +191,8 @@ function guifi_tools_ip_rangesearch($params) {
   $tgetipsend = microtime(TRUE);
 
   $toutput = t('Got & sorted %num ips in %secs seconds',
-    array('%num'=>number_format(count($ips_allocated)),
-          '%secs'=>number_format($tgetipsend-$tgetipsbegin,4))).
+    array('%num' => number_format(count($ips_allocated)),
+          '%secs' => number_format($tgetipsend-$tgetipsbegin,4))).
     '<br />';
 
   list($mask,$network_type,$zone_id,$allocate) = explode(',',$params);
@@ -210,27 +210,27 @@ function guifi_tools_ip_rangesearch($params) {
   $tgetsubnetbynid = microtime(TRUE);
 
   $toutput .= t('Got %base/%net in %secs seconds',
-    array('%base'=>$net,
-          '%net'=>$mask,
-          '%secs'=>number_format($tgetsubnetbynid-$tgetipsend,4))).
+    array('%base' => $net,
+          '%net' => $mask,
+          '%secs' => number_format($tgetsubnetbynid-$tgetipsend,4))).
     '<br />';
   $toutput .= t('Total elapsed was %secs seconds',
-    array('%secs'=>number_format($tgetsubnetbynid-$tgetipsbegin,4))).
+    array('%secs' => number_format($tgetsubnetbynid-$tgetipsbegin,4))).
     '<br />';
 
   $item=_ipcalc($net,$mask);
   if ($net) {
-    foreach ($item as $k=>$value) {
+    foreach ($item as $k => $value) {
       $header[] = t($k);
       $row[] = $value;
     }
     $qoutput .= theme('box',
-      t('Space found at %net',array('%net'=>$net)),
+      t('Space found at %net',array('%net' => $net)),
       theme('table',$header,array($row)));
   } else
     drupal_set_message(t('Was not possible to find %type space for %mask',
-      array('%type'=>$network_type,
-        '%mask'=>$mask)),
+      array('%type' => $network_type,
+        '%mask' => $mask)),
       'error');
 
   return $qoutput.
@@ -275,7 +275,7 @@ function guifi_tools_ip_rangesearch_form($form_state, $params = array()) {
     '#description' => t('If yes, the network found will be allocated at the database being assigned to the zone'),
   );
 
-  $form['submit'] = array('#type' => 'submit','#value'=>t('Find space for the subnetwork'));
+  $form['submit'] = array('#type' => 'submit','#value' => t('Find space for the subnetwork'));
 
   return $form;
 }
@@ -307,7 +307,7 @@ function guifi_tools_mail_search($mail = NULL) {
     return $output;
 
   $output .= '<h2>'.t('Report for notification having LIKE "%mail"',
-    array('%mail'=>"'".$mail."'")).'</h2>';
+    array('%mail' => "'".$mail."'")).'</h2>';
 
   $headers = array(t('table'),t('notification'),t('title'));
 
@@ -375,7 +375,7 @@ function guifi_tools_mail_search_form($form_state, $params = array()) {
 
 //  $form['submit'] = array(
 //    '#type' => 'submit',
-//    '#value'=>t('Search'),
+//    '#value' => t('Search'),
 //    '#prefix'=> '<table><tr><td align="right">',
 //    '#suffix'=> '</td>',
 //  );
@@ -399,7 +399,7 @@ function guifi_tools_mail_search_form($form_state, $params = array()) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value'=>t('Search'),
+    '#value' => t('Search'),
     '#prefix'=> '<td align="left">',
     '#suffix'=> '</td></tr>',
   );
@@ -409,11 +409,11 @@ function guifi_tools_mail_search_form($form_state, $params = array()) {
 function guifi_tools_mail_update_form($form_state, $params = array()) {
 
   $form['mail_search'] = array(
-    '#type'=>'value',
-    '#value'=>$params);
+    '#type' => 'value',
+    '#value' => $params);
 //  $form['submit'] = array(
 //    '#type' => 'submit',
-//    '#value'=>t('Replace with'),
+//    '#value' => t('Replace with'),
 //    '#prefix'=> '<tr><td align="right">',
 //    '#suffix'=> '</td>',
 //  );
@@ -426,13 +426,13 @@ function guifi_tools_mail_update_form($form_state, $params = array()) {
     '#maxlength' => 50,
     '#description' => t('Enter a valid e-mail address to replace %mail for ' .
         'all the rows of the report below.',
-        array('%mail'=>$params)),
+        array('%mail' => $params)),
     '#prefix'=> '<td>',
     '#suffix'=> '</td>',
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value'=>t('Replace with'),
+    '#value' => t('Replace with'),
     '#prefix'=> '<td align="left">',
     '#suffix'=> '</td></tr>',
   );
@@ -444,12 +444,12 @@ function guifi_tools_mail_update_form_validate($form, &$form_state) {
   if (!valid_email_address($form_state['values']['mail_replacewith']))
     form_set_error('mail_replacewith',
       t('%email is not valid',
-        array('%email'=>$form_state['values']['mail_replacewith'])));
+        array('%email' => $form_state['values']['mail_replacewith'])));
   if ($form_state['values']['mail_search'] ==
     $form_state['values']['mail_replacewith'])
     form_set_error('mail_replacewith',
       t('%email is equal to current value',
-        array('%email'=>$form_state['values']['mail_replacewith'])));
+        array('%email' => $form_state['values']['mail_replacewith'])));
 }
 
 function guifi_tools_mail_search_form_submit($form, &$form_state) {
@@ -531,16 +531,16 @@ function guifi_tools_mail_update_form_submit($form, &$form_state) {
 
       $n = _guifi_db_sql(
         $table,
-        array('id'=>$amails->id),
+        array('id' => $amails->id),
         (array)$amails,
         $log,$to_mail);
       guifi_notify(
         $to_mail,
         t('The notification %notify for %type %title has been CHANGED to %new by %user.',
           array('%notify' => $form_state['values']['mail_search'],
-            '%new'=>$form_state['values']['mail_replacewith'],
-            '%type'=>$type,
-            '%title'=>$title,
+            '%new' => $form_state['values']['mail_replacewith'],
+            '%type' => $type,
+            '%title' => $title,
             '%user' => $user->name)),
             $log);
 
@@ -566,7 +566,7 @@ function guifi_admin_notify($view = 'FALSE') {
   if ($send) {
     variable_set('guifi_notify_last',$now);
     $output = '<h1>'.t('Notifications sent at %date',
-      array('%date'=>format_date($now))).'</h1>'.$output;
+      array('%date' => format_date($now))).'</h1>'.$output;
   } else {
     $output = '<h1<'.t('Messages to be sent.').'</h1>'.$output;
   }
@@ -594,15 +594,15 @@ function guifi_admin_loadstats_form($form_state, $params = array()) {
   $form['zone_services']['graph_serverstr'] = array(
     '#type' => 'textfield',
     '#title' => t('CNML Graph server'),
-    '#maxlength'=>60,
+    '#maxlength' => 60,
     '#required' => FALSE,
     '#default_value' => guifi_service_str($params),
     '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
     '#element_validate' => array('guifi_service_name_validate',
       'guifi_zone_service_validate'),
-    '#description'=>t('CNML graph server to load statistics from. Should support remote calls in v2 syntax.')
+    '#description' => t('CNML graph server to load statistics from. Should support remote calls in v2 syntax.')
   );
-  $form['submit'] = array('#type' => 'submit','#value'=>t('Load statistics'));
+  $form['submit'] = array('#type' => 'submit','#value' => t('Load statistics'));
 
   return $form;
 }
@@ -655,7 +655,7 @@ function guifi_tools_isdevconnect($fromdev, $todev) {
   $to[] = $todev; //device
 
   $routes = array();
-  guifi_tools_isdevconnect_search(array($from=>array()),$to,$routes);
+  guifi_tools_isdevconnect_search(array($from => array()),$to,$routes);
   return count($routes);
 }
 
@@ -697,8 +697,8 @@ function guifi_tools_isdevconnect_search($path, $to, &$routes, $maxhops = 50, $a
       } else
         // first peer of the link, the other peer is still unknown
         $alinks['links'][$link['id']] = array(
-          0=>array($link['link_type'],$link['flag']),
-          $link['device_id']=>array(
+          0 => array($link['link_type'],$link['flag']),
+          $link['device_id'] => array(
             0,  // peer still unknown
             $link['nid'],
             $link['interface_id'],

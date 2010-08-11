@@ -90,7 +90,7 @@ function guifi_menu() {
     'description' => 'The most important options to browse and use this site',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
-    'weight'=>0,
+    'weight' => 0,
   );
   $items['guifi/menu/main/browse_zones'] = array(
     'title' => 'Browse the network',
@@ -138,7 +138,7 @@ function guifi_menu() {
     'description' => 'Clean and review the database and take the appropriate pending actions',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
-    'weight'=>1,
+    'weight' => 1,
   );
   $items['guifi/menu/workflow/usersqueue'] = array(
     'title' => 'Users queue',
@@ -175,7 +175,7 @@ function guifi_menu() {
     'description' => 'Utilities toolset for various network addressing and management',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
-    'weight'=>2,
+    'weight' => 2,
   );
   $items['guifi/menu/ip/ipsearch'] = array(
     'title' => 'Search IPv4',
@@ -271,7 +271,7 @@ function guifi_menu() {
     'description' => 'Utilities for administrators, use with care, regular users shouldn\'t have this block.',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('administer site configuration'),
-    'weight'=>100,
+    'weight' => 100,
   );
   $items['guifi/menu/admin/sendnotify'] = array(
     'title' => 'Send notifications',
@@ -314,7 +314,7 @@ function guifi_menu() {
     'description' => 'Utilities for developers, experimental or under texting, use with care, regular users shouldn\'t have this block.',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access devel information'),
-    'weight'=>100,
+    'weight' => 100,
   );
   $items['guifi/menu/devel/counters'] = array(
     'title' => 'counters',
@@ -339,7 +339,7 @@ function guifi_menu() {
     'description' => 'Statistics',
     'page callback' => 'guifi_menu_block_page',
     'access arguments' => array('access content'),
-    'weight'=>100,
+    'weight' => 100,
   );
   $items['guifi/menu/stats/growthmap'] = array(
     'title' => 'History map',
@@ -891,14 +891,14 @@ function guifi_menu() {
   $items['guifi/js/select-service/%/%'] = array(
     'title' => 'Javascript Select Service',
     'page callback' => 'guifi_ahah_select_service',
-    'page_arguments'=>array(3),
+    'page_arguments' => array(3),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
   $items['guifi/js/select-server/%'] = array(
     'title' => 'Javascript Select Server',
     'page callback' => 'guifi_ahah_select_server',
-    'page_arguments'=>array(3),
+    'page_arguments' => array(3),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -1083,45 +1083,45 @@ function guifi_search_result($node = FALSE) {
     case 'guifi_node':
       $extra = l(guifi_img_icon('wifi.png'),'node/'.$node->nid.'/view',
         array(
-          'attributes'=>array('title'=>t('View node %node at %zone',
-            array('%node'=>$node->nick,'%zone'=>guifi_get_zone_name($node->zone_id)))),
-          'html'=>TRUE)).
+          'attributes' => array('title' => t('View node %node at %zone',
+            array('%node' => $node->nick,'%zone' => guifi_get_zone_name($node->zone_id)))),
+          'html' => TRUE)).
         l(guifi_img_icon('globe.png'),'node/'.$node->zone_id.'/view/map',
-        array('html'=>TRUE,
-          'attributes'=>array('title'=>t('View map for %zone',array('%zone'=>guifi_get_zone_name($node->zone_id))))));
+        array('html' => TRUE,
+          'attributes' => array('title' => t('View map for %zone',array('%zone' => guifi_get_zone_name($node->zone_id))))));
       $qry = db_query('SELECT s.service_type, s.id, s.nick FROM {guifi_services} s, {guifi_devices} d WHERE d.nid=%d AND s.device_id=d.id',$node->nid);
       while ($s = db_fetch_object($qry)) {
-        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes'=>array('title'=>$s->nick)));
+        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes' => array('title' => $s->nick)));
       }
       if (count($sextra))
         $extra .= l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/nodeservices',
         array(
-          'attributes'=>array('title'=>t('View services for node %node at %zone',
-            array('%node'=>$node->nick,'%zone'=>guifi_get_zone_name($node->zone_id)))),
-          'html'=>TRUE)).' - '.
+          'attributes' => array('title' => t('View services for node %node at %zone',
+            array('%node' => $node->nick,'%zone' => guifi_get_zone_name($node->zone_id)))),
+          'html' => TRUE)).' - '.
           implode('·',$sextra);
       return $extra;
     case 'guifi_zone':
       $extra = l(guifi_img_icon('globe.png'),'node/'.$node->nid.'/view/map',
-        array('html'=>TRUE,
-          'attributes'=>array('title'=>t('View map of %zone',array('%zone'=>$node->title)))));
+        array('html' => TRUE,
+          'attributes' => array('title' => t('View map of %zone',array('%zone' => $node->title)))));
       $qry = db_query('SELECT s.service_type, s.id FROM {guifi_services} s WHERE s.zone_id=%d',$node->zone_id);
       while ($s = db_fetch_object($qry)) {
-        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes'=>array('title'=>$s->nick)));
+        $sextra[] = l(strtoupper($s->service_type),'node/'.$s->id.'/view',array('attributes' => array('title' => $s->nick)));
       }
       if (count($sextra))
         $extra .= l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/zoneservices',
         array(
-          'attributes'=>array('title'=>t('View services for %zone',
-            array('%zone'=>$node->title))),
-          'html'=>TRUE)).' - '.
+          'attributes' => array('title' => t('View services for %zone',
+            array('%zone' => $node->title))),
+          'html' => TRUE)).' - '.
           implode('·',$sextra);
       return $extra;
     case 'guifi_service':
       return l(guifi_img_icon('service.png'),'node/'.$node->nid.'/view/servicedata',
-        array('html'=>TRUE,
-          'attributes'=>array('title'=>t('View %type service at %zone',
-            array('%type'=>$node->service_type,'%zone'=>guifi_get_zone_name($node->zone_id)))))).' - '.
+        array('html' => TRUE,
+          'attributes' => array('title' => t('View %type service at %zone',
+            array('%type' => $node->service_type,'%zone' => guifi_get_zone_name($node->zone_id)))))).' - '.
         strtoupper($node->service_type);
   }
 }
@@ -1296,15 +1296,15 @@ function guifi_admin_settings() {
     '#required' => FALSE,
     '#default_value' => variable_get("guifi_notify_period", 86400),
     '#options' => array(
-      -1=>t('Never (disabled)'),
-      0=>t('Every cron'),
-      3600=>t('Hourly'),
-      72000=>t('Every 2 hours'),
-      21600=>t('Every 6 hours'),
-      43200=>t('Every 12 hours'),
-      86400=>t('Daily'),
-      172800=>t('Every other day'),
-      604800=>t('Weekly')),
+      -1 => t('Never (disabled)'),
+      0 => t('Every cron'),
+      3600 => t('Hourly'),
+      72000 => t('Every 2 hours'),
+      21600 => t('Every 6 hours'),
+      43200 => t('Every 12 hours'),
+      86400 => t('Daily'),
+      172800 => t('Every other day'),
+      604800 => t('Weekly')),
     '#description' => t('When the notification messages queue will be delivered, if set to "Never", no messages will be post at the queue.'),
     '#weight' => $form_weight++,
   );
@@ -1314,15 +1314,15 @@ function guifi_admin_settings() {
     '#required' => FALSE,
     '#default_value' => variable_get("guifi_loadstats_period", 86400),
     '#options' => array(
-      -1=>t('Never (disabled)'),
-      0=>t('Every cron'),
-      3600=>t('Hourly'),
-      72000=>t('Every 2 hours'),
-      21600=>t('Every 6 hours'),
-      43200=>t('Every 12 hours'),
-      86400=>t('Daily'),
-      172800=>t('Every other day'),
-      604800=>t('Weekly')),
+      -1 => t('Never (disabled)'),
+      0 => t('Every cron'),
+      3600 => t('Hourly'),
+      72000 => t('Every 2 hours'),
+      21600 => t('Every 6 hours'),
+      43200 => t('Every 12 hours'),
+      86400 => t('Daily'),
+      172800 => t('Every other day'),
+      604800 => t('Weekly')),
     '#description' => t('When the graphs servers will be asked for providing statistics.'),
     '#weight' => $form_weight++,
   );
@@ -1341,7 +1341,7 @@ function guifi_admin_settings() {
     '#title' => t('Log level'),
     '#required' => FALSE,
     '#default_value' => variable_get("guifi_loglevel", 0),
-    '#options' => array(0=>'None',1=>'Basic',2=>'Trace',3=>'Full'),
+    '#options' => array(0 => 'None',1 => 'Basic',2 => 'Trace',3 => 'Full'),
     '#description' => t('Trace log level to screen:<ol><li><em>None</em>, normal operation</li><li><em>Basic</em>, general messages</li><li><em>Trace</em> provides follow-up of functions being executed, for developers</li><li><em>Full</em> dumps variable values, very long, for fine debug</li></ol>Change the log level to figure out whats happening.'),
     '#weight' => $form_weight++,
   );
@@ -1458,7 +1458,7 @@ function guifi_counters_block() {
             'guifi_thousand',
           ',')
         ),
-        'class'=>$summary->status_flag));
+        'class' => $summary->status_flag));
     $totals = $totals + $summary->c;
   }
   $header = array(
@@ -1478,7 +1478,7 @@ function guifi_counters_block() {
         'title' => t('Go to the list of nodes root page and their maps.'))) .'</div>';
   $ntime = microtime(TRUE);
   $content .= t('Node counters obtained in %secs seconds',
-    array('%secs'=>number_format(($ntime - $btime),4)));
+    array('%secs' => number_format(($ntime - $btime),4)));
 
   // link statistics
   $qlinks = db_query('
@@ -1520,24 +1520,24 @@ function guifi_counters_block() {
 
   unset($rows);
   $rows=array();
-  if (count($dTotals)) foreach ($dTotals as $key=>$dTotal)
+  if (count($dTotals)) foreach ($dTotals as $key => $dTotal)
   if ($dTotal['dTotal']) {
     $rows[] = array(
       $key,
       array(
-        'data'=>number_format(
+        'data' => number_format(
           $dTotal['count'],
           0,
           NULL,
           variable_get('guifi_thousand','.')),
-          'align'=>'right'),
+          'align' => 'right'),
           array(
-            'data'=>number_format(
+            'data' => number_format(
               $dTotal['dTotal'],
               2,
               variable_get('guifi_decimal',','),
               variable_get('guifi_thousand','.')),
-              'align'=>'right')
+              'align' => 'right')
     );
     $lcount += $dTotal['count'];
     $ldTotal += $dTotal['dTotal'];
@@ -1546,19 +1546,19 @@ function guifi_counters_block() {
     $rows[] = array(
       '<strong>'.t('Total').'</strong>',
       array(
-        'data'=>number_format(
+        'data' => number_format(
           $lcount,
           0,
           NULL,
           variable_get('guifi_thousand','.')),
-          'align'=>'right'),
+          'align' => 'right'),
           array(
-            'data'=>number_format(
+            'data' => number_format(
               $ldTotal,
               2,
               variable_get('guifi_decimal',','),
               variable_get('guifi_thousand','.')),
-              'align'=>'right')
+              'align' => 'right')
     );
   $content.= theme(
     'table',
@@ -1566,7 +1566,7 @@ function guifi_counters_block() {
       '<p align="right">#</p>',t('kms.')),$rows);
 
   $content .= t('Link counters obtained in %secs seconds',
-    array('%secs'=>number_format((microtime(TRUE) - $ntime),4)));
+    array('%secs' => number_format((microtime(TRUE) - $ntime),4)));
 
   return $content;
 }
@@ -1597,7 +1597,7 @@ function guifi_display_block_1() {
                 'guifi_thousand',
                 ',')
             ),
-            'class'=>$summary->status_flag));
+            'class' => $summary->status_flag));
       $totals = $totals + $summary->c;
     }
     $header = array(
@@ -1655,24 +1655,24 @@ function guifi_display_block_1() {
 
     unset($rows);
     $rows=array();
-    if (count($dTotals)) foreach ($dTotals as $key=>$dTotal)
+    if (count($dTotals)) foreach ($dTotals as $key => $dTotal)
     if ($dTotal['dTotal']) {
       $rows[] = array(
         $key,
         array(
-          'data'=>number_format(
+          'data' => number_format(
             $dTotal['count'],
             0,
             NULL,
             variable_get('guifi_thousand','.')),
-          'align'=>'right'),
+          'align' => 'right'),
         array(
-          'data'=>number_format(
+          'data' => number_format(
             $dTotal['dTotal'],
             2,
             variable_get('guifi_decimal',','),
             variable_get('guifi_thousand','.')),
-          'align'=>'right')
+          'align' => 'right')
         );
       $lcount += $dTotal['count'];
       $ldTotal += $dTotal['dTotal'];
@@ -1681,19 +1681,19 @@ function guifi_display_block_1() {
       $rows[] = array(
         '<strong>'.t('Total').'</strong>',
         array(
-          'data'=>number_format(
+          'data' => number_format(
             $lcount,
             0,
             NULL,
             variable_get('guifi_thousand','.')),
-          'align'=>'right'),
+          'align' => 'right'),
         array(
-          'data'=>number_format(
+          'data' => number_format(
             $ldTotal,
             2,
             variable_get('guifi_decimal',','),
             variable_get('guifi_thousand','.')),
-          'align'=>'right')
+          'align' => 'right')
       );
     $content.= theme(
       'table',
@@ -1712,33 +1712,33 @@ function guifi_link($type, $node = 0){
   if ($type == "node" && $node->type == "guifi_zone") {
     $links['mrtg'] = array(
       'title'=> t('create mrtg config'),
-      'href'=>"guifi/mrtg/$node->nid",
-      'attributes'=>array(
-        'title'=>t('get an mrtg configuration file for this zone')));
+      'href' => "guifi/mrtg/$node->nid",
+      'attributes' => array(
+        'title' => t('get an mrtg configuration file for this zone')));
 //    $links['nodeXchange'] = array(
 //      'title'=> t('nodeXchange'),
-//      'href'=>"guifi/nodexchange/$node->nid",
-//      'attributes'=>array('title'=>t('export zone in nodeXchange format')));
+//      'href' => "guifi/nodexchange/$node->nid",
+//      'attributes' => array('title' => t('export zone in nodeXchange format')));
     $links['cnml'] = array(
       'title'=> t('CNML'),
-      'href'=>"guifi/cnml/$node->nid",
-      'attributes'=>array('title'=>t('export zone in CNML format')));
+      'href' => "guifi/cnml/$node->nid",
+      'attributes' => array('title' => t('export zone in CNML format')));
     $links['gml'] = array(
       'title'=> t('gml'),
-      'href'=>"guifi/gml/$node->nid",
-      'attributes'=>array('title'=>t('export zone in gml format')));
+      'href' => "guifi/gml/$node->nid",
+      'attributes' => array('title' => t('export zone in gml format')));
     if (module_exists('budgets')) {
       $links['budgets'] = array(
         'title'=> t('budgets'),
-        'href'=>"budgets/$node->nid/list",
-        'attributes'=>array('title'=>t('view budgets for this zone')));
+        'href' => "budgets/$node->nid/list",
+        'attributes' => array('title' => t('view budgets for this zone')));
     }
   }
   if ($type == "node" && $node->type == "guifi_node") {
     $links['cnml'] = array(
       'title'=> t('CNML'),
-      'href'=>"guifi/cnml/$node->nid/node",
-      'attributes'=>array('title'=>t('export node in CNML format')));
+      'href' => "guifi/cnml/$node->nid/node",
+      'attributes' => array('title' => t('export node in CNML format')));
   }
 
   return $links;
@@ -1848,7 +1848,7 @@ function guifi_purge($verbose = FALSE) {
     $to_mail = '';
 
     $log = _guifi_db_delete('guifi_devices',
-        array('id'=>$r->id),
+        array('id' => $r->id),
         $to_mail);
 
     $subject = t('The device %name has been DELETED by purgue process because was orphan of node.',
@@ -1863,8 +1863,8 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tdevices = microtime(TRUE);
     drupal_set_message(t('%ndev orphan devices purged in %secs',
-      array('%ndev'=>$ndel,
-        '%secs'=>number_format($tdevices-$tstart,4)
+      array('%ndev' => $ndel,
+        '%secs' => number_format($tdevices-$tstart,4)
         )));
   }
 
@@ -1874,7 +1874,7 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tradios = microtime(TRUE);
     drupal_set_message(t('orphan radios purged in %secs',
-      array('%secs'=>number_format($tradios-$tdevices,4)
+      array('%secs' => number_format($tradios-$tdevices,4)
         )));
   }
 
@@ -1885,7 +1885,7 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tint = microtime(TRUE);
     drupal_set_message(t('orphan interfaces purged in %secs',
-      array('%secs'=>number_format($tint-$tradios,4)
+      array('%secs' => number_format($tint-$tradios,4)
         )));
   }
 
@@ -1897,7 +1897,7 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tipv4 = microtime(TRUE);
     drupal_set_message(t('orphan ipv4 purged in %secs',
-      array('%secs'=>number_format($tipv4-$tint,4)
+      array('%secs' => number_format($tipv4-$tint,4)
         )));
   }
 
@@ -1907,7 +1907,7 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tlink = microtime(TRUE);
     drupal_set_message(t('orphan links purged in %secs',
-      array('%secs'=>number_format($tlink-$tipv4,4)
+      array('%secs' => number_format($tlink-$tipv4,4)
         )));
   }
 
@@ -1917,7 +1917,7 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tlink2 = microtime(TRUE);
     drupal_set_message(t('unpaired links purged in %secs',
-      array('%secs'=>number_format($tlink2-$tlink,4)
+      array('%secs' => number_format($tlink2-$tlink,4)
         )));
   }
 
@@ -1931,7 +1931,7 @@ function guifi_purge($verbose = FALSE) {
   while ($r = db_fetch_object($q) ) {
     $to_mail = '';
     $log = _guifi_db_delete('guifi_users',
-        array('id'=>$r->id),
+        array('id' => $r->id),
         $to_mail);
 
     $subject = t('The user %name has been DELETED by purge process because was orphan of node.',
@@ -1945,8 +1945,8 @@ function guifi_purge($verbose = FALSE) {
   if ($verbose) {
     $tdevices = microtime(TRUE);
     drupal_set_message(t('%ndev orphan users purged in %secs',
-      array('%ndev'=>$ndel,
-        '%secs'=>number_format($tdevices-$tstart,4)
+      array('%ndev' => $ndel,
+        '%secs' => number_format($tdevices-$tstart,4)
         )));
   }
 

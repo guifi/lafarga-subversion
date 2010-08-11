@@ -2,8 +2,8 @@
 
 function unsolclic_kamikaze($dev) {
   $version = "1.0";
-  $loc = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$loc->zone_id));
+  $loc = node_load(array('nid' => $dev->nid));
+  $zone = node_load(array('nid' => $loc->zone_id));
   $kamikaze_dir = drupal_get_path('module', 'guifi') .'/firmware/kamikaze/';
 
   if ($dev->radios[0]['mode'] == 'ap') {
@@ -123,7 +123,7 @@ uci set system.@button[1].max=30
   _outln_comment();
   _outln_comment();
   _outln_comment(t('SNMP Settings'));
-  $loc = node_load(array('nid'=>$dev->nid));
+  $loc = node_load(array('nid' => $dev->nid));
   print '<pre>';
   print 'uci set snmpd.@system[0]=system
 uci set snmpd.@system[0].sysLocation='.$loc->nick.'
@@ -136,7 +136,7 @@ uci set snmpd.@system[0].sysDescr="Xarxa Oberta, Lliure i Neutral"
   _outln_comment();
   _outln_comment();
   _outln_comment(t('LLDP Settings'));
-  $loc = node_load(array('nid'=>$dev->nid));
+  $loc = node_load(array('nid' => $dev->nid));
   print '<pre>';
   print 'uci set lldpd.config=lldpd
 uci set lldpd.config.enable_cdp=1

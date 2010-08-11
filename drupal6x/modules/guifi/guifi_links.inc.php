@@ -56,29 +56,29 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
   if ($link['deleted'])
     $f['l']['#description'] = guifi_device_item_delete_msg('<b>Link deleted</b>.');
 
-  $f['l']['beginTable'] = array('#value'=>'<table style="width: 0">');
+  $f['l']['beginTable'] = array('#value' => '<table style="width: 0">');
 
   if (user_access('administer guifi networks')) {
     if (!$multilink)
     $f['l']['ipv4'] = array(
       '#type'=> 'textfield',
-      '#parents'=>array_merge($tree,array('ipv4')),
+      '#parents' => array_merge($tree,array('ipv4')),
       '#size'=> 16,
-      '#maxlength'=>16,
-      '#default_value'=>$ipv4['ipv4'],
-      '#title'=>t('Local IPv4'),
+      '#maxlength' => 16,
+      '#default_value' => $ipv4['ipv4'],
+      '#title' => t('Local IPv4'),
       '#element_validate' => array('guifi_validate_ip'),
       '#prefix'=> '<td>',
       '#suffix'=> '</td>',
     );
     $f['l']['ipv4_remote'] = array(
       '#type'=> 'textfield',
-      '#parents'=>array_merge(
+      '#parents' => array_merge(
         $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
       '#size'=> 16,
-      '#maxlength'=>16,
-      '#default_value'=>$link['interface']['ipv4']['ipv4'],
-      '#title'=>t('Remote IPv4'),
+      '#maxlength' => 16,
+      '#default_value' => $link['interface']['ipv4']['ipv4'],
+      '#title' => t('Remote IPv4'),
       '#element_validate' => array(
         'guifi_validate_ip',
         'guifi_links_validate_subnet'),
@@ -88,7 +88,7 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
     if (!$multilink)
       $f['l']['netmask'] = array(
         '#type' => 'select',
-        '#parents'=>array_merge($tree,array('netmask')),
+        '#parents' => array_merge($tree,array('netmask')),
         '#title' => t("Network mask"),
         '#default_value' => $ipv4['netmask'],
         '#options' => guifi_types('netmask',30,0),
@@ -98,20 +98,20 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
    } else {
      if (!$multilink) {
        $f['l']['ipv4'] = array(
-         '#type'=>'value',
-         '#parents'=>array_merge($tree,array('ipv4')),
-         '#value'=>$ipv4['ipv4']);
+         '#type' => 'value',
+         '#parents' => array_merge($tree,array('ipv4')),
+         '#value' => $ipv4['ipv4']);
        $f['l']['netmask'] = array(
-         '#type'=>'value',
-         '#parents'=>array_merge($tree,array('netmask')),
-         '#value'=>$ipv4['netmask']);
+         '#type' => 'value',
+         '#parents' => array_merge($tree,array('netmask')),
+         '#value' => $ipv4['netmask']);
      }
 
     $f['l']['ipv4_remote'] = array(
-      '#type'=>'value',
-      '#parents'=>array_merge(
+      '#type' => 'value',
+      '#parents' => array_merge(
         $tree,array('links',$link['id'],'interface','ipv4','ipv4')),
-      '#value'=>$link['interface']['ipv4']['ipv4']);
+      '#value' => $link['interface']['ipv4']['ipv4']);
 
     $f['l']['ipv4_remote_display'] = array(
       '#type' =>         'item',
@@ -177,19 +177,19 @@ function guifi_links_form($link,$ipv4,$tree,$multilink) {
     );
   else
     $f['l']['delete_link'] = array(
-      '#type'=>'image_button',
-      '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
-      '#parents'=>array_merge($tree,array(
+      '#type' => 'image_button',
+      '#src' => drupal_get_path('module', 'guifi').'/icons/drop.png',
+      '#parents' => array_merge($tree,array(
         'delete_link',
         $link['id'],
         $link['nid'],
         $link['device_id']
       )),
-      '#attributes'=>array(
-        'title'=>t('Delete link with').': '.
+      '#attributes' => array(
+        'title' => t('Delete link with').': '.
             guifi_get_interface_descr($link['interface_id'])
         ),
-      '#executes_submit_callback'=>TRUE,
+      '#executes_submit_callback' => TRUE,
       '#submit' => array('guifi_links_delete_submit'),
       '#prefix'=> '<td>',
      );
@@ -286,9 +286,9 @@ function guifi_links_validate_subnet($remoteIp,&$form_state) {
     form_error($remoteIp,
       t('Error in linked ipv4 addresses (%addr1/%mask - %addr2), not at same subnet.',
           array(
-            '%addr1'=>$ipv4['ipv4'],
-            '%addr2'=>$remoteIp['#value'],
-            '%mask'=>$ipv4['netmask']
+            '%addr1' => $ipv4['ipv4'],
+            '%addr2' => $remoteIp['#value'],
+            '%mask' => $ipv4['netmask']
           )
         ),
         'error');
@@ -301,7 +301,7 @@ function guifi_links_validate_subnet($remoteIp,&$form_state) {
 //  if (($longIp==FALSE) or (count(explode('.',$ip['#value']))!=4))
 //    form_error($ip,
 //      t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
-//        array('%addr'=>$ip['#value'])),'error');
+//        array('%addr' => $ip['#value'])),'error');
 //  else
 //    $ip['#value'] = long2ip($longIp);
 //

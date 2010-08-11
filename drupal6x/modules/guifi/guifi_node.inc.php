@@ -16,7 +16,7 @@ function guifi_node_access($op, $node) {
   global $user;
 
   if (is_numeric($node))
-    $node = node_load(array('nid'=>$node));
+    $node = node_load(array('nid' => $node));
 
   if ($op == 'create') {
     return user_access('create guifi nodes');
@@ -65,7 +65,7 @@ function guifi_node_ariadna($node, $nlink = 'node/%d',$dlink = 'guifi/device/%d'
   while ($dChild = db_fetch_array($query)) {
     $child[] = l($dChild['nick'],sprintf($dlink,$dChild['id']),
       array(
-        'attributes'=>array('title'=>$dChild['type'])
+        'attributes' => array('title' => $dChild['type'])
       ));
   }
   if (count($child)) {
@@ -205,16 +205,16 @@ function guifi_node_form(&$node, $form_state) {
     $form['settings']['graph_serverstr'] = array(
       '#type' => 'textfield',
       '#title' => t('default graphs server'),
-      '#maxlength'=>60,
+      '#maxlength' => 60,
       '#required' => FALSE,
       '#default_value' => $graphstr,
       '#autocomplete_path'=> 'guifi/js/select-service/SNPgraphs',
       '#element_validate' => array('guifi_service_name_validate',
         'guifi_zone_service_validate'),
-      '#description'=>t('Select the <em>graph server</em> to be used at this node.<br />You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br />You can refine the text to find your choice.'),
+      '#description' => t('Select the <em>graph server</em> to be used at this node.<br />You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br />You can refine the text to find your choice.'),
     );
     $form['settings']['graph_server'] = array(
-      '#type'=>'hidden',
+      '#type' => 'hidden',
       '#value'=> $node->graph_server,
     );
   }
@@ -244,7 +244,7 @@ function guifi_node_form(&$node, $form_state) {
       '#type' => 'radios',
 //      '#title' => t('Yes, I have read this and accepted'),
       '#default_value' => 'No',
-      '#options' => array('Yes'=>t('Yes, I have read this and accepted')),
+      '#options' => array('Yes' => t('Yes, I have read this and accepted')),
       '#element_validate' => array('guifi_node_agreement_validate'),
       '#weight' => 2,
     );
@@ -516,7 +516,7 @@ function guifi_node_insert($node) {
   $node->lon = (float)$node->lon;
   $nnode = _guifi_db_sql(
     'guifi_location',
-    array('id'=>$node->nid),(array)$node,$log,$to_mail);
+    array('id' => $node->nid),(array)$node,$log,$to_mail);
   guifi_notify(
     $to_mail,
     t('The node %name has been CREATED by %user.',array('%name' => $node->title, '%user' => $user->name)),
@@ -567,7 +567,7 @@ function guifi_node_update($node) {
 
   $nnode = _guifi_db_sql(
     'guifi_location',
-    array('id'=>$node->nid),
+    array('id' => $node->nid),
     (array)$node,
     $log,$to_mail);
   guifi_notify(
@@ -586,7 +586,7 @@ function guifi_node_delete($node) {
   $depth = 0;
 
   $to_mail = explode(',',$node->notification);
-  $log = _guifi_db_delete('guifi_location',array('id'=>$node->nid),$to_mail,$depth);
+  $log = _guifi_db_delete('guifi_location',array('id' => $node->nid),$to_mail,$depth);
   drupal_set_message($log);
   guifi_notify(
            $to_mail,
@@ -618,14 +618,14 @@ function guifi_node_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) 
       array(
         array(
           array(
-            'data'=>'<small>'.
+            'data' => '<small>'.
             theme_guifi_node_data($node).
             '</small>',
-            'width'=>'50%'
+            'width' => '50%'
           ),
           array(
-            'data'=>theme_guifi_node_map($node),
-            'width'=>'50%'
+            'data' => theme_guifi_node_map($node),
+            'width' => '50%'
           )
         )
       )
@@ -688,10 +688,10 @@ function guifi_node_distances_map($node) {
   if (guifi_gmap_key()) {
     drupal_add_js(drupal_get_path('module', 'guifi').'/js/guifi_gmap_dist.js','module');
 
-    $rows[] = array(array('data'=>t('Click on the map to get a new path profile to check the Line Of Sight<br />Click on the path profile to see the point on the map'),'align'=>'center'));
-    $rows[] = array(array('data'=>'<a href="javascript:;" onclick="profileclick(event)"><img id="profile" src="'.drupal_get_path('module', 'guifi').'/js/marker_start.png" /></a>','align'=>"center"));
+    $rows[] = array(array('data' => t('Click on the map to get a new path profile to check the Line Of Sight<br />Click on the path profile to see the point on the map'),'align' => 'center'));
+    $rows[] = array(array('data' => '<a href="javascript:;" onclick="profileclick(event)"><img id="profile" src="'.drupal_get_path('module', 'guifi').'/js/marker_start.png" /></a>','align' => "center"));
     $rows[] = array('<div id="map" style="width: 100%; height: 600px; margin:5px;"></div>');
-    $rows[] = array(array('data'=>'<div style="float:left;">'.t('Distance:').'&nbsp;</div>'.'<div id="tdistance" style="float:left;">0</div>'.'<div style="float:left;">&nbsp;Km.&nbsp;&nbsp;&nbsp;&nbsp;'.t('Azimuth:').'&nbsp;</div>'.'<div id="tazimut" style="float:left;">0</div>&nbsp;'.t('degrees')));
+    $rows[] = array(array('data' => '<div style="float:left;">'.t('Distance:').'&nbsp;</div>'.'<div id="tdistance" style="float:left;">0</div>'.'<div style="float:left;">&nbsp;Km.&nbsp;&nbsp;&nbsp;&nbsp;'.t('Azimuth:').'&nbsp;</div>'.'<div id="tazimut" style="float:left;">0</div>&nbsp;'.t('degrees')));
     $output = theme('table', NULL,$rows);
     $output .=  '<form>' .
       '<input type=hidden value='.$node->lat.' id=lat />'.
@@ -704,7 +704,7 @@ function guifi_node_distances_map($node) {
       '</form>';
   }
 
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
@@ -717,7 +717,7 @@ function guifi_node_distances($node) {
     guifi_get_zone_nick($node->zone_id).
     '-'.$node->nick);
   $output .= drupal_get_form('guifi_node_distances_form',$node);
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
@@ -822,7 +822,7 @@ function guifi_node_distances_list($filters,$node) {
      if ($distance >=  $filters['dmin'])
      if (($filters['status'] == 'All') or ($filters['status'] == $node['status_flag']))
      {
-       $nodes[] = array_merge(array('distance'=>$distance),$node);
+       $nodes[] = array_merge(array('distance' => $distance),$node);
      }
   }
 
@@ -848,7 +848,7 @@ function guifi_node_distances_list($filters,$node) {
       '#title'=> t('No nodes found. The list is empty'),
       '#value'=> t('Th given query has returned no rows.'),
       '#description'=> t('Use the filters to get some results'),
-      '#weight'=>$fw++,
+      '#weight' => $fw++,
     );
     return $form;
   }
@@ -858,34 +858,34 @@ function guifi_node_distances_list($filters,$node) {
   // header
 
   $form['z'] = array(
-    '#type'=>'fieldset',
-    '#tree'=>TRUE,
-    '#weight'=>$fw++
+    '#type' => 'fieldset',
+    '#tree' => TRUE,
+    '#weight' => $fw++
   );
   $form['z'][-1]['h_node'] = array(
     '#type'=> 'item',
     '#title'=> t('Node'),
     '#description'=> t('Zone'),
-    '#prefix'=>'<table><tr><th>',
-    '#suffix'=>'</th>',
-    '#weight'=>$fw++,
+    '#prefix' => '<table><tr><th>',
+    '#suffix' => '</th>',
+    '#weight' => $fw++,
   );
   $form['z'][-1]['h_distance'] = array(
     '#type'=> 'item',
     '#title'=> t('Distance'),
     '#value'=> t('Status'),
     '#description'=> t('Azimuth'),
-    '#prefix'=>'<th>',
-    '#suffix'=>'</th>',
-    '#weight'=>$fw++,
+    '#prefix' => '<th>',
+    '#suffix' => '</th>',
+    '#weight' => $fw++,
   );
   $form['z'][-1]['h_heights'] = array(
     '#type'=> 'item',
     '#title'=> t('Heights image'),
     '#description'=> t('Click over the image to view in large format'),
-    '#prefix'=>'<th>',
-    '#suffix'=>'</th></tr>',
-    '#weight'=>$fw++,
+    '#prefix' => '<th>',
+    '#suffix' => '</th></tr>',
+    '#weight' => $fw++,
   );
 
 
@@ -929,7 +929,7 @@ function guifi_node_distances_list($filters,$node) {
 //    $height_url = "http://www.heywhatsthat.com/bin/profile.cgi?src=profiler&axes=1&curvature=1&metric=1&" .
 //        "pt0=".$20.96144,-9.84375,ff0000&pt1=42.293564,11.25,00c000";
     $height_url_long = base_path().'node/'.$orig.'/view/distancesmap?lat2='.$node['lat'].'&lon2='.$node['lon'];
-    $zone = node_load(array('nid'=>$node['zone_id']));
+    $zone = node_load(array('nid' => $node['zone_id']));
 
     if ($filters['search'])
     if (!(stristr($zone->nick.$node['nick'],$filters['search'])))
@@ -960,19 +960,19 @@ function guifi_node_distances_list($filters,$node) {
       if ($nc == $tc)
         $suffix = '</td></tr></table>';
 //    $form['z'][$nc]['d_nid'] = array (
-//      '#type'=>'hidden',
+//      '#type' => 'hidden',
 //      '#parents'=> array('z',$nc,'d_nid'),
 //      '#value' => $node['id'],
-//      '#weight'=>$fw++,
+//      '#weight' => $fw++,
 //    );
     $form['z'][$nc]['d_node'] = array(
       '#type'=> 'item',
       '#parents'=> array('z',$nc,'d_node'),
       '#title'=> l($node['nick'],'node/'.$node['id']),
       '#description'=> l($zone->nick,'node/'.$node['zone_id']),
-      '#prefix'=>'<tr><td>',
-      '#suffix'=>'</td>',
-      '#weight'=>$fw++,
+      '#prefix' => '<tr><td>',
+      '#suffix' => '</td>',
+      '#weight' => $fw++,
     );
     $form['z'][$nc]['d_distance'] = array(
       '#type'=> 'item',
@@ -980,9 +980,9 @@ function guifi_node_distances_list($filters,$node) {
       '#title'=> $node['distance'].' '.t('kms'),
       '#value'=> $node['status_flag'],
       '#description'=> $dAz.'º - '.$dOr,
-      '#prefix'=>'<td>',
-      '#suffix'=>'</td>',
-      '#weight'=>$fw++,
+      '#prefix' => '<td>',
+      '#suffix' => '</td>',
+      '#weight' => $fw++,
     );
     $form['z'][$nc]['d_status'] = array(
       '#type'=> 'item',
@@ -993,8 +993,8 @@ function guifi_node_distances_list($filters,$node) {
 
 //      '#prefix'=> '<td><img src="'.$height_url_small.'">',
       '#prefix'=> '<td>',
-      '#suffix'=>$suffix,
-      '#weight'=>$fw++,
+      '#suffix' => $suffix,
+      '#weight' => $fw++,
     );
   } // eof while distance < max:distance
   if (!$allow_next)
@@ -1005,11 +1005,11 @@ function guifi_node_distances_list($filters,$node) {
     $prefix = '<td>';
     $form['z'][$nc++]['prev'] = array(
     '#type' => 'submit',
-    '#parents'=>array('z',$nc++,'prev'),
+    '#parents' => array('z',$nc++,'prev'),
     '#value' => t('Previous page'),
     '#name'=> 'op',
     '#prefix'=> '<tr><td>',
-    '#suffix'=>$suffix,
+    '#suffix' => $suffix,
     '#weight' => $fw++,
     );
   } else
@@ -1017,10 +1017,10 @@ function guifi_node_distances_list($filters,$node) {
   if ($allow_next)
     $form['z'][$nc++]['next'] = array(
     '#type' => 'submit',
-    '#parents'=>array('z',$nc++,'next'),
+    '#parents' => array('z',$nc++,'next'),
     '#value' => t('Next page'),
     '#prefix'=> $prefix,
-    '#suffix'=>'</td></tr></table>',
+    '#suffix' => '</td></tr></table>',
     '#name'=> 'op',
     '#weight' => $fw++,
   );
@@ -1034,12 +1034,12 @@ function guifi_node_distances_form_submit($form, &$form_state) {
 function guifi_node_set_flag($id) {
 
   $scores = array(
-    'Dropped'=>0,
-    'Planned'=>1,
-    'Reserved'=>2,
-    'Building'=>3,
-    'Testing'=>4,
-    'Working'=>5
+    'Dropped' => 0,
+    'Planned' => 1,
+    'Reserved' => 2,
+    'Building' => 3,
+    'Testing' => 4,
+    'Working' => 5
     );
   $score = -1;
   $query = db_query(
@@ -1059,7 +1059,7 @@ function guifi_node_set_flag($id) {
   // set the highest score found
   $scores = array_flip($scores);
 
-  $node = node_load(array('nid'=>$id));
+  $node = node_load(array('nid' => $id));
   $node->status_flag = $scores[$score];
   node_save($node);
 }
@@ -1077,21 +1077,21 @@ function theme_guifi_node_data($node,$links = FALSE) {
   $rows[] = array(t('available for mesh &#038; status'),$node->stable,array('data' => t($node->status_flag),'class' => $node->status_flag));
 
   if ($node->graph_server > 0)
-    $gs = node_load(array('nid'=>$node->graph_server));
+    $gs = node_load(array('nid' => $node->graph_server));
   else
-    $gs = node_load(array('nid'=>guifi_graphs_get_server($node->id,'node')));
+    $gs = node_load(array('nid' => guifi_graphs_get_server($node->id,'node')));
 
   $rows[] = array(t('graphs provided from'),array(
-    'data'=>l(guifi_service_str($node->graph_server),
-              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
-    'colspan'=>2));
+    'data' => l(guifi_service_str($node->graph_server),
+              $gs->l, array('attributes' => array('title' => $gs->nick.' - '.$gs->title))),
+    'colspan' => 2));
 
   $output = theme('table', NULL,array_merge($rows));
   $output .= theme_guifi_contacts($node);
 
   if ($links) {
-    $node = node_load(array('nid'=>$node->id));
-    drupal_set_title(t('%node data',array('%node'=>$node->title)));
+    $node = node_load(array('nid' => $node->id));
+    drupal_set_title(t('%node data',array('%node' => $node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
@@ -1141,8 +1141,8 @@ function theme_guifi_node_graphs_overview($node,$links = FALSE) {
       }
       $ret = array_merge($rows);
     } else {
-      $args = array('type'=>'supernode',
-        'node'=>$node->id,
+      $args = array('type' => 'supernode',
+        'node' => $node->id,
       );
 
 //      $args = sprintf('type=supernode&node=%d&direction=',$node->id);
@@ -1152,14 +1152,14 @@ function theme_guifi_node_graphs_overview($node,$links = FALSE) {
                  '><img src="'.
                  guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in').
                  '"></a>',
-        'align'=>'center'));
+        'align' => 'center'));
       $rows[] = array(array(
         'data'=> '<a href='.base_path().'guifi/graph_detail?'.
                  guifi_cnml_args($args,'direction=out').
                  '><img src="'.
                  guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=out').
                  '"></a>',
-        'align'=>'center'));
+        'align' => 'center'));
 
 //      $rows[] = array(
 //      guifi_cnml_call_service($gs->var['url'],'graph',$args,'direction=in'sprintf('<a href="'.base_path().'guifi/graph_detail?'.$args.'in"><img src="'.$gs->var['url'].'?'.$args.'in"></a>',$node->id));
@@ -1174,8 +1174,8 @@ function theme_guifi_node_graphs_overview($node,$links = FALSE) {
   $output = theme('table', NULL,$ret);
 
   if ($links) {
-    $node = node_load(array('nid'=>$node->id));
-    drupal_set_title(t('graph overview @ %node',array('%node'=>$node->title)));
+    $node = node_load(array('nid' => $node->id));
+    drupal_set_title(t('graph overview @ %node',array('%node' => $node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
@@ -1195,7 +1195,7 @@ function theme_guifi_node_devices_list($node,$links = FALSE) {
     t('type'),
     t('ip'),
     t('status'),
-    array('data'=>t('last available'),'style'=>'text-align: right;'),
+    array('data' => t('last available'),'style' => 'text-align: right;'),
     t('unsolclic'));
 
   // Form for adding a new device
@@ -1207,32 +1207,32 @@ function theme_guifi_node_devices_list($node,$links = FALSE) {
      if (guifi_device_access('update',$device['id'])) {
        $edit_radio =  '<table><tr><td>'.l(guifi_img_icon('edit.png'),'guifi/device/'.$device['id'].'/edit',
             array(
-              'html'=>TRUE,
+              'html' => TRUE,
               'title' => t('edit device'),
-              'attributes'=>array('target'=>'_blank'))).'</td><td>'.
+              'attributes' => array('target' => '_blank'))).'</td><td>'.
           l(guifi_img_icon('drop.png'),'guifi/device/'.$device['id'].'/delete',
             array(
-              'html'=>TRUE,
+              'html' => TRUE,
               'title' => t('delete device'),
-              'attributes'=>array('target'=>'_blank'))).'</td></tr></table>';
+              'attributes' => array('target' => '_blank'))).'</td></tr></table>';
      }
      if (user_access('create guifi nodes')) {
        $traceroute = l(guifi_img_icon('discover-routes.png'),'guifi/menu/ip/traceroute/'.$device['id'],
             array(
-              'html'=>TRUE,
+              'html' => TRUE,
               'title' => t('trace routes, discover services from this device'),
-              'attributes'=>array('target'=>'_blank')));
+              'attributes' => array('target' => '_blank')));
      } else $traceroute = '';
      if ($device->variable['firmware'] != "n/d") {
        $unsolclic = l($device[variable]['firmware'],
          'guifi/device/'.$device['id'].'/view/unsolclic',
-         array('attributes'=>array('title'=>t("Get radio configuration with singleclick")))
+         array('attributes' => array('title' => t("Get radio configuration with singleclick")))
        );
      }
      $ip = guifi_main_ip($device[id]);
 
      $status_url = guifi_cnml_availability(
-       array('device'=>$device['id'],'format'=>'short'));
+       array('device' => $device['id'],'format' => 'short'));
 
      $rows[] = array(
                  '<a href="'.url('guifi/device/'.$device[id]).'">'.$device[nick].'</a>',
@@ -1249,14 +1249,14 @@ function theme_guifi_node_devices_list($node,$links = FALSE) {
   if (count($rows))
     $output = '<h4>'.t('devices').'</h4>'.
       theme('table', $header, $rows,
-        array('style'=>'width: 0%;')).
+        array('style' => 'width: 0%;')).
       $form;
   else
     $output = theme('box',t('This node does not have any device'),$form);
 
   if ($links) {
-    $node = node_load(array('nid'=>$node->id));
-    drupal_set_title(t('devices @ %node',array('%node'=>$node->title)));
+    $node = node_load(array('nid' => $node->id));
+    drupal_set_title(t('devices @ %node',array('%node' => $node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
@@ -1273,8 +1273,8 @@ function theme_guifi_node_links($node, $links = FALSE) {
     theme_guifi_node_links_by_type($node->id,'ap/client');
 
   if ($links) {
-    $node = node_load(array('nid'=>$node->id));
-    drupal_set_title(t('links @ %node',array('%node'=>$node->title)));
+    $node = node_load(array('nid' => $node->id));
+    drupal_set_title(t('links @ %node',array('%node' => $node->title)));
     drupal_set_breadcrumb(guifi_node_ariadna($node));
     $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
     print theme('page',$output, FALSE);
@@ -1365,11 +1365,11 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
         $linkname = $loc1->id.'-'.'<a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$loc1->device_nick.'</a>/<a href='.base_path().'guifi/device/'.$loc2->device_id.'>'.$loc2->device_nick.'</a>';
 
       $status_url = guifi_cnml_availability(
-         array('device'=>$loc2->device_id,'format'=>'short'));
+         array('device' => $loc2->device_id,'format' => 'short'));
 
       if ($devant != $devact) {
         $devant = $devact;
-        $rows[] = array(array('data'=> '<b><a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan'=>5));
+        $rows[] = array(array('data'=> '<b><a href='.base_path().'guifi/device/'.$loc1->device_id.'>'.$devact.'</a></b>','colspan' => 5));
       }
       $rows[] = array($linkname,
         $loc1->ip.'/'.$loc2->ip,
@@ -1391,7 +1391,7 @@ function theme_guifi_node_links_by_type($id = 0, $ltype = '%') {
       return;
 //      $output .= '<p align="right">'.
 //        t('No %type links defined',
-//          array('%type'=>$ltype)).
+//          array('%type' => $ltype)).
 //        '</p>';
   return theme('box',$titlebox,$output);
 

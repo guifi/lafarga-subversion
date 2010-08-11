@@ -17,7 +17,7 @@ function guifi_domain_load($id,$ret = 'array') {
     AND d.sid = l.id',
     $id));
   if (empty($domain)) {
-    drupal_set_message(t('Domain (%num) does not exist.',array('%num'=>$id)));
+    drupal_set_message(t('Domain (%num) does not exist.',array('%num' => $id)));
     return;
   }
 
@@ -60,7 +60,7 @@ function guifi_domain_access($op, $id) {
   else
     $domain = guifi_domain_load($id);
 
-  $node = node_load(array('nid'=>$domain['sid']));
+  $node = node_load(array('nid' => $domain['sid']));
 
   switch($op) {
  //   case 'create':
@@ -156,7 +156,7 @@ function guifi_domain_form($form_state, $params = array()) {
   }
 
   // Loading node & zone where the domain belongs to (some information will be used)
-  $node = node_load(array('nid'=>$form_state['values']['sid']));
+  $node = node_load(array('nid' => $form_state['values']['sid']));
 
   // Setting the breadcrumb
   drupal_set_breadcrumb(guifi_node_ariadna($form_state['values']['sid']));
@@ -182,14 +182,14 @@ function guifi_domain_form($form_state, $params = array()) {
   $form_weight = -20;
   if ($form_state['values']['id'])
     $form['id'] = array(
-      '#type'=>'hidden',
-      '#name'=>'id',
+      '#type' => 'hidden',
+      '#name' => 'id',
       '#value'=> $form_state['values']['id']
     );
   else
     $form['new'] = array(
-      '#type'=>'hidden',
-      '#name'=>'new',
+      '#type' => 'hidden',
+      '#name' => 'new',
       '#value'=> TRUE
     );
 
@@ -214,22 +214,22 @@ function guifi_domain_form($form_state, $params = array()) {
   );
 
   $form['main']['sid'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $form_state['values']['sid'],
   );
 
   $form['main']['type'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $form_state['values']['type'],
   );
 
   $form['main']['mname'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $form_state['values']['mname'],
   );
 
   $form['main']['scope'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $form_state['values']['scope'],
   );
 
@@ -260,7 +260,7 @@ function guifi_domain_form($form_state, $params = array()) {
 
   if ($form_state['values']['scope'] == 'external') {
     $form['main']['ipv4'] = array(
-    '#type'=>'textfield',
+    '#type' => 'textfield',
     '#title' => t('Nameserver IP Address'),
     '#size' => 16,
     '#maxlength' => 16,
@@ -270,14 +270,14 @@ function guifi_domain_form($form_state, $params = array()) {
   );
   } else {
     $form['main']['ipv4'] = array(
-      '#type'=>'hidden',
+      '#type' => 'hidden',
       '#title' => t('Nameserver IP Address'),
       '#default_value'=> $form_state['values']['ipv4'],
     );
   }
 
   $form['main']['defipv4'] = array(
-    '#type'=>'textfield',
+    '#type' => 'textfield',
     '#title' => t("Default Domain IP Address"),
     '#default_value' => $form_state['values']['defipv4'],
     '#element_validate' => array('guifi_ipv4_validate'),
@@ -374,21 +374,21 @@ function guifi_domain_form_validate($form,&$form_state) {
   if (count(array_unique($hostname)) < count($hostname)) {
  
     $hosts_array = array();
-    foreach ($form_state['values']['hosts'] as $id=>$host) {
+    foreach ($form_state['values']['hosts'] as $id => $host) {
       if (array_key_exists($host['host'], $hosts_array)) {
         $form_state['values']['hosts'][$id]['duplicate'] = 1;
         $form_state['values']['hosts'][$hosts_array[$host['host']]]['duplicate'] = 1;
       }
       $hosts_array[$host['host']] = $id;
     }
-    foreach($form_state['values']['hosts'] as $id=>$host) {
+    foreach($form_state['values']['hosts'] as $id => $host) {
       if (!empty($host['duplicate'])) {
         form_set_error('hosts]['.$id.'][host', t('Error! Hostname: <strong> %host </strong> duplicated!', array('%host' => $host['host'], '%id' => $id)));  
       }
     }
     unset($host['duplicate']);
   }
-  foreach($form_state['values']['hosts'] as $id=>$host) {
+  foreach($form_state['values']['hosts'] as $id => $host) {
     if (ereg('[^a-z0-9.]', $host['host']))
       form_set_error('hosts]['.$id.'][host', t('Error! Hostname: <strong> %hostname </strong> can only contain lowercase letters, numbers and dots.', array('%hostname' => $host['host'])));
   }
@@ -405,7 +405,7 @@ function guifi_domain_save($edit, $verbose = TRUE, $notify = TRUE) {
   $to_mail = array();
 
   // domain
-  $ndomain = _guifi_db_sql('guifi_dns_domains',array('id'=>$edit['id']),$edit,$log,$to_mail);
+  $ndomain = _guifi_db_sql('guifi_dns_domains',array('id' => $edit['id']),$edit,$log,$to_mail);
 
   guifi_log(GUIFILOG_TRACE,
     sprintf('domain saved:'),
@@ -417,12 +417,12 @@ function guifi_domain_save($edit, $verbose = TRUE, $notify = TRUE) {
   if (is_array($edit['hosts']))
     ksort($edit['hosts']);
   $rc = 0;
-  if ($edit['hosts']) foreach ($edit['hosts'] as $counter=>$host) {
+  if ($edit['hosts']) foreach ($edit['hosts'] as $counter => $host) {
     $keys['id'] = $ndomain['id'];
     $keys['counter']=$counter;
     $host['id'] = $ndomain['id'];
     $host['counter'] = $rc;
-    foreach ($host['aliases'] as $key=>$name)
+    foreach ($host['aliases'] as $key => $name)
       if (empty($name))
         unset($host['aliases'][$key]);
     if($host['aliases'])
@@ -521,7 +521,7 @@ function guifi_domain_delete_confirm($form_state,$params) {
     '#name'  => 'confirm',
     '#weight' => 1,
   );
-  drupal_set_title(t('Delete domain: (%name)',array('%name'=>$params['name'])));
+  drupal_set_title(t('Delete domain: (%name)',array('%name' => $params['name'])));
   variable_set('guifi_refresh_dns',time());
   return $form;
 }
@@ -535,7 +535,7 @@ function guifi_domain_delete($domain, $notify = TRUE, $verbose = TRUE) {
 
   if ($_POST['confirm']) {
     $log = _guifi_db_delete('guifi_dns_domains',
-        array('id'=>$domain['id']),
+        array('id' => $domain['id']),
         $to_mail);
     drupal_set_message($log);
 
@@ -553,11 +553,11 @@ function guifi_domain_delete($domain, $notify = TRUE, $verbose = TRUE) {
     drupal_goto('node/'.$domain['sid']);
   }
 
-  $node = node_load(array('nid'=>$domain['sid']));
+  $node = node_load(array('nid' => $domain['sid']));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
 
   $output = drupal_get_form('guifi_domain_delete_confirm',
-    array('name'=>$domain['name'],'id'=>$domain['id']));
+    array('name' => $domain['name'],'id' => $domain['id']));
   print theme('page',$output, FALSE);
   return;
 }
@@ -567,13 +567,13 @@ function guifi_domain_add() {
   guifi_log(GUIFILOG_TRACE,'function guifi_domain_add()');
 
   $output = drupal_get_form('guifi_domain_form',array(
-    'add'=>arg(3),
-    'dname'=>arg(4),
-    'type'=>arg(5),
-    'ipv4'=>arg(6),
-    'mname'=>arg(7),
-    'scope'=>arg(8),
-    'management'=>arg(9)));
+    'add' => arg(3),
+    'dname' => arg(4),
+    'type' => arg(5),
+    'ipv4' => arg(6),
+    'mname' => arg(7),
+    'scope' => arg(8),
+    'management' => arg(9)));
     
   // To gain space, save bandwith and CPU, omit blocks
   print theme('page', $output, FALSE);
@@ -652,9 +652,9 @@ function guifi_domain_create_form($form_state, $node) {
       '#value' => '0',
     );
     $form['domain_type_form']['submit'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
-    '#attributes'=>array('title'=>t('add')),
+    '#type' => 'image_button',
+    '#src' => drupal_get_path('module', 'guifi').'/icons/add.png',
+    '#attributes' => array('title' => t('add')),
     '#executes_submit_callback' => TRUE,
     '#submit' => array(guifi_domain_create_form_submit),
     '#prefix' => '<td>',
@@ -714,9 +714,9 @@ function guifi_domain_create_form($form_state, $node) {
       '#value' => $ip[ipv4],
     );
     $form['domain_type_form']['submit'] = array(
-    '#type'=>'image_button',
-    '#src'=>drupal_get_path('module', 'guifi').'/icons/add.png',
-    '#attributes'=>array('title'=>t('add')),
+    '#type' => 'image_button',
+    '#src' => drupal_get_path('module', 'guifi').'/icons/add.png',
+    '#attributes' => array('title' => t('add')),
     '#executes_submit_callback' => TRUE,
     '#submit' => array(guifi_domain_create_form_submit),
     '#prefix' => '<td>',
@@ -751,7 +751,7 @@ function guifi_domain_create($nid) {
 function guifi_domain_print_data($domain) {
 
   $rows[] = array($domain['name']);
-  $rows[] = array(array('data'=>theme_guifi_contacts($domain),'colspan'=>0));
+  $rows[] = array(array('data' => theme_guifi_contacts($domain),'colspan' => 0));
 
   return array_merge($rows);
 }
@@ -785,7 +785,7 @@ function guifi_domain_print($domain = NULL) {
 
   $output .= '</div>';
 
-  drupal_set_title(t('View domain %dname',array('%dname'=>$domain['name'])));
+  drupal_set_title(t('View domain %dname',array('%dname' => $domain['name'])));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
   return;

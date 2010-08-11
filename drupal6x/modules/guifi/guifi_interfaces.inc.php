@@ -39,21 +39,21 @@ function guifi_interfaces_form(&$interface,$ptree) {
     $cable = TRUE;
     if ($interface['interface_type']!='wLan/Lan')
     $f['interface']['interface_type'] = array(
-      '#type'=>'textfield',
-      '#title'=>t('Name'),
-      '#parents'=>array_merge($ptree,array('interface_type')),
-      '#size'=>10,
-      '#maxlength'=>60,
-      '#default_value'=>$interface['interface_type'],
-      '#description'=>t('Will rename the current interface name.')
+      '#type' => 'textfield',
+      '#title' => t('Name'),
+      '#parents' => array_merge($ptree,array('interface_type')),
+      '#size' => 10,
+      '#maxlength' => 60,
+      '#default_value' => $interface['interface_type'],
+      '#description' => t('Will rename the current interface name.')
     );
 
     if (!$interface['new']) {
       $f['interface']['AddCableLink'] = array(
-        '#type'=>'image_button',
-        '#src'=>drupal_get_path('module', 'guifi').'/icons/addprivatecablelink.png',
-        '#parents'=>array_merge($ptree,array('AddCableLink')),
-        '#attributes'=>array('title'=>t('Link to another device at the node using a private network')),
+        '#type' => 'image_button',
+        '#src' => drupal_get_path('module', 'guifi').'/icons/addprivatecablelink.png',
+        '#parents' => array_merge($ptree,array('AddCableLink')),
+        '#attributes' => array('title' => t('Link to another device at the node using a private network')),
         '#ahah' => array(
           'path' => 'guifi/js/add-cable-link/'.$key,
           'wrapper' => 'editInterface-'.$key,
@@ -63,10 +63,10 @@ function guifi_interfaces_form(&$interface,$ptree) {
         )
       );
       $f['interface']['AddPublicSubnet'] = array(
-        '#type'=>'image_button',
-        '#src'=>drupal_get_path('module', 'guifi').'/icons/insertwlan.png',
-        '#parents'=>array_merge($ptree,array('AddPublicSubnet')),
-        '#attributes'=>array('title'=>t('Allocate a Public Subnetwork to the interface')),
+        '#type' => 'image_button',
+        '#src' => drupal_get_path('module', 'guifi').'/icons/insertwlan.png',
+        '#parents' => array_merge($ptree,array('AddPublicSubnet')),
+        '#attributes' => array('title' => t('Allocate a Public Subnetwork to the interface')),
         '#ahah' => array(
           'path' => 'guifi/js/add-subnet-mask/'.$key,
           'wrapper' => 'editInterface-'.$key,
@@ -84,9 +84,9 @@ function guifi_interfaces_form(&$interface,$ptree) {
       );
     } else {
       $f['interface']['msg'] = array(
-        '#type'=>'item',
-        '#title'=>t('New interface'),
-        '#description'=>t('Save to database to add links or allocate subtenworks')
+        '#type' => 'item',
+        '#title' => t('New interface'),
+        '#description' => t('Save to database to add links or allocate subtenworks')
       );
     }
   }
@@ -94,10 +94,10 @@ function guifi_interfaces_form(&$interface,$ptree) {
   // wds/p2p link, allow to create new links
   if ($it == 'wds/p2p')
     $f['interface']['AddWDS'] = array(
-      '#type'=>'image_button',
-      '#src'=>drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
-      '#parents'=>array_merge($ptree,array('AddWDS',$ptree[1],$ptree[2])),
-      '#attributes'=>array('title'=>t('Add WDS/P2P link to extend the backbone')),
+      '#type' => 'image_button',
+      '#src' => drupal_get_path('module', 'guifi').'/icons/wdsp2p.png',
+      '#parents' => array_merge($ptree,array('AddWDS',$ptree[1],$ptree[2])),
+      '#attributes' => array('title' => t('Add WDS/P2P link to extend the backbone')),
       '#submit' => array('guifi_radio_add_wds_submit'),
     );
 
@@ -112,10 +112,10 @@ function guifi_interfaces_form(&$interface,$ptree) {
   } else {
     if (($it != 'wds/p2p') and ($it != 'wLan/Lan') and ($it != 'Wan'))
       $f['interface']['deleteInterface'] = array(
-        '#type'=>'image_button',
-        '#src'=>drupal_get_path('module', 'guifi').'/icons/drop.png',
-        '#parents'=>array_merge($ptree,array('deleteInterface')),
-        '#attributes'=>array('title'=>t('Delete interface')),
+        '#type' => 'image_button',
+        '#src' => drupal_get_path('module', 'guifi').'/icons/drop.png',
+        '#parents' => array_merge($ptree,array('deleteInterface')),
+        '#attributes' => array('title' => t('Delete interface')),
         '#submit' => array('guifi_interfaces_delete_submit'),
       );
   }
@@ -142,10 +142,10 @@ function guifi_interfaces_form(&$interface,$ptree) {
   // Mode Client or client-routed, allow to link to AP
   if ( ($it == 'Wan') and ($ipv4Count == 0) )
     $f['interface']['Link2AP'] = array(
-      '#type'=>'image_button',
-      '#src'=>drupal_get_path('module', 'guifi').'/icons/link2ap.png',
-      '#parents'=>array('Link2AP',$ptree[1],$interface['id']),
-      '#attributes'=>array('title'=>t('Create a simple (ap/client) link to an Access Point')),
+      '#type' => 'image_button',
+      '#src' => drupal_get_path('module', 'guifi').'/icons/link2ap.png',
+      '#parents' => array('Link2AP',$ptree[1],$interface['id']),
+      '#attributes' => array('title' => t('Create a simple (ap/client) link to an Access Point')),
       '#submit' => array('guifi_radio_add_link2ap_submit'),
     );
 
@@ -196,20 +196,20 @@ function guifi_interfaces_cable_form(&$edit) {
     '/icons/interface.png"> '.t('Cable connections section');
 
   $form['interfaces']['ifs'] = array(
-    '#prefix'=>'<div id="add-interface">',
-    '#suffix'=>'</div>'
+    '#prefix' => '<div id="add-interface">',
+    '#suffix' => '</div>'
   );
 
-  foreach ($edit['interfaces'] as $iid=>$interface) {
+  foreach ($edit['interfaces'] as $iid => $interface) {
     $form['interfaces']['ifs'][$interface['interface_type']][$iid] =
       guifi_interfaces_form($interface,array('interfaces',$iid));
   } // foreach interface
 
   $form['interfaces']['addInterface'] = array(
-        '#type'=>'image_button',
+        '#type' => 'image_button',
         '#src'=> drupal_get_path('module', 'guifi').'/icons/addinterface.png',
-        '#parents'=>array('addInterface'),
-        '#attributes'=>array('title'=>t('Add Interface for cable connections')),
+        '#parents' => array('addInterface'),
+        '#attributes' => array('title' => t('Add Interface for cable connections')),
         '#ahah' => array(
           'path' => 'guifi/js/add-interface',
           'wrapper' => 'add-interface',
@@ -235,8 +235,8 @@ function guifi_interfaces_add_subnet_submit(&$form,&$form_state) {
   $net = guifi_ipcalc_get_subnet_by_nid($form_state['values']['nid'],$mask,'public',$ips_allocated);
 //  guifi_log(GUIFULOG_TRACE,"IPs allocated: ".count($ips_allocated)." Obtained new net: ".$net."/".$edit['newSubnetMask']);
   drupal_set_message(t('New subnetwork %net/%mask will be allocated.',
-    array('%net'=>$net,
-      '%mask'=>$mask)));
+    array('%net' => $net,
+      '%mask' => $mask)));
   $ipv4['new']=TRUE;
   $ipv4['ipv4_type']=1;
   $ipv4['ipv4']=long2ip(ip2long($net) + 1);

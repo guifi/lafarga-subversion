@@ -205,8 +205,8 @@ bgp router-id '.$lan->ipv4.'
 ';
   foreach ($dev->radios as $radio_id => $radio) 
     foreach ($radio[interfaces] as $interface_id => $interface)
-      foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-        foreach ($ipv4[links] as $link_id=>$link)
+      foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+        foreach ($ipv4[links] as $link_id => $link)
           if ($link['routing'] == 'BGP')
             print 'neighbor '.$link['interface']['ipv4']['ipv4'].' remote-as '.$link['device_id'].'
 ';

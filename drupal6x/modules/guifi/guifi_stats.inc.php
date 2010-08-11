@@ -76,7 +76,7 @@ function guifi_growthmap_map_form($form_state) {
     '#name' => 'formmap2',
     '#default_value' => '',
     '#size' => 63,
-    '#attributes' => array('style'=>'margin:5px;text-align:center;font-size:24px'),
+    '#attributes' => array('style' => 'margin:5px;text-align:center;font-size:24px'),
     '#prefix' => '<div style="align:center">',
     '#suffix' => '</div>'
   );
@@ -221,7 +221,7 @@ function guifi_stats_chart01(){ //growth_chart
     if($zone_id!="0"){
       $achilds=guifi_zone_childs($zone_id);
       $v="";
-      foreach ($achilds as $key=>$child) {
+      foreach ($achilds as $key => $child) {
         if($v=="")
           $v .= "zone_id=".$child;
         else
@@ -375,7 +375,7 @@ function guifi_stats_chart02(){
     if($zone_id!="0"){
       $achilds=guifi_zone_childs($zone_id);
       $v="";
-      foreach ($achilds as $key=>$child) {
+      foreach ($achilds as $key => $child) {
         if($v=="")
           $v .= "zone_id=".$child;
         else
@@ -470,7 +470,7 @@ function guifi_stats_chart03(){
     if($zone_id!="0"){
       $achilds=guifi_zone_childs($zone_id);
       $v="";
-      foreach ($achilds as $key=>$child) {
+      foreach ($achilds as $key => $child) {
         if($v=="")
           $v .= "zone_id=".$child;
         else
@@ -574,7 +574,7 @@ function guifi_stats_chart04(){
     if($zone_id!="0"){
       $achilds=guifi_zone_childs($zone_id);
       $v="";
-      foreach ($achilds as $key=>$child) {
+      foreach ($achilds as $key => $child) {
         if($v=="")
           $v .= "zone_id=".$child;
         else
@@ -663,7 +663,7 @@ function guifi_stats_chart05($nmonths){
     if($zone_id!="0"){
       $achilds=guifi_zone_childs($zone_id);
       $v="";
-      foreach ($achilds as $key=>$child) {
+      foreach ($achilds as $key => $child) {
         if($v=="")
           $v .= "zone_id=".$child;
         else

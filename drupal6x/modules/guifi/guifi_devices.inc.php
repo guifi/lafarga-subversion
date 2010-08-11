@@ -17,7 +17,7 @@ function guifi_device_load($id,$ret = 'array') {
      AND d.nid = l.id AND l.zone_id=z.id',
     $id));
   if (empty($device)) {
-    drupal_set_message(t('Device (%num) does not exist.',array('%num'=>$id)));
+    drupal_set_message(t('Device (%num) does not exist.',array('%num' => $id)));
     return;
   }
   if (!empty($device['extra']))
@@ -88,7 +88,7 @@ function guifi_device_load($id,$ret = 'array') {
         }
         asort($ipdec);
 
-        foreach($ipdec as $ka=>$foo) {
+        foreach($ipdec as $ka => $foo) {
           $a = $iparr[$ka];
           $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']]['ipv4'][$a['id']] = $a;
           // get linked devices
@@ -132,7 +132,7 @@ function guifi_device_load($id,$ret = 'array') {
           } // each link
 
           asort($ipdec2);
-          foreach ($ipdec2 as $ka2=>$foo) {
+          foreach ($ipdec2 as $ka2 => $foo) {
             $device['radios'][$radio['radiodev_counter']]['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$iparr2[$ka2]['id']] = $iparr2[$ka2];
           }
         }
@@ -177,7 +177,7 @@ function guifi_device_load($id,$ret = 'array') {
 
     asort($ipdec);
 
-    foreach($ipdec as $ka=>$foo) {
+    foreach($ipdec as $ka => $foo) {
       $a = $iparr[$ka];
       $device['interfaces'][$i['id']]['ipv4'][$a['id']] = $a;
 
@@ -219,7 +219,7 @@ function guifi_device_load($id,$ret = 'array') {
 
         asort($ipdec2);
 
-        foreach ($ipdec2 as $ka2=>$foo)
+        foreach ($ipdec2 as $ka2 => $foo)
           $device['interfaces'][$i['id']]['ipv4'][$a['id']]['links'][$l['id']] =
             $iparr2[$ka2];
       } // foreach link
@@ -252,7 +252,7 @@ function guifi_device_access($op, $id) {
   else
     $device = guifi_device_load($id);
 
-  $node = node_load(array('nid'=>$device['nid']));
+  $node = node_load(array('nid' => $device['nid']));
 
   switch($op) {
     case 'create':
@@ -367,7 +367,7 @@ function guifi_device_form($form_state, $params = array()) {
   }
 
   // Loading node & zone where the device belongs to (some information will be used)
-  $node = node_load(array('nid'=>$form_state['values']['nid']));
+  $node = node_load(array('nid' => $form_state['values']['nid']));
   $zone = node_load($node->zone_id);
 
   // Setting the breadcrumb
@@ -430,24 +430,24 @@ function guifi_device_form($form_state, $params = array()) {
 
   if ($form_state['values']['id'])
     $form['id'] = array(
-      '#type'=>'hidden',
-      '#name'=>'id',
+      '#type' => 'hidden',
+      '#name' => 'id',
       '#value'=> $form_state['values']['id']
     );
   else
     $form['new'] = array(
-      '#type'=>'hidden',
-      '#name'=>'new',
+      '#type' => 'hidden',
+      '#name' => 'new',
       '#value'=> TRUE
     );
   $form['type'] = array(
-    '#type'=>'hidden',
-    '#name'=>'type',
+    '#type' => 'hidden',
+    '#name' => 'type',
     '#value'=> $form_state['values']['type']
   );
   $form['zone_mode'] = array(
-    '#type'=>'hidden',
-    '#name'=>'zone_mode',
+    '#type' => 'hidden',
+    '#name' => 'zone_mode',
     '#value'=> $form_state['values']['zone_mode']
   );
 
@@ -476,25 +476,25 @@ function guifi_device_form($form_state, $params = array()) {
   );
 
   $form['main']['movenode'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Node'),
-    '#maxlength'=>60,
-    '#default_value'=>$form_state['values']['nid'].'-'.
+    '#type' => 'textfield',
+    '#title' => t('Node'),
+    '#maxlength' => 60,
+    '#default_value' => $form_state['values']['nid'].'-'.
         guifi_get_zone_nick(guifi_get_zone_of_node(
           $form_state['values']['nid'])).', '.
         guifi_get_nodename($form_state['values']['nid']),
     '#autocomplete_path'=> 'guifi/js/select-node',
     '#element_validate' => array('guifi_nodename_validate'),
-    '#description'=>t('Select the node where the device is.<br />' .
+    '#description' => t('Select the node where the device is.<br />' .
         'You can find the node by introducing part of the node id number, ' .
         'zone name or node name. A list with all matching values ' .
         'with a maximum of 50 values will be created.<br />' .
         'You can refine the text to find your choice.')
   );
   $form['main']['nid'] = array(
-    '#type'=>'hidden',
+    '#type' => 'hidden',
     '#value'=> $form_state['values']['nid'],
-    //'#suffix'=>'</div>'
+    //'#suffix' => '</div>'
   );
 
   $form['main']['nick'] = array(
@@ -503,7 +503,7 @@ function guifi_device_form($form_state, $params = array()) {
     '#maxlength' => 128,
     '#title' => t('nick'),
     '#required' => TRUE,
-    '#attributes' => array('class'=>'required'),
+    '#attributes' => array('class' => 'required'),
     '#default_value' => $form_state['values']['nick'],
     '#description' =>  t('The name of the device.<br />Used as a hostname, SSID, etc...')
   );
@@ -532,7 +532,7 @@ function guifi_device_form($form_state, $params = array()) {
       '#title' => t("Server which collects traffic and availability data"),
       '#required' => FALSE,
       '#default_value' => ($node->graph_server ? $node->graph_server : 0),
-      '#options' => array('0'=>t('Default'),'-1'=>t('None')) + guifi_services_select('SNPgraphs'),
+      '#options' => array('0' => t('Default'),'-1' => t('None')) + guifi_services_select('SNPgraphs'),
       '#description' => t("If not specified, inherits zone properties."),
     );
   }
@@ -547,7 +547,7 @@ function guifi_device_form($form_state, $params = array()) {
   }
 
   // Cable interfaces/links
-//  foreach ($form_state['values']['interfaces'] as $iid=>$interface)
+//  foreach ($form_state['values']['interfaces'] as $iid => $interface)
 //    $form['if'][$iid] =
 //        guifi_device_interface_form($interface,array('interfaces',$iid));
   $form['if'] = guifi_interfaces_cable_form($form_state['values']);
@@ -623,11 +623,11 @@ function guifi_device_form_validate($form,&$form_state) {
   // no duplicate names on cable interfaces
   $ifs = array();
   if (count($form_state['values']['interfaces']))
-  foreach ($form_state['values']['interfaces'] as $iid=>$interface) {
+  foreach ($form_state['values']['interfaces'] as $iid => $interface) {
     if (in_array($interface['interface_type'],$ifs)) {
       form_set_error("interfaces][$iid][interface_type",
         t('Interface name %name duplicated',
-          array('%name'=>$interface['interface_type'])));
+          array('%name' => $interface['interface_type'])));
       break;
     }
     $ifs[] = $interface['interface_type'];
@@ -647,7 +647,7 @@ function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
 
   // device
   $edit['extra'] = serialize($edit['variable']);
-  $ndevice = _guifi_db_sql('guifi_devices',array('id'=>$edit['id']),$edit,$log,$to_mail);
+  $ndevice = _guifi_db_sql('guifi_devices',array('id' => $edit['id']),$edit,$log,$to_mail);
 
   guifi_log(GUIFILOG_TRACE,
     sprintf('device saved:'),
@@ -660,7 +660,7 @@ function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
   if (is_array($edit['radios']))
     ksort($edit['radios']);
   $rc = 0;
-  if ($edit['radios']) foreach ($edit['radios'] as $radiodev_counter=>$radio) {
+  if ($edit['radios']) foreach ($edit['radios'] as $radiodev_counter => $radio) {
     $keys['id'] = $ndevice['id'];
     $keys['radiodev_counter']=$radiodev_counter;
     $radio['id'] = $ndevice['id'];
@@ -693,17 +693,17 @@ function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
       $radio['radiodev_counter'] = $nrc['rc'];
 
       drupal_set_message(t('Radio# %id has been moved to radio# %id2 at device %dname',
-        array('%id'=>$rc,
-          '%id2'=>$radio['radiodev_counter'],
-          '%dname'=>guifi_get_hostname($radio['to_did'])
+        array('%id' => $rc,
+          '%id2' => $radio['radiodev_counter'],
+          '%dname' => guifi_get_hostname($radio['to_did'])
         )));
 
       // -if has wLan/Lan interface:
       //   -convert to wlan if is not going a be the main radio
       //   -don't save it again at cable interfaces section'
-      if ($radio['interfaces']) foreach ($radio['interfaces'] as $iid=>$interface)
+      if ($radio['interfaces']) foreach ($radio['interfaces'] as $iid => $interface)
         if ($interface['interface_type'] == 'wLan/Lan') {
-          foreach ($edit['interfaces'] as $ciid=>$cinterface)
+          foreach ($edit['interfaces'] as $ciid => $cinterface)
             // unset from cable section
             if ($cinterface['interface_type']=='wLan/Lan')
               unset($edit['interfaces'][$ciid]);
@@ -719,7 +719,7 @@ function guifi_device_save($edit, $verbose = TRUE, $notify = TRUE) {
       continue;
 
     // interfaces
-    if ($radio['interfaces']) foreach ($radio['interfaces'] as $interface_id=>$interface) {
+    if ($radio['interfaces']) foreach ($radio['interfaces'] as $interface_id => $interface) {
       $interface['device_id'] = $radio['id'];
       $interface['mac'] = $radio['mac'];
       $interface['radiodev_counter'] = $nradio['radiodev_counter'];
@@ -773,7 +773,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
 
   $ninterface = _guifi_db_sql(
     'guifi_interfaces',
-    array('id'=>$iid),$interface,$log,$to_mail);
+    array('id' => $iid),$interface,$log,$to_mail);
   if (!isset($ninterface['id']))
     $ninterface['id'] = $iid;
 
@@ -782,7 +782,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
 
   guifi_log(GUIFILOG_TRACE,'SQL interface',$ninterface);
   // ipv4
-  if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4) {
+  if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id => $ipv4) {
     $ipv4['interface_id'] = $ninterface['id'];
     guifi_log(GUIFILOG_TRACE,sprintf('SQL ipv4 local (id=%d, iid=%d)', $ipv4_id, $ipv4['interface_id']), $ipv4);
 
@@ -791,7 +791,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
 
     $nipv4 = _guifi_db_sql(
       'guifi_ipv4',
-      array('id'=>$ipv4_id,'interface_id'=>$ipv4['interface_id']),$ipv4,$log,$to_mail);
+      array('id' => $ipv4_id,'interface_id' => $ipv4['interface_id']),$ipv4,$log,$to_mail);
 
     if (empty($nipv4) or ($ipv4['deleted']))
       continue;
@@ -806,7 +806,7 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
       guifi_log(GUIFILOG_TRACE,'going to SQL for local link',$llink);
       $nllink = _guifi_db_sql(
         'guifi_links',
-        array('id'=>$link['id'],'device_id'=>$did),$llink,$log,$to_mail);
+        array('id' => $link['id'],'device_id' => $did),$llink,$log,$to_mail);
       if (empty($nllink) or ($llink['deleted']))
         continue;
 
@@ -820,16 +820,16 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
           $link['interface']);
         $rinterface = _guifi_db_sql(
           'guifi_interfaces',
-          array('id'=>$link['interface']['id'],
-            'radiodev_counter'=>$link['interface']['radiodev_counter']),
+          array('id' => $link['interface']['id'],
+            'radiodev_counter' => $link['interface']['radiodev_counter']),
             $link['interface'],$log,$to_mail);
       }
       if ($link['interface']['ipv4']) {
         if ($ipv4['netmask'] != $link['interface']['ipv4']['netmask']) {
           $log .= t('Netmask on remote link %nname - %type was adjusted to %mask',
-            array('%nname'=>guifi_get_hostname($llink['device_id']),
-              '%type'=>$interface['interface_type'],
-              '%mask'=>$ipv4['netmask']));
+            array('%nname' => guifi_get_hostname($llink['device_id']),
+              '%type' => $interface['interface_type'],
+              '%mask' => $ipv4['netmask']));
           $link['interface']['ipv4']['netmask'] = $ipv4['netmask'];
         }
         $link['interface']['ipv4']['interface_id'] = $rinterface['id'];
@@ -841,8 +841,8 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
           $link['interface']);
         $ripv4 = _guifi_db_sql(
           'guifi_ipv4',
-          array('id'=>$link['interface']['ipv4']['id'],
-            'interface_id'=>$link['interface']['ipv4']['interface_id']),
+          array('id' => $link['interface']['ipv4']['id'],
+            'interface_id' => $link['interface']['ipv4']['interface_id']),
             $link['interface']['ipv4'],$log,$to_mail);
       }
       if (!$llink['deleted']) {
@@ -851,8 +851,8 @@ function guifi_device_interface_save($interface,$iid,$did,$nid,&$to_mail) {
         $link['interface_id'] = $rinterface['id'];
         $nrlink = _guifi_db_sql(
           'guifi_links',
-          array('id'=>$link['id'],
-          'device_id'=>$link['device_id']),
+          array('id' => $link['id'],
+          'device_id' => $link['device_id']),
           $link,$log,$to_mail);
         guifi_log(GUIFILOG_TRACE,'going to SQL for remote link',$nllink);
       }
@@ -922,7 +922,7 @@ function guifi_device_delete_confirm($form_state,$params) {
     '#name'  => 'confirm',
     '#weight' => 1,
   );
-  drupal_set_title(t('Delete device: (%name)',array('%name'=>$params['name'])));
+  drupal_set_title(t('Delete device: (%name)',array('%name' => $params['name'])));
 
   return $form;
 }
@@ -936,7 +936,7 @@ function guifi_device_delete($device, $notify = TRUE, $verbose = TRUE) {
 
   if ($_POST['confirm']) {
     $log = _guifi_db_delete('guifi_devices',
-        array('id'=>$device['id']),
+        array('id' => $device['id']),
         $to_mail);
     drupal_set_message($log);
 
@@ -954,11 +954,11 @@ function guifi_device_delete($device, $notify = TRUE, $verbose = TRUE) {
     drupal_goto('node/'.$device['nid']);
   }
 
-  $node = node_load(array('nid'=>$device['nid']));
+  $node = node_load(array('nid' => $device['nid']));
   drupal_set_breadcrumb(guifi_node_ariadna($node));
 
   $output = drupal_get_form('guifi_device_delete_confirm',
-    array('name'=>$device['nick'],'id'=>$device['id']));
+    array('name' => $device['nick'],'id' => $device['id']));
   print theme('page',$output, FALSE);
   return;
 }
@@ -967,8 +967,8 @@ function guifi_device_delete($device, $notify = TRUE, $verbose = TRUE) {
 function guifi_device_add() {
   guifi_log(GUIFILOG_TRACE,'function guifi_device_add()');
 
-  $output = drupal_get_form('guifi_device_form',array('add'=>arg(3),
-                                                    'type'=>arg(4)));
+  $output = drupal_get_form('guifi_device_form',array('add' => arg(3),
+                                                    'type' => arg(4)));
   // To gain space, save bandwith and CPU, omit blocks
   print theme('page', $output, FALSE);
 }
@@ -1043,9 +1043,9 @@ function guifi_ADSL_form($edit) {
   $form['variable'] = array(
     '#type' => 'fieldset',
     '#title' => t('DSL information & MRTG parameters'),
-    '#collapsible'=>TRUE,
-    '#collapsed'=>FALSE,
-    '#tree'=>TRUE
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE
   );
   $form['variable']['download'] = array(
     '#type' => 'select',
@@ -1071,9 +1071,9 @@ function guifi_generic_form($edit) {
   $form['variable'] = array(
     '#type' => 'fieldset',
     '#title' => t('DSL information & MRTG parameters'),
-    '#collapsible'=>TRUE,
-    '#collapsed'=>FALSE,
-    '#tree'=>TRUE
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE
   );
   if (!isset($edit['variable']['mrtg_index']))
     $edit['variable']['mrtg_index'] = 4;
@@ -1098,19 +1098,19 @@ function guifi_device_mrtg_form($mrtg) {
 }
 
 function guifi_bandwidth_types() {
-  return    array(  '64000'=>'64k',
-                               '128000'=>'128k',
-                               '256000'=>'256k',
-                               '512000'=>'512k',
-                               '640000'=>'640k',
-                               '1000000'=>'1M',
-                               '2000000'=>'2M',
-                               '4000000'=>'4M',
-                               '8000000'=>'8M',
-                               '10000000'=>'10M',
-                               '12000000'=>'12M',
-                               '20000000'=>'20M',
-                               '40000000'=>'40M');
+  return    array(  '64000' => '64k',
+                               '128000' => '128k',
+                               '256000' => '256k',
+                               '512000' => '512k',
+                               '640000' => '640k',
+                               '1000000' => '1M',
+                               '2000000' => '2M',
+                               '4000000' => '4M',
+                               '8000000' => '8M',
+                               '10000000' => '10M',
+                               '12000000' => '12M',
+                               '20000000' => '20M',
+                               '40000000' => '40M');
 }
 
 /****************************************
@@ -1138,7 +1138,7 @@ function guifi_device_print_data($device) {
     $rows[] = array($model->model,$device['variable']['firmware']);
     // going to list all device radios
     if (count($device['radios'])) {
-      foreach ($device['radios'] as $radio_id=>$radio) {
+      foreach ($device['radios'] as $radio_id => $radio) {
         $rowsr[] = array(
           $radio['ssid'],
           $radio['mode'],
@@ -1148,9 +1148,9 @@ function guifi_device_print_data($device) {
           $radio['clients_accepted']
         );
       }
-      $rows[] =  array(array('data'=>theme('table',
+      $rows[] =  array(array('data' => theme('table',
         array(t('ssid'),t('mode'),t('protocol'),t('ch'),t('wireless mac'),
-            t('clients')),$rowsr),'colspan'=>2));
+            t('clients')),$rowsr),'colspan' => 2));
     }
   }
 
@@ -1166,24 +1166,24 @@ function guifi_device_print_data($device) {
   }
 
   if ($device['graph_server']>0)
-    $gs = node_load(array('nid'=>$device['graph_server']));
+    $gs = node_load(array('nid' => $device['graph_server']));
   else
-    $gs = node_load(array('nid'=>guifi_graphs_get_server($device['id'],'device')));
+    $gs = node_load(array('nid' => guifi_graphs_get_server($device['id'],'device')));
 
   $rows[] = array(t('graphs provided from'),array(
-    'data'=>l(guifi_service_str($device['graph_server']),
-              $gs->l, array('attributes'=>array('title'=>$gs->nick.' - '.$gs->title))),
-    'colspan'=>2));
+    'data' => l(guifi_service_str($device['graph_server']),
+              $gs->l, array('attributes' => array('title' => $gs->nick.' - '.$gs->title))),
+    'colspan' => 2));
 
   $ip = guifi_main_ip($device[id]);
   $rows[] = array(t('IP address & MAC'),$ip[ipv4].'/'.$ip[maskbits].' '.$device[mac]);
 
   $status_url = guifi_cnml_availability(
-       array('device'=>$device['id'],'format'=>'long'),$gs);
+       array('device' => $device['id'],'format' => 'long'),$gs);
 
   $rows[] = array(t('status &#038; availability'),array('data' => t($device[flag]).$status_url,'class' => $device['flag']));
 
-  $rows[] = array(array('data'=>theme_guifi_contacts($device),'colspan'=>0));
+  $rows[] = array(array('data' => theme_guifi_contacts($device),'colspan' => 0));
 
   return array_merge($rows);
 }
@@ -1260,7 +1260,7 @@ function guifi_device_print($device = NULL) {
 
   $output .= '</div>';
 
-  drupal_set_title(t('View device %dname',array('%dname'=>$device['nick'])));
+  drupal_set_title(t('View device %dname',array('%dname' => $device['nick'])));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
   return;
@@ -1281,9 +1281,9 @@ function guifi_device_links_print($device,$ltype = '%') {
   else
     $title = t('links').' ('.$ltype.')';
 
-  $rows_wds[] = array(array('data'=>'<strong>'.t('bridge wds/p2p').'</strong>','colspan'=>2));
-  $rows_ap_client[] = array(array('data'=>'<strong>'.t('ap/client').'</strong>','colspan'=>2));
-  $rows_cable[] = array(array('data'=>'<strong>'.t('cable').'</strong>','colspan'=>2));
+  $rows_wds[] = array(array('data' => '<strong>'.t('bridge wds/p2p').'</strong>','colspan' => 2));
+  $rows_ap_client[] = array(array('data' => '<strong>'.t('ap/client').'</strong>','colspan' => 2));
+  $rows_cable[] = array(array('data' => '<strong>'.t('cable').'</strong>','colspan' => 2));
   $rows=array();
   $loc1 = db_fetch_object(db_query(
     'SELECT lat, lon, nick ' .
@@ -1296,10 +1296,10 @@ function guifi_device_links_print($device,$ltype = '%') {
   case '%':
   case 'wds':
   case 'ap/client':
-    if ($device['radios']) foreach ($device['radios'] as $radio_id=>$radio)
-    if ($radio['interfaces']) foreach ($radio['interfaces'] as $interface_id=>$interface)
-    if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
-    if ($ipv4['links']) foreach ($ipv4['links'] as $link_id=>$link) {
+    if ($device['radios']) foreach ($device['radios'] as $radio_id => $radio)
+    if ($radio['interfaces']) foreach ($radio['interfaces'] as $interface_id => $interface)
+    if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id => $ipv4)
+    if ($ipv4['links']) foreach ($ipv4['links'] as $link_id => $link) {
       guifi_log(GUIFILOG_FULL,'going to list link',$link);
       $loc2 = db_fetch_object(db_query(
         'SELECT lat, lon, nick FROM {guifi_location} WHERE id=%d',
@@ -1320,7 +1320,7 @@ function guifi_device_links_print($device,$ltype = '%') {
       $ipdest = explode('.',$link['interface']['ipv4']['ipv4']);
 
       $status_url = guifi_cnml_availability(
-          array('device'=>$link['device_id'],'format'=>'short'));
+          array('device' => $link['device_id'],'format' => 'short'));
 
       $cr = db_fetch_object(db_query("SELECT count(*) count FROM {guifi_radios} r WHERE id=%d",$link['device_id']));
       if ($cr->count > 1) {
@@ -1331,7 +1331,7 @@ function guifi_device_links_print($device,$ltype = '%') {
         $dname = guifi_get_hostname($link['device_id']);
 
       $wrow = array('<small>'.$radio['ssid'].'</small>',
-                    array('data'=>$link_id,'align'=>'right'),
+                    array('data' => $link_id,'align' => 'right'),
                     '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.$dname.'</a>',
                     '<a href="'.base_path().'node/'.$link['nid'].'">'.$loc2->nick.'</a>',
                     $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
@@ -1350,9 +1350,9 @@ function guifi_device_links_print($device,$ltype = '%') {
     }
     if ($ltype != '%') break;
   case 'cable':
-    if ($device['interfaces']) foreach ($device['interfaces'] as $interface_id=>$interface)
-    if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id=>$ipv4)
-    if ($ipv4['links']) foreach ($ipv4['links'] as $link_id=>$link) {
+    if ($device['interfaces']) foreach ($device['interfaces'] as $interface_id => $interface)
+    if ($interface['ipv4']) foreach ($interface['ipv4'] as $ipv4_id => $ipv4)
+    if ($ipv4['links']) foreach ($ipv4['links'] as $link_id => $link) {
       $loc2 = db_fetch_object(db_query('SELECT lat, lon, nick FROM {guifi_location} WHERE id=%d',$link['nid']));
       $gDist = round($oGC->EllipsoidDistance($loc1->lat, $loc1->lon, $loc2->lat, $loc2->lon),3);
       $item = _ipcalc( $ipv4['ipv4'],  $ipv4['netmask']);
@@ -1362,15 +1362,15 @@ function guifi_device_links_print($device,$ltype = '%') {
       else
         $img_url = NULL;
       $rows_cable[] = array($interface['interface_type'].'/'.$link['interface']['interface_type'],
-                       array('data'=>$link_id,'align'=>'right'),
+                       array('data' => $link_id,'align' => 'right'),
                        '<a href="'.base_path().'guifi/device/'.$link['device_id'].'">'.guifi_get_hostname($link['device_id']).'</a>',
-                       array('data'=>'-','align'=>'center'),
+                       array('data' => '-','align' => 'center'),
                        $ipv4['ipv4'].'/'.$item['maskbits'],'.'.$ipdest[3],
                        array('data' => t($link['flag']). $img_url,
                              'class' => $link['flag']),
                        $link[routing],
-                       array('data'=>'-','align'=>'center') ,
-                       array('data'=>'-','align'=>'center'));
+                       array('data' => '-','align' => 'center') ,
+                       array('data' => '-','align' => 'center'));
       $ltotal++;
     }
     if ($ltype == 'cable') break;

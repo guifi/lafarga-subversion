@@ -42,7 +42,7 @@ function guifi_schema() {
          'notification' => array('type' => 'varchar', 'length' => '1024', 'not NULL' => TRUE),
          'status_flag' => array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE, 'default' => 'Planned'),
          'stable' => array('comment' => 'Yes,No', 'type' => 'varchar', 'length' => '25', 'not NULL' => TRUE, 'default' => 'Yes'),
-         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment' => 'FK to guifi_services (SNPGraphs)'),
          'user_created' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
          'user_changed' => array('type' => 'int', 'not NULL' => FALSE, 'disp-width' => '10'),
          'timestamp_created' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '11'),
@@ -78,9 +78,9 @@ function guifi_schema() {
          'body' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
          'master' => array('COMMENT' => 'references parent zone guifi_zone(id)', 'type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '5'),
          'zone_mode' => array('type' => 'varchar', 'length' => 25, 'not NULL' => TRUE, 'default' => 'infrastructure', 'COMMENT' => 'infrastructure/ad-hoc'),
-         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
-         'proxy_id' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (proxy)'),
-         'voip_id' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (VoIP)'),
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment' => 'FK to guifi_services (SNPGraphs)'),
+         'proxy_id' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment' => 'FK to guifi_services (proxy)'),
+         'voip_id' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment' => 'FK to guifi_services (VoIP)'),
          'time_zone' => array('type' => 'varchar', 'length' => '15', 'not NULL' => TRUE),
          'dns_servers' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
          'ntp_servers' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
@@ -88,11 +88,11 @@ function guifi_schema() {
          'homepage' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
          'notification' => array('type' => 'varchar', 'length' => '1024', 'not NULL' => TRUE),
          'ospf_zone' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
-         'minx' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not NULL' => FALSE),
-         'miny' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not NULL' => FALSE),
-         'maxx' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not NULL' => FALSE),
-         'maxy' => array('type' => 'numeric', 'precision'=>'10', 'scale' => '6', 'not NULL' => FALSE),
-         'local' => array('comment'=>'Yes, No', 'type' => 'varchar', 'length' => '5', 'not NULL' => TRUE, 'default' => 'Yes'),
+         'minx' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not NULL' => FALSE),
+         'miny' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not NULL' => FALSE),
+         'maxx' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not NULL' => FALSE),
+         'maxy' => array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not NULL' => FALSE),
+         'local' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not NULL' => TRUE, 'default' => 'Yes'),
          'nodexchange_url' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
          'refresh' => array('type' => 'int', 'not NULL' => FALSE, 'disp-width' => '11'),
          'remote_server_id' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
@@ -119,10 +119,10 @@ function guifi_schema() {
          'flag' => array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE, 'default' => 'Planned'),
          'extra' => array('COMMENT' => 'store variable data depending on guifi_devices(type)', 'type' => 'text', 'size' => 'big', 'not NULL' => FALSE),
          'url_mrtg_server' => array('type' => 'varchar', 'length' => '255', 'not NULL' => FALSE),
-         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment'=>'FK to guifi_services (SNPGraphs)'),
+         'graph_server' => array('type' => 'int', 'disp-width' => '11', 'not NULL' => TRUE, 'default'=> '0', 'comment' => 'FK to guifi_services (SNPGraphs)'),
          'last_online' => array('type' => 'int', 'disp-width' => 11, 'not NULL' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been seen online'),
          'last_flag' => array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'),
-         'ly_availability' => array('type' => 'numeric', 'precision' => '11', 'scale'=>'2', 'not NULL' => FALSE, 'default' => NULL),
+         'ly_availability' => array('type' => 'numeric', 'precision' => '11', 'scale' => '2', 'not NULL' => FALSE, 'default' => NULL),
          'last_stats'=> array('type' => 'int', 'disp-width' => 11, 'not NULL' => TRUE, 'default' => 0, 'COMMENT' => 'Last time that this device has been loaded with statistics'),
          'latency_avg'=> array('type' => 'int', 'disp-width' => 11, 'not NULL' => TRUE, 'default' => 0, 'COMMENT' => 'Average latency'),
          'latency_max'=> array('type' => 'int', 'disp-width' => 11, 'not NULL' => TRUE, 'default' => 0, 'COMMENT' => 'Maximum latency'),
@@ -160,7 +160,7 @@ function guifi_schema() {
          'interface_type' => array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE),
          'mac' => array('type' => 'varchar', 'length' => '20', 'not NULL' => TRUE, 'default' => '00:00:00:00:00:00')),
     'primary key' => array('device_id', 'id'),
-    'indexes' =>  array('id'=>array('id'))
+    'indexes' =>  array('id' => array('id'))
   );
 
   $schema['guifi_radios'] = array(
@@ -229,7 +229,7 @@ function guifi_schema() {
          'username' => array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE, 'default' => ''),
          'password' => array('type' => 'varchar', 'length' => '128', 'not NULL' => TRUE, 'default' => ''),
          'email' => array('type' => 'varchar', 'length' => '64', 'not NULL' => FALSE),
-         'content_filters' => array('type' => 'text', 'size' => 'big', 'not NULL' => FALSE, 'default'=>NULL),
+         'content_filters' => array('type' => 'text', 'size' => 'big', 'not NULL' => FALSE, 'default' => NULL),
          'status' => array('type' => 'varchar', 'length' => 25, 'not NULL' => TRUE, 'default' => 'new', 'COMMENT' => 'pending/approved/rejected'),
          'extra' => array('type' => 'text', 'size' => 'big', 'not NULL' => FALSE),
          'user_created' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
@@ -271,7 +271,7 @@ function guifi_schema() {
          'radiodev_max' => array('type' => 'int', 'size' => 'tiny', 'not NULL' => TRUE, 'default' => 1, 'disp-width' => '2'),
          'potencia_max' => array('type' => 'int', 'not NULL' => FALSE, 'disp-width' => '11'),
          'modes' => array('comment' => '802.11bg,802.11b,802.11a,802.11abg,WiMax,802.11n', 'type' => 'varchar', 'length' => '20', 'not NULL' => TRUE, 'default' => '802.11bg'),
-         'AP' => array('comment'=>'Si, No', 'type' => 'varchar', 'length'=>'5', 'not NULL' => FALSE),
+         'AP' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not NULL' => FALSE),
          'virtualAP' => array('comment' => 'Yes, No', 'type' => 'varchar', 'length' => '5', 'not NULL' => TRUE, 'default' => 'No'),
          'WDS' => array('comment' => 'Si, No', 'type' => 'varchar', 'length' => '5', 'not NULL' => FALSE),
          'bridge' => array('comment' => 'Si, No, Hack', 'type' => 'varchar', 'length' => '5', 'not NULL' => FALSE),
@@ -950,13 +950,13 @@ function guifi_update_2() {
   db_add_field($items, 'guifi_devices', 'last_flag',
     array('type' => 'varchar', 'length' => '40', 'not NULL' => TRUE, 'default' => 'N/A', 'COMMENT' => 'N/A, Online, Offline...'));
   db_add_field($items, 'guifi_devices', 'ly_availability',
-    array('type' => 'numeric', 'precision' => '10', 'scale'=>'6', 'not NULL' => FALSE, 'default' => NULL));
+    array('type' => 'numeric', 'precision' => '10', 'scale' => '6', 'not NULL' => FALSE, 'default' => NULL));
 
   // changes @ guifi_radios
   db_add_field($items, 'guifi_radios', 'ly_bytes_in',
-    array('type' => 'numeric', 'precision' => 25,  'scale'=>0, 'not NULL' => FALSE, 'default' => NULL));
+    array('type' => 'numeric', 'precision' => 25,  'scale' => 0, 'not NULL' => FALSE, 'default' => NULL));
   db_add_field($items, 'guifi_radios', 'ly_bytes_out',
-    array('type' => 'numeric', 'precision' => 25, 'scale'=>0, 'not NULL' => FALSE, 'default' => NULL));
+    array('type' => 'numeric', 'precision' => 25, 'scale' => 0, 'not NULL' => FALSE, 'default' => NULL));
 
   db_drop_field($items,'guifi_devices', 'url_mrtg_server');
 
@@ -994,7 +994,7 @@ function guifi_update_556() {
 //      if (empty($dmails)) {
 //        if (!isset($amails->nid))
 //          $amails->nid = $amails->id;
-//        $n = node_load(array('nid'=>$amails->nid));
+//        $n = node_load(array('nid' => $amails->nid));
 //        $u = user_load($n->uid);
 //        $dmails = $u->mail;
 //      } // if was no mail

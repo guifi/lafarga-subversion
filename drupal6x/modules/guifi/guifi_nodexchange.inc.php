@@ -11,11 +11,11 @@
 //     $zone = db_fetch_object(db_query('SELECT title, nick FROM {guifi_zone} WHERE id = %d',$zoneid));
 //     drupal_set_breadcrumb(guifi_zone_ariadna($zoneid));
 //     $output = '<div id="guifi">';
-//     $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$zone->title)).'</h2>';
+//     $output .= '<h2>'.t('Zone %zname%',array('%zname%' => $zone->title)).'</h2>';
 //     $output .= '<p>'.t('You must specify which data do you want to export, the following options are available:').'</p>';
-//     $output .= '<ol><li>'. l(t('Zones'), "guifi/nodexchange/".$zoneid."/zones", array('title'=>t('export zone and zone childs in nodexchange format')) ).'</li>';
-//     $output .= '<li>'. l(t('Zones and nodes'), "guifi/nodexchange/".$zoneid."/nodes", array('title'=>t('export zones and nodes in nodexchange format (short)')) ).'</li>';
-//     $output .= '<li>'. l(t('Detailed'), "guifi/nodexchange/".$zoneid."/detail", array('title'=>t('export zones, nodes  and devices in nodexchange format (long)')) ).'</li></ol>';
+//     $output .= '<ol><li>'. l(t('Zones'), "guifi/nodexchange/".$zoneid."/zones", array('title' => t('export zone and zone childs in nodexchange format')) ).'</li>';
+//     $output .= '<li>'. l(t('Zones and nodes'), "guifi/nodexchange/".$zoneid."/nodes", array('title' => t('export zones and nodes in nodexchange format (short)')) ).'</li>';
+//     $output .= '<li>'. l(t('Detailed'), "guifi/nodexchange/".$zoneid."/detail", array('title' => t('export zones, nodes  and devices in nodexchange format (long)')) ).'</li></ol>';
 //     $output .= '<p>'.t('The <a href="/node/3521">nodeXchange</a> is a XML format to interchange network information between services or servers.').'</p>';
 //     $output .= '<p>'.t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>').'</p>';
 //     $output .= "</div>";
@@ -57,9 +57,9 @@
 //  }
 //
 //  function xmlgraph($ident,$img_src,$graph_url,$graph_title,$nl = "\r\n") {
-//    $output = xmlopentag($ident,'graph',array('title'=>$graph_title,
-//                                              'url'=>$graph_url,
-//                                              'img_src'=>$img_src
+//    $output = xmlopentag($ident,'graph',array('title' => $graph_title,
+//                                              'url' => $graph_url,
+//                                              'img_src' => $img_src
 //                                             ),$nl);
 //    return $output.xmlclosetag($ident,'graph');
 //  }
@@ -71,7 +71,7 @@
 //    $qservices = db_query("SELECT * FROM {guifi_services} s WHERE s.device_id=%d",$did);
 //    while ($s = db_fetch_object($qservices)) {
 //      $services->count++;
-//      $services->xml .= xmlopentag($ident,'service',array('id'=>$did,'title'=>$device->title),$nl); 
+//      $services->xml .= xmlopentag($ident,'service',array('id' => $did,'title' => $device->title),$nl); 
 //      $ident++;
 //      $services->xml .= xmltag($ident,'service_type',$s->service_type); 
 //      $services->xml .= xmltag($ident,'service_status',$s->status_flag); 
@@ -90,12 +90,12 @@
 //    $qlinks = db_query("SELECT l2.* FROM {guifi_links} l1 LEFT JOIN {guifi_links} l2 ON l1.id=l2.id WHERE l1.device_id<>l2.device_id AND l1.interface_id=%d AND l1.ipv4_id=%d",$iid,$iipv4_id);
 //     while ($l = db_fetch_object($qlinks)) {
 //      $links->count++;
-//      $links->xml .= xmlopentag($ident,'link',array('id'=>$l->id,
-//						    'linked_device_id'=>$l->device_id,
-//                                                    'linked_node_id'=>$l->nid,
-//						    'linked_interface_id'=>$l->interface_id,
-//                                                    'link_type'=>$l->link_type,
-//                                                    'link_status'=>$l->flag)); 
+//      $links->xml .= xmlopentag($ident,'link',array('id' => $l->id,
+//						    'linked_device_id' => $l->device_id,
+//                                                    'linked_node_id' => $l->nid,
+//						    'linked_interface_id' => $l->interface_id,
+//                                                    'link_type' => $l->link_type,
+//                                                    'link_status' => $l->flag)); 
 //      $links->xml .= xmlclosetag($ident,'link',$nl); 
 //      
 //    }
@@ -116,7 +116,7 @@
 ////      print_r($i);
 ////      print "\n<br />";
 //      $interfaces->count++;
-//      $interfaces->xml .= xmlopentag($ident,'interface',array('id'=>$i->id,'ipv4'=>$i->ipv4,'mask'=>$i->netmask),$nl); 
+//      $interfaces->xml .= xmlopentag($ident,'interface',array('id' => $i->id,'ipv4' => $i->ipv4,'mask' => $i->netmask),$nl); 
 //      $links=links($i->id,$i->ipv4_id,$ident+1,$nl);
 //      $interfaces->xml .= $links;
 //      $interfaces->xml .= xmlclosetag($ident,'interface',$nl); 
@@ -138,24 +138,24 @@
 //         $devices->count++;
 //         if ($d->type == 'ADSL') {
 //          $variable = unserialize($d->extra);
-//          $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
-//                                                           'device_type'=>$d->type,
-//                                                           'device_url'=>'/guifi/device/'.$d->id,
-//                                                           'rrd_ping'=>guifi_rrdfile($d->nick).'_ping',
-//                                                           'rrd_traffic'=>guifi_rrdfile($d->nick).'_'.$variable['mrtg_index'],
-//                                                           'created'=>xmldate($d->timestamp_created),
-//                                                           'updated'=>xmldate($d->timestamp_changed)),
+//          $devices->xml .= xmlopentag($ident,'device',array('id' => $d->id,'title' => $d->nick,
+//                                                           'device_type' => $d->type,
+//                                                           'device_url' => '/guifi/device/'.$d->id,
+//                                                           'rrd_ping' => guifi_rrdfile($d->nick).'_ping',
+//                                                           'rrd_traffic' => guifi_rrdfile($d->nick).'_'.$variable['mrtg_index'],
+//                                                           'created' => xmldate($d->timestamp_created),
+//                                                           'updated' => xmldate($d->timestamp_changed)),
 //                                                           $nl); 
 //         } else
-//          $devices->xml .= xmlopentag($ident,'device',array('id'=>$d->id,'title'=>$d->nick,
-//                                                           'device_type'=>$d->type,
-//                                                           'device_url'=>'/guifi/device/'.$d->id,
-//                                                           'rrd_ping'=>guifi_rrdfile($d->nick).'_ping',
-//                                                           'created'=>xmldate($d->timestamp_created),
-//                                                           'updated'=>xmldate($d->timestamp_changed)),
+//          $devices->xml .= xmlopentag($ident,'device',array('id' => $d->id,'title' => $d->nick,
+//                                                           'device_type' => $d->type,
+//                                                           'device_url' => '/guifi/device/'.$d->id,
+//                                                           'rrd_ping' => guifi_rrdfile($d->nick).'_ping',
+//                                                           'created' => xmldate($d->timestamp_created),
+//                                                           'updated' => xmldate($d->timestamp_changed)),
 //                                                           $nl); 
 //         $ident++;
-//         $devices->xml .= xmlsummary($ident,array('interfaces'=>$interfaces->count,'links'=>$links->count,'services'=>$services->count),$nl); 
+//         $devices->xml .= xmlsummary($ident,array('interfaces' => $interfaces->count,'links' => $links->count,'services' => $services->count),$nl); 
 //         $devices->xml .= xmltag($ident,'device_description',$d->comment);
 //         $devices->xml .= xmltag($ident,'device_status',$r->flag);
 //
@@ -169,15 +169,15 @@
 //             else
 //               $rrdtraf = guifi_rrdfile($r->ssid);
 //             $interfaces_radio = interfaces($d->id,$ident+1,$nl,$r->radiodev_counter);
-//             $devices->xml .= xmlopentag($ident,'radio',array('id'=>$r->radiodev_counter,
-//                                                           'ssid'=>$r->ssid,
-//                                                           'mode'=>$r->mode,
-//                                                           'protocol'=>$r->protocol,
-//                                                           'channel'=>$r->channel,
-//                                                           'antenna_angle'=>$r->antenna_angle,
-//                                                           'antenna_gain'=>$r->antenna_gain,
-//                                                           'antenna_azimuth'=>$r->antenna_azimuth,
-//                                                           'rrd_traffic'=>$rrdtraf),
+//             $devices->xml .= xmlopentag($ident,'radio',array('id' => $r->radiodev_counter,
+//                                                           'ssid' => $r->ssid,
+//                                                           'mode' => $r->mode,
+//                                                           'protocol' => $r->protocol,
+//                                                           'channel' => $r->channel,
+//                                                           'antenna_angle' => $r->antenna_angle,
+//                                                           'antenna_gain' => $r->antenna_gain,
+//                                                           'antenna_azimuth' => $r->antenna_azimuth,
+//                                                           'rrd_traffic' => $rrdtraf),
 //                                                           $nl); 
 //             $devices->id = $d->id; 
 //             if ($r->mode == 'ap')  
@@ -216,7 +216,7 @@
 //    $nodes->maxy = -90;
 //
 //    if (count($tree->nodes)>0)
-//    foreach ($tree->nodes as $nid=>$n) {
+//    foreach ($tree->nodes as $nid => $n) {
 //
 //       if ($action != 'zones')
 //       $devices = devices($n->id,$ident+1,$nl);
@@ -231,18 +231,18 @@
 //         case 1:  $ntype = 'AP'; break; 
 //         default: $ntype = 'Backbone'; break; 
 //       }
-//       $nodes->xml .= xmlopentag($ident,'node',array('id'=>$n->id,
-//                                                     'title'=>$n->nick,
-//                                                     'type'=>$ntype,
-//                                                     'lat'=>$n->lat,
-//                                                     'lon'=>$n->lon,
-//                                                     'status'=>$n->status_flag,
-//                                                     'url'=>'/node/'.$n->id,
-//                                                     'created'=>xmldate($n->timestamp_created),
-//                                                     'updated'=>xmldate($n->timestamp_changed),
+//       $nodes->xml .= xmlopentag($ident,'node',array('id' => $n->id,
+//                                                     'title' => $n->nick,
+//                                                     'type' => $ntype,
+//                                                     'lat' => $n->lat,
+//                                                     'lon' => $n->lon,
+//                                                     'status' => $n->status_flag,
+//                                                     'url' => '/node/'.$n->id,
+//                                                     'created' => xmldate($n->timestamp_created),
+//                                                     'updated' => xmldate($n->timestamp_changed),
 //                                                    ),$nl); 
 //       $ident++;
-//       $nodes->xml .= xmlsummary($ident,array('devices'=>$devices->count),$nl); 
+//       $nodes->xml .= xmlsummary($ident,array('devices' => $devices->count),$nl); 
 //       $nodes->xml .= htmlspecialchars($n->body,ENT_QUOTES);
 //
 //       // going to list node devices
@@ -309,15 +309,15 @@
 //     if (($zone->miny != NULL) && ($zone->miny != 0)) $zones->miny = $zone->miny;
 //     if (($zone->maxy != NULL) && ($zone->maxy != 0)) $zones->maxy = $zone->maxy;
 //
-//     $zones->xml = xmlopentag($ident,'zone',array('id'=>$zoneid,
-//                                                  'title'=>$zone->title,
-//                                                  'box'=>$zones->minx.','.$zones->miny.','.$zones->maxx.','.$zones->maxy,
-//                                                  'parent_id'=>$zone->master,
-//                                                  'url'=>$zone->url,
-//						  'map_url'=>'/node/'.$zoneid.'/view/map',
-//                                                  'child_zones'=>$childs->count,
-//                                                  'zone_nodes'=>$nodes->count,
-//                                                  'total_nodes'=>$zones->nodes),
+//     $zones->xml = xmlopentag($ident,'zone',array('id' => $zoneid,
+//                                                  'title' => $zone->title,
+//                                                  'box' => $zones->minx.','.$zones->miny.','.$zones->maxx.','.$zones->maxy,
+//                                                  'parent_id' => $zone->master,
+//                                                  'url' => $zone->url,
+//						  'map_url' => '/node/'.$zoneid.'/view/map',
+//                                                  'child_zones' => $childs->count,
+//                                                  'zone_nodes' => $nodes->count,
+//                                                  'total_nodes' => $zones->nodes),
 //                                                  $nl);
 //     $ident++;
 //     $zones->xml .= htmlspecialchars($zone->body,ENT_QUOTES);
@@ -366,7 +366,7 @@
 //  print '<?xml version="1.0" encoding="UTF-8" ?>'.$nl;
 //  $zones = zone_recurse($zoneid,$tree[$zoneid],1,$action,$nl);
 //  $output = '<network id="'.$zoneid.'" title="'.htmlspecialchars($tree[$zoneid]->title,ENT_QUOTES).'" >'.$nl;
-//  $output .= xmlsummary($ident,array('nodes'=>$zones->nodes),$nl);
+//  $output .= xmlsummary($ident,array('nodes' => $zones->nodes),$nl);
 //  $output .= xmltag(1,'network_url',$base_url.'/node/'.$zoneid);
 //  $output .= xmltag(1,'network_graphs_base_url',$base_url);
 //  $output .= $nl.$zones->xml;

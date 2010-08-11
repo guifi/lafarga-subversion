@@ -25,7 +25,7 @@ function guifi_notify_send($send = TRUE) {
   // For every destination, construct a single mail with all messages
   $errors = FALSE;
   $output = '';
-  foreach ($destinations as $to=>$msgs) {
+  foreach ($destinations as $to => $msgs) {
     $body = str_repeat('-',72)."\n\n".
       t('Complete trace messages (for trace purposes, to be used by developers)')."\n".str_repeat('-',72)."\n";
     $subjects = t('Summary of changes:')."\n".str_repeat('-',72)."\n";
@@ -41,9 +41,9 @@ function guifi_notify_send($send = TRUE) {
     }
 
     $subject = t('[guifi.net notify] Report of changes at !date',
-        array('!date'=>format_date(time(),'small')));
+        array('!date' => format_date(time(),'small')));
     $output .= '<h2>'.t('Sending a mail to: %to',
-      array('%to'=>$to)).'</h2>';
+      array('%to' => $to)).'</h2>';
     $output .= '<h3>'.$subject.'</h3>';
     $output .= '<pre><small>'.$subjects.$body.'</small></pre>';
 
@@ -63,11 +63,11 @@ function guifi_notify_send($send = TRUE) {
 
     if ($return['result'])
       watchdog('guifi','Report of changes sent to %name',
-        array('%name'=>$to));
+        array('%name' => $to));
     else {
       watchdog('guifi',
         'Unable to notify %name',
-        array('%name'=>$to));
+        array('%name' => $to));
       $errors = TRUE;
     }
 
@@ -198,8 +198,8 @@ function guifi_cron_loadCNMLstats($graph_server,$verbose=FALSE) {
     }
     watchdog('guifi','Loaded statistics from %name, %ndevices updated',
         array(
-          '%name'=>guifi_service_str($graph_server),
-          '%ndevices'=>$u));//    $stats =  stream_get_contents($handle);
+          '%name' => guifi_service_str($graph_server),
+          '%ndevices' => $u));//    $stats =  stream_get_contents($handle);
     fclose($handle);
     $output .= '<pre>'.$stats.'</pre>';
   } else
@@ -207,7 +207,7 @@ function guifi_cron_loadCNMLstats($graph_server,$verbose=FALSE) {
 
   if ($verbose)
     return theme('box',t("Load statistics from '%server'",
-      array('%server'=>guifi_service_str($graph_server))),
+      array('%server' => guifi_service_str($graph_server))),
       $output);
 }
 

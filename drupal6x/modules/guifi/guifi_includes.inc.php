@@ -96,15 +96,15 @@ function guifi_main_ip($device_id) {
       $item = _ipcalc($ip->ipv4,$ip->netmask);
       switch ($ip->interface_type) {
       case 'wLan/Lan':
-        $ip_array[0+$ip->id]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+        $ip_array[0+$ip->id]=array('ipv4' => $ip->ipv4,'maskbits' => $item[maskbits]); break;
       case 'Lan':
-        $ip_array[100]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+        $ip_array[100]=array('ipv4' => $ip->ipv4,'maskbits' => $item[maskbits]); break;
       case 'Wan':
-        $ip_array[200]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+        $ip_array[200]=array('ipv4' => $ip->ipv4,'maskbits' => $item[maskbits]); break;
       case 'wLan':
-        if (!isset($ip_array[3])) $ip_array[300]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+        if (!isset($ip_array[3])) $ip_array[300]=array('ipv4' => $ip->ipv4,'maskbits' => $item[maskbits]); break;
       case 'wds/p2p':
-        if (!isset($ip_array[4])) $ip_array[400]=array('ipv4'=>$ip->ipv4,'maskbits'=>$item[maskbits]); break;
+        if (!isset($ip_array[4])) $ip_array[400]=array('ipv4' => $ip->ipv4,'maskbits' => $item[maskbits]); break;
 
       }
     }
@@ -389,8 +389,8 @@ function guifi_devices_select($filters, $action = '') {
       '#value'=> t('There are no devices to link within the given criteria, you can use the filters to get more results.'),
 //      '#description' => t('...or press "Ignore & Back to the Main Form" to dismiss.'),
 //      '#description' => $txt.'<br />'.$action,
-//      '#prefix'=>'<div id="list-devices">',
-//      '#suffix'=>'</div>',
+//      '#prefix' => '<div id="list-devices">',
+//      '#suffix' => '</div>',
     );
     $form['dbuttons'] = guifi_device_buttons(TRUE, $action, 0);
     return $form;
@@ -402,11 +402,11 @@ function guifi_devices_select($filters, $action = '') {
     '#title' => t('select the device which do you like to link with'),
     '#options' => $var,
 //    '#description' => $txt.'<br />'.$action,
-    '#attributes' => array('class'=>'required'),
+    '#attributes' => array('class' => 'required'),
 
 //    '#description' => t('If you save at this point, link will be created and information saved.'),
-//    '#prefix'=>'<div id="list-devices">',
-//    '#suffix'=>'</div>',
+//    '#prefix' => '<div id="list-devices">',
+//    '#suffix' => '</div>',
   );
 
   $form['dbuttons'] = guifi_device_buttons(TRUE,$action,1);
@@ -456,7 +456,7 @@ function guifi_get_free_interfaces($id,$edit = array()) {
   }
   if ($edit != NULL)
   if (count($edit['interfaces']) > 0)
-    foreach ($edit['interfaces'] as $k=>$value) {
+    foreach ($edit['interfaces'] as $k => $value) {
       if ($value['deleted']) continue;
       $used[] = $value['interface_type'];
     }
@@ -491,11 +491,11 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   );
   $form['f']['dmin'] = array(
     '#type' => 'textfield',
-    '#parents'=>array('filters','dmin'),
+    '#parents' => array('filters','dmin'),
     '#title' => t('Distance from'),
     '#size' => 5,
     '#maxlength' => 5,
-    '#attributes' => array('class'=>'digits min(0)'),
+    '#attributes' => array('class' => 'digits min(0)'),
     '#default_value' => $form_state['values']['filters']['dmin'],
     '#description' => t("List starts at this distance"),
     '#prefix' => '<table><tr><td>',
@@ -505,12 +505,12 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   );
   $form['f']['dmax'] = array(
     '#type' => 'textfield',
-    '#parents'=>array('filters','dmax'),
+    '#parents' => array('filters','dmax'),
     '#title' => t('until'),
     '#size' => 5,
     '#maxlength' => 5,
     '#default_value' => $form_state['values']['filters']['dmax'],
-    '#attributes' => array('class'=>'digits min(0)'),
+    '#attributes' => array('class' => 'digits min(0)'),
     '#description' => t("...and finishes at this distance"),
     '#prefix' => '<td>',
     '#suffix' => '</td>',
@@ -520,7 +520,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   if (isset($form_state['values']['filters']['max']))
   $form['f']['max'] = array(
     '#type' => 'textfield',
-    '#parents'=>array('filters','max'),
+    '#parents' => array('filters','max'),
     '#title' => t('Stop list at'),
     '#size' => 5,
     '#maxlength' => 5,
@@ -533,7 +533,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   );
   $form['f']['search'] = array(
     '#type' => 'textfield',
-    '#parents'=>array('filters','search'),
+    '#parents' => array('filters','search'),
     '#title' => t('Search string'),
     '#size' => 25,
     '#maxlength' => 25,
@@ -547,7 +547,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     if (isset($form_state['values']['filters']['sn']))
   $form['f']['sn'] = array(
     '#type' => 'checkbox',
-    '#parents'=>array('filters','sn'),
+    '#parents' => array('filters','sn'),
     '#title' => t('Only Supernodes'),
     '#size' => 1,
     '#maxlength' => 1,
@@ -559,10 +559,10 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
     '#weight' => $fweight++
   );
   if (isset($form_state['values']['filters']['status'])) {
-    $choices =array_merge(array('All'=>t('All')),guifi_types('status'));
+    $choices =array_merge(array('All' => t('All')),guifi_types('status'));
     $form['f']['status'] = array(
       '#type' => 'select',
-      '#parents'=>array('filters','status'),
+      '#parents' => array('filters','status'),
       '#title' => t("Status"),
       '#required' => TRUE,
       '#default_value' => $form_state['values']['filters']['status'],
@@ -576,7 +576,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   }
   $form['f']['azimuth'] = array(
     '#type' => 'select',
-    '#parents'=>array('filters','azimuth'),
+    '#parents' => array('filters','azimuth'),
     '#title' => t('Azimuth'),
     '#default_value' => $form_state['values']['filters']['azimuth'],
     '#options' => array(
@@ -596,7 +596,7 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   );
 /*  $form['f']['action'] = array(
     '#type' => 'submit',
-    '#parents'=>array('action'),
+    '#parents' => array('action'),
     '#value' => t('Apply filter'),
     '#ahah' => array(
           'path' => 'guifi/js/select-device',
@@ -610,32 +610,32 @@ function guifi_devices_select_filter($form_state,$action='',&$fweight = -100) {
   if (isset($form_state['values']['filters']['type']))
   $form['f']['type'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','type'),
+     '#parents' => array('filters','type'),
      '#value' => $form_state['values']['filters']['type']);
   if (isset($form_state['values']['filters']['mode']))
   $form['f']['mode'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','mode'),
+     '#parents' => array('filters','mode'),
      '#value' => $form_state['values']['filters']['mode']);
   if (isset($form_state['values']['filters']['from_node']))
   $form['f']['from_node'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','from_node'),
+     '#parents' => array('filters','from_node'),
      '#value' => $form_state['values']['filters']['from_node']);
   if (isset($filters['from_device']))
   $form['f']['from_device'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','from_device'),
+     '#parents' => array('filters','from_device'),
      '#value' => $form_state['values']['filters']['from_device']);
   if (isset($form_state['values']['filters']['from_radio']))
   $form['f']['from_radio'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','from_radio'),
+     '#parents' => array('filters','from_radio'),
      '#value' => $form_state['values']['filters']['from_radio']);
   if (isset($form_state['values']['filters']['skip']))
   $form['f']['skip'] = array(
      '#type'  => 'hidden',
-     '#parents'=>array('filters','skip'),
+     '#parents' => array('filters','skip'),
      '#value' => $form_state['values']['filters']['skip']);
   return $form;
 }
@@ -703,7 +703,7 @@ function guifi_validate_ip($ip,&$form_state) {
   if (($longIp==FALSE) or (count(explode('.',$ip['#value']))!=4))
     form_error($ip,
       t('Error in ipv4 address (%addr), use "10.138.0.1" format.',
-        array('%addr'=>$ip['#value'])),'error');
+        array('%addr' => $ip['#value'])),'error');
   else
     $ip['#value'] = long2ip($longIp);
 
@@ -766,7 +766,7 @@ function guifi_get_nodename($id) {
 
 function guifi_get_location($id) {
   $node = db_fetch_object(db_query("SELECT d.lat,d.lon FROM {guifi_location} d WHERE d.id=%d",$id));
-  return array('lat'=>$node->lat, 'lon'=>$node->lon);
+  return array('lat' => $node->lat, 'lon' => $node->lon);
 }
 
 function guifi_get_zone_of_node($id) {
@@ -812,7 +812,7 @@ function guifi_abbreviate($str,$len = 5) {
     
     if (count($words) > 1) {
       $s = "";
-      foreach ($words as $k=>$word) {
+      foreach ($words as $k => $word) {
         if ($k == 1) {
           $s .= substr($word,0,3);
         } else {
@@ -905,7 +905,7 @@ function guifi_ipcalc_get_ips(
 }
 
 function guifi_ipcalc_get_ips_recurse($var,&$ips) {
-  foreach ($var as $k=>$value) {
+  foreach ($var as $k => $value) {
     if ($k == 'ipv4') {
       $ip_dec = ip2long($value);
       if ( ($ip_dec) and (!isset($ips[$ip_dec])) ) {
@@ -947,7 +947,7 @@ function guifi_ipcalc_get_subnet_by_nid(
 
   $tbegin = microtime(TRUE);
 
-  $zone = node_load(array('nid'=>$nid));
+  $zone = node_load(array('nid' => $nid));
 
   if ($zone->type == 'guifi_node')
     $zone = guifi_zone_load($zone->zone_id);
@@ -973,9 +973,9 @@ function guifi_ipcalc_get_subnet_by_nid(
     if ($verbose)
       drupal_set_message(t(
         'Finding if %mask is available at %zone, elapsed: %secs',
-         array('%mask'=>$mask_allocate,
-           '%zone'=>$zone->title,
-           '%secs'=>round(microtime(TRUE)-$lbegin,4))));
+         array('%mask' => $mask_allocate,
+           '%zone' => $zone->title,
+           '%secs' => round(microtime(TRUE)-$lbegin,4))));
 
     // if there are already networks defined, increase network mask, up to /20 level
     // here, getting the total # of nets defined
@@ -998,11 +998,11 @@ function guifi_ipcalc_get_subnet_by_nid(
         if ($verbose)
           drupal_set_message(
             t('Found %amask available at %ip/%rmask. got from %zone, elapsed: %secs',
-              array('%amask'=>$mask_allocate,
-                '%ip'=>$ip,
-                '%rmask'=>$net->mask,
-                '%zone'=>$zone->title,
-                '%secs'=>round(microtime(TRUE)-$lbegin,4))));
+              array('%amask' => $mask_allocate,
+                '%ip' => $ip,
+                '%rmask' => $net->mask,
+                '%zone' => $zone->title,
+                '%secs' => round(microtime(TRUE)-$lbegin,4))));
 
         // reserve the available range fount into databaseto database?
         if ( ($depth) and
@@ -1020,11 +1020,11 @@ function guifi_ipcalc_get_subnet_by_nid(
           $to_mail[] = explode(',',$zone->notification);
 
           $nnet = array(
-            'new'=>TRUE,
-            'base'=>$ip,
-            'mask'=>$mask_allocate,
-            'zone'=>$root_zone,
-            'newtwork_type'=>$network_type
+            'new' => TRUE,
+            'base' => $ip,
+            'mask' => $mask_allocate,
+            'zone' => $root_zone,
+            'newtwork_type' => $network_type
           );
           $nnet = _guifi_db_sql(
             'guifi_networks',
@@ -1047,8 +1047,8 @@ function guifi_ipcalc_get_subnet_by_nid(
     // Network was not allocated
     if ($verbose)
       drupal_set_message(t('Unable to find space at %zone, will look at parents, elapsed: %secs',
-        array('%zone'=>$zone->title,
-          '%secs'=>round(microtime(TRUE)-$lbegin,4))));
+        array('%zone' => $zone->title,
+          '%secs' => round(microtime(TRUE)-$lbegin,4))));
 
     // Need for an unused range,
     // already allocated networks from others than parents should be considered
@@ -1224,20 +1224,20 @@ function guifi_get_existent_interface($device_id, $interface_type) {
 function guifi_ip_type($itype1, $itype2) {
 
   $guifi_ipconf = array(
-     'wLan/Lan'=>array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
-     'Lan'=>     array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
-     'wLan'=>    array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
-     'Wan'=>     array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan'=>    array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan'=>    array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vwlan'=>   array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vwan'=>    array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan1'=>   array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan2'=>   array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan3'=>   array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'vlan4'=>   array('preg'=>'/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
-     'wds/p2p'=> array('preg'=>'/wds\/p2p/',                                                 'ntype' => 'backbone'),
-     'tunnel'=>  array('preg'=>'/tunnel/',                                                   'ntype' => 'backbone')
+     'wLan/Lan' => array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
+     'Lan'=>     array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
+     'wLan'=>    array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan|Lan|wLan\/Lan/','ntype' => 'public'),
+     'Wan'=>     array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan'=>    array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan'=>    array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vwlan'=>   array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vwan'=>    array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan1'=>   array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan2'=>   array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan3'=>   array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'vlan4'=>   array('preg' => '/vlan|vwan|vwlan|vlan1|vlan2|vlan3|vlan4|Wan/',              'ntype' => 'backbone'),
+     'wds/p2p'=> array('preg' => '/wds\/p2p/',                                                 'ntype' => 'backbone'),
+     'tunnel'=>  array('preg' => '/tunnel/',                                                   'ntype' => 'backbone')
      ); // eof variable_get
 
   if ((empty($itype1)) or (empty($itype2)))
@@ -1359,7 +1359,7 @@ function guifi_cnml_args($args,$extra=NULL) {
   $params = array();
 
   // Temprary, for backward compatibility, to take out later
-  foreach ($args as $param=>$value) {
+  foreach ($args as $param => $value) {
     if ($param=='device' and empty($value))
       continue;
 
@@ -1381,11 +1381,11 @@ function guifi_cnml_availability($args,$gs = NULL) {
   if ($gs->var['version'] >= 2.0)
     return l($img_url,'guifi/menu/ip/liveping/'.$args['device'],
             array(
-              'html'=>TRUE,
-              'attributes'=>array(
+              'html' => TRUE,
+              'attributes' => array(
                 'title' => t('live ping/traceroute to %device',
-                  array('%device'=>guifi_get_hostname($args['device']))),
-                'target'=>'_blank')));
+                  array('%device' => guifi_get_hostname($args['device']))),
+                'target' => '_blank')));
   else
     // old v1.0 format for backward compatibility
     return $img_url;
@@ -1435,7 +1435,7 @@ function guifi_zone_childs_recurse($id, $childs, $children) {
 //
 //  $childs = array();
 //
-//  foreach ($zones as $zoneid=>$zone) {
+//  foreach ($zones as $zoneid => $zone) {
 //    if (!$children[$zone->master]) {
 //      $children[$zone->master][$zoneid] = $zone;
 //    }
@@ -1472,7 +1472,7 @@ function guifi_cnml_tree($zid) {
 
   $childs = array();
   $children = array();
-  foreach ($zones as $zoneid=>$zone) {
+  foreach ($zones as $zoneid => $zone) {
     if (!$children[$zone->parent_id]) {
       $children[$zone->parent_id][$zoneid] = $zone;
     }
@@ -1493,7 +1493,7 @@ function guifi_form_hidden_var($var,$keys = array(),$parents = array()) {
   foreach ($keys as $kvalue) {
     if (isset($var[$kvalue])) {
       $form[$kvalue] = array(
-        '#type'=>'hidden','#value'=>$var[$kvalue]);
+        '#type' => 'hidden','#value' => $var[$kvalue]);
       if (!(empty($parents)))
         $form[$kvalue]['#parents'] = array_merge($parents,array($kvalue));
     }
@@ -1506,16 +1506,16 @@ function guifi_form_hidden(&$form,$var,&$form_weight = -2000) {
 
 //  guifi_log(GUIFILOG_TRACE,'function guifi_form_hidden()');
 
-  foreach ($var as $key=>$value)
+  foreach ($var as $key => $value)
     if (is_array($value))  {
       $form[$key] = array('#tree' => 1);
       guifi_form_hidden($form[$key],$value,$form_weight);
     } else {
       if (!preg_match('/^_action/',$key))
         $form[$key]=array(
-          '#type'=>'hidden',
-          '#value'=>$value,
-          '#weight'=>$form_weight++);
+          '#type' => 'hidden',
+          '#value' => $value,
+          '#weight' => $form_weight++);
     }
   return;
 }
@@ -1543,9 +1543,9 @@ function guifi_count_radio_links($radio) {
       }
     }
   } else {
-    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $ki=>$interface)
-    if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ka=>$ipv4)
-    if (isset($ipv4[links])) foreach ($ipv4[links] as $kl=>$link)
+    if (isset($radio[interfaces])) foreach ($radio[interfaces] as $ki => $interface)
+    if (isset($interface[ipv4])) foreach ($interface[ipv4] as $ka => $ipv4)
+    if (isset($ipv4[links])) foreach ($ipv4[links] as $kl => $link)
     if (!$link[deleted]) {
       if ($link[link_type] = 'wds/p2p')
         $ret[wds]++;
@@ -1574,15 +1574,15 @@ function guifi_next_interface($edit = NULL) {
 
 function _interface_recurse($var,$next = 0) {
 
-  foreach ($var as $k=>$value) {
-    if ($k == 'interfaces') foreach ($value as $k1=>$value1) {
+  foreach ($var as $k => $value) {
+    if ($k == 'interfaces') foreach ($value as $k1 => $value1) {
       if ($k1 >= $next)
         $next = $k1 + 1;
       if (is_array($value1))
         $next = _interface_recurse($value1,$next);
     }
 
-    if ($k == 'interface') foreach ($value as $k1=>$value1) {
+    if ($k == 'interface') foreach ($value as $k1 => $value1) {
       if (is_numeric(isset($value1[id])))
       if ($$value1[id] >= $next)
         $next = $value1[id] + 1;
@@ -1603,7 +1603,7 @@ function guifi_array_combine($arr1, $arr2) {
   unset($result);
   $result = array();
   if ((count($arr1) == count($arr2)) and count($arr1)) {
-    foreach ($arr1 as $key=>$kvalue) {
+    foreach ($arr1 as $key => $kvalue) {
      $result[$kvalue] = current($arr2);
      next($arr2);
     }
@@ -1643,7 +1643,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = TRUE, $notify = 
   $to_mail[] = $user->mail;
   $to_mail[] = variable_get('guifi_contact','netadmin@guifi.net');
   $to_mail = array_unique($to_mail);
-  foreach ($to_mail as $k=>$mail)
+  foreach ($to_mail as $k => $mail)
     if (!valid_email_address(trim($mail)))
       unset($to_mail[$k]);
   $message = str_replace('<em>',' *',$message);
@@ -1673,7 +1673,7 @@ function guifi_notify(&$to_mail, $subject, &$message,$verbose = TRUE, $notify = 
         $message);
       drupal_set_message(
         t('A notification will be sent to: %to',
-          array('%to'=>implode(',',$to_mail))));
+          array('%to' => implode(',',$to_mail))));
     }
 
   }
@@ -1694,7 +1694,7 @@ function guifi_notification_validate($to) {
     $temail = trim($email);
     if (!valid_email_address($temail)) {
       drupal_set_message(
-        t('%email is not valid',array('%email'=>$temail)),'error');
+        t('%email is not valid',array('%email' => $temail)),'error');
       return FALSE;
     }
     $trimmed[] = $temail;
@@ -1710,7 +1710,7 @@ function guifi_mac_validate($mac,&$form_state) {
   if ($pmac == FALSE) {
     form_error($mac,
       t('Error in MAC address (%mac), use 99:99:99:99:99:99 format.',
-        array('%mac'=>$mac['#value'])),'error');
+        array('%mac' => $mac['#value'])),'error');
   } else {
     form_set_value($mac,$pmac,$form_state);
     $mac['#value'] = $pmac;
@@ -1743,7 +1743,7 @@ function guifi_servername_validate($serverstr,&$form_state) {
     return $serverstr;
   }
   form_error($serverstr,
-    t('Server name %name not valid.',array('%name'=>$serverstr['#value'])),'error');
+    t('Server name %name not valid.',array('%name' => $serverstr['#value'])),'error');
 
   return $serverstr;
 }
@@ -1759,7 +1759,7 @@ function guifi_nodename_validate($nodestr,&$form_state) {
     return $nodestr;
   }
   form_error($nodestr,
-    t('Node name %name not valid.',array('%name'=>$nodestr['#value'])),'error');
+    t('Node name %name not valid.',array('%name' => $nodestr['#value'])),'error');
 
   return $nodestr;
 }
@@ -1776,7 +1776,7 @@ function guifi_devicename_validate($devicestr,&$form_state) {
     return $devicestr;
   }
   form_error($devicestr,
-    t('Device name %name not valid.',array('%name'=>$devicestr['#value'])),'error');
+    t('Device name %name not valid.',array('%name' => $devicestr['#value'])),'error');
 
   return $devicestr;
 }

@@ -96,8 +96,8 @@ function budgets_quote_form(&$node) {
     '#required' => TRUE,
     '#maxlength' => 15,
     '#attributes' => array('' .
-        'class'=>'number required',
-        'min'=>1),
+        'class' => 'number required',
+        'min' => 1),
     '#default_value' => $node->cost,
     '#description' => t('Quoted value (cost) for this quoted item.'),
   );
@@ -163,7 +163,7 @@ function budgets_quote_validate($node, &$form) {
     $count = db_fetch_object(db_query($sql));
     if ($count->partno){
       form_set_error('partno', t('Partno %partno already exists.',
-        array('%partno'=>$element['#value'])));
+        array('%partno' => $element['#value'])));
     }
   }
 
@@ -193,7 +193,7 @@ function budgets_quote_validate($node, &$form) {
 function budgets_quote_access($op, $node, $account = NULL) {
   global $user;
 
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   switch ($op) {
     case 'create':
       return user_access('create suppliers',$account);
@@ -234,7 +234,7 @@ function budgets_quote_prepare(&$node) {
     'FROM {supplier}'));
   if ($ns->suppliers > 10)
     if (!empty($node->supplier_id)) {
-      $s = node_load(array('nid'=>$node->supplier_id));
+      $s = node_load(array('nid' => $node->supplier_id));
       $node->supplier = $s->nid.'-'.$s->title;
     } else
       $node->supplier = '';
@@ -260,7 +260,7 @@ function budgets_quote_save($node) {
 
   $sid = _guifi_db_sql(
     'supplier_quote',
-    array('id'=>$node->nid),
+    array('id' => $node->nid),
     (array)$node,
     $log,$to_mail);
 
@@ -272,9 +272,9 @@ function budgets_quote_save($node) {
     $action = t('UPDATED');
 
   $subject = t('The supplier quote %title has been %action by %user.',
-    array('%title'=>$node->title,
-      '%action'=>$action,
-      '%user'=>$user->name));
+    array('%title' => $node->title,
+      '%action' => $action,
+      '%user' => $user->name));
 
   drupal_set_message($subject);
 
@@ -316,7 +316,7 @@ function budgets_quote_load($node) {
 
 function budgets_quote_view($node, $teaser = FALSE, $page = FALSE) {
   $node = node_prepare($node, $teaser);
-  $supplier = node_load(array('nid'=>$node->supplier_id));
+  $supplier = node_load(array('nid' => $node->supplier_id));
 
   $node->content['refquote'] = array(
     '#value'=> '<small>'.theme_refquote($node,$supplier,$teaser).'</small><hr>',

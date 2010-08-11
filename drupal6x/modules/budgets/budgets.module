@@ -585,7 +585,7 @@ function budgets_display_block_1() {
       "ORDER BY b.id DESC");
     $content2="";
     while ($budget = db_fetch_object($qbudgets)) {
-      $b = node_load(array('nid'=>$budget->id));
+      $b = node_load(array('nid' => $budget->id));
       $content2 .= '<div>&middot;&nbsp;<a href="' .base_path() .'node/' .$budget->id .'">' .$b->title .'</a></div>';
       $content2 .= budgets_bar($b->total,$b->covered,$b->currency_symbol);
     }
@@ -821,15 +821,15 @@ function budgets_form(&$node, &$param) {
   $form['items'] = budgets_items_form($node->items);
 
   $form['batch'] = array(
-    '#type'=>'fieldset',
-    '#title'=>t('Add items from previous proposals or quotes provided by suppliers'),
-    '#collapsible'=>FALSE,
-    '#collapsed'=>FALSE
+    '#type' => 'fieldset',
+    '#title' => t('Add items from previous proposals or quotes provided by suppliers'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
   );
   $form['batch']['loadbudget'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Proposal'),
-    '#description'=>t('Find an existng proposal, and then press "Load Proposal"' .
+    '#type' => 'textfield',
+    '#title' => t('Proposal'),
+    '#description' => t('Find an existng proposal, and then press "Load Proposal"' .
         ' to get the existing items of that proposal loaded into this one'),
     '#default_value' => t('None'),
     '#autocomplete_path'=> 'budgets/js/select-budget',
@@ -840,9 +840,9 @@ function budgets_form(&$node, &$param) {
     '#value' => t('Load Proposal')
   );
   $form['batch']['loadquote'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Supplier quote'),
-    '#description'=>t('Find an existng quote provided by a supplier, ' .
+    '#type' => 'textfield',
+    '#title' => t('Supplier quote'),
+    '#description' => t('Find an existng quote provided by a supplier, ' .
         'and then press "Load Quote"' .
         ' to get the that quote loaded into this proposal.'),
     '#default_value' => t('None'),
@@ -884,8 +884,8 @@ function budgets_form(&$node, &$param) {
 //        '#weight' => $form_weight++
 //    );
     $form['others'] = array(
-      '#type'=>'fieldset',
-      '#title'=>t('Promoter, payment instructions, terms & conditions'),
+      '#type' => 'fieldset',
+      '#title' => t('Promoter, payment instructions, terms & conditions'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE
     );
@@ -966,10 +966,10 @@ function budgets_item_form($item,$ki) {
           "if you don't want to confirm the deletion"),
       '#prefix' => '<table><tr><td>'
       );
-    $f['quantity'] = array('#type'=>'hidden','#value'=>$item['quantity']);
-    $f['cost'] = array('#type'=>'hidden','#value'=>$item['cost']);
-    $f['title'] = array('#type'=>'hidden','#value'=>$item['title']);
-    $f['description'] = array('#type'=>'hidden','#value'=>$item['description']);
+    $f['quantity'] = array('#type' => 'hidden','#value' => $item['quantity']);
+    $f['cost'] = array('#type' => 'hidden','#value' => $item['cost']);
+    $f['title'] = array('#type' => 'hidden','#value' => $item['title']);
+    $f['description'] = array('#type' => 'hidden','#value' => $item['description']);
 //      '#suffix' => '</td>');
     $f['iQuantity'] = array(
       '#type' => 'item',
@@ -1029,7 +1029,7 @@ function budgets_item_form($item,$ki) {
     '#type' => 'weight',
     '#title' => t('Weight'),
     '#default_value' => $item['weight'],
-    '#delta'=>30,
+    '#delta' => 30,
     '#prefix' => '<td>',
     '#suffix' => '</td>',
   );
@@ -1083,12 +1083,12 @@ function budgets_items_form($items) {
   $cw = -30;
   $total = 0;
   if (count($items)) {
-    foreach ($items as $ki=>$item)
+    foreach ($items as $ki => $item)
       $witems[$ki] = $item['weight'];
     asort($witems);
 
     // list items
-    foreach ($witems as $ki=>$item) {
+    foreach ($witems as $ki => $item) {
       if (!$items[$ki]['deleted'])
         $total += $items[$ki]['quantity']*$items[$ki]['cost'];
       $f[$ki] = budgets_item_form($items[$ki],$ki);
@@ -1138,7 +1138,7 @@ function budgets_form_load_budget($form,&$form_state) {
 
   // find higest weight
   $cw = -30;
-  foreach ($node['items'] as $k=>$v)
+  foreach ($node['items'] as $k => $v)
     if ($v['weight']>$cw)
       $cw=$v['weight']+1;
 
@@ -1179,12 +1179,12 @@ function budgets_form_load_quote($form,&$form_state) {
 
   // find higest weight
   $cw = -30;
-  foreach ($node['items'] as $k=>$v)
+  foreach ($node['items'] as $k => $v)
     if ($v['weight']>$cw)
       $cw=$v['weight']+1;
 
   // load quote
-  $quote = node_load(array('nid'=>$toLoad[0]));
+  $quote = node_load(array('nid' => $toLoad[0]));
   if ($quote->type != 'supplier_quote')
     return;
 
@@ -1197,7 +1197,7 @@ function budgets_form_load_quote($form,&$form_state) {
 
   $newI['description'] = $quote->teaser;
 
-  $supplier = node_load(array('nid'=>$quote->supplier_id));
+  $supplier = node_load(array('nid' => $quote->supplier_id));
 
   $newI['comments'] = theme_refquote($quote,$supplier);
 
@@ -1207,7 +1207,7 @@ function budgets_form_load_quote($form,&$form_state) {
 }
 
 function budgets_fund_delete_confirm(&$form_state, $node) {
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   $fid = arg(3);
 
   $fund=&$node->funds[$fid];
@@ -1219,8 +1219,8 @@ function budgets_fund_delete_confirm(&$form_state, $node) {
     t('Are you sure you want to delete fund at %amount ' .
         'from %contributor of %title?',
         array(
-         '%contributor'=>$fund['contributor_name'],
-         '%amount'=>$fund['amount'],
+         '%contributor' => $fund['contributor_name'],
+         '%amount' => $fund['amount'],
          '%title' => $node->title)),
     'budgets/'.$node->id.'/edit/'.$fid,
     t('This action cannot be undone.'),
@@ -1235,14 +1235,14 @@ function budgets_fund_delete_confirm(&$form_state, $node) {
 function budgets_fund_delete_confirm_submit($form, &$form_state) {
   global $user;
 
-  $node = node_load(array('nid'=>$form_state['values']['budget_id']));
+  $node = node_load(array('nid' => $form_state['values']['budget_id']));
   $fund = $node->funds[$form_state['values']['id']];
   $to_mail = explode(',',$node->notification);
   $to_mail[]=$user->mail;
   $to_mail[]=$fund['contributor_email'];
 
   $log = _guifi_db_delete('budget_funds',
-    array('id'=>$fund['id'],'budget_id'=>$fund['budget_id']),
+    array('id' => $fund['id'],'budget_id' => $fund['budget_id']),
     $to_mail);
   $subject = t('Fund for %title from %contributor of %amount deleted by %user.',
     array('%title' => $node->title,
@@ -1284,7 +1284,7 @@ function budgets_fund_form($form_state, $params = array()) {
   guifi_log(GUIFILOG_TRACE,sprintf('function budgets_fund_form(%d)',$fid),$fund);
 
   if (isset($f['new']))
-    $f['fund_status'] = array('#type'=>'hidden','#value'=>'Submitted');
+    $f['fund_status'] = array('#type' => 'hidden','#value' => 'Submitted');
   else
     $f['fund_status'] = array(
       '#type' => 'select',
@@ -1310,7 +1310,7 @@ function budgets_fund_form($form_state, $params = array()) {
     '#title' => t('e-mail'),
     '#required' => TRUE,
     '#attributes' => array(
-      'class'=>'email required'),
+      'class' => 'email required'),
     '#default_value' => $fund['contributor_email'],
     '#description' => t('Your email-id. Will be available just to promoters ' .
         'and not published in the reports available to all.')
@@ -1329,9 +1329,9 @@ function budgets_fund_form($form_state, $params = array()) {
     '#required' => TRUE,
     '#max-length' => 15,
     '#attributes' => array(
-      'class'=>'number required',
-        'min'=>$budget->min_contribution,
-        'max'=>$budget->max_contribution),
+      'class' => 'number required',
+        'min' => $budget->min_contribution,
+        'max' => $budget->max_contribution),
     '#default_value' => $fund['amount'],
     '#description' => t('Amount of the contribution').
                           '&nbsp;('.$budget->currency_txt.').'.
@@ -1351,8 +1351,8 @@ function budgets_fund_form($form_state, $params = array()) {
     $f['terms'] = array(
       '#type' => 'checkbox',
       '#required' => TRUE,
-      '#title'=>t('Do you accept the Terms & Conditions described below?'),
-      '#attributes'=>array('class'=>'required'),
+      '#title' => t('Do you accept the Terms & Conditions described below?'),
+      '#attributes' => array('class' => 'required'),
       '#description' => $budget->terms,
     );
 
@@ -1370,7 +1370,7 @@ function budgets_fund_form($form_state, $params = array()) {
 //  $k = key($f);
 //  $f[$k]['#suffix'] = l(t('Back'),'node/'.$budget->id.'/view/funds');
   $f['back'] = array(
-    '#type'=>'item',
+    '#type' => 'item',
     '#value'=> l(t('Back to funds report'),'node/'.$budget->id.'/view/funds')
   );
 
@@ -1395,19 +1395,19 @@ function budgets_fund_form_submit($form, &$form_state) {
   $to_mail[] = $fund['contributor_email'];
   $fid = _guifi_db_sql(
       'budget_funds',
-      array('id'=>$fund['id'],'budget_id'=>$fund['budget_id']),
+      array('id' => $fund['id'],'budget_id' => $fund['budget_id']),
       $fund,
       $log,$to_mail);
   if (isset($fund['new']))
     $subject = t('New fund of %amount for %contributor created by %user',
-      array('%amount'=>$fund['amount'],
-        '%contributor'=>$fund['contributor_name'],
-        '%user'=>$user->name));
+      array('%amount' => $fund['amount'],
+        '%contributor' => $fund['contributor_name'],
+        '%user' => $user->name));
   else
     $subject = t('Fund of %amount from %contributor updated by %user',
-      array('%amount'=>$fund['amount'],
-        '%contributor'=>$fund['contributor_name'],
-        '%user'=>$user->name));
+      array('%amount' => $fund['amount'],
+        '%contributor' => $fund['contributor_name'],
+        '%user' => $user->name));
   drupal_set_message($subject);
   guifi_notify($to_mail,
     $subject,
@@ -1422,7 +1422,7 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
     sprintf('function budgets_fund_decline(%d %s)',$fund_id,$status),$budget->title);
   if (!(array_search($status,drupal_map_assoc(array('Paid','Accepted','Declined'))))) {
     drupal_set_message(t('%status is not a valid fund status',
-      array('%status'=>$status)));
+      array('%status' => $status)));
     drupal_goto('node/'.$budget->id.'/view/funds');
   }
 
@@ -1431,9 +1431,9 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
   $fund['fund_status'] = $status;
 
   $subject = t('Funding of %amount by %name set as %status.',
-    array('%name'=>$budget->funds[$fund_id]['contributor_name'],
-      '%amount'=>$budget->funds[$fund_id]['amount'],
-      '%status'=>$status));
+    array('%name' => $budget->funds[$fund_id]['contributor_name'],
+      '%amount' => $budget->funds[$fund_id]['amount'],
+      '%status' => $status));
   $log = '';
 
   $to_mail = explode(',',$budget->notification);
@@ -1441,7 +1441,7 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
   $to_mail[] = $user->mail;
 
   _guifi_db_sql('budget_funds',
-    array('id'=>$fund_id,'budget_id'=>$budget->id),
+    array('id' => $fund_id,'budget_id' => $budget->id),
     $fund,
     $log,$to_mail);
 
@@ -1456,7 +1456,7 @@ function budgets_fund_set_status($budget,$fund_id,$status) {
 function budgets_items_clean(&$nitems) {
   $items = $nitems;
   if (count($nitems))
-  foreach ($items as $k=>$i) {
+  foreach ($items as $k => $i) {
     if (empty($i['title']))
     if (empty($i['quantity']))
     if (empty($i['cost']))
@@ -1538,7 +1538,7 @@ function budgets_validate(&$node) {
   }
 
   // validate budget items
-  if (!empty($node->items)) foreach ($node->items as $item_id=>$item) {
+  if (!empty($node->items)) foreach ($node->items as $item_id => $item) {
     if ($item['deleted'])
       continue;
     if (empty($item['description']))
@@ -1578,22 +1578,22 @@ function budgets_save(&$node) {
   $log = '';
   $bid = _guifi_db_sql(
     'budgets',
-    array('id'=>$node->nid),
+    array('id' => $node->nid),
     (array)$node,
     $log,$to_mail);
 
-  foreach ($node->items as $k=>$item) {
+  foreach ($node->items as $k => $item) {
     if ($item['deleted']) {
       $log .= _guifi_db_delete('budget_items',
         array(
-          'id'=>$item['id'],
-          'budget_id'=>$node->nid));
+          'id' => $item['id'],
+          'budget_id' => $node->nid));
       continue;
     }
     $item['budget_id'] = $node->nid;
     $iid = _guifi_db_sql(
       'budget_items',
-      array('id'=>$item['id'],'budget_id'=>$node->nid),
+      array('id' => $item['id'],'budget_id' => $node->nid),
       $item,
       $log,$to_mail);
   }
@@ -1624,7 +1624,7 @@ function budgets_delete(&$node) {
   global $user;
 
   $to_mail = explode(',',$node->notification);
-  $log = _guifi_db_delete('budgets',array('id'=>$node->nid),$to_mail);
+  $log = _guifi_db_delete('budgets',array('id' => $node->nid),$to_mail);
   drupal_set_message($log);
   guifi_notify(
            $to_mail,
@@ -1676,7 +1676,7 @@ function budgets_page($zone = NULL,$status = NULL) {
 
   $output = '';
   while ($node = db_fetch_object($result)) {
-      $output .= node_view(node_load(array('nid'=>$node->nid)), TRUE);
+      $output .= node_view(node_load(array('nid' => $node->nid)), TRUE);
   }
 
   if (empty($output))
@@ -1692,7 +1692,7 @@ function budgets_page($zone = NULL,$status = NULL) {
 
   drupal_set_breadcrumb(guifi_zone_ariadna($zone->id,'budgets/%d/list'));
 //  $output .= theme_pager(NULL, variable_get("guifi_pagelimit", 50));
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   $output .= theme_links(module_invoke_all('link', 'node', $node, FALSE));
   print theme('page',$output, FALSE);
   return;
@@ -1703,7 +1703,7 @@ function budgets_page($zone = NULL,$status = NULL) {
 */
 function budgets_view($node, $teaser = FALSE, $page = FALSE) {
   if (!isset($node->nid))
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
 
   guifi_log(GUIFILOG_TRACE,'function budgets_view()');
 
@@ -1713,17 +1713,17 @@ function budgets_view($node, $teaser = FALSE, $page = FALSE) {
     drupal_set_breadcrumb(guifi_zone_ariadna($node->zone_id));
 
     $node->content['header'] = array(
-      '#value'=>theme_budgets_header($node,$teaser),
+      '#value' => theme_budgets_header($node,$teaser),
       '#weight' => -10
     );
 
   if (!$teaser) {
     $node->content['footer'] = array(
-      '#value'=>theme_budgets_footer($node,$teaser),
+      '#value' => theme_budgets_footer($node,$teaser),
       '#weight' => 10
     );
     $node->content['items'] = array(
-      '#value'=>theme_budgets_items($node),
+      '#value' => theme_budgets_items($node),
       '#weight' => 1
     );
 
@@ -1751,7 +1751,7 @@ function budgets_bar($total,$subtotal,$currency = '€') {
 function theme_budgets_items($node,$links = FALSE) {
 
   if (!isset($node->nid))
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
 
   $output = '<h2>'.t('Proposal/Budget details').'</h2>';
   $total = 0;
@@ -1762,26 +1762,26 @@ function theme_budgets_items($node,$links = FALSE) {
       continue;
 
     $rows[]= array(
-      array('data'=>'<strong>'.t('Item:').' '.$item['title'].'</strong>'),
-      array('data'=>number_format($item['quantity'],2,',','.'),'align'=>'right'),
-      array('data'=>number_format($item['cost'],2,'.',',').$node->currency_symbol,'align'=>'right'),
-      array('data'=>number_format($subtotal,2,',','.').$node->currency_symbol,'align'=>'right')
+      array('data' => '<strong>'.t('Item:').' '.$item['title'].'</strong>'),
+      array('data' => number_format($item['quantity'],2,',','.'),'align' => 'right'),
+      array('data' => number_format($item['cost'],2,'.',',').$node->currency_symbol,'align' => 'right'),
+      array('data' => number_format($subtotal,2,',','.').$node->currency_symbol,'align' => 'right')
     );
     $rows[] = array(
       array(
-       'data'=>$item['description'].'<hr><small>'.$item['comments'].'</small><hr>',
-       'colspan'=>0));
+       'data' => $item['description'].'<hr><small>'.$item['comments'].'</small><hr>',
+       'colspan' => 0));
 
   }
   $rows[] = array(
                  '<h2>Total</h2',
-  array('data'=>'<h2>'.number_format($total,2,',','.').$node->currency_symbol.
-    '</h2>','align'=>'right','colspan'=>0)
+  array('data' => '<h2>'.number_format($total,2,',','.').$node->currency_symbol.
+    '</h2>','align' => 'right','colspan' => 0)
   );
   $header = array(t('Description'),
-    array('data'=>t('Units'),'style'=>'text-align: right;'),
-    array('data'=>t('Cost per unit'),'style'=>'text-align: right;'),
-    array('data'=>t('Subtotal'),'style'=>'text-align: right;'));
+    array('data' => t('Units'),'style' => 'text-align: right;'),
+    array('data' => t('Cost per unit'),'style' => 'text-align: right;'),
+    array('data' => t('Subtotal'),'style' => 'text-align: right;'));
 
   $output .=theme('table', $header, $rows);
 
@@ -1792,12 +1792,12 @@ function theme_budgets_items($node,$links = FALSE) {
 }
 
 function theme_budgets_cnml($node) {
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
 
   guifi_log(GUIFILOG_TRACE,'function theme_budgets_cnml()',$node);
 
   $output = '<div id="guifi">';
-  $output .= '<h2>'.t('Zone %zname%',array('%zname%'=>$node->title)).'</h2>';
+  $output .= '<h2>'.t('Zone %zname%',array('%zname%' => $node->title)).'</h2>';
   $output .= '<p>'.t('You must specify which data do you want to export, ' .
       'the following options are available:').'</p>';
 
@@ -1832,7 +1832,7 @@ function theme_budgets_funds($node,$links = FALSE) {
   guifi_log(GUIFILOG_TRACE,'function theme_budgets_funds()',$node);
 
   if (!isset($node->nid))
-    $node = node_load(array('nid'=>$node->id));
+    $node = node_load(array('nid' => $node->id));
 
   drupal_set_title(t('Contributions to').': '.$node->title);
 
@@ -1845,15 +1845,15 @@ function theme_budgets_funds($node,$links = FALSE) {
   $rows[0] = array(
     theme_strong(t('Date')),
     theme_strong(t('Name')),
-    array('data'=>theme_strong(t('Amount')),'align'=>'right'),
-    array('data'=>theme_strong(t('Status')),'align'=>'right')
+    array('data' => theme_strong(t('Amount')),'align' => 'right'),
+    array('data' => theme_strong(t('Status')),'align' => 'right')
   );
   if (budgets_access('update',$node))
     $rows[0] = array_merge(array(theme_strong(t('Action'))),$rows[0]);
 
   if (empty($node->funds)) {
     $rows[] = array(t('There is no contributions to this project yet'),
-      array('data'=>0,'align'=>'right'));
+      array('data' => 0,'align' => 'right'));
   } else {
     foreach ($node->funds as $fund_id => $fund) {
 
@@ -1868,10 +1868,10 @@ function theme_budgets_funds($node,$links = FALSE) {
       $row = array(
         format_date($fund['timestamp_created'],'small'),
         $fund['contributor_name'],
-        array('data'=>number_format($fund['amount'],2,',','.').
+        array('data' => number_format($fund['amount'],2,',','.').
           $node->currency_symbol,
-          'align'=>'right'),
-        array('data'=>$fund['fund_status'],'align'=>'right'));
+          'align' => 'right'),
+        array('data' => $fund['fund_status'],'align' => 'right'));
 
       if (budgets_access('update',$node)) {
         $b = '<pre>';
@@ -1907,7 +1907,7 @@ function theme_budgets_funds($node,$links = FALSE) {
 
       if (!empty($fund['comments']))
         $rows[] = array(NULL,
-          array('data'=>$fund['comments'],'colspan'=>0));
+          array('data' => $fund['comments'],'colspan' => 0));
 
     } // foreach fund
   } // if there are funds
@@ -1916,15 +1916,15 @@ function theme_budgets_funds($node,$links = FALSE) {
                  '<strong>Total</strong',
                  array('data'=>
                    '<strong>'.number_format($total,2,',','.').$budget->currency_symbol.'</strong>',
-                   'align'=>'right',
-                   'colspan'=>0),
+                   'align' => 'right',
+                   'colspan' => 0),
                  );
-  foreach ($totals as $k=>$v) {
+  foreach ($totals as $k => $v) {
     $rows[] = array(NULL,
                 $k,array('data'=>
                   number_format($v,2,',','.').$budget->currency_symbol,
-                  'align'=>'right',
-                  'colspan'=>0),
+                  'align' => 'right',
+                  'colspan' => 0),
               );
   }
 
@@ -2018,7 +2018,7 @@ function budgets_ahah_select_quote($string){
 
 function budgets_cnml($node = NULL, $format = NULL, $status = NULL) {
 
-  $node = node_load(array('nid'=>$node->id));
+  $node = node_load(array('nid' => $node->id));
   guifi_log(GUIFILOG_TRACE,
     sprintf('function budgets_cnml(%s %s)',$format,$status),
     $node);
@@ -2070,7 +2070,7 @@ function budgets_cnml($node = NULL, $format = NULL, $status = NULL) {
 }
 
 function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
-  $budget = node_load(array('nid'=>$bid));
+  $budget = node_load(array('nid' => $bid));
 
   $budgetXML = $CNML->addChild('budget');
   $budgetXML->addAttribute('id',$bid);
@@ -2100,7 +2100,7 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
   // items
   if (!empty($budget->items)) {
     $itemsXML = $budgetXML->addChild('items');
-    foreach ($budget->items as $iid=>$item) {
+    foreach ($budget->items as $iid => $item) {
       $itemXML = $itemsXML->addChild('item',
         htmlspecialchars($item['description'],ENT_QUOTES));
       $itemXML->addAttribute('id',$item['id']);
@@ -2117,7 +2117,7 @@ function budgets_cnml_budget(&$CNML, $bid, $format = 'short') {
   // funds
   if (!empty($budget->funds)) {
     $fundsXML = $budgetXML->addChild('funds');
-    foreach ($budget->funds as $fid=>$fund) {
+    foreach ($budget->funds as $fid => $fund) {
       $fundXML = $fundsXML->addChild('fund',
         htmlspecialchars($fund['comments'],ENT_QUOTES));
       $fundXML->addAttribute('id',$fund['id']);
@@ -2225,20 +2225,20 @@ function theme_budgets_page_header($zone) {
 //      $links[] = array(
 //        'title' => t($s),
 //        'href'=> 'budgets/'. $zone->id.'/'.$s,
-//        'attributes'=>array(
+//        'attributes' => array(
 //          'title' => t('List budgets/proposals with status set as !status',
-//            array('!status'=>t($s)))
+//            array('!status' => t($s)))
 //        )
 //      );
 //    }
 //  } else {
 //    $output .= '<h3><br>'.
-//      t('Reporting status %status',array('%status'=>$status)).'</h3>';
+//      t('Reporting status %status',array('%status' => $status)).'</h3>';
 //    $output .= '<small>'.t('Restrict the report to').':</small>';
 //    $links[] = array(
 //      'title' => t('All status'),
 //      'href'=> 'budgets/'. $zone->id,
-//      'attributes'=>array(
+//      'attributes' => array(
 //        'title' => t('List all budgets/proposals regardless of the status'))
 //      );
 //    foreach ($pstatus as $s) {
@@ -2246,9 +2246,9 @@ function theme_budgets_page_header($zone) {
 //      $links[] = array(
 //        'title' => t($s),
 //        'href'=> 'budgets/'. $zone->id.'/'.$s,
-//        'attributes'=>array(
+//        'attributes' => array(
 //          'title' => t('List budgets/proposals with status set as !status',
-//            array('!status'=>t($s)))
+//            array('!status' => t($s)))
 //        )
 //      );
 //    }

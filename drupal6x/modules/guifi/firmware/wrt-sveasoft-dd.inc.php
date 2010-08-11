@@ -2,8 +2,8 @@
 
 function unsolclic_wrt($dev) {
   $version = "v3.7";
-  $loc = node_load(array('nid'=>$dev->nid));
-  $zone = node_load(array('nid'=>$loc->zone_id));
+  $loc = node_load(array('nid' => $dev->nid));
+  $zone = node_load(array('nid' => $loc->zone_id));
 
 
 function guifi_unsolclic_startup($dev, $version, $rc_startup) {
@@ -148,21 +148,21 @@ function guifi_unsolclic_ospf($dev,$zone) {
       _out('router ospf');
       _out(' ospf router-id '.$wlan_lan->ipv4);
 
-      foreach ($dev->radios as $radio_id=>$radio)
-        foreach ($radio[interfaces] as $interface_id=>$interface)
+      foreach ($dev->radios as $radio_id => $radio)
+        foreach ($radio[interfaces] as $interface_id => $interface)
           if (($interface[interface_type] == 'wLan') || ($interface[interface_type] == 'wLan/Lan'))  {
-            foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
+            foreach ($interface[ipv4] as $ipv4_id => $ipv4)
               $network = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
                 _out('  network '.$network[netid].'/'.$network[maskbits].' area 0');
 
           }
       
       $wds_links = array();
-      foreach ($dev->radios as $radio_id=>$radio)
-        foreach ($radio[interfaces] as $interface_id=>$interface)
+      foreach ($dev->radios as $radio_id => $radio)
+        foreach ($radio[interfaces] as $interface_id => $interface)
           if ($interface[interface_type] == 'wds/p2p')
-            foreach ($interface[ipv4] as $ipv4_id=>$ipv4)
-              foreach ($ipv4[links] as $link_id=>$link)
+            foreach ($interface[ipv4] as $ipv4_id => $ipv4)
+              foreach ($ipv4[links] as $link_id => $link)
                 if ($link['link_type'] == 'wds')
                   $wds_links[] = $link;
                   foreach ($wds_links as $key => $wds) {
@@ -174,13 +174,13 @@ function guifi_unsolclic_ospf($dev,$zone) {
                       }
                   }
                   
-       foreach ($dev->interfaces as $interface_id=>$interface)
-         foreach ($interface[ipv4] as $ipv4_id=>$ipv4) {
+       foreach ($dev->interfaces as $interface_id => $interface)
+         foreach ($interface[ipv4] as $ipv4_id => $ipv4) {
            $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
              if (($ipv4['ipv4_type'] == '1') && ($interface[interface_type] != 'wLan/Lan')) {
                _out('  network '.$item[netid].'/'.$item[maskbits].' area 0');
              }
-             foreach ($ipv4[links] as $link_id=>$link) {
+             foreach ($ipv4[links] as $link_id => $link) {
                $item = _ipcalc($ipv4[ipv4],$ipv4[netmask]);
                if ($ipv4['ipv4_type'] == '2') {
                  if ($link['routing'] == 'OSPF') {

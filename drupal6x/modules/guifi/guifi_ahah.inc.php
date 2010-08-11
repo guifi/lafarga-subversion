@@ -266,9 +266,9 @@ function guifi_ahah_add_cable_link() {
       $list[$value['id']] = $value['nick'];
   }
 
-  if (count($_POST['interfaces'])) foreach ($_POST['interfaces'] as $iid=>$intf)
-    if (count($intf['ipv4'])) foreach ($intf['ipv4'] as $i=>$ipv4)
-      if (count($ipv4['links'])) foreach ($ipv4['links'] as $l=>$link) {
+  if (count($_POST['interfaces'])) foreach ($_POST['interfaces'] as $iid => $intf)
+    if (count($intf['ipv4'])) foreach ($intf['ipv4'] as $i => $ipv4)
+      if (count($ipv4['links'])) foreach ($ipv4['links'] as $l => $link) {
         if (isset($list[$link['device_id']]))
           unset($list[$link['device_id']]);
       }
@@ -278,9 +278,9 @@ function guifi_ahah_add_cable_link() {
 
     if ($node[0] != $_POST['nid']) {
       $f['msg'] = array(
-        '#type'=>'item',
-        '#title'=>t('Device node changed. Option not available'),
-        '#description'=>t('Can\'t link this device to another device ' .
+        '#type' => 'item',
+        '#title' => t('Device node changed. Option not available'),
+        '#description' => t('Can\'t link this device to another device ' .
           'since has been changed the assigned node.<br />' .
           'To link the device to a device defined at another node, ' .
         'you should save the node of this device before proceeding.')
@@ -289,20 +289,20 @@ function guifi_ahah_add_cable_link() {
       $tree = $parents;
       $tree[] = 'to_did';
       $f['to_did'] = array(
-        '#type'=>'select',
+        '#type' => 'select',
         '#parents'=> $tree,
-        '#title'=>t('Link to device'),
-        '#description'=>t('Select the device which you want to link with'),
-        '#options'=>$list,
+        '#title' => t('Link to device'),
+        '#description' => t('Select the device which you want to link with'),
+        '#options' => $list,
         '#prefix' => '<table style="width: 0"><td align="left">',
         '#suffix' => '</td>'
       );
       $tree = $parents;
       $tree[] = 'addLink';
       $f['createLink'] = array(
-        '#type'=>'button',
+        '#type' => 'button',
         '#default_value' => 'Create',
-        '#parents'=>$tree,
+        '#parents' => $tree,
         '#submit' => $submit,
         '#executes_submit_callback' => TRUE,
         '#prefix' => '<td align="left">',
@@ -310,9 +310,9 @@ function guifi_ahah_add_cable_link() {
       );
     } else {
       $f['msg'] = array(
-        '#type'=>'item',
-        '#title'=>t('No devices available'),
-        '#description'=>t('Can\'t link this device to another device ' .
+        '#type' => 'item',
+        '#title' => t('No devices available'),
+        '#description' => t('Can\'t link this device to another device ' .
         'since there are no other devices defined on this node.'),
       );
     }
@@ -343,7 +343,7 @@ function guifi_ahah_add_subnet_mask() {
 
     $form['if']['interface'][$interface_id]['ifs']['interface']['selectNetmask'] = array(
         '#type' => 'select',
-        '#parents'=>array('interface',$interface_id,'newNetmask'),
+        '#parents' => array('interface',$interface_id,'newNetmask'),
         '#title' => t("Network mask"),
         '#description' => t('Size of the next available set of addresses to be allocated'),
         '#default_value' => '255.255.255.224',
@@ -352,9 +352,9 @@ function guifi_ahah_add_subnet_mask() {
         '#suffix'=> '</td>',
       );
     $form['if']['interface'][$interface_id]['ifs']['interface']['createNetmask'] = array(
-      '#type'=>'button',
+      '#type' => 'button',
       '#default_value' => 'Create',
-      '#parents'=>array('interface',$interface_id,'addNetmask'),
+      '#parents' => array('interface',$interface_id,'addNetmask'),
       '#submit' => array('guifi_interfaces_add_subnet_submit'),
       '#executes_submit_callback' => TRUE,
       '#prefix' => '<td align="left">',
@@ -407,41 +407,41 @@ function guifi_ahah_move_device() {
     );
     if ($node[0] != $_POST['nid']) {
       $form['r'][$radio_id]['moveradio']['msg'] = array(
-        '#type'=>'item',
-        '#title'=>t('Node changed. Option not available'),
-        '#description'=>t('Can\'t move this radio to another device ' .
+        '#type' => 'item',
+        '#title' => t('Node changed. Option not available'),
+        '#description' => t('Can\'t move this radio to another device ' .
             'since there has been changed the assigned node.<br />' .
             'To move the radio to a device defined at another node, ' .
             'you should save the node of this device before proceeding.')
       );
       $form['r'][$radio_id]['moveradio']['to_did'] = array(
-        '#type'=>'hidden',
+        '#type' => 'hidden',
         '#parents'=> array('radios',$radio_id,'to_did'),
-        '#value'=>$orig_device_id,
+        '#value' => $orig_device_id,
       );
     } else if (count($list)>1) {
       $form['r'][$radio_id]['moveradio']['to_did'] = array(
-        '#type'=>'select',
+        '#type' => 'select',
         '#parents'=> array('radios',$radio_id,'to_did'),
-        '#title'=>t('Move radio to device'),
-        '#description'=>t('Select the device which you want to assign this radio.<br />' .
+        '#title' => t('Move radio to device'),
+        '#description' => t('Select the device which you want to assign this radio.<br />' .
             'Note that the change will not take effect until the device has been saved.'),
-        '#options'=>$list,
-        '#default_value'=>$orig_device_id
+        '#options' => $list,
+        '#default_value' => $orig_device_id
       );
     } else {
       $form['r'][$radio_id]['moveradio']['msg'] = array(
-        '#type'=>'item',
-        '#title'=>t('No devices available'),
-        '#description'=>t('Can\'t move this radio to another device ' .
+        '#type' => 'item',
+        '#title' => t('No devices available'),
+        '#description' => t('Can\'t move this radio to another device ' .
             'since there are no other devices defined on this node.<br />' .
             'To move the radio to a device defined at another node, ' .
             'you should reassign the node of this device before proceeding.')
       );
       $form['r'][$radio_id]['moveradio']['to_did'] = array(
-        '#type'=>'hidden',
+        '#type' => 'hidden',
         '#parents'=> array('radios',$radio_id,'to_did'),
-        '#value'=>$orig_device_id,
+        '#value' => $orig_device_id,
       );
     }
 

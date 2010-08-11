@@ -110,7 +110,7 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
                join guifi_zone as t2 on t1.zone_id = t2.id 
                where t1.id = (%s)",$nodes[$n]));
     if ($record=db_fetch_object($result)){
-      $nodesid["$nodes[$n]"]=Array("nnick"=>$record->nnick,"zid"=>$record->zid,"lat"=>$record->lat,"lon"=>$record->lon);
+      $nodesid["$nodes[$n]"]=Array("nnick" => $record->nnick,"zid" => $record->zid,"lat" => $record->lat,"lon" => $record->lon);
       if (!isset($azones[$record->zid])){
         $azones[$record->zid]=$record->znick;
       }
@@ -118,7 +118,7 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
   }
 
   //search zone subnets
-  if (count($azones)) foreach ($azones as $key=>$azone){
+  if (count($azones)) foreach ($azones as $key => $azone){
     $result=db_query(sprintf("SELECT t1.base as netid, t1.mask as mask
                FROM guifi_networks as t1
                where t1.zone = (%s)",$key));
@@ -127,9 +127,9 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
       $splitip=explode(".",$a["netid"]);
       $c=$splitip[0]*pow(256,3)+$splitip[1]*pow(256,2)+$splitip[2]*256+$splitip[3];
       if (!isset($aznets[$c])){
-        $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0,"znick"=>$azone,"intnetid"=>ip2long($a["netid"]),"intbroadcast"=>ip2long($a["broadcast"]));
+        $aznets[$c]=Array("netid" => $a["netid"],"maskbits" => $a["maskbits"],"broadcast" => $a["broadcast"],"zid" => $key,"swagr" => 0,"znick" => $azone,"intnetid" => ip2long($a["netid"]),"intbroadcast" => ip2long($a["broadcast"]));
       }elseif ($aznets[$c]["maskbits"]>$a["maskbits"]){
-        $aznets[$c]=Array("netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"broadcast"=>$a["broadcast"],"zid"=>$key,"swagr"=>0,"znick"=>$azone,"intnetid"=>ip2long($a["netid"]),"intbroadcast"=>ip2long($a["broadcast"]));
+        $aznets[$c]=Array("netid" => $a["netid"],"maskbits" => $a["maskbits"],"broadcast" => $a["broadcast"],"zid" => $key,"swagr" => 0,"znick" => $azone,"intnetid" => ip2long($a["netid"]),"intbroadcast" => ip2long($a["broadcast"]));
       }
     }
   }
@@ -137,15 +137,15 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
   
   //agregate subnets
   $subnets=Array();
-  foreach ($networks as $key=>$network){
-    $subnets[$key]=Array("netid"=>$network["netid"],"maskbits"=>$network["maskbits"]);
+  foreach ($networks as $key => $network){
+    $subnets[$key]=Array("netid" => $network["netid"],"maskbits" => $network["maskbits"]);
   }
   //$subnets=array_values($networks);
   for($nmaskbits=30;$nmaskbits>16;$nmaskbits--){
       $net1="";
       $knet1=0;
       $nreg=0;
-      if (count($subnets)) foreach ($subnets as $key=>$subnet){
+      if (count($subnets)) foreach ($subnets as $key => $subnet){
          if ($subnet["maskbits"]==$nmaskbits){
             $nreg++;
             $a = _ipcalc_by_netbits($subnet["netid"],$nmaskbits-1);
@@ -167,26 +167,26 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
    
   //search networks in zone networks
   $aggregate=Array();
-  foreach ($networks as $key=>$network){
+  foreach ($networks as $key => $network){
     $a = _ipcalc($network["ipv4"],$network["netmask"]);
     $b = ip2long($a["netid"]);
     $z = ip2long($a["broadcast"]);
     //return json_encode(array($a,$b,$z));
     $sw=0;
-    foreach ($aznets as $zkey=>$znet){
+    foreach ($aznets as $zkey => $znet){
       if($b>=$znet["intnetid"] && $z<=$znet["intbroadcast"]){
         $sw=1;
         break;
       }
     }
     if($sw==0){
-      $aggregate[$key]=Array("netid"=>$network["netid"],"maskbits"=>$network["maskbits"],"zone"=>"");
+      $aggregate[$key]=Array("netid" => $network["netid"],"maskbits" => $network["maskbits"],"zone" => "");
     }
   }
 
     //aggregate subnets ultimate
-  foreach ($aznets as $key=>$znet){
-    $aggregate[$key]=Array("netid"=>$znet["netid"],"maskbits"=>$znet["maskbits"],"zone"=>"zone");
+  foreach ($aznets as $key => $znet){
+    $aggregate[$key]=Array("netid" => $znet["netid"],"maskbits" => $znet["maskbits"],"zone" => "zone");
   }
   ksort($aggregate);
   
@@ -194,7 +194,7 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
       $net1="";
       $knet1=0;
       $nreg=0;
-      if (count($aggregate)) foreach ($aggregate as $key=>$subnet){
+      if (count($aggregate)) foreach ($aggregate as $key => $subnet){
          if ($subnet["maskbits"]==$nmaskbits){
             $nreg++;
             $a = _ipcalc_by_netbits($subnet["netid"],$nmaskbits-1);
@@ -215,7 +215,7 @@ function guifi_routingmap_search($plat1,$plon1,$plat2,$plon2){
    } 
  
   return json_encode(array($cnmlid,$nodesid,$alinks,$subnets,$aznets,$aggregate));
-   //   $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+   //   $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
 }
 
 function guifi_routingmap_search_firstdevice($nid){
@@ -243,7 +243,7 @@ function guifi_routingmap_search_links(&$nodes,&$nodesid,&$devices,&$devicesid,&
         $k++;
       };
       if (!isset($alinks["$recordlink->id"])){
-        $alinks["$recordlink->id"]=Array("nid1"=>$devicesid["$deviceid"],"nid2"=>$record->nid);
+        $alinks["$recordlink->id"]=Array("nid1" => $devicesid["$deviceid"],"nid2" => $record->nid);
       }
     };
   };
@@ -260,9 +260,9 @@ function guifi_routingmap_add_device_networks(&$networks,$deviceid,$nid){
       $a = _ipcalc($record->ipv4,$record->netmask);
       $c=ip2long($a["netid"]);
       if (!isset($networks[$c])){
-         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+         $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
       }elseif ($networks[$c]["maskbits"]>$a["maskbits"]){
-         $networks[$c]=Array("ipv4"=>$record->ipv4,"netmask"=>$record->netmask,"netid"=>$a["netid"],"maskbits"=>$a["maskbits"],"nid"=>$nid);
+         $networks[$c]=Array("ipv4" => $record->ipv4,"netmask" => $record->netmask,"netid" => $a["netid"],"maskbits" => $a["maskbits"],"nid" => $nid);
       }
    };
    return 0;
@@ -309,30 +309,30 @@ function guifi_routingmap_all_search($plat1,$plon1,$plat2,$plon2){
     if(!isset($nodes[$record->nid])){
       $n++;
       if($n>$nmax) break;
-      $nodes["$record->nid"]=array("lat"=>$record->lat,"lon"=>$record->lon,"ospf"=>$vospf,"bgp"=>$vbgp);
+      $nodes["$record->nid"]=array("lat" => $record->lat,"lon" => $record->lon,"ospf" => $vospf,"bgp" => $vbgp);
     }else{
       $nodes["$record->nid"]["ospf"]=$nodes["$record->nid"]["ospf"]+$vospf;
       $nodes["$record->nid"]["bgp"]=$nodes["$record->nid"]["bgp"]+$vbgp;
     }
     if(!isset($links[$record->lid])){
-      $links["$record->lid"]=array("n1"=>$record->nid,"n2"=>0,"routing"=>$record->routing,"type"=>$record->link_type);
+      $links["$record->lid"]=array("n1" => $record->nid,"n2" => 0,"routing" => $record->routing,"type" => $record->link_type);
     }else{
       $links["$record->lid"]["n2"]=$record->nid;
     }
   }
   $narea=0;
-  foreach ($nodes as $nkey=>$node){
+  foreach ($nodes as $nkey => $node){
     $sw=0;
     if($node["ospf"]>0){
       if(!isset($node["area"])){
         $aret=guifi_routingmap_all_search_ospfarea($nkey);
-        foreach($aret[0] as $nakey=>$nanode){
+        foreach($aret[0] as $nakey => $nanode){
           if(isset($nodes[$nakey]) and !isset($nodes[$nakey]["area"])){
               $nodes[$nakey]["area"]=$narea;
               $sw=1;
           }
         }
-        foreach($aret[1] as $nakey=>$nalink){
+        foreach($aret[1] as $nakey => $nalink){
           if(isset($links[$nakey]) and !isset($links[$nakey]["area"])){
             $links[$nakey]["area"]=$narea;
             $sw=1;
