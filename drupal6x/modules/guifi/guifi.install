@@ -410,7 +410,9 @@ function guifi_install() {
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('21', 'service', 'teamspeak', 'TeamSpeak Server - Voice conference');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('22', 'service', 'games', 'Generic games server');");
   db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('23', 'service', 'SNPgraphs', 'SNP graph server');");
-
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('24', 'service', 'Streaming', 'Videoconferènia i/o Streaming');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('25', 'service', 'VPN', 'Virtual Private Network');");
+  db_query("INSERT INTO guifi_types (id, type, text, description) VALUES ('26', 'service', 'LDAP', 'LDAP Server');");
 
   // --
   // -- status flag types
@@ -1155,6 +1157,12 @@ function guifi_update_768() {
    $items[] = update_sql("UPDATE guifi_types SET text = 'RouterOSv4.0+' , description = 'RouterOS 4.0 to 4.6 from Mikrotik' WHERE id = '14' AND type = 'firmware'");
 
  
+  return $items;
+}
+
+function guifi_update_808() {
+  $items = array();
+  $items[] = update_sql("INSERT INTO guifi_types (id, type, text, description) VALUES ('26', 'service', 'LDAP', 'LDAP Server');");
   return $items;
 }
 
