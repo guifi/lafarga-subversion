@@ -8,62 +8,62 @@ function budgets_schema() {
 
   $schema['budgets'] = array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'budget_status' => array('type' => 'varchar', 'length' => '15', 'not NULL' => TRUE),
-      'notification' => array('type' => 'varchar', 'length' => '1024', 'not NULL' => FALSE),
-      'promoter' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'payment_instructions' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'terms' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'expires' => array('type' => 'int', 'not NULL' => TRUE, 'disp-width' => '11'),
-      'zone_id' => array('type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '11', 'default' => 0, 'COMMENT' => 'Foreign key to guifi_zone'),
-      'currency_txt' => array('type' => 'varchar', 'length' => '10', 'not NULL' => TRUE, 'default' => 'Euros'),
-      'currency_symbol' => array('type' => 'varchar', 'length' => '5', 'not NULL' => TRUE, 'default' => '€'),
-      'min_contribution' => array('type' => 'numeric', 'not NULL' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-      'max_contribution' => array('type' => 'numeric', 'not NULL' => FALSE, 'default' => 2000, 'precision' => '20', 'scale' => '2')),
+      'id' => array('type' => 'int', 'size' => 'medium', 'not null' => TRUE, 'default' => 0),
+      'budget_status' => array('type' => 'varchar', 'length' => '15', 'not null'  => TRUE),
+      'notification' => array('type' => 'varchar', 'length' => '1024', 'not null'  => FALSE),
+      'promoter' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'payment_instructions' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'terms' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'expires' => array('type' => 'int', 'not null'  => TRUE, 'disp-width' => '11'),
+      'zone_id' => array('type' => 'int', 'size' => 'medium', 'unsigned' => TRUE, 'not null'  => TRUE, 'default' => 0, 'comment' => 'Foreign key to guifi_zone'),
+      'currency_txt' => array('type' => 'varchar', 'length' => '10', 'not null'  => TRUE, 'default' => 'Euros'),
+      'currency_symbol' => array('type' => 'varchar', 'length' => '5', 'not null'  => TRUE, 'default' => '€'),
+      'min_contribution' => array('type' => 'numeric', 'not null'  => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'max_contribution' => array('type' => 'numeric', 'not null'  => FALSE, 'default' => 2000, 'precision' => '20', 'scale' => '2')),
       'primary key' => array('id'),
   );
   $schema['budget_funds'] = array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'budget_id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'contributor_name' => array('type' => 'varchar', 'length' => '255', 'not NULL' => TRUE),
-      'contributor_telf' => array('type' => 'varchar', 'length' => '64', 'not NULL' => FALSE),
-      'contributor_email' => array('type' => 'varchar', 'length' => '64', 'not NULL' => FALSE),
-      'fund_status' => array('type' => 'varchar', 'length' => '15', 'not NULL' => TRUE),
-      'date' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '11'),
-      'amount' => array('type' => 'numeric', 'not NULL' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-      'comments' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'timestamp_created' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '11')),
+      'id' => array('type' => 'int', 'size' => 'medium', 'not null'  => TRUE, 'default' => 0),
+      'budget_id' => array('type' => 'int', 'size' => 'medium', 'not null'  => TRUE, 'default' => 0),
+      'contributor_name' => array('type' => 'varchar', 'length' => '255', 'not null'  => TRUE),
+      'contributor_telf' => array('type' => 'varchar', 'length' => '64', 'not null'  => FALSE),
+      'contributor_email' => array('type' => 'varchar', 'length' => '64', 'not null'  => FALSE),
+      'fund_status' => array('type' => 'varchar', 'length' => '15', 'not null'  => TRUE),
+      'date' => array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '11'),
+      'amount' => array('type' => 'numeric', 'not null'  => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'comments' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'timestamp_created' => array('type' => 'int', 'not null'  => TRUE, 'default' => 0)),
       'primary key' => array('budget_id', 'id'),
   );
   $schema['budget_items'] = array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'budget_id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'title' => array('type' => 'varchar', 'length' => 1024, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'description' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'comments' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'quantity' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '4'),
-      'cost' => array('type' => 'numeric', 'not NULL' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-      'weight' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '3')),
+      'id' => array('type' => 'int', 'size' => 'medium', 'not null'  => TRUE, 'default' => 0),
+      'budget_id' => array('type' => 'int', 'size' => 'medium', 'not null'  => TRUE, 'default' => 0),
+      'title' => array('type' => 'varchar', 'length' => 1024, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'),
+      'description' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'comments' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'quantity' => array('type' => 'int', 'size' => 'small', 'not null'  => TRUE, 'default' => 0),
+      'cost' => array('type' => 'numeric', 'not null'  => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'weight' => array('type' => 'int', 'size' => 'tiny', 'not null'  => TRUE, 'default' => 0)),
     'primary key' => array('budget_id', 'id'),
   );
   $schema['supplier'] = array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'zone_id' => array('type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '11', 'default' => 0, 'COMMENT' => 'Foreign key to guifi_zone'),
-      'title' => array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title')),
+      'id' => array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'zone_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null'  => TRUE, 'disp-width' => '11', 'default' => 0, 'comment' => 'Foreign key to guifi_zone'),
+      'title' => array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title')),
     'primary key' => array('id'),
   );
   $schema['supplier_quote'] = array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'supplier_id' => array('type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '11', 'default' => 0, 'COMMENT' => 'Foreign key to guifi_zone'),
-      'partno' => array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'title' => array('type' => 'varchar', 'length' => 1024, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'description' => array('type' => 'text', 'size' => 'big', 'not NULL' => TRUE),
-      'cost' => array('type' => 'numeric', 'not NULL' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-      'expires' => array('type' => 'int', 'not NULL' => TRUE, 'disp-width' => '11')),
+      'id' => array('type' => 'int', 'size' => 'medium', 'not null'  => TRUE, 'default' => 0),
+      'supplier_id' => array('type' => 'int', 'size' => 'medium', 'unsigned' => TRUE, 'not null'  => TRUE, 'default' => 0, 'comment' => 'Foreign key to guifi_zone'),
+      'partno' => array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'),
+      'title' => array('type' => 'varchar', 'length' => 1024, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'),
+      'description' => array('type' => 'text', 'size' => 'big', 'not null'  => TRUE),
+      'cost' => array('type' => 'numeric', 'not null'  => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'expires' => array('type' => 'int', 'not null'  => TRUE)),
     'primary key' => array('id'),
   );
 
@@ -96,9 +96,9 @@ function budgets_update_413() {
   $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_payment'");
   $items[] = update_sql("DELETE FROM `variable` WHERE `name` = 'budget_expires'");
   $items[] = update_sql("ALTER TABLE `budgets`
-  CHANGE `budget_status` `budget_status` VARCHAR( 15 ) NULL DEFAULT 'Preparation' COMMENT 'Preparation , Open , Closed'");
+  CHANGE `budget_status` `budget_status` VARCHAR( 15 ) NULL DEFAULT 'Preparation' comment 'Preparation , Open , Closed'");
   $items[] = update_sql("ALTER TABLE `budget_funds`
-  CHANGE `fund_status` `fund_status` VARCHAR( 20 ) NULL DEFAULT 'Submitted' COMMENT 'Submitted, Accepted, Declined, Paid'");
+  CHANGE `fund_status` `fund_status` VARCHAR( 20 ) NULL DEFAULT 'Submitted' comment 'Submitted, Accepted, Declined, Paid'");
   return $items;
 }
 
@@ -108,32 +108,32 @@ function budgets_update_414() {
   db_change_field($items, 'budgets', 'guifi_zones', 'zone_id',
     array('type' => 'int',
       'disp-width' => 11,
-      'not NULL' => TRUE,
+      'not null'  => TRUE,
       'default' => 0,
-      'COMMENT' => 'Foreign key to guifi_zone')
+      'comment' => 'Foreign key to guifi_zone')
     );
   db_add_field($items, 'budget_items', 'title',
-    array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'));
+    array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'));
   db_add_field($items, 'budgets', 'notification',
-    array('type' => 'varchar', 'length' => '1024', 'not NULL' => FALSE));
+    array('type' => 'varchar', 'length' => '1024', 'not null'  => FALSE));
   db_change_field($items, 'budgets', 'max_contribution', 'max_contribution',
-    array('type' => 'numeric', 'not NULL' => FALSE, 'default' => 50000, 'precision' => '20', 'scale' => '2'));
+    array('type' => 'numeric', 'not null'  => FALSE, 'default' => 50000, 'precision' => '20', 'scale' => '2'));
   db_change_field($items, 'budgets', 'nid', 'id',
-    array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'));
+    array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items, 'budget_funds', 'nid', 'budget_id',
-    array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'));
+    array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items, 'budget_funds', 'fund_id', 'id',
-    array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'));
+    array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items, 'budget_items', 'nid', 'budget_id',
-    array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'));
+    array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_change_field($items, 'budget_items', 'item_id', 'id',
-    array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'));
+    array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'));
   db_create_table($items, 'supplier',
     array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'zone_id' => array('type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '11', 'default' => 0, 'COMMENT' => 'Foreign key to guifi_zone'),
-      'title' => array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title')
+      'id' => array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'zone_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null'  => TRUE, 'disp-width' => '11', 'default' => 0, 'comment' => 'Foreign key to guifi_zone'),
+      'title' => array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title')
       ),
     'primary key' => array('id'),
     )
@@ -141,12 +141,12 @@ function budgets_update_414() {
   db_create_table($items, 'supplier_quote',
     array(
     'fields' => array(
-      'id' => array('type' => 'int', 'not NULL' => TRUE, 'default' => 0, 'disp-width' => '10'),
-      'supplier_id' => array('type' => 'int', 'unsigned' => TRUE, 'not NULL' => TRUE, 'disp-width' => '11', 'default' => 0, 'COMMENT' => 'Foreign key to guifi_zone'),
-      'partno' => array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'title' => array('type' => 'varchar', 'length' => 60, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'),
-      'cost' => array('type' => 'numeric', 'not NULL' => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
-      'expires' => array('type' => 'int', 'not NULL' => TRUE, 'disp-width' => '11')
+      'id' => array('type' => 'int', 'not null'  => TRUE, 'default' => 0, 'disp-width' => '10'),
+      'supplier_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null'  => TRUE, 'disp-width' => '11', 'default' => 0, 'comment' => 'Foreign key to guifi_zone'),
+      'partno' => array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'),
+      'title' => array('type' => 'varchar', 'length' => 60, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'),
+      'cost' => array('type' => 'numeric', 'not null'  => TRUE, 'default' => 0, 'precision' => '10', 'scale' => '2'),
+      'expires' => array('type' => 'int', 'not null'  => TRUE, 'disp-width' => '11')
       ),
     'primary key' => array('id'),
     )
@@ -159,7 +159,7 @@ function budgets_update_424() {
   $items = array();
 
   db_change_field($items, 'budget_items', 'title', 'title',
-    array('type' => 'varchar', 'length' => 1024, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'item title'));
+    array('type' => 'varchar', 'length' => 1024, 'not null'  => TRUE, 'default' => '', 'comment' => 'item title'));
 
   return $items;
 }
@@ -176,7 +176,7 @@ function budgets_update_478() {
   $items = array();
 
   db_change_field($items, 'supplier_quote', 'title', 'title',
-    array('type' => 'varchar', 'length' => 1024, 'not NULL' => TRUE, 'default' => '', 'COMMENT' => 'supplier title'));
+    array('type' => 'varchar', 'length' => 1024, 'not null'  => TRUE, 'default' => '', 'comment' => 'supplier title'));
 
   return $items;
 }

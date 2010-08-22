@@ -259,7 +259,7 @@ function budgets_menu() {
     'title' => 'Service providers & Commercial suppliers',
     'description' => 'Find out shops where you can buy equipment and can understand what do you require or hire professional services to help you in building infrastructure',
     'page callback' => 'drupal_goto',
-    'page arguments' => array('node/' . guifi_zone_root() . '/view/suppliers'),
+    'page arguments' => array('node/' . guifi_bg_zone_root() . '/view/suppliers'),
     'weight' => 100,
     'access arguments' => array('access content'),
   );
@@ -267,7 +267,7 @@ function budgets_menu() {
     'title' => 'Proposals, Budgets & Fundings',
     'description' => 'Browse the proposals/budgets, find out the costs and help by funding them',
     'page callback' => 'drupal_goto',
-    'page arguments' => array('budgets/' . guifi_zone_root() . '/list'),
+    'page arguments' => array('budgets/' . guifi_bg_zone_root() . '/list'),
     'weight' => 101,
     'access arguments' => array('access content'),
   );
@@ -576,7 +576,7 @@ function budgets_block($op = "list", $delta = 0, $edit = array()) {
 }
 
 function budgets_display_block_1() {
-    $content .= '<div style="text-align: center; background-color: #ffaaaa;">'. l(t('view all open projects'), 'budgets/'. guifi_zone_root() .'/list/Open') .'</div>';
+    $content .= '<div style="text-align: center; background-color: #ffaaaa;">'. l(t('view all open projects'), 'budgets/'. guifi_bg_zone_root() .'/list/Open') .'</div>';
     $today=getdate();
     $qbudgets = db_query(
       "SELECT b.id, b.expires " .
@@ -2265,6 +2265,13 @@ function theme_budgets_page_header($zone) {
   return '<hr>'. $output .'<hr>';
 }
 
+function guifi_bg_zone_root() {
+  $root = db_fetch_object(db_query(
+    "SELECT id " .
+    "FROM {guifi_zone} " .
+    "WHERE master = 0"));
+  return $root->id;
+}
 
 /**
 * Implementation of hook_cron().
