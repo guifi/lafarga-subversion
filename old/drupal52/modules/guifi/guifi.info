@@ -1,6 +1,0 @@
-; $Id: guifi.info,v 3.0 2007/07/23 $
-name = guifi.net
-description = Main module for guifi.net provisioning system for wireless networks and communities.
-package = guifi.net
-version = 5.5
-
