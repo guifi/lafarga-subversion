@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<_wireless version="0.1" guiorcversion="0.1">
+  <window type="text" title="Wireless" />
+  <commands>
+	<command name="_wireless" type="2" stype="1" command="/bin/ping 127.0.0.1 -c 4" />
+  </commands>
+</_wireless>

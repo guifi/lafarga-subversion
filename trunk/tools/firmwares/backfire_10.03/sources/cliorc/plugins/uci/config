@@ -1,0 +1,40 @@
+//cliorc version 0.01
+//config version 0.02
+
+[define dirs]
+  [sdefine root]
+    //mode: d-permet posar el directori davant s-busca el command en segona posicio
+    uci={"title":"UCI", "desc":"uci commands","mode":"ds"}
+  [/sdefine root]
+[/define dirs]
+
+[define commands]
+  [sdefine uci]
+    batch={"command":"[-$options] batch", "desc":"" 
+            "exec":["uci $options batch"]}
+    export={"command":"[-$options] export", "desc":"" 
+            "exec":["uci $options export"]}
+    import={"command":"[-$options] import", "desc":"" 
+            "exec":["uci $options import"]}
+    changes={"command":"[-$options] changes", "desc":"" 
+            "exec":["uci $options changes"]}
+    commit={"command":"[-$options] commit", "desc":"" 
+            "exec":["uci $options commit"]}
+    add={"command":"[-$options] add", "desc":"" 
+            "exec":["uci $options add"]}
+    add_list={"command":"[-$options] add_list", "desc":"" 
+            "exec":["uci $options add_list"]}
+    show={"command":"[-$options] show", "desc":"" 
+            "exec":["uci $options show"]}
+    get={"command":"[-$options] get", "desc":"" 
+            "exec":["uci $options get"]}
+    set={"command":"[-$options] set", "desc":"" 
+            "exec":["uci $options set"]}
+    delete={"command":"[-$options] delete", "desc":"" 
+            "exec":["uci $options delete"]}
+    rename={"command":"[-$options] rename", "desc":"" 
+            "exec":["uci $options rename"]}
+    revert={"command":"[-$options] revert", "desc":"" 
+            "exec":["uci $options revert"]}
+  [/sdefine uci]
+[/define commands]

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<guiorc version="0.1">
+  <gralmenu>
+    <option name="_interfaces" title="Interfaces" type="window"/>
+    <option name="_wireless" title="Wireless" type="window"/>
+    <option name="_ip" title="Ip" type="menu"/>
+    <option name="_routing" title="Routing" type="menu"/>
+    <option name="_system" title="System" type="menu"/>
+    <option name="_tools" title="tools" type="menu"/>
+  </gralmenu>
+  <submenu name="_ip">
+    <option name="_dns" title="DNS" type="menu" />
+    <option name="_routes" title="Routes" type="window" />
+  </submenu>
+  <submenu name="_routing">
+    <option name="_bgp" title="BGP" type="menu" />
+    <option name="_ospf" title="OSPF" type="window" />
+  </submenu>
+  <submenu name="_system">
+    <option name="_ports" title="Ports" type="window" />
+    <option name="_info" title="Info" type="window" />
+  </submenu>
+  <submenu name="_tools">
+    <option name="_ping" title="Ping" type="window" />
+    <option name="_traceroute" title="Traceroute" type="window" />
+    <option name="_ipscan" title="IP Scan" type="window" />
+  </submenu>
+  <submenu name="_dns">
+    <option name="_server" title="Server" type="window" />
+    <option name="_client" title="Client" type="window" />
+  </submenu>
+  <submenu name="_bgp">
+    <option name="_bgp_network" title="Network" type="menu" />
+    <option name="_bgp_links" title="Links" type="window" />
+  </submenu>
+  <submenu name="_bgp_network">
+    <option name="_bgp_network_nodes" title="Nodes" type="window" />
+    <option name="_bgp_network_interfaces" title="Interfaces" type="window" />
+    <option name="_bgp_network_devices" title="Devices" type="window" />
+  </submenu>
+</guiorc>

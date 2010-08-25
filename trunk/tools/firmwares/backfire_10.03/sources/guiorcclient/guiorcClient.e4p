@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Project SYSTEM "Project-4.6.dtd">
+<!-- eric4 project file for project guiorcClient -->
+<!-- Saved: 2010-07-25, 04:47:51 -->
+<!-- Copyright (C) 2010 ,  -->
+<Project version="4.6">
+  <Language></Language>
+  <ProgLanguage mixed="0">Python</ProgLanguage>
+  <ProjectType>Qt4</ProjectType>
+  <Description></Description>
+  <Version>0.1</Version>
+  <Author></Author>
+  <Email></Email>
+  <Sources>
+    <Source>uipack/__init__.py</Source>
+    <Source>uipack/Ui_mainwindow.py</Source>
+    <Source>uipack/mainwindow.py</Source>
+    <Source>uipack/Ui_initial.py</Source>
+    <Source>uipack/initial.py</Source>
+    <Source>appprog/__init__.py</Source>
+    <Source>appprog/ctrlwindow.py</Source>
+    <Source>uipack/Ui_selecserv.py</Source>
+    <Source>uipack/selecserv.py</Source>
+    <Source>appprog/graldata.py</Source>
+    <Source>appprog/ffunction.py</Source>
+    <Source>appprog/widgets.py</Source>
+    <Source>uipack/Ui_gridwindow.py</Source>
+    <Source>uipack/gridwindow.py</Source>
+    <Source>uipack/Ui_textwindow.py</Source>
+    <Source>uipack/textwindow.py</Source>
+    <Source>guiorcClient.py</Source>
+    <Source>appprog/sockets.py</Source>
+  </Sources>
+  <Forms>
+    <Form>uipack/mainwindow.ui</Form>
+    <Form>uipack/initial.ui</Form>
+    <Form>uipack/selecserv.ui</Form>
+    <Form>uipack/gridwindow.ui</Form>
+    <Form>uipack/textwindow.ui</Form>
+  </Forms>
+  <Translations>
+  </Translations>
+  <Resources>
+  </Resources>
+  <Interfaces>
+  </Interfaces>
+  <Others>
+    <Other>uipack/mainwindow</Other>
+  </Others>
+  <MainScript>guiorcClient.py</MainScript>
+  <Vcs>
+    <VcsType>None</VcsType>
+  </Vcs>
+  <FiletypeAssociations>
+    <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.qm" type="TRANSLATIONS" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
+    <FiletypeAssociation pattern="*.pyw" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
+    <FiletypeAssociation pattern="*.ts" type="TRANSLATIONS" />
+    <FiletypeAssociation pattern="*.py" type="SOURCES" />
+    <FiletypeAssociation pattern="*.qrc" type="RESOURCES" />
+  </FiletypeAssociations>
+</Project>

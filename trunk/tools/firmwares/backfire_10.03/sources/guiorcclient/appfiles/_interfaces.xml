@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<_interfaces version="0.1" guiorcversion="0.1">
+  <window type="text" title="Interfaces" />
+  <commands>
+	<command name="_interfaces" type="2" stype="1" command="/bin/ls -l" />
+  </commands>
+</_interfaces>
+

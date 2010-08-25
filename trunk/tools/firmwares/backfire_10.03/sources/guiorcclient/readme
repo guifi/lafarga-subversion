@@ -1,0 +1,13 @@
+Versio en desenvolupament
+
+creat amb el IDE eric
+obrir des de el eric el fitxer guiorcClient.e4p
+
+instalar python, qt4 i eric
+
+appfiles fitxers de configuracio
+appprog fonts py del programa
+uipack fonts py del gui
+fitxer de execucio: guiorcClient.py
+perque funcioni es te que arrencar el servidor de moment a localhost en una consola mateix
+

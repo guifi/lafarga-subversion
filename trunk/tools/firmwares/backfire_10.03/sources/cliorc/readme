@@ -1,0 +1,19 @@
+cli per openwrt backfire
+Versio en desenvolupament
+
+compilat per x86 64bits
+
+llibreries: lua, lua dev, readline 5.1
+
+copiar readline 5.1 a una subcarpeta: readline-5.1
+compilar amb make
+
+config fitxer de configuració
+config_plugins llista de plugins 
+plugins carpeta de plugins
+
+executar cliorc
+
+tambe podeu executar directament el lua, pero el editor de linea es molt basic
+canviar la linea luainterp=0 per luainterp=1 al final del fitxer cliorc.lua
+executar lua cliorc.lua

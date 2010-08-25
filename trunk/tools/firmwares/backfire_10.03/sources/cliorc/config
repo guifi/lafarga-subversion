@@ -1,0 +1,54 @@
+//cliorc version 0.02
+//config version 0.02
+
+[define dirs]
+  [sdefine root]
+    interface={"title":"Interfaces", "desc":"Interfaces management"}
+    tool={}
+  [/sdefine root]
+    [sdefine interface]
+      ethernet={"title":"bonding", "desc":"bonding management"}
+    [/sdefine interface]
+[/define dirs]
+
+[define commands]
+  [sdefine ethernet]
+    set={"command":"set $iface $property=$value", "desc":"Set value item property" 
+            "exec":["_interface ethernet set $iface $property=$value"]
+            "vars":{"$iface":{"format":"$iface"},"$property":{"format":"$property"}
+                    "$value":{"format":"$$property"}
+                    "mtu":{"format":"^%d+$","help":"normal 1500"}
+                    "arp":{"format":"^[%l-]+$","options":["disabled","enabled","proxy-arp","reply-only"]}
+                    "speed":{"format":"^[%d%u]+$","options":{"10M":"10","100M":"100","1G":"1000"}}
+                    "auto-negotiation":{"format":"^%l+$","options":["yes","no"]}
+                    "full-duplex":{"format":"^%l+$","options":["yes","no"]}
+                    }}
+    monitor={"command":"monitor $iface", "desc":"interface monitor" 
+            "exec":["monitor $iface"]
+            "vars":{"$iface":{"format":"$iface"}}}
+  [/sdefine ethernet]
+  [sdefine tool]
+    ping={"command":"ping [-$option] $ip", "desc":"" 
+            "exec":["ping $option $ip"]
+            "vars":{"$ip":{"format":"$ip"}}}
+    traceroute={"command":"traceroute $ip", "desc":"" 
+            "exec":["traceroute $ip"]
+            "vars":{"$ip":{"format":"$ip"}}}
+  [/sdefine tool]  
+  [sdefine root]
+    default={"command":"$_restcommand", "desc":"command to shell" 
+            "exec":["$_restcommand"]}
+  [/sdefine root]  
+[/define commands]
+[define formats]
+  [sdefine root]
+    ip={"format":"^(%d+)%.(%d+)%.(%d+)%.(%d+)$", "values":[["~",0,255],["~",0,255],["~",0,255],["~",0,255]] 
+                  "options":[], "help":"Example: 192.168.1.1"}
+    iface={"format":"^(%l+)%d$", "values":[["l","ether","vlan","wlan"]] 
+                  "help":"interface example: ether1; vlan1; wlan1"}
+  [/sdefine root]
+  [sdefine ethernet]
+    property={"format":"^[-%l]+$","options":["mtu","arp","speed","auto-negotiation","full-duplex"] 
+            "help":"mtu,arp,speed,auto-negotiation,full-duplex"}
+  [/sdefine ethernet]
+[/define formats]
