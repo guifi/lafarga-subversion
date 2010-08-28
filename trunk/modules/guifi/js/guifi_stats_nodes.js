@@ -30,3 +30,8 @@ function guifi_stats_chart05(nmonths){    //Nodes per month, average of 6 months
       document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart05/'+nmonths+'?zone='+v+'">';
 }
 
+function guifi_stats_chart06(nzone){    //pie areas
+      v=document.getElementById("edit-zone-id").value;
+      document.getElementById("plot").innerHTML='<img src="/guifi/stats/chart06/0?zone='+v+'">';
+}
+
