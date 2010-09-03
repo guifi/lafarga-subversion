@@ -179,7 +179,7 @@ function guifi_host_host_form($host, $key, &$form_weight = -200) {
       $f['deletedMsg'] = array(
         '#type' => 'item',
         '#value' => guifi_device_item_delete_msg(
-            "This host and has been deleted, " .
+            "This host has been deleted, " .
             "deletion will cascade to all properties, including interfaces, " .
             "links and ip addresses."),
         '#weight' => $form_weight++
@@ -216,7 +216,7 @@ function guifi_ipv4_validate($element,&$form_state) {
     }
 }
 
-/* guifi_host_validate()): Validate host, called as a hook while validating the form */
+/* guifi_host_validate(): Validate host, called as a hook while validating the form */
 function guifi_host_validate($edir,$form_state) {
   guifi_log(GUIFILOG_TRACE,"function _guifi_host_validate()");
 }

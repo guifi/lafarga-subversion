@@ -55,7 +55,7 @@ function guifi_schema() {
   );
 
   $schema['guifi_networks'] = array(
-    'comment' => 'allocates ipv4 adddress ranges to zones',
+    'comment' => 'allocates ipv4 address ranges to zones',
     'fields' => array(
          'id' => array('type' => 'serial', 'size' => 'small', 'unsigned' => TRUE, 'not null' => TRUE),
          'base' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),

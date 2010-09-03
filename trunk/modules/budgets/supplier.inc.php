@@ -7,9 +7,9 @@
 
 function budgets_supplier_help($path, $arg) {
   if ($path == 'admin/help#budgets_supplier') {
-    $txt = 'A supplier is either ean individual or a compani who provides ' .
+    $txt = 'A supplier is either an individual or a company who provides ' .
         'services or materials to other network participants to help in ' .
-        'building infrasetructures';
+        'building infrastructures';
     $replace = array();
     return '<p>'.t($txt,$replace).'</p>';
   }
