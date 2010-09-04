@@ -257,7 +257,7 @@ function budgets_menu() {
 
   $items['guifi/menu/main/browse_suppliers'] = array(
     'title' => 'Service providers & Commercial suppliers',
-    'description' => 'Find out shops where you can buy equipment and can understand what do you require or hire professional services to help you in building infrastructure',
+    'description' => 'Find out shops where you can buy equipment and can understand what you require or hire professional services to help you in building infrastructure',
     'page callback' => 'drupal_goto',
     'page arguments' => array('node/' . guifi_bg_zone_root() . '/view/suppliers'),
     'weight' => 100,
@@ -438,7 +438,7 @@ $terms_default = t("<ol>
 <li>Once a budget is closed, promoters are responsible to execute it, and contributors are not longer allowed to ask for a return.</li>
 <li>Promoters are not liable for the results of the project, just for spending the funds in a similar way as described in the budget.</li>
 <li>If a project does not execute, promoters will be responsible of returning funds to contributors or allocate them to a another project.</li>
-<li>The promoters/contributors are liable by their budgets and fundings. This site just provides a way to communicate between them, with no other responibilities.</li>
+<li>The promoters/contributors are liable by their budgets and fundings. This site just provides a way to communicate between them, with no other responsabilities.</li>
 </ol>");
 
   switch ($var) {
@@ -829,7 +829,7 @@ function budgets_form(&$node, &$param) {
   $form['batch']['loadbudget'] = array(
     '#type' => 'textfield',
     '#title' => t('Proposal'),
-    '#description' => t('Find an existng proposal, and then press "Load Proposal"' .
+    '#description' => t('Find an existing proposal, and then press "Load Proposal"' .
         ' to get the existing items of that proposal loaded into this one'),
     '#default_value' => t('None'),
     '#autocomplete_path' => 'budgets/js/select-budget',
@@ -842,9 +842,9 @@ function budgets_form(&$node, &$param) {
   $form['batch']['loadquote'] = array(
     '#type' => 'textfield',
     '#title' => t('Supplier quote'),
-    '#description' => t('Find an existng quote provided by a supplier, ' .
+    '#description' => t('Find an existing quote provided by a supplier, ' .
         'and then press "Load Quote"' .
-        ' to get the that quote loaded into this proposal.'),
+        ' to get the quote loaded into this proposal.'),
     '#default_value' => t('None'),
     '#autocomplete_path' => 'budgets/js/select-quote',
   );
@@ -1685,7 +1685,7 @@ function budgets_page($zone = NULL, $status = NULL) {
     $output = t("Welcome to budget module. " .
         "This module will allow your community to create & manage " .
         "budgets & proposals by allocate costs, and collecting funds for them." .
-        "<br>There are currently none defined here. Any logged user can create " .
+        "<br>There is currently nothing defined here. Any logged user can create " .
         "new pudgets/proposals by going to the 'Create content' menu option.");
   else
     $output = theme_budgets_page_header($zone) .
@@ -1823,7 +1823,7 @@ function theme_budgets_cnml($node) {
   $output .= '</ul>';
 
   $output .= '<p>'. t('The <b>C</b>ommunity <b>N</b>etwork <b>M</b>arkup <b>L</b>anguage (<a href="'. base_path() .'node/3521">CNML</a>) is a XML format to interchange network information between services or servers.') .'</p>';
-  $output .= '<p>'. t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If is not your case, you should ask for permission before using it.</a>') .'</p>';
+  $output .= '<p>'. t('<b>IMPORTANT LEGAL NOTE:</b> This network information is under the <a href="http://guifi.net/ComunsSensefils/">Comuns Sensefils</a> license, and therefore, available for any other network under the same licensing. If this is not your case, you should ask for permission before using it.</a>') .'</p>';
   $output .= "</div>";
 
   return $output;
@@ -1854,7 +1854,7 @@ function theme_budgets_funds($node, $links = FALSE) {
     $rows[0] = array_merge(array(theme_strong(t('Action'))), $rows[0]);
 
   if (empty($node->funds)) {
-    $rows[] = array(t('There is no contributions to this project yet'),
+    $rows[] = array(t('There are no contributions to this project yet'),
       array('data' => 0, 'align' => 'right'));
   }
   else {
