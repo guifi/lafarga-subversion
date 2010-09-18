@@ -1,0 +1,41 @@
+config 'webif' 'general'
+	option 'firmware_subtitle' 'With X-Wrt Extensions'
+	option 'firstboot' '0'
+	option 'lang' 'ca'
+	option 'firmware_name' 'ImakokiOS'
+	option 'firmware_version' '0.1'
+
+config 'webif' 'theme'
+	option 'id' 'guifi'
+
+config 'webif' 'qos'
+	option 'show_advanced_rules' '0'
+
+config 'webif' 'misc'
+	option 'opendns' '0'
+
+config 'webif' 'wireless'
+
+config 'webif' 'firewall'
+	option 'log' '0'
+
+
+Content-Type: text/html; charset=UTF-8
+Content-Disposition: inline
+Pragma: no-cache
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="refresh" content="0;url=/cgi-bin/webif/system-editor.sh?path=/etc/config" />
+	<title>Webif&sup2; Administration Console</title>
+	<style type="text/css">
+		*{color:Red;background:White;font-family:Verdana,Helvetica,sans-serif}
+		p{position:absolute;width:99%;top:50%;margin-top:-3em;line-height:3em;text-align:center}
+	</style>
+</head>
+<body>
+<p><b>Error</b> downloading a file<br />
+Redirecting to <a href="/cgi-bin/webif/system-editor.sh?path=/etc/config">previous page</a></p>
+</body>
+</html>
