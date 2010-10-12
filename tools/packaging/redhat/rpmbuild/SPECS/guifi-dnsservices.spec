@@ -1,12 +1,12 @@
 Name: guifi-dnsservices
-Version: 1.0
-Release: 41%{?dist}
-Summary: The CNML services to generated DNS configuration files
+Version: 1.1
+Release: 1%{?dist}
+Summary: The CNML services to generate DNS configuration files
 
 Group: Applications/Internet
 License: GPLv3
 URL: http://www.guifi.net/
-Source0: %{name}-%{version}.tar.gz
+Source0: %{name}-%{version}.%{release}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -24,7 +24,7 @@ keeps in synch with the domains at the database.
 %prep
 %setup -q
 echo "*/24 * * * *    named    cd /var/named/chroot/etc/ && /usr/bin/php /usr/share/dnsservices/dnsservices.php >> /var/named/chroot/var/log/dnsservices.log " >dnsservices.cron
-echo "*/26 * * * *    root    /etc/init.d/named reload" >>dnsservices.cron
+echo "*/26 * * * *    root    service named reload" >>dnsservices.cron
 echo " " > named.conf.int.private
 echo " " > named.conf.ext.private
 echo " " > named.options
@@ -63,7 +63,7 @@ rm -fr /var/log/dnsservices
 /etc/init.d/named stop
 
 %files
-%config(noreplace) %{_sysconfdir}/cron.d/dnsservices
+%config(noreplace) /etc/cron.d/dnsservices
 %config(noreplace) /var/named/chroot/var/named/named.conf.int.private
 %config(noreplace) /var/named/chroot/var/named/named.conf.int.private
 %config(noreplace) /var/named/chroot/var/named/named.options
@@ -73,6 +73,10 @@ rm -fr /var/log/dnsservices
 %attr(0755,named,named) /var/named/chroot/var/named/named.conf.int.private
 %attr(0755,named,named) /var/named/chroot/var/named/named.options
 %changelog
+
+* Thu Oct 12 2010 Miquel Martos <miquel.martos@guifi.net> - 1.1.1
+- Fixed cron.d location.
+- Updated dnsservices.php, now can use MX priority.
 
 * Thu Apr 8 2010 Miquel Martos <miquel.martos@guifi.net> - 1.0.41
 - Some RedHat bugs fixed.
