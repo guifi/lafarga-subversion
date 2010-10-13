@@ -1,6 +1,6 @@
 Name: guifi-dnsservices
-Version: 1.2
-Release: 1%{?dist}
+Version: 1.1
+Release: 3%{?dist}
 Summary: The CNML services to generate DNS configuration files
 
 Group: Applications/Internet
@@ -73,6 +73,8 @@ rm -fr /var/log/dnsservices
 %attr(0755,named,named) /var/named/chroot/var/named/named.conf.int.private
 %attr(0755,named,named) /var/named/chroot/var/named/named.options
 %changelog
+* Thu Oct 14 2010 Miquel Martos <miquel.martos@guifi.net> - 1.1.3
+- Fix on delegation creation.
 
 * Wed Oct 13 2010 Miquel Martos <miquel.martos@guifi.net> - 1.1.2
 - Updated dnsservices.php, Now, the master domain, no generate slave domains for delegated hosts.
