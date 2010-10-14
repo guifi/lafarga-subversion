@@ -37,7 +37,7 @@ rm -rf %{buildroot}
 %{__mkdir} -p %{buildroot}/var/log/dnsservices
 %{__install} -D -m 0755 *php %{buildroot}/usr/share/dnsservices #%{buildroot}%{_datadir}/
 %{__mkdir} -p %{buildroot}/%{_sysconfdir}/
-%{__install} -D -m 0644 dnsservices.cron %{buildroot}/%{_sysconfdir}/cron.d/dnsservices
+%{__install} -D -m 0644 dnsservices.cron %{buildroot}/etc/cron.d/dnsservices
 %{__mkdir} -p %{buildroot}/var/named/chroot/var/named
 %{__install} -D -m 0755 named.conf.int.private %{buildroot}/var/named/chroot/var/named/named.conf.int.private
 %{__install} -D -m 0755 named.conf.ext.private %{buildroot}/var/named/chroot/var/named/named.conf.ext.private
