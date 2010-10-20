@@ -55,8 +55,15 @@ $h = fopen("/etc/dnsservices/config.php", "w") or die(date("YmdHi")." Unable to 
 fwrite($h,$config);
 fclose($h);
 if ($r2=="y"||$r2=="") {
-  shell_exec("cd /var/named/chroot/etc/ && chown named:named /etc/dnsservices && sudo -u named /usr/bin/php /usr/share/dnsservices/dnsservices.php && service named reload");
-
+  shell_exec("if [ -f /tmp/last_update.dns ] ; then /bin/rm /tmp/last_update.dns; fi");
+  shell_exec("if [ -f /tmp/last_dns ] ; then /bin/rm /tmp/last_dns; fi");
+  shell_exec("cd /var/named/chroot/etc/ && chown named:named /etc/dnsservices");
+  echo "Retrieving CNML from ".$DNSDataServerurl." to configure new named.conf file\n";
+  echo "Please wait. This may take several minutes.\n";
+  $output = shell_exec("sudo -u named /usr/bin/php /usr/share/dnsservices/dnsservices.php");
+  echo $output;
+  $output = shell_exec("service named restart");
+  echo $output;
 }
 echo "Successful: DNS Server has been configured\n";
 
