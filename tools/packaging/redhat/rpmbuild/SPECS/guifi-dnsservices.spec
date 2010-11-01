@@ -1,6 +1,6 @@
 Name: guifi-dnsservices
 Version: 1.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: The CNML services to generate DNS configuration files
 
 Group: Applications/Internet
@@ -73,6 +73,9 @@ rm -fr /var/log/dnsservices
 %attr(0755,named,named) /var/named/chroot/var/named/named.conf.int.private
 %attr(0755,named,named) /var/named/chroot/var/named/named.options
 %changelog
+* Mon Nov 1 2010 Miquel Martos <miquel.martos@guifi.net> - 1.1.5
+- Added external MailServers.
+
 * Wed Oct 20 2010 Miquel Martos <miquel.martos@guifi.net> - 1.1.4
 - Reformated named.conf output.
 
