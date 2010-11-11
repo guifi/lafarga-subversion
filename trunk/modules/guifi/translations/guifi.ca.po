@@ -248,7 +248,7 @@ msgstr ""
 
 #: guifi_devices.inc.php:459
 msgid "adding a new %device at %node"
-msgstr "afegint un nou %device al %node"
+msgstr "Afegint un nou/nova %device al node %node"
 
 #: guifi_devices.inc.php:464
 msgid "edit device %dname"
@@ -284,7 +284,7 @@ msgstr "contacte"
 
 #: guifi_devices.inc.php:526
 msgid "Mailid where changes on the device will be notified, if many, separated by ','<br />used for network administration."
-msgstr ""
+msgstr "Correu electrònic on es notificaran els canvis fets al dispositiu. Si voleu utilitzar múltiples correus separeu-los per comes ','<br />Utilitzat per l'administració de la xarxa."
 
 #: guifi_devices.inc.php:532
 msgid "Server which collects traffic and availability data"
@@ -874,7 +874,7 @@ msgstr ""
 
 #: guifi_hosts.inc.php:63
 msgid "CNAME"
-msgstr ""
+msgstr "CNAME"
 
 #: guifi_hosts.inc.php:79
 msgid "Advanced settings"
@@ -882,47 +882,47 @@ msgstr "Configuració avançada"
 
 #: guifi_hosts.inc.php:97
 msgid "Options"
-msgstr ""
+msgstr "Opcions"
 
 #: guifi_hosts.inc.php:112
 msgid "Delete host"
-msgstr ""
+msgstr "Elimineu una màquina"
 
 #: guifi_hosts.inc.php:130
 msgid "Add New Host"
-msgstr ""
+msgstr "Afegiu una nova màquina"
 
 #: guifi_hosts.inc.php:151
 msgid "HostName:"
-msgstr ""
+msgstr "Nom de la màquina:"
 
 #: guifi_hosts.inc.php:152
 msgid "IPv4:"
-msgstr ""
+msgstr "IPv4:"
 
 #: guifi_hosts.inc.php:161
 msgid "Default Host Name"
-msgstr ""
+msgstr "Nom per defecte del host"
 
 #: guifi_hosts.inc.php:170
 msgid "IP Address"
-msgstr ""
+msgstr "Adreça IP"
 
 #: guifi_hosts.inc.php:174
 msgid "Leave it blank if you want to use an alias to an external domain.<br> ex: hostname is an alias of hostname.dyndns.org."
-msgstr ""
+msgstr "Deixeu en blanc si voleu utilitzar un alies a un domini extern. <br> p. ex.: hostname és un alies de hostname.dyndns.org."
 
 #: guifi_hosts.inc.php:214
 msgid "Invalid %ipv4 address"
-msgstr ""
+msgstr "Adreça IPv4 invàlida"
 
 #: guifi_hosts.inc.php:296
 msgid " %host added"
-msgstr ""
+msgstr " %host afegit"
 
 #: guifi_hosts.inc.php:307
 msgid "Hostname %hostname has been deleted."
-msgstr ""
+msgstr "La màquina %hostname ha estat eliminada"
 
 #: guifi_hosts.inc.php:13
 msgid "1 host"
@@ -948,11 +948,11 @@ msgstr "Qms"
 
 #: guifi_includes.inc.php:389
 msgid "There are no devices to link within the given criteria, you can use the filters to get more results."
-msgstr ""
+msgstr "Segons els criteris que heu especificat, no hi ha dispositius amb els que enllaçar, podeu utilitzar els filtres per tal d'obtenir millors resultats."
 
 #: guifi_includes.inc.php:402
 msgid "select the device which do you like to link with"
-msgstr ""
+msgstr "Seleccioneu el dispositiu amb el qual voleu enllaçar"
 
 #: guifi_includes.inc.php:486
 msgid "Filters"
@@ -1050,31 +1050,31 @@ msgstr "Error a l'adreça IPv4 (%addr), utilitza el format  \"10.138.0.1\"."
 
 #: guifi_includes.inc.php:932
 msgid "Error: trying to search for a network for unknown node or zone"
-msgstr ""
+msgstr "Error: s'ha intentat buscar una xarxa per a un node o zona desconegut"
 
 #: guifi_includes.inc.php:936
 msgid "Error: trying to search for a network of unknown size"
-msgstr ""
+msgstr "Error: s'ha intentat cercar una xarxa de mida desconeguda"
 
 #: guifi_includes.inc.php:940
 msgid "Error: trying to search for a network for unknown type"
-msgstr ""
+msgstr "Error: s'ha intentat cercar una xarxa de tipus desconegut"
 
 #: guifi_includes.inc.php:974
 msgid "Finding if %mask is available at %zone, elapsed: %secs"
-msgstr ""
+msgstr "Buscant si le màscara %mask està disponible a la zona %zone, temps utilitzat: %secs"
 
 #: guifi_includes.inc.php:1000
 msgid "Found %amask available at %ip/%rmask. got from %zone, elapsed: %secs"
-msgstr ""
+msgstr "Trobada %amask disponible a %ip/%rmask. Obtingut de %zone, temps utilitzat: %secs"
 
 #: guifi_includes.inc.php:1011
 msgid "A new network (%base / %mask) has been allocated for zone %name, got from %name2 by %user."
-msgstr ""
+msgstr "Una nova xarxa (%base / %mask) ha estat assignada per a la zona %name, obtinguda de %name2 per l'usuari %user."
 
 #: guifi_includes.inc.php:1049
 msgid "Unable to find space at %zone, will look at parents, elapsed: %secs"
-msgstr ""
+msgstr "No s'ha pogut trobar espai a la zona %zone, ara es buscarà a les zones pare, temps utilitzat: %secs""
 
 #: guifi_includes.inc.php:1197
 msgid "Network %net/%mask is full"
@@ -1094,7 +1094,7 @@ msgstr "COMPLET"
 
 #: guifi_includes.inc.php:1386
 msgid "live ping/traceroute to %device"
-msgstr ""
+msgstr "live ping/traceroute a %device"
 
 #: guifi_includes.inc.php:1675
 msgid "A notification will be sent to: %to"
@@ -1118,7 +1118,7 @@ msgstr "El nom del node %name no és vàlid."
 
 #: guifi_includes.inc.php:1779
 msgid "Device name %name not valid."
-msgstr ""
+msgstr "El nom del dispositiu %name no és vàlid."
 
 #: guifi_interfaces.inc.php:18
 msgid "Connection to AP"
@@ -1206,11 +1206,11 @@ msgstr "Afegint un rang de xarxa IPv4"
 
 #: guifi_ipv4.inc.php:36
 msgid "The network %base/%mask (%type) has been DELETED by %user."
-msgstr ""
+msgstr "La xarxa %base/%mask (%type) ha estat esborrada per l'usuari %user."
 
 #: guifi_ipv4.inc.php:63
 msgid "Are you sure you want to delete the network range %base/%mask?"
-msgstr ""
+msgstr "Esteu segurs que voleu eliminar el rang de xarxa %base/%mask?"
 
 #: guifi_ipv4.inc.php:65 guifi_users.inc.php:90
 msgid "This action cannot be undone."
@@ -1234,7 +1234,7 @@ msgstr "troncal - es fa servir internament, enllaços..."
 
 #: guifi_ipv4.inc.php:131 guifi_tools.inc.php:231
 msgid "Was not possible to find %type space for %mask"
-msgstr ""
+msgstr "No ha estat possible trobar %type espai per a %mask"
 
 #: guifi_ipv4.inc.php:149
 msgid "Network base IPv4 address"
@@ -1266,15 +1266,15 @@ msgstr "Tramet"
 
 #: guifi_ipv4.inc.php:201
 msgid "You must specify a base network for the zone."
-msgstr ""
+msgstr "Heu d'especificar una xarxa base per a la zona."
 
 #: guifi_ipv4.inc.php:205
 msgid "You must specify a valid ipv4 notation."
-msgstr ""
+msgstr "Cal que especifiqueu una notació IPv4 vàlida"
 
 #: guifi_ipv4.inc.php:209
 msgid "You must specify a valid ipv4 network base address. Base address for:"
-msgstr ""
+msgstr "Cal que especifiqueu una adreça IPv4 base de xarxa vàlida. Adreça base per a:"
 
 #: guifi_ipv4.inc.php:212
 msgid "is"
@@ -1286,11 +1286,11 @@ msgstr "Aquesta xarxa ja s'està fent servir"
 
 #: guifi_ipv4.inc.php:231
 msgid "Only ad-hoc/mesh or root zones can have ad-hoc/mesh ranges assigned"
-msgstr ""
+msgstr "Només ad-hoc/mesh o zones root poden tenir assignats rangs ad-hoc/mesh"
 
 #: guifi_ipv4.inc.php:236
 msgid "You must specify the protocol for backbone ranges on ad-hoc/mesh zones"
-msgstr ""
+msgstr "Cal que especifiqueu el protocol per a rangs del backbone a zones ad-hoc/mesh"
 
 #: guifi_ipv4.inc.php:246 guifi_networkutils.inc.php:119
 msgid "network"
@@ -1426,7 +1426,7 @@ msgstr "Contacte"
 
 #: guifi_node.inc.php:190
 msgid "Who did possible this node or who to contact with regarding this node if it is distinct of the owner of this page. Use valid emails, if you like to have more than one, separated by commas.'"
-msgstr ""
+msgstr "Persona que ha fet possible aquest node o persona de contacte si és diferent del propietari d'aquesta node. Utilitzeu correus electrònics vàlids, si voleu indicar més d'un, utilitzeu comes"
 
 #: guifi_node.inc.php:196
 msgid "Node settings"
@@ -1438,7 +1438,7 @@ msgstr "servidor de gràfiques per defecte"
 
 #: guifi_node.inc.php:214
 msgid "Select the <em>graph server</em> to be used at this node.<br />You can find the <em>graph server</em> by introducing part of the id number, zone name or graph server name. A list with all matching values with a maximum of 50 values will be created.<br />You can refine the text to find your choice."
-msgstr ""
+msgstr "Selecciona el <em>servidor de gràfiques</em> que utilitzarà aquest node. <br /> Podeu trobar el <em>servidor de gràfiques</em> introduint part del id number, nom de zona o nom del servidor de gràfiques. Una llista amb tots els valors coincidents (màxim de 50) serà generada. <br /> Podeu refinar el text per tal de trobar la vostra opció."                     
 
 #: guifi_node.inc.php:223
 msgid "It's supposed to be a stable online node?"
@@ -1510,7 +1510,7 @@ msgstr "Descripció de la zona"
 
 #: guifi_node.inc.php:388
 msgid "Zone, address, neighborhood. Something that describes your area within your location.<br />If you don't know your lat/lon, please provide street and number or crossing street."
-msgstr ""
+msgstr "Zona, adreça, veinat. Quelcom que descrigui l'àrea on està localitzat el teu node.<br /> Si no sabeu la vostra lat/lon, si us plau poroporcioneu el carrer i el número."
 
 #: guifi_node.inc.php:394
 msgid "Antenna elevation"
@@ -1522,7 +1522,7 @@ msgstr "Alçada de l'antena respecte el nivell del carrer"
 
 #: guifi_node.inc.php:422
 msgid "You must read and accept the license terms and conditions to be allowed to create nodes."
-msgstr ""
+msgstr "Has de llegir i acceptar els termes i condicions de la llicència per tal de poder crear nodes."
 
 #: guifi_node.inc.php:429 guifi_zone.inc.php:620
 msgid "Zone nick has been set to:"
@@ -1534,7 +1534,7 @@ msgstr "No es pot assignar a la zona arrel, assigna-ho a una altra."
 
 #: guifi_node.inc.php:478
 msgid "Can't be assigned to parent zone, please assign the node to an final zone."
-msgstr ""
+msgstr "No es pot assignar el node a la zona pare, si us plau assigneu el node a una zona final"
 
 #: guifi_node.inc.php:485
 msgid "Elevation must be above the floor! :)"
@@ -1542,7 +1542,7 @@ msgstr "L'alçada s'ha de definir respecte el terra! :)"
 
 #: guifi_node.inc.php:489
 msgid "Do you mean that you are flying over the earth??? :)"
-msgstr ""
+msgstr "Voleu dir que esteu volant per sobre la terra??? :)"
 
 #: guifi_node.inc.php:522
 msgid "The node %name has been CREATED by %user."
@@ -1562,19 +1562,19 @@ msgstr "Mapa de distància des de"
 
 #: guifi_node.inc.php:691
 msgid "Click on the map to get a new path profile to check the Line Of Sight<br />Click on the path profile to see the point on the map"
-msgstr ""
+msgstr "Feu clic al mapa per tal d'obtenir un nou pèrfil i poder comprovar la línia de visió directa.<br /> Cliqueu al perfil per tal de veure el punt al mapa"
 
 #: guifi_node.inc.php:694
 msgid "Distance:"
-msgstr ""
+msgstr "Distància:"
 
 #: guifi_node.inc.php:694
 msgid "Azimuth:"
-msgstr ""
+msgstr "Azimut:"
 
 #: guifi_node.inc.php:694
 msgid "degrees"
-msgstr ""
+msgstr "graus"
 
 #: guifi_node.inc.php:716
 msgid "distances from"
@@ -1598,7 +1598,7 @@ msgstr "Aquesta consulta no ha tornat cap fila."
 
 #: guifi_node.inc.php:850
 msgid "Use the filters to get some results"
-msgstr ""
+msgstr "Utilitzeu el filtres per tal d'obtenir resultats"
 
 #: guifi_node.inc.php:868 guifi_tools.inc.php:494 guifi_zone.inc.php:195
 msgid "Zone"
@@ -1614,7 +1614,7 @@ msgstr "Mides de la imatge"
 
 #: guifi_node.inc.php:885
 msgid "Click over the image to view in large format"
-msgstr ""
+msgstr "Feu clic a l'imatge per tal de veure-la en un format gran"
 
 #: guifi_node.inc.php:900
 msgid "North East"
@@ -1638,7 +1638,7 @@ msgstr "Clic per veure en format ampliat"
 
 #: guifi_node.inc.php:1074
 msgid "zone (mode)"
-msgstr ""
+msgstr "zona (mode)"
 
 #: guifi_node.inc.php:1075
 msgid "position (lat/lon)"
@@ -1658,11 +1658,11 @@ msgstr "dades del %node"
 
 #: guifi_node.inc.php:1112 guifi_zone.inc.php:594;1449
 msgid "Sorry, your browser can't display the embedded map"
-msgstr ""
+msgstr "Ho sentim, el teu navegador no pot mostrar el mapa encastat"
 
 #: guifi_node.inc.php:1178
 msgid "graph overview @ %node"
-msgstr ""
+msgstr "Visió general gràfiques @ %node"
 
 #: guifi_node.inc.php:1198
 msgid "last available"
@@ -1678,7 +1678,7 @@ msgstr "editar trasto"
 
 #: guifi_node.inc.php:1223
 msgid "trace routes, discover services from this device"
-msgstr ""
+msgstr "traçar rutes, descobrir serveis desde d'aquest dispositiu"
 
 #: guifi_node.inc.php:1229
 msgid "Get radio configuration with singleclick"
@@ -1768,7 +1768,7 @@ msgstr "Afegir ràdio sense fils per aquest trasto"
 
 #: guifi_radios.inc.php:249
 msgid "Ad-hoc mode for mesh"
-msgstr ""
+msgstr "Ad-hoc mode per a mesh"
 
 #: guifi_radios.inc.php:268
 msgid "New radio (mode)"
@@ -1780,7 +1780,7 @@ msgstr "Afegir una radio nova"
 
 #: guifi_radios.inc.php:284
 msgid "Usage:<br />Choose <strong>wireless client</strong> mode for a normal station with full access to the network. That's the right choice in general.<br />Use the other available options only for the appropiate cases and being sure of what you are doing and what does it means. Note that you might require to be authorized by networks administrators for doing this.<br />Youwill not be able to define you link and get connected to the network until you add at least one radio."
-msgstr ""
+msgstr "Utilitzeu:<br />Escolliu el mode <strong>client wireless</strong> per a una estació normal amb accés complet a la xarxa. Generalment, aquesta sol ser l'opció més correcta. <br /> Utilitzeu només les altres opcions només en casos apropiats i si esteu segurs del que esteu fent i del que implica. Noteu que pot ser necessari ser autoritzats pels administradors de la xarxa per tal de fer això. <br /> No podras definir el teu enllaç i connectar-te a la xarxa fins que no hagiu afegit al menys una ràdio."
 
 #: guifi_radios.inc.php:300
 msgid "Firmware"
