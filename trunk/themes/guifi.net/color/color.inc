@@ -59,7 +59,7 @@ $info = array(
     'images/bg-navigation-item-hover.png'  => array(54, 37, 17, 12),
     'images/gradient-inner.png'            => array(646, 307, 112, 42),
 
-    'images/logo.png'                             => array(622, 51, 64, 73),
+    'logo.png'                             => array(622, 51, 64, 73),
     'screenshot.png'                       => array(0, 37, 400, 240),
   ),
 
