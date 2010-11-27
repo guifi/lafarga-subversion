@@ -59,8 +59,8 @@ $info = array(
     'images/bg-navigation-item-hover.png'  => array(54, 37, 17, 12),
     'images/gradient-inner.png'            => array(646, 307, 112, 42),
 
-    'logo.png'                             => array(622, 51, 64, 73),
-    'screenshot.png'                       => array(0, 37, 400, 240),
+    'images/logo.png'                             => array(622, 51, 64, 73),
+    'images/screenshot.png'                       => array(0, 37, 400, 240),
   ),
 
   // Reference color used for blending. Matches the base.png's colors.
