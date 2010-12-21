@@ -115,6 +115,12 @@ function guifi_cnml($cnmlid,$action = 'help') {
      echo $json;
      return;
      break;
+   case 'home':
+     $CNML=guifi_cnml_home($cnmlid);
+     drupal_set_header('Content-Type: application/xml; charset=utf-8');
+     echo $CNML->asXML();
+     return;
+     break;
   }
 
 
@@ -1352,5 +1358,93 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
    
    return $vjson;
 }
-// end growth_map ==================================== 
+// end growth_map ====================================
+
+function guifi_cnml_home($cnmlid){
+  if($cnmlid<0 or $cnmlid>0){
+    $vid=0;
+  }else{
+    $vid=$cnmlid;
+  }
+  $CNML = new SimpleXMLElement('<cnml></cnml>');
+  $CNML->addAttribute('version','0.1');
+  $CNML->addAttribute('server_id','1');
+  $CNML->addAttribute('server_url','http://guifi.net');
+  $CNML->addAttribute('generated',date('Ymd hi',time()));
+  switch ($vid){
+  case 0: //Home Avui
+    $oGC = new GeoCalc();
+    $btime = microtime(TRUE);
+    $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
+    $classXML = $CNML->addChild('total_working_nodes');
+    if ($record=db_fetch_object($result)){
+        $classXML->addAttribute('nodes',$record->num);
+    };
+
+    // link statistics
+    $dTotals = array();
+    $dTotals['dTotal'] = 0;
+    $dTotals['count'] = 0;
+    $qlinks = db_query('
+      SELECT
+      l1.id, n1.id nid1, n2.id nid2, l1.link_type, n1.lat lat1,
+      n1.lon lon1, n2.lat lat2, n2.lon lon2
+      FROM guifi_links l1
+      LEFT JOIN guifi_links l2 ON l1.id=l2.id
+      LEFT JOIN guifi_location n1 ON l1.nid=n1.id
+      LEFT JOIN guifi_location n2 ON l2.nid=n2.id
+    WHERE l1.nid != l2.nid AND l1.device_id != l2.device_id');
+    unset($listed);
+    while ($link = db_fetch_object($qlinks)) {
+      if (!isset($listed[$link->id]) )
+        $listed[$link->id] = $link;
+      else
+        continue;
+      $d =
+        round($oGC->EllipsoidDistance(
+          $link->lat1,
+          $link->lon1,
+          $link->lat2,
+          $link->lon2),
+          1);
+      if ($d < 100) {
+        $dTotals['dTotal'] += $d;
+        $dTotals['count'] ++;
+      }else
+        guifi_log(GUIFILOG_TRACE, sprintf('Probable DISTANCE error between nodes (%d and %d) %d kms.',
+          $link->nid1,
+          $link->nid2,
+          $d));
+    }
+    $classXML = $CNML->addChild('total_links');
+    $classXML->addAttribute('num',$dTotals['count']);
+    $classXML->addAttribute('kms',$dTotals['dTotal']);
+    
+    //add nodes last week
+    $afecha=getdate();
+    $tiempomax=mktime($afecha[hours],$afecha[minutes],$afecha[seconds],$afecha[mon],$afecha[mday],$afecha[year]);
+    $tiempomin=$tiempomax-604800;
+    $qnodes="select COUNT(*) as num from {guifi_location}
+      where status_flag!='Dropped'
+      and timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax;
+    $result=db_query($qnodes);
+    $classXML = $CNML->addChild('nodes_last_week');
+    if ($record=db_fetch_object($result)){
+      $classXML->addAttribute('total_nodes',$record->num);
+    }
+    $qnodes="select COUNT(*) as num from {guifi_location}
+      where status_flag='Working'
+      and timestamp_created>".$tiempomin." and timestamp_created<=".$tiempomax;
+    $result=db_query($qnodes);
+    if ($record=db_fetch_object($result)){
+      $classXML->addAttribute('working_nodes',$record->num);
+    }
+    $etime = microtime(TRUE);
+    $classXML = $CNML->addChild('control');
+    $classXML->addAttribute('in_seconds',number_format(($etime - $btime), 4));
+    break;
+  }
+  return $CNML;
+}
+
 ?>
