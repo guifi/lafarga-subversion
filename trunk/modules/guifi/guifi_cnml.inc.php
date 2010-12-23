@@ -1361,8 +1361,8 @@ function growth_map($plat1,$plon1,$plat2,$plon2){
 // end growth_map ====================================
 
 function guifi_cnml_home($cnmlid){
-  if($cnmlid<0 or $cnmlid>0){
-    $vid=0;
+  if($cnmlid==0){
+    $vid=1;
   }else{
     $vid=$cnmlid;
   }
@@ -1372,7 +1372,7 @@ function guifi_cnml_home($cnmlid){
   $CNML->addAttribute('server_url','http://guifi.net');
   $CNML->addAttribute('generated',date('Ymd hi',time()));
   switch ($vid){
-  case 0: //Home Avui
+  case 1: //Home Avui
     $oGC = new GeoCalc();
     $btime = microtime(TRUE);
     $result=db_query("select COUNT(*) as num from {guifi_location} where status_flag='Working'");
@@ -1442,6 +1442,21 @@ function guifi_cnml_home($cnmlid){
     $etime = microtime(TRUE);
     $classXML = $CNML->addChild('control');
     $classXML->addAttribute('in_seconds',number_format(($etime - $btime), 4));
+    break;
+  case 2: //Home services
+    $result=db_query("select service_type as service,COUNT(*) as num from guifi_services where status_flag='Working' group by service_type");
+    $classXML = $CNML->addChild('working_sevices');
+    $num_type_services=0;
+    $total_services=0;
+    while ($record=db_fetch_object($result)){
+      $num_type_services++;
+      $total_services += $record->num;
+      $classXML2 = $classXML->addChild('sevice');
+      $classXML2->addAttribute("type",$record->service);
+      $classXML2->addAttribute("total",$record->num);
+    };
+    $classXML->addAttribute("types",$num_type_services);
+    $classXML->addAttribute("total",$total_services);
     break;
   }
   return $CNML;
