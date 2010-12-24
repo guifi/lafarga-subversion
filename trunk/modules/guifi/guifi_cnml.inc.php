@@ -1444,20 +1444,44 @@ function guifi_cnml_home($cnmlid){
     $classXML->addAttribute('in_seconds',number_format(($etime - $btime), 4));
     break;
   case 2: //Home services
-    $result=db_query("select service_type as service,COUNT(*) as num from guifi_services where status_flag='Working' group by service_type");
-    $classXML = $CNML->addChild('working_sevices');
+    //$result=db_query("select service_type as service,COUNT(*) as num from guifi_services where status_flag='Working' group by service_type");
+    $result=db_query("select service_type as service,description as description,COUNT(*) as num from guifi_services as t1
+    inner join guifi_types as t2 on t2.type = 'service' and t1.service_type = t2.text
+    where status_flag='Working'
+    group by service_type");
+    $classXML = $CNML->addChild('working_services');
     $num_type_services=0;
     $total_services=0;
     while ($record=db_fetch_object($result)){
       $num_type_services++;
       $total_services += $record->num;
-      $classXML2 = $classXML->addChild('sevice');
+      $classXML2 = $classXML->addChild('service');
       $classXML2->addAttribute("type",$record->service);
+      $classXML2->addAttribute("description",t($record->description));
       $classXML2->addAttribute("total",$record->num);
     };
     $classXML->addAttribute("types",$num_type_services);
     $classXML->addAttribute("total",$total_services);
     break;
+  case 3: //Home budgets
+    $classXML = $CNML->addChild('general_open_budgets');
+    if (module_exists('budgets')) {
+      $today=getdate();
+      $qbudgets = db_query(
+        "SELECT b.id, b.expires " .
+        "FROM {budgets} b " .
+        "WHERE b.budget_status = 'Open' and b.zone_id = 3671 and b.expires >= " . $today[0] . " " . 
+        "ORDER BY b.id DESC");
+      while ($budget = db_fetch_object($qbudgets)) {
+        $b = node_load(array('nid' => $budget->id));
+        $classXML2 = $classXML->addChild('budget');
+        $classXML2->addAttribute("id",$budget->id);
+        $classXML2->addAttribute("title",$b->title);
+        $classXML2->addAttribute("amount",$b->total);
+        $classXML2->addAttribute("funded",$b->covered);
+        $classXML2->addAttribute("currency_symbol",$b->currency_symbol);
+      }
+    }
   }
   return $CNML;
 }
